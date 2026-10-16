@@ -48,26 +48,26 @@ const nextUrl = currentPage < totalPages ? `/news/page/${currentPage + 1}/` : nu
 ---
 
 <BaseLayout
-  title={`ข่าวสารและบทความ - หน้า ${currentPage}`}
-  description={`ติดตามข่าวสารและบทความเทคโนโลยีจาก Technosrc หน้าที่ ${currentPage}`}
+  title={`ข่าวสารและกิจกรรม - หน้า ${currentPage} | วิทยาลัยเทคโนโลยีศรีราชา`}
+  description={`ติดตามข่าวสารและกิจกรรมจากวิทยาลัยเทคโนโลยีศรีราชา หน้าที่ ${currentPage}`}
 >
   <div class="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center max-w-3xl mx-auto mb-16">
-      <span class="text-xs font-semibold text-sky-400 tracking-wider uppercase">บล็อก & ข่าวสาร</span>
+      <span class="text-xs font-semibold text-blue-400 tracking-wider uppercase">ข่าวสาร & ประกาศ</span>
       <h1 class="text-4xl sm:text-5xl font-extrabold text-white mt-3 tracking-tight">
-        ข่าวสารและบทความล่าสุด (หน้า {currentPage})
+        ข่าวสารและกิจกรรมล่าสุด (หน้า {currentPage})
       </h1>
-      <p class="mt-4 text-lg text-slate-300">
-        บทความและสาระน่ารู้เกี่ยวกับคลาวด์ สถาปัตยกรรมซอฟต์แวร์ และโซลูชันดิจิทัลสำหรับองค์กร
+      <p class="mt-4 text-base sm:text-lg text-slate-300">
+        ติดตามความเคลื่อนไหว กิจกรรมวิชาการ และข่าวประชาสัมพันธ์ของวิทยาลัยเทคโนโลยีศรีราชา
       </p>
 
       {categories.length > 0 && (
         <div class="mt-8 flex flex-wrap justify-center gap-2">
-          <a href="/news/" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-sky-500 text-white shadow-sm">
+          <a href="/news/" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-blue-600 text-white shadow-sm shadow-blue-700/30">
             ทั้งหมด ({totalPosts})
           </a>
           {categories.map((cat) => (
-            <span class="px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700/60">
+            <span class="px-3.5 py-1.5 rounded-full text-xs font-medium bg-blue-950/60 text-slate-300 border border-blue-800/60">
               {cat.name} ({cat.count})
             </span>
           ))}
@@ -85,7 +85,7 @@ const nextUrl = currentPage < totalPages ? `/news/page/${currentPage + 1}/` : nu
     <nav class="mt-16 flex items-center justify-center gap-2" aria-label="Pagination">
       <a
         href={prevUrl}
-        class="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-lg transition-colors inline-flex items-center gap-1"
+        class="px-4 py-2 text-sm font-medium text-slate-300 bg-blue-950/60 hover:bg-blue-900/60 border border-blue-800/60 rounded-lg transition-colors inline-flex items-center gap-1"
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
@@ -95,20 +95,20 @@ const nextUrl = currentPage < totalPages ? `/news/page/${currentPage + 1}/` : nu
 
       <a
         href="/news/"
-        class="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-lg transition-colors"
+        class="px-4 py-2 text-sm font-medium text-slate-300 bg-blue-950/60 hover:bg-blue-900/60 border border-blue-800/60 rounded-lg transition-colors"
       >
         1
       </a>
 
       {Array.from({ length: totalPages - 1 }, (_, i) => i + 2).map((pageNum) => (
         pageNum === currentPage ? (
-          <span class="px-4 py-2 text-sm font-semibold text-white bg-sky-500 rounded-lg shadow-sm">
+          <span class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg shadow-sm shadow-blue-700/30">
             {pageNum}
           </span>
         ) : (
           <a
             href={`/news/page/${pageNum}/`}
-            class="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-lg transition-colors"
+            class="px-4 py-2 text-sm font-medium text-slate-300 bg-blue-950/60 hover:bg-blue-900/60 border border-blue-800/60 rounded-lg transition-colors"
           >
             {pageNum}
           </a>
@@ -118,7 +118,7 @@ const nextUrl = currentPage < totalPages ? `/news/page/${currentPage + 1}/` : nu
       {nextUrl && (
         <a
           href={nextUrl}
-          class="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-lg transition-colors inline-flex items-center gap-1"
+          class="px-4 py-2 text-sm font-medium text-slate-300 bg-blue-950/60 hover:bg-blue-900/60 border border-blue-800/60 rounded-lg transition-colors inline-flex items-center gap-1"
         >
           <span>ถัดไป</span>
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

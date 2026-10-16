@@ -2,9 +2,11 @@
 
 @layer base {
   :root {
-    --color-primary: 14 165 233;
-    --color-primary-dark: 2 132 199;
-    --color-accent: 99 102 241;
+    /* Sriracha Technology College Brand Colors: Royal Blue & White */
+    --color-primary: 0 71 186;         /* #0047BA - Sriracha Royal Blue */
+    --color-primary-dark: 0 45 114;    /* #002D72 - Deep Navy Blue */
+    --color-primary-light: 37 99 235;  /* #2563EB - Vibrant Blue */
+    --color-accent: 59 130 246;        /* #3B82F6 - Sky/Light Blue Accent */
     --font-thai: 'Noto Sans Thai', system-ui, -apple-system, sans-serif;
   }
 
@@ -16,7 +18,7 @@
   }
 
   body {
-    background-color: #0b0f19;
+    background-color: #060b18;
     color: #e2e8f0;
     min-height: 100vh;
     display: flex;
@@ -41,7 +43,7 @@
 .wp-content h4,
 .wp-content h5,
 .wp-content h6 {
-  color: #f8fafc;
+  color: #ffffff;
   font-weight: 700;
   margin-top: 2.25rem;
   margin-bottom: 1rem;
@@ -50,12 +52,13 @@
 
 .wp-content h2 {
   font-size: 1.75rem;
-  border-bottom: 1px solid #1e293b;
+  border-bottom: 2px solid #1d4ed8;
   padding-bottom: 0.5rem;
 }
 
 .wp-content h3 {
   font-size: 1.4rem;
+  color: #93c5fd;
 }
 
 .wp-content ul,
@@ -77,12 +80,12 @@
 }
 
 .wp-content blockquote {
-  border-left: 4px solid #0284c7;
+  border-left: 4px solid #0047ba;
   padding-left: 1.25rem;
   font-style: italic;
-  color: #94a3b8;
+  color: #93c5fd;
   margin: 1.75rem 0;
-  background: rgba(2, 132, 199, 0.05);
+  background: rgba(0, 71, 186, 0.08);
   border-radius: 0 0.5rem 0.5rem 0;
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
@@ -93,18 +96,19 @@
   max-width: 100%;
   height: auto;
   margin: 2rem auto;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .wp-content a {
-  color: #38bdf8;
+  color: #60a5fa;
   text-decoration: underline;
   text-underline-offset: 4px;
   transition: color 0.2s ease;
 }
 
 .wp-content a:hover {
-  color: #7dd3fc;
+  color: #93c5fd;
 }
 
 .wp-content figure {
@@ -118,25 +122,25 @@
   margin-top: 0.5rem;
 }
 
-/* Glassmorphism helpers */
+/* Sriracha Glassmorphism & Theme Panels */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 20, 44, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(59, 130, 246, 0.16);
 }
 
 .glass-card {
-  background: rgba(30, 41, 59, 0.5);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(13, 27, 62, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(59, 130, 246, 0.14);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card:hover {
-  background: rgba(30, 41, 59, 0.85);
-  border-color: rgba(56, 189, 248, 0.3);
+  background: rgba(15, 33, 76, 0.88);
+  border-color: rgba(96, 165, 250, 0.45);
   transform: translateY(-4px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 20px 25px -5px rgba(0, 71, 186, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
 }

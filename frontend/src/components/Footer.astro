@@ -2,79 +2,89 @@
 const currentYear = new Date().getFullYear();
 ---
 
-<footer class="mt-auto border-t border-slate-800/80 bg-slate-950/80">
+<footer class="mt-auto border-t border-blue-900/60 bg-[#040814]">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
       <!-- Col 1: Brand -->
       <div class="space-y-4 md:col-span-1">
         <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center shadow-md">
-            <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
+          <div class="w-11 h-11 rounded-full overflow-hidden bg-white p-0.5 shadow-md shadow-blue-600/30 shrink-0 border border-blue-500/30">
+            <img
+              src="/logo/LOGO_SERIRACHA_COLOR_FULL.png"
+              alt="ตราสัญลักษณ์ วิทยาลัยเทคโนโลยีศรีราชา"
+              class="w-full h-full object-contain"
+              loading="lazy"
+            />
           </div>
-          <span class="text-xl font-bold tracking-tight text-white">TECHNOSRC</span>
+          <div>
+            <span class="text-base font-bold tracking-tight text-white block leading-tight">
+              วิทยาลัยเทคโนโลยีศรีราชา
+            </span>
+            <span class="text-[9px] uppercase tracking-wider text-blue-300 block">
+              Seriracha Technology College
+            </span>
+          </div>
         </div>
-        <p class="text-sm text-slate-400 leading-relaxed">
-          ผู้ให้บริการพัฒนาซอฟต์แวร์ โซลูชันคลาวด์ และที่ปรึกษาด้านดิจิทัลทรานส์ฟอร์เมชันสำหรับองค์กรชั้นนำ
+        <p class="text-xs text-slate-400 leading-relaxed">
+          มุ่งมั่นจัดการศึกษาด้านวิชาชีพและเทคโนโลยีที่ทันสมัย สร้างสรรค์บุคลากรคุณภาพเพื่อขับเคลื่อนอุตสาหกรรมและสังคม
         </p>
       </div>
 
       <!-- Col 2: Quick Links -->
       <div>
-        <h3 class="text-xs font-semibold text-slate-300 tracking-wider uppercase mb-4">เมนูลัด</h3>
+        <h3 class="text-xs font-semibold text-blue-300 tracking-wider uppercase mb-4">เมนูลัด</h3>
         <ul class="space-y-2.5 text-sm">
-          <li><a href="/" class="text-slate-400 hover:text-sky-400 transition-colors">หน้าแรก</a></li>
-          <li><a href="/about/" class="text-slate-400 hover:text-sky-400 transition-colors">เกี่ยวกับเรา</a></li>
-          <li><a href="/services/" class="text-slate-400 hover:text-sky-400 transition-colors">บริการของเรา</a></li>
-          <li><a href="/news/" class="text-slate-400 hover:text-sky-400 transition-colors">ข่าวสารและบทความ</a></li>
-          <li><a href="/contact/" class="text-slate-400 hover:text-sky-400 transition-colors">ติดต่อเรา</a></li>
+          <li><a href="/" class="text-slate-400 hover:text-blue-400 transition-colors">หน้าแรก</a></li>
+          <li><a href="/about/" class="text-slate-400 hover:text-blue-400 transition-colors">เกี่ยวกับวิทยาลัย</a></li>
+          <li><a href="/services/" class="text-slate-400 hover:text-blue-400 transition-colors">หลักสูตร & บริการ</a></li>
+          <li><a href="/news/" class="text-slate-400 hover:text-blue-400 transition-colors">ข่าวสารและกิจกรรม</a></li>
+          <li><a href="/contact/" class="text-slate-400 hover:text-blue-400 transition-colors">ติดต่อเรา</a></li>
         </ul>
       </div>
 
-      <!-- Col 3: Services -->
+      <!-- Col 3: Programs / Highlights -->
       <div>
-        <h3 class="text-xs font-semibold text-slate-300 tracking-wider uppercase mb-4">บริการ</h3>
+        <h3 class="text-xs font-semibold text-blue-300 tracking-wider uppercase mb-4">หลักสูตรการศึกษา</h3>
         <ul class="space-y-2.5 text-sm text-slate-400">
-          <li>Custom Web Application</li>
-          <li>Cloud & DevOps Solutions</li>
-          <li>Enterprise WordPress & Headless CMS</li>
-          <li>API Integration & Architecture</li>
+          <li>ประกาศนียบัตรวิชาชีพ (ปวช.)</li>
+          <li>ประกาศนียบัตรวิชาชีพชั้นสูง (ปวส.)</li>
+          <li>สาขาวิชาเทคโนโลยีสารสนเทศ</li>
+          <li>สาขาวิชาช่างอุตสาหกรรม & ดิจิทัล</li>
         </ul>
       </div>
 
-      <!-- Col 4: Contact info -->
+      <!-- Col 4: Contact info (From Logo) -->
       <div>
-        <h3 class="text-xs font-semibold text-slate-300 tracking-wider uppercase mb-4">ข้อมูลติดต่อ</h3>
+        <h3 class="text-xs font-semibold text-blue-300 tracking-wider uppercase mb-4">ข้อมูลติดต่อ</h3>
         <ul class="space-y-2.5 text-sm text-slate-400">
           <li class="flex items-center gap-2">
-            <svg class="w-4 h-4 text-sky-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
-            <span>contact@technosrc.com</span>
+            <span>contact@seriracha.ac.th</span>
           </li>
           <li class="flex items-center gap-2">
-            <svg class="w-4 h-4 text-sky-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
             </svg>
-            <span>02-123-4567</span>
+            <span>038-123-456</span>
           </li>
           <li class="flex items-start gap-2 pt-1">
-            <svg class="w-4 h-4 text-sky-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="w-4 h-4 text-blue-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            <span>กรุงเทพมหานคร, ประเทศไทย</span>
+            <span>ตำบลทุ่งสุขลา อำเภอศรีราชา จังหวัดชลบุรี</span>
           </li>
         </ul>
       </div>
     </div>
 
-    <div class="mt-12 pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-      <p>© {currentYear} Technosrc. สงวนลิขสิทธิ์ทุกประการ.</p>
+    <div class="mt-12 pt-8 border-t border-blue-950 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+      <p>© {currentYear} วิทยาลัยเทคโนโลยีศรีราชา. สงวนลิขสิทธิ์ทุกประการ.</p>
       <div class="flex items-center gap-6">
-        <a href="/privacy/" class="hover:text-slate-400 transition-colors">นโยบายความเป็นส่วนตัว</a>
-        <a href="/terms/" class="hover:text-slate-400 transition-colors">ข้อกำหนดการให้บริการ</a>
+        <a href="/privacy/" class="hover:text-blue-400 transition-colors">นโยบายความเป็นส่วนตัว</a>
+        <a href="/terms/" class="hover:text-blue-400 transition-colors">ข้อกำหนดการให้บริการ</a>
       </div>
     </div>
   </div>

@@ -12,9 +12,9 @@ export interface Props {
 
 const {
   title,
-  description = 'Technosrc - ผู้นำด้านนวัตกรรมดิจิทัล โซลูชันคลาวด์ และเทคโนโลยีสารสนเทศสำหรับองค์กร',
+  description = 'วิทยาลัยเทคโนโลยีศรีราชา (SERIRACHA TECHNOLOGY COLLEGE) มุ่งมั่นสู่ความเป็นเลิศด้านการศึกษา เทคโนโลยี และวิชาชีพมาตรฐานสากล',
   canonical,
-  image = '/favicon.svg',
+  image = '/logo/LOGO_SERIRACHA_COLOR_FULL.png',
   type = 'website',
   publishedTime,
   modifiedTime,
@@ -25,16 +25,22 @@ const siteUrl = (import.meta.env.PUBLIC_SITE_URL || 'https://example.com').repla
 const canonicalUrl = canonical || new URL(Astro.url.pathname, siteUrl).toString();
 const ogImageUrl = image.startsWith('http') ? image : `${siteUrl}${image.startsWith('/') ? '' : '/'}${image}`;
 
-const formattedTitle = title.includes('Technosrc') ? title : `${title} | Technosrc`;
+const formattedTitle = title.includes('วิทยาลัยเทคโนโลยีศรีราชา') ? title : `${title} | วิทยาลัยเทคโนโลยีศรีราชา`;
 
 // Structured Data
 const organizationSchema = {
   '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: 'Technosrc',
+  '@type': 'EducationalOrganization',
+  name: 'วิทยาลัยเทคโนโลยีศรีราชา (SERIRACHA TECHNOLOGY COLLEGE)',
   url: siteUrl,
-  logo: `${siteUrl}/favicon.svg`,
-  description: 'ผู้ให้บริการและที่ปรึกษาด้านนวัตกรรมดิจิทัลและเทคโนโลยีสารสนเทศ',
+  logo: `${siteUrl}/logo/LOGO_SERIRACHA_COLOR_FULL.png`,
+  description: 'สถาบันการศึกษาด้านวิชาชีพและเทคโนโลยี ตำบลทุ่งสุขลา อำเภอศรีราชา จังหวัดชลบุรี',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'ศรีราชา',
+    addressRegion: 'ชลบุรี',
+    addressCountry: 'TH',
+  },
 };
 
 const articleSchema =
@@ -59,7 +65,7 @@ const articleSchema =
 <!-- Global Metadata -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="icon" type="image/png" href="/logo/LOGO_SERIRACHA_COLOR_FULL.png" />
 <meta name="generator" content={Astro.generator} />
 
 <!-- Canonical -->
@@ -76,7 +82,7 @@ const articleSchema =
 <meta property="og:title" content={formattedTitle} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={ogImageUrl} />
-<meta property="og:site_name" content="Technosrc" />
+<meta property="og:site_name" content="วิทยาลัยเทคโนโลยีศรีราชา" />
 
 {type === 'article' && publishedTime && <meta property="article:published_time" content={publishedTime} />}
 {type === 'article' && modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
@@ -93,7 +99,7 @@ const articleSchema =
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link
-  href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap"
+  href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap"
   rel="stylesheet"
 />
 

@@ -7,9 +7,9 @@ const { currentPath = Astro.url.pathname } = Astro.props;
 
 const navLinks = [
   { href: '/', label: 'หน้าแรก' },
-  { href: '/about/', label: 'เกี่ยวกับเรา' },
-  { href: '/services/', label: 'บริการ' },
-  { href: '/news/', label: 'ข่าวสารและบทความ' },
+  { href: '/about/', label: 'เกี่ยวกับวิทยาลัย' },
+  { href: '/services/', label: 'หลักสูตร & บริการ' },
+  { href: '/news/', label: 'ข่าวสารและกิจกรรม' },
   { href: '/contact/', label: 'ติดต่อเรา' },
 ];
 
@@ -19,21 +19,26 @@ function isActive(href: string) {
 }
 ---
 
-<header class="sticky top-0 z-50 glass-panel border-b border-slate-800/80">
+<header class="sticky top-0 z-50 glass-panel border-b border-blue-900/60 shadow-lg shadow-blue-950/40">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-20">
-      <!-- Logo -->
-      <a href="/" class="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-sky-400 rounded-lg p-1">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20 group-hover:scale-105 transition-transform duration-300">
-          <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
+      <!-- Logo & Brand -->
+      <a href="/" class="flex items-center gap-3.5 group focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-lg p-1">
+        <div class="w-12 h-12 rounded-full overflow-hidden bg-white p-0.5 shadow-md shadow-blue-600/30 group-hover:scale-105 transition-transform duration-300 flex items-center justify-center shrink-0 border border-blue-500/30">
+          <img
+            src="/logo/LOGO_SERIRACHA_COLOR_FULL.png"
+            alt="ตราสัญลักษณ์ วิทยาลัยเทคโนโลยีศรีราชา"
+            class="w-full h-full object-contain"
+            loading="eager"
+          />
         </div>
         <div class="flex flex-col">
-          <span class="text-xl font-bold tracking-tight text-white group-hover:text-sky-400 transition-colors">
-            TECHNOSRC
+          <span class="text-base sm:text-lg font-bold tracking-tight text-white group-hover:text-blue-400 transition-colors leading-snug">
+            วิทยาลัยเทคโนโลยีศรีราชา
           </span>
-          <span class="text-[10px] uppercase tracking-widest text-sky-400/80 font-medium">Digital Innovation</span>
+          <span class="text-[10px] uppercase tracking-wider text-blue-300/80 font-medium">
+            SERIRACHA TECHNOLOGY COLLEGE
+          </span>
         </div>
       </a>
 
@@ -44,10 +49,10 @@ function isActive(href: string) {
           return (
             <a
               href={link.href}
-              class={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+              class={`px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                 active
-                  ? 'text-sky-400 bg-sky-500/10 font-semibold'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                  ? 'text-blue-400 bg-blue-600/15 font-semibold border border-blue-500/20'
+                  : 'text-slate-300 hover:text-white hover:bg-blue-900/30'
               }`}
             >
               {link.label}
@@ -60,9 +65,9 @@ function isActive(href: string) {
       <div class="hidden md:flex items-center gap-4">
         <a
           href="/contact/"
-          class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 rounded-lg shadow-lg shadow-sky-500/25 transition-all duration-200 hover:shadow-sky-500/40 hover:-translate-y-0.5"
+          class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 rounded-lg shadow-lg shadow-blue-700/30 transition-all duration-200 hover:shadow-blue-600/50 hover:-translate-y-0.5"
         >
-          ปรึกษาเรา
+          ติดต่อสอบถาม
         </a>
       </div>
 
@@ -71,7 +76,7 @@ function isActive(href: string) {
         <button
           id="mobile-menu-btn"
           type="button"
-          class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400"
+          class="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-blue-900/40 focus:outline-none focus:ring-2 focus:ring-blue-400"
           aria-label="Toggle navigation menu"
           aria-expanded="false"
         >
@@ -87,7 +92,7 @@ function isActive(href: string) {
   </div>
 
   <!-- Mobile Dropdown Menu -->
-  <div id="mobile-menu" class="hidden md:hidden px-4 pt-2 pb-6 space-y-2 border-t border-slate-800/80 bg-slate-900/95 backdrop-blur-xl">
+  <div id="mobile-menu" class="hidden md:hidden px-4 pt-2 pb-6 space-y-2 border-t border-blue-900/60 bg-slate-950/95 backdrop-blur-xl">
     {navLinks.map((link) => {
       const active = isActive(link.href);
       return (
@@ -95,8 +100,8 @@ function isActive(href: string) {
           href={link.href}
           class={`block px-4 py-3 rounded-lg text-base font-medium transition-colors ${
             active
-              ? 'text-sky-400 bg-sky-500/10 font-semibold'
-              : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+              ? 'text-blue-400 bg-blue-600/15 font-semibold'
+              : 'text-slate-300 hover:text-white hover:bg-blue-900/30'
           }`}
         >
           {link.label}
@@ -106,9 +111,9 @@ function isActive(href: string) {
     <div class="pt-4">
       <a
         href="/contact/"
-        class="block w-full text-center px-4 py-3 text-base font-medium text-white bg-gradient-to-r from-sky-500 to-indigo-600 rounded-lg shadow-md"
+        class="block w-full text-center px-4 py-3 text-base font-medium text-white bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 rounded-lg shadow-md"
       >
-        ปรึกษาเรา
+        ติดต่อสอบถาม
       </a>
     </div>
   </div>
