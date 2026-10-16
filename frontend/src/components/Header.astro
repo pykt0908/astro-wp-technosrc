@@ -5,78 +5,229 @@ interface Props {
 
 const { currentPath = Astro.url.pathname } = Astro.props;
 
-const navLinks = [
-  { href: '/', label: 'หน้าแรก' },
-  { href: '/about/', label: 'เกี่ยวกับวิทยาลัย' },
-  { href: '/services/', label: 'หลักสูตร & บริการ' },
-  { href: '/news/', label: 'ข่าวสารและกิจกรรม' },
-  { href: '/contact/', label: 'ติดต่อเรา' },
+interface SubItem {
+  label: string;
+  href: string;
+}
+
+interface NavItem {
+  label: string;
+  href: string;
+  icon: 'home' | 'info' | 'academic' | 'users' | 'student' | 'download' | 'mail';
+  children?: SubItem[];
+}
+
+const navItems: NavItem[] = [
+  {
+    label: 'หน้าแรก',
+    href: '/',
+    icon: 'home',
+  },
+  {
+    label: 'เกี่ยวกับเรา',
+    href: '/about/',
+    icon: 'info',
+    children: [
+      { label: 'ประวัติความเป็นมา', href: '/about/' },
+      { label: 'วิสัยทัศน์และพันธกิจ', href: '/about/#vision' },
+      { label: 'โครงสร้างการบริหาร', href: '/about/#structure' },
+    ],
+  },
+  {
+    label: 'หลักสูตร',
+    href: '/services/',
+    icon: 'academic',
+    children: [
+      { label: 'ระดับ ปวช.', href: '/services/#voc' },
+      { label: 'ระดับ ปวส.', href: '/services/#high' },
+      { label: 'ความร่วมมือทวิภาคี', href: '/services/#bilateral' },
+    ],
+  },
+  {
+    label: 'บุคลากร',
+    href: '/about/#staff',
+    icon: 'users',
+    children: [
+      { label: 'คณะผู้บริหาร', href: '/about/#executive' },
+      { label: 'คณาจารย์ประจำสาขา', href: '/about/#teachers' },
+      { label: 'บุคลากรสนับสนุน', href: '/about/#officers' },
+    ],
+  },
+  {
+    label: 'นักศึกษา',
+    href: '/news/',
+    icon: 'student',
+    children: [
+      { label: 'กิจกรรมและผลงานนักศึกษา', href: '/news/' },
+      { label: 'วินัยและระเบียบการแต่งกาย', href: '/about/#discipline' },
+      { label: 'งานแนะแนว & ทุนการศึกษา', href: '/contact/' },
+    ],
+  },
+  {
+    label: 'ดาวน์โหลด',
+    href: '/services/#download',
+    icon: 'download',
+  },
+  {
+    label: 'ติดต่อเรา',
+    href: '/contact/',
+    icon: 'mail',
+  },
 ];
 
-function isActive(href: string) {
-  if (href === '/') return currentPath === '/';
-  return currentPath.startsWith(href);
+function isItemActive(item: NavItem) {
+  if (item.href === '/') return currentPath === '/';
+  if (currentPath.startsWith(item.href)) return true;
+  if (item.children?.some((c) => currentPath === c.href || currentPath.startsWith(c.href))) return true;
+  return false;
 }
 ---
 
-<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-blue-100 shadow-sm transition-all duration-200">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-20">
-      <!-- Logo & Brand -->
-      <a href="/" class="flex items-center gap-3.5 group focus:outline-none focus:ring-2 focus:ring-blue-600 rounded-lg p-1">
-        <div class="w-12 h-12 rounded-full overflow-hidden group-hover:scale-105 transition-transform duration-300 flex items-center justify-center shrink-0">
+<!-- Floating Pill Header matching old website design -->
+<header class="sticky top-2 sm:top-4 z-50 px-3 sm:px-6 transition-all duration-300">
+  <div class="max-w-[1440px] mx-auto">
+    <div class="bg-white/95 backdrop-blur-md rounded-full shadow-lg shadow-slate-900/5 border border-slate-200/90 px-4 sm:px-6 py-2.5 flex items-center justify-between gap-2">
+      
+      <!-- Brand & Logo -->
+      <a href="/" class="flex items-center gap-2.5 sm:gap-3 group focus:outline-none shrink-0">
+        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
           <img
             src="/logo/LOGO_SERIRACHA_COLOR_FULL.png"
-            alt="ตราสัญลักษณ์ วิทยาลัยเทคโนโลยีศรีราชา"
+            alt="วิทยาลัยเทคโนโลยีศรีราชา"
             class="w-full h-full object-contain"
             loading="eager"
           />
         </div>
         <div class="flex flex-col">
-          <span class="text-base sm:text-lg font-bold tracking-tight text-[#003893] group-hover:text-[#0047ba] transition-colors leading-snug">
+          <span class="text-xs sm:text-sm lg:text-base font-extrabold text-[#0066CC] tracking-tight group-hover:text-[#0047BA] transition-colors leading-tight">
             วิทยาลัยเทคโนโลยีศรีราชา
           </span>
-          <span class="text-[10px] uppercase tracking-wider text-blue-600 font-semibold">
-            SERIRACHA TECHNOLOGY COLLEGE
+          <span class="text-[8px] sm:text-[9px] uppercase tracking-wider text-slate-500 font-semibold leading-tight">
+            SRIRACHA TECHNOLOGICAL COLLEGE
           </span>
         </div>
       </a>
 
-      <!-- Desktop Nav -->
-      <nav class="hidden md:flex items-center gap-1">
-        {navLinks.map((link) => {
-          const active = isActive(link.href);
+      <!-- Desktop Nav with Icons & Dropdowns -->
+      <nav class="hidden xl:flex items-center gap-1 2xl:gap-1.5 text-xs lg:text-[13px] font-medium text-slate-700">
+        {navItems.map((item) => {
+          const active = isItemActive(item);
+          const hasChildren = item.children && item.children.length > 0;
+
           return (
-            <a
-              href={link.href}
-              class={`px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                active
-                  ? 'text-[#0047ba] bg-blue-50 font-bold border border-blue-200/80 shadow-xs'
-                  : 'text-slate-700 hover:text-[#0047ba] hover:bg-blue-50/60'
-              }`}
-            >
-              {link.label}
-            </a>
+            <div class="relative group/menu">
+              <a
+                href={item.href}
+                class={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full transition-colors whitespace-nowrap ${
+                  active
+                    ? 'text-[#0088FF] font-bold bg-blue-50/70'
+                    : 'text-slate-700 hover:text-[#0088FF] hover:bg-slate-50'
+                }`}
+              >
+                <!-- Icon -->
+                {item.icon === 'home' && (
+                  <svg class={`w-4 h-4 ${active ? 'text-[#0088FF]' : 'text-slate-500 group-hover/menu:text-[#0088FF]'}`} fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                  </svg>
+                )}
+                {item.icon === 'info' && (
+                  <svg class={`w-4 h-4 ${active ? 'text-[#0088FF]' : 'text-slate-500 group-hover/menu:text-[#0088FF]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                )}
+                {item.icon === 'academic' && (
+                  <svg class={`w-4 h-4 ${active ? 'text-[#0088FF]' : 'text-slate-500 group-hover/menu:text-[#0088FF]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                  </svg>
+                )}
+                {item.icon === 'users' && (
+                  <svg class={`w-4 h-4 ${active ? 'text-[#0088FF]' : 'text-slate-500 group-hover/menu:text-[#0088FF]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                )}
+                {item.icon === 'student' && (
+                  <svg class={`w-4 h-4 ${active ? 'text-[#0088FF]' : 'text-slate-500 group-hover/menu:text-[#0088FF]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                )}
+                {item.icon === 'download' && (
+                  <svg class={`w-4 h-4 ${active ? 'text-[#0088FF]' : 'text-slate-500 group-hover/menu:text-[#0088FF]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                  </svg>
+                )}
+                {item.icon === 'mail' && (
+                  <svg class={`w-4 h-4 ${active ? 'text-[#0088FF]' : 'text-slate-500 group-hover/menu:text-[#0088FF]'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                )}
+
+                <span>{item.label}</span>
+
+                {hasChildren && (
+                  <svg class="w-3.5 h-3.5 text-slate-400 group-hover/menu:text-[#0088FF] transition-transform duration-200 group-hover/menu:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                )}
+              </a>
+
+              <!-- Dropdown sub-menu -->
+              {hasChildren && (
+                <div class="absolute left-0 top-full pt-2 opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-200 pointer-events-none group-hover/menu:pointer-events-auto">
+                  <div class="w-52 bg-white rounded-2xl shadow-xl shadow-slate-900/10 border border-slate-100 p-2 space-y-1">
+                    {item.children?.map((sub) => (
+                      <a
+                        href={sub.href}
+                        class="block px-3.5 py-2 text-xs font-medium text-slate-700 hover:text-[#0088FF] hover:bg-blue-50/70 rounded-xl transition-colors"
+                      >
+                        {sub.label}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           );
         })}
       </nav>
 
-      <!-- CTA Button -->
-      <div class="hidden md:flex items-center gap-4">
+      <!-- Right Controls: Moon Toggle + Blue 'สมัครเรียน' Button -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Moon Icon Button (As in old web) -->
+        <button
+          type="button"
+          aria-label="Toggle Dark Mode"
+          title="สลับโหมดการแสดงผล"
+          class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-50 hover:bg-blue-50 border border-slate-200/80 flex items-center justify-center text-sky-500 hover:text-sky-600 transition-colors shadow-xs"
+        >
+          <svg class="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 20 20">
+            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+          </svg>
+        </button>
+
+        <!-- CTA 'สมัครเรียน' Button with Left ID Icon and Right Apps Icon -->
         <a
           href="/contact/"
-          class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-white bg-[#0047ba] hover:bg-[#003893] rounded-lg shadow-md shadow-blue-600/25 transition-all duration-200 hover:shadow-blue-600/40 hover:-translate-y-0.5"
+          class="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-[#0088FF] hover:bg-[#0077EE] active:bg-[#0066DD] text-white text-xs sm:text-sm font-bold shadow-md shadow-blue-500/25 transition-all duration-200 hover:shadow-blue-500/40 hover:-translate-y-0.5"
         >
-          ติดต่อสอบถาม
-        </a>
-      </div>
+          <!-- Left Icon: Document / Card -->
+          <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
 
-      <!-- Mobile Hamburger Button -->
-      <div class="flex md:hidden">
+          <span>สมัครเรียน</span>
+
+          <!-- Right Icon: 4-square App Grid -->
+          <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+        </a>
+
+        <!-- Mobile Menu Toggle Button (shown on tablet & mobile) -->
         <button
           id="mobile-menu-btn"
           type="button"
-          class="p-2 rounded-lg text-slate-700 hover:text-[#0047ba] hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          class="xl:hidden p-2 rounded-xl text-slate-700 hover:text-[#0088FF] hover:bg-slate-50 focus:outline-none"
           aria-label="Toggle navigation menu"
           aria-expanded="false"
         >
@@ -88,33 +239,42 @@ function isActive(href: string) {
           </svg>
         </button>
       </div>
-    </div>
-  </div>
 
-  <!-- Mobile Dropdown Menu -->
-  <div id="mobile-menu" class="hidden md:hidden px-4 pt-2 pb-6 space-y-2 border-t border-blue-100 bg-white shadow-lg">
-    {navLinks.map((link) => {
-      const active = isActive(link.href);
-      return (
-        <a
-          href={link.href}
-          class={`block px-4 py-3 rounded-lg text-base font-medium transition-colors ${
-            active
-              ? 'text-[#0047ba] bg-blue-50 font-bold border border-blue-200'
-              : 'text-slate-700 hover:text-[#0047ba] hover:bg-blue-50/60'
-          }`}
-        >
-          {link.label}
-        </a>
-      );
-    })}
-    <div class="pt-4">
-      <a
-        href="/contact/"
-        class="block w-full text-center px-4 py-3 text-base font-semibold text-white bg-[#0047ba] hover:bg-[#003893] rounded-lg shadow-md"
-      >
-        ติดต่อสอบถาม
-      </a>
+    </div>
+
+    <!-- Mobile Dropdown Menu -->
+    <div id="mobile-menu" class="hidden xl:hidden mt-2 bg-white rounded-3xl shadow-xl border border-slate-200/90 p-4 space-y-2">
+      {navItems.map((item) => {
+        const active = isItemActive(item);
+        const hasChildren = item.children && item.children.length > 0;
+
+        return (
+          <div class="space-y-1">
+            <a
+              href={item.href}
+              class={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                active
+                  ? 'text-[#0088FF] bg-blue-50'
+                  : 'text-slate-700 hover:text-[#0088FF] hover:bg-slate-50'
+              }`}
+            >
+              <span>{item.label}</span>
+            </a>
+            {hasChildren && (
+              <div class="pl-6 space-y-1">
+                {item.children?.map((sub) => (
+                  <a
+                    href={sub.href}
+                    class="block px-3 py-1.5 text-xs text-slate-600 hover:text-[#0088FF] rounded-lg"
+                  >
+                    • {sub.label}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   </div>
 </header>
