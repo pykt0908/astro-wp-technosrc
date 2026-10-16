@@ -40,7 +40,7 @@ const fallbackCover = 'https://images.unsplash.com/photo-1523240795612-9a054b0db
   </a>
 
   <!-- Content -->
-  <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+  <div class="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-3 sm:space-y-4">
     <div class="space-y-2">
       <div class="flex items-center gap-2 text-xs text-slate-500 font-medium">
         <svg class="w-4 h-4 text-[#0047BA]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -49,7 +49,7 @@ const fallbackCover = 'https://images.unsplash.com/photo-1523240795612-9a054b0db
         <time datetime={post.publishedAt}>{formattedDate}</time>
       </div>
 
-      <h3 class="text-lg font-bold text-slate-900 group-hover:text-[#0047BA] transition-colors line-clamp-2 leading-snug">
+      <h3 class="text-base sm:text-lg font-bold text-slate-900 group-hover:text-[#0047BA] transition-colors line-clamp-2 leading-snug">
         <a href={`/news/${post.slug}/`} class="focus:outline-none focus:underline">
           {post.titlePlain}
         </a>

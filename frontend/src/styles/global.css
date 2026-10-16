@@ -145,12 +145,34 @@
   border: 1px solid #e2e8f0;
 }
 
+.wp-content img,
+.wp-content iframe,
+.wp-content video {
+  max-width: 100%;
+  height: auto;
+}
+
+.wp-content table {
+  width: 100%;
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.wp-content pre,
+.wp-content code {
+  word-break: break-word;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
 .wp-content a {
   color: #0047ba;
   text-decoration: underline;
   text-underline-offset: 4px;
   font-weight: 500;
   transition: color 0.2s ease;
+  word-break: break-word;
 }
 
 .wp-content a:hover {
@@ -159,6 +181,7 @@
 
 .wp-content figure {
   margin: 2rem 0;
+  max-width: 100%;
 }
 
 .wp-content figcaption {

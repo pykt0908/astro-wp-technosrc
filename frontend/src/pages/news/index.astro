@@ -12,27 +12,27 @@ const categories = await getCategories();
   title="ข่าวสารและกิจกรรม - วิทยาลัยเทคโนโลยีศรีราชา"
   description="ติดตามข่าวสาร กิจกรรม และประกาศสำคัญจากวิทยาลัยเทคโนโลยีศรีราชา ชลบุรี"
 >
-  <div class="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="py-10 sm:py-16 lg:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Header -->
-    <div class="text-center max-w-3xl mx-auto mb-16">
+    <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
       <span class="inline-block px-3 py-1 rounded-full bg-blue-100 text-[#003893] text-xs font-semibold tracking-wider uppercase mb-3">
         ข่าวสาร & ประกาศ
       </span>
-      <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 mt-2 tracking-tight">
+      <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 mt-2 tracking-tight">
         ข่าวสารและกิจกรรมล่าสุด
       </h1>
-      <p class="mt-4 text-base sm:text-lg text-slate-600">
+      <p class="mt-4 text-sm sm:text-base text-slate-600">
         ติดตามความเคลื่อนไหว กิจกรรมวิชาการ และข่าวประชาสัมพันธ์ของวิทยาลัยเทคโนโลยีศรีราชา
       </p>
 
       <!-- Category Filter Pills -->
       {categories.length > 0 && (
-        <div class="mt-8 flex flex-wrap justify-center gap-2">
-          <span class="px-4 py-1.5 rounded-full text-xs font-bold bg-[#0047BA] text-white shadow-sm">
+        <div class="mt-6 sm:mt-8 flex flex-wrap justify-center gap-2">
+          <span class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#0047BA] text-white shadow-sm">
             ทั้งหมด ({totalPosts})
           </span>
           {categories.map((cat) => (
-            <span class="px-4 py-1.5 rounded-full text-xs font-medium bg-white text-slate-700 border border-slate-200 shadow-xs">
+            <span class="px-3.5 py-1.5 rounded-full text-xs font-medium bg-white text-slate-700 border border-slate-200 shadow-xs">
               {cat.name} ({cat.count})
             </span>
           ))}
@@ -42,7 +42,7 @@ const categories = await getCategories();
 
     <!-- Posts Grid -->
     {posts.length > 0 ? (
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
         {posts.map((post) => (
           <NewsCard post={post} />
         ))}
