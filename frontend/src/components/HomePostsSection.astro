@@ -124,16 +124,16 @@ const post5 = serializedPosts[5] || null;
     <div id="posts-main-container" class:list={['transition-opacity duration-200', serializedPosts.length === 0 ? 'hidden' : '']}>
       <!-- Top Row: Featured Card (Left) + 2 Stacked Cards (Right) -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-stretch">
-        <!-- Big Left Featured Card (Slot 0: 1:1 aspect-square for 900x900, author and read more) -->
+        <!-- Big Left Featured Card (Slot 0: Clean full image card down to footer, zero white gap) -->
         <div
           id="bento-slot-0"
           class:list={['bento-slot lg:col-span-7 xl:col-span-7 flex flex-col', !post0 ? 'hidden' : '']}
         >
           <article class="bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200/90 shadow-xs hover:shadow-lg hover:border-blue-200 transition-all duration-300 flex flex-col h-full group">
-            <!-- Thumbnail (1:1 aspect-square: perfect fit for 900x900 square images with zero crop) -->
+            <!-- Thumbnail (fills card cleanly down to footer with zero awkward gap) -->
             <a
               href={post0 ? `/news/${post0.slug}/` : '#'}
-              class="bento-link relative block aspect-square w-full overflow-hidden bg-slate-100 focus:outline-none"
+              class="bento-link relative block w-full flex-1 min-h-[320px] sm:min-h-[380px] lg:min-h-[420px] overflow-hidden bg-slate-100 focus:outline-none"
             >
               <img
                 src={post0?.coverUrl || fallbackImage}
@@ -149,7 +149,7 @@ const post5 = serializedPosts[5] || null;
             </a>
 
             <!-- Footer: Author + Read More -->
-            <div class="p-3.5 sm:p-4 bg-white border-t border-slate-100 flex items-center justify-between gap-3 mt-auto">
+            <div class="p-3.5 sm:p-4 bg-white border-t border-slate-100 flex items-center justify-between gap-3 shrink-0">
               <div class="flex items-center gap-2">
                 <img
                   src={post0?.authorAvatar || defaultAvatar}
@@ -186,10 +186,10 @@ const post5 = serializedPosts[5] || null;
             class:list={['bento-slot flex-1 flex flex-col', !post1 ? 'hidden' : '']}
           >
             <article class="bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200/90 shadow-xs hover:shadow-lg hover:border-blue-200 transition-all duration-300 flex flex-col h-full group">
-              <!-- Thumbnail (balanced ~54% height on desktop so detail area is proportionate) -->
+              <!-- Thumbnail (Consistent fixed height matching Slot 2) -->
               <a
                 href={post1 ? `/news/${post1.slug}/` : '#'}
-                class="bento-link relative block aspect-[16/10] sm:aspect-[16/9] lg:aspect-auto lg:h-[54%] lg:min-h-[175px] overflow-hidden bg-slate-100 focus:outline-none"
+                class="bento-link relative block w-full h-[150px] sm:h-[165px] lg:h-[155px] xl:h-[170px] shrink-0 overflow-hidden bg-slate-100 focus:outline-none"
               >
                 <img
                   src={post1?.coverUrl || fallbackImage}
@@ -204,7 +204,7 @@ const post5 = serializedPosts[5] || null;
               </a>
 
               <!-- Card Body -->
-              <div class="p-3 sm:p-3.5 lg:p-3 flex-1 flex flex-col justify-between gap-1.5">
+              <div class="p-3 sm:p-3.5 flex-1 flex flex-col justify-between gap-1.5 min-h-0">
                 <div>
                   <!-- Meta Date & Views -->
                   <div class="flex items-center gap-2.5 text-[11px] text-slate-400 mb-1">
@@ -230,14 +230,14 @@ const post5 = serializedPosts[5] || null;
                     </a>
                   </h4>
 
-                  <!-- Excerpt (2 lines to fill detail area naturally) -->
+                  <!-- Excerpt (2 lines) -->
                   <p class="bento-excerpt text-[11px] text-slate-500 line-clamp-2 mt-0.5 leading-relaxed">
                     {post1?.excerpt || ''}
                   </p>
                 </div>
 
                 <!-- Footer: Author + Read More -->
-                <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+                <div class="pt-2 border-t border-slate-100 flex items-center justify-between shrink-0">
                   <div class="flex items-center gap-1.5">
                     <img
                       src={post1?.authorAvatar || defaultAvatar}
@@ -270,10 +270,10 @@ const post5 = serializedPosts[5] || null;
             class:list={['bento-slot flex-1 flex flex-col', !post2 ? 'hidden' : '']}
           >
             <article class="bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200/90 shadow-xs hover:shadow-lg hover:border-blue-200 transition-all duration-300 flex flex-col h-full group">
-              <!-- Thumbnail (balanced ~54% height on desktop so detail area is proportionate) -->
+              <!-- Thumbnail (Consistent fixed height matching Slot 1) -->
               <a
                 href={post2 ? `/news/${post2.slug}/` : '#'}
-                class="bento-link relative block aspect-[16/10] sm:aspect-[16/9] lg:aspect-auto lg:h-[54%] lg:min-h-[175px] overflow-hidden bg-slate-100 focus:outline-none"
+                class="bento-link relative block w-full h-[150px] sm:h-[165px] lg:h-[155px] xl:h-[170px] shrink-0 overflow-hidden bg-slate-100 focus:outline-none"
               >
                 <img
                   src={post2?.coverUrl || fallbackImage}
@@ -288,7 +288,7 @@ const post5 = serializedPosts[5] || null;
               </a>
 
               <!-- Card Body -->
-              <div class="p-3 sm:p-3.5 lg:p-3 flex-1 flex flex-col justify-between gap-1.5">
+              <div class="p-3 sm:p-3.5 flex-1 flex flex-col justify-between gap-1.5 min-h-0">
                 <div>
                   <!-- Meta Date & Views -->
                   <div class="flex items-center gap-2.5 text-[11px] text-slate-400 mb-1">
@@ -314,14 +314,14 @@ const post5 = serializedPosts[5] || null;
                     </a>
                   </h4>
 
-                  <!-- Excerpt (2 lines to fill detail area naturally) -->
+                  <!-- Excerpt (2 lines) -->
                   <p class="bento-excerpt text-[11px] text-slate-500 line-clamp-2 mt-0.5 leading-relaxed">
                     {post2?.excerpt || ''}
                   </p>
                 </div>
 
                 <!-- Footer: Author + Read More -->
-                <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+                <div class="pt-2 border-t border-slate-100 flex items-center justify-between shrink-0">
                   <div class="flex items-center gap-1.5">
                     <img
                       src={post2?.authorAvatar || defaultAvatar}
