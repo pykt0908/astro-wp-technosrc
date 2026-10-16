@@ -10,14 +10,16 @@ import {
   getCategories,
   getCollegeEvents,
   getCollegeEventCategories,
+  getCollegeAcademicYears,
 } from '../lib/wordpress';
 
-const [banners, postsData, categories, collegeEvents, eventCategories] = await Promise.all([
+const [banners, postsData, categories, collegeEvents, eventCategories, academicYears] = await Promise.all([
   getBanners(),
   getPublishedPosts(1, 20),
   getCategories(),
   getCollegeEvents(),
   getCollegeEventCategories(),
+  getCollegeAcademicYears(),
 ]);
 
 const posts = postsData.posts;
@@ -30,6 +32,6 @@ const posts = postsData.posts;
   <HomeCarousel banners={banners} />
   <HomeIntroSection />
   <HomePostsSection posts={posts} categories={categories} />
-  <HomeCalendarSection events={collegeEvents} categories={eventCategories} />
+  <HomeCalendarSection events={collegeEvents} categories={eventCategories} academicYears={academicYears} />
 </BaseLayout>
 

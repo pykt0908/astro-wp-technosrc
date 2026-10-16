@@ -357,9 +357,10 @@ class Project_Core_REST_API {
      * Get college events formatted for frontend
      */
     public function get_events(WP_REST_Request $request) {
-        $category = sanitize_text_field($request->get_param('category'));
-        $per_page = absint($request->get_param('per_page')) ?: 50;
-        $page     = absint($request->get_param('page')) ?: 1;
+        $category      = sanitize_text_field($request->get_param('category'));
+        $academic_year = sanitize_text_field($request->get_param('academic_year'));
+        $per_page      = absint($request->get_param('per_page')) ?: 50;
+        $page          = absint($request->get_param('page')) ?: 1;
 
         $query_args = array(
             'post_type'      => 'college_event',
@@ -377,6 +378,16 @@ class Project_Core_REST_API {
                     'taxonomy' => 'event_category',
                     'field'    => is_numeric($category) ? 'term_id' : 'slug',
                     'terms'    => $category,
+                ),
+            );
+        }
+
+        if (!empty($academic_year) && $academic_year !== 'all') {
+            $query_args['meta_query'] = array(
+                array(
+                    'key'     => 'academic_year',
+                    'value'   => $academic_year,
+                    'compare' => '=',
                 ),
             );
         }
@@ -416,12 +427,26 @@ class Project_Core_REST_API {
                     $thumb_url = null;
                 }
 
+                $ay = (string) get_post_meta($id, 'academic_year', true);
+                if (empty($ay)) {
+                    $s_date = (string) get_post_meta($id, 'event_start_date', true);
+                    if (!empty($s_date)) {
+                        $p = explode('-', $s_date);
+                        $y = (int) $p[0];
+                        $m = isset($p[1]) ? (int) $p[1] : 6;
+                        $ay = (string) ((($m < 5) ? ($y - 1) : $y) + 543);
+                    } else {
+                        $ay = '2569';
+                    }
+                }
+
                 $events[] = array(
                     'id'             => $id,
                     'title'          => html_entity_decode(get_the_title()),
                     'slug'           => get_post_field('post_name', $id),
                     'content'        => apply_filters('the_content', get_the_content()),
                     'excerpt'        => wp_strip_all_tags(get_the_excerpt()),
+                    'academic_year'  => $ay,
                     'start_date'     => (string) get_post_meta($id, 'event_start_date', true),
                     'end_date'       => (string) get_post_meta($id, 'event_end_date', true),
                     'time'           => (string) get_post_meta($id, 'event_time', true),
@@ -438,11 +463,19 @@ class Project_Core_REST_API {
             wp_reset_postdata();
         }
 
+        global $wpdb;
+        $available_years = $wpdb->get_col("SELECT DISTINCT meta_value FROM {$wpdb->postmeta} WHERE meta_key = 'academic_year' AND meta_value != '' ORDER BY meta_value DESC");
+        if (empty($available_years)) {
+            $available_years = array('2569');
+        }
+
         return rest_ensure_response(array(
-            'events'      => $events,
-            'totalEvents' => (int) $query->found_posts,
-            'totalPages'  => (int) $query->max_num_pages,
-            'page'        => $page,
+            'events'         => $events,
+            'academicYears'  => $available_years,
+            'currentYear'    => !empty($available_years) ? $available_years[0] : '2569',
+            'totalEvents'    => (int) $query->found_posts,
+            'totalPages'     => (int) $query->max_num_pages,
+            'page'           => $page,
         ));
     }
 

@@ -1,0 +1,664 @@
+---
+// src/pages/calendar/print.astro - Official Printable Academic Calendar & PDF Export
+import { getCollegeEvents, getCollegeAcademicYears } from '../../lib/wordpress';
+
+// Month names in Thai
+const THAI_MONTHS_FULL = [
+  'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+  'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+];
+
+const THAI_MONTHS_SHORT = [
+  'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+  'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'
+];
+
+function formatThaiDateFull(startDateStr: string, endDateStr?: string): string {
+  if (!startDateStr) return '-';
+  const sParts = startDateStr.split('-');
+  const sYear = parseInt(sParts[0], 10) + 543;
+  const sMonth = parseInt(sParts[1], 10) - 1;
+  const sDay = parseInt(sParts[2], 10);
+
+  if (endDateStr && endDateStr !== startDateStr) {
+    const eParts = endDateStr.split('-');
+    const eYear = parseInt(eParts[0], 10) + 543;
+    const eMonth = parseInt(eParts[1], 10) - 1;
+    const eDay = parseInt(eParts[2], 10);
+
+    if (sMonth === eMonth && sYear === eYear) {
+      return `${sDay} - ${eDay} ${THAI_MONTHS_FULL[sMonth]} ${sYear}`;
+    } else {
+      return `${sDay} ${THAI_MONTHS_SHORT[sMonth]} ${sYear} - ${eDay} ${THAI_MONTHS_SHORT[eMonth]} ${eYear}`;
+    }
+  }
+
+  return `${sDay} ${THAI_MONTHS_FULL[sMonth]} ${sYear}`;
+}
+
+const [allEvents, rawAcademicYears] = await Promise.all([
+  getCollegeEvents(),
+  getCollegeAcademicYears(),
+]);
+
+// Determine selected academic year from query param
+const url = new URL(Astro.request.url);
+const paramYear = url.searchParams.get('year');
+const autoPrint = url.searchParams.get('auto') === '1' || url.searchParams.get('auto') === 'true';
+
+// Available academic years
+const availableAcademicYears = Array.from(
+  new Set([
+    ...rawAcademicYears,
+    ...allEvents.map((e) => e.academicYear).filter(Boolean),
+    '2569',
+  ])
+).sort((a, b) => b.localeCompare(a));
+
+const selectedYear = paramYear && availableAcademicYears.includes(paramYear)
+  ? paramYear
+  : (availableAcademicYears[0] || '2569');
+
+// Filter events for the selected academic year and sort chronologically
+const yearEvents = allEvents
+  .filter((ev) => ev.academicYear === selectedYear)
+  .sort((a, b) => (a.startDate || '').localeCompare(b.startDate || ''));
+
+// Current print date in Thai
+const now = new Date();
+const printDateStr = `${now.getDate()} ${THAI_MONTHS_FULL[now.getMonth()]} ${now.getFullYear() + 543}`;
+---
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ปฏิทินการศึกษาและกิจกรรม ประจำปีการศึกษา {selectedYear} - วิทยาลัยเทคโนโลยีศรีราชา</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --primary: #0047BA;
+      --primary-dark: #003080;
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --slate-600: #475569;
+      --slate-200: #e2e8f0;
+      --slate-100: #f1f5f9;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Prompt', 'Sarabun', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Web Preview Controls Header */
+    .web-control-bar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 12px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .web-control-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+    }
+
+    .web-control-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: none;
+    }
+
+    .btn-print {
+      background: #0047BA;
+      color: #ffffff;
+    }
+
+    .btn-print:hover {
+      background: #0056e0;
+      box-shadow: 0 4px 12px rgba(0, 71, 186, 0.4);
+    }
+
+    .btn-back {
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+    }
+
+    .btn-back:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    .year-select-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .year-select {
+      background: #1e293b;
+      color: #ffffff;
+      border: 1px solid #334155;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .year-select:focus {
+      border-color: #0047BA;
+    }
+
+    /* Document Sheet Wrapper (A4 simulation on screen) */
+    .document-page-wrap {
+      max-width: 900px;
+      margin: 32px auto;
+      background: #ffffff;
+      padding: 40px 48px;
+      border-radius: 8px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e2e8f0;
+    }
+
+    /* Official Letterhead Header */
+    .doc-header {
+      border-bottom: 2.5px solid #0047BA;
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .doc-logo {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: #0047BA;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 24px;
+      box-shadow: 0 4px 10px rgba(0, 71, 186, 0.25);
+      flex-shrink: 0;
+    }
+
+    .doc-header-text {
+      flex: 1;
+    }
+
+    .doc-college-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+    }
+
+    .doc-college-en {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0047BA;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .doc-calendar-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 6px;
+    }
+
+    .doc-sub-ministry {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    /* Info Meta Box */
+    .doc-meta-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 16px;
+      margin-bottom: 24px;
+      font-size: 12.5px;
+      color: #475569;
+    }
+
+    .doc-meta-bar strong {
+      color: #0f172a;
+    }
+
+    /* Formal Table */
+    .calendar-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-bottom: 28px;
+    }
+
+    .calendar-table th {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      font-weight: 700;
+      padding: 10px 12px;
+      text-align: left;
+      border: 1px solid #cbd5e1;
+      white-space: nowrap;
+    }
+
+    .calendar-table td {
+      padding: 10px 12px;
+      border: 1px solid #e2e8f0;
+      vertical-align: top;
+      color: #334155;
+    }
+
+    .calendar-table tr:nth-child(even) td {
+      background-color: #fafbfc;
+    }
+
+    .col-no {
+      width: 38px;
+      text-align: center;
+      font-weight: 700;
+      color: #64748b;
+    }
+
+    .col-date {
+      width: 155px;
+      white-space: nowrap;
+      font-weight: 600;
+      color: #0047BA;
+    }
+
+    .col-title {
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .col-title .event-excerpt {
+      display: block;
+      font-size: 11.5px;
+      color: #64748b;
+      font-weight: 400;
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    .col-cat {
+      width: 125px;
+      white-space: nowrap;
+    }
+
+    .col-loc {
+      width: 140px;
+      font-size: 12px;
+    }
+
+    .badge-category {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: #334155;
+    }
+
+    .col-time {
+      width: 100px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .featured-star {
+      color: #d97706;
+      font-weight: 800;
+      margin-right: 4px;
+    }
+
+    /* Official Sign-off and Footer */
+    .doc-footer-sign {
+      margin-top: 36px;
+      padding-top: 20px;
+      border-top: 1px dashed #cbd5e1;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .doc-sign-box {
+      text-align: center;
+      width: 240px;
+    }
+
+    .doc-sign-line {
+      border-bottom: 1px dotted #94a3b8;
+      height: 35px;
+      margin-bottom: 6px;
+    }
+
+    .doc-notes {
+      max-width: 440px;
+      line-height: 1.5;
+    }
+
+    /* Empty state */
+    .empty-notice {
+      text-align: center;
+      padding: 48px 16px;
+      color: #64748b;
+      font-size: 14px;
+      background: #f8fafc;
+      border-radius: 8px;
+      border: 1px dashed #cbd5e1;
+    }
+
+    /* PRINT SPECIFIC STYLES (A4 Portrait Official Export) */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 14mm 16mm 14mm 16mm;
+      }
+
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 12pt;
+      }
+
+      .web-control-bar,
+      .no-print {
+        display: none !important;
+      }
+
+      .document-page-wrap {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+      }
+
+      .doc-header {
+        border-bottom: 2px solid #000000 !important;
+      }
+
+      .doc-college-title {
+        color: #000000 !important;
+      }
+
+      .doc-college-en {
+        color: #000000 !important;
+      }
+
+      .doc-meta-bar {
+        background: #f4f4f4 !important;
+        border: 1px solid #cccccc !important;
+        color: #000000 !important;
+      }
+
+      .calendar-table th {
+        background-color: #eeeeee !important;
+        color: #000000 !important;
+        border: 1px solid #888888 !important;
+        font-weight: 700 !important;
+      }
+
+      .calendar-table td {
+        border: 1px solid #cccccc !important;
+        color: #000000 !important;
+      }
+
+      .calendar-table tr:nth-child(even) td {
+        background-color: #fafafa !important;
+      }
+
+      .col-date {
+        color: #000000 !important;
+      }
+
+      .col-title {
+        color: #000000 !important;
+      }
+
+      /* Prevent orphan rows across page breaks */
+      table {
+        page-break-inside: auto;
+      }
+
+      tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+      }
+
+      thead {
+        display: table-header-group;
+      }
+
+      tfoot {
+        display: table-footer-group;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Web View Top Control Bar (Hidden on Print) -->
+  <header class="web-control-bar no-print">
+    <div class="web-control-brand">
+      <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: #60a5fa;">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+      </svg>
+      <span>ปฏิทินการศึกษาทางการ • วิทยาลัยเทคโนโลยีศรีราชา</span>
+    </div>
+
+    <div class="web-control-actions">
+      <!-- Academic Year Switcher -->
+      <div class="year-select-wrap">
+        <label for="web-year-switcher">ปีการศึกษา:</label>
+        <select id="web-year-switcher" class="year-select">
+          {availableAcademicYears.map((yr) => (
+            <option value={yr} selected={yr === selectedYear}>
+              พ.ศ. {yr}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <!-- Print / Save as PDF Button -->
+      <button type="button" id="btn-print-trigger" class="btn-action btn-print">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+        </svg>
+        <span>พิมพ์ / บันทึกเป็น PDF</span>
+      </button>
+
+      <!-- Back to Homepage -->
+      <a href="/#college-calendar-section" class="btn-action btn-back">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        <span>กลับหน้าหลัก</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Printable Document Sheet (Simulates Official College A4 Document) -->
+  <main class="document-page-wrap">
+    
+    <!-- Letterhead -->
+    <header class="doc-header">
+      <div class="doc-logo" title="Sriracha Technological College">
+        STC
+      </div>
+      <div class="doc-header-text">
+        <h1 class="doc-college-title">วิทยาลัยเทคโนโลยีศรีราชา</h1>
+        <div class="doc-college-en">Sriracha Technological College</div>
+        <div class="doc-calendar-title">
+          ปฏิทินการศึกษาและกำหนดการกิจกรรม ประจำปีการศึกษา {selectedYear}
+        </div>
+        <div class="doc-sub-ministry">
+          สังกัดสำนักงานคณะกรรมการการอาชีวศึกษา (สอศ.) กระทรวงศึกษาธิการ
+        </div>
+      </div>
+    </header>
+
+    <!-- Meta Information Bar -->
+    <section class="doc-meta-bar">
+      <div><strong>ปีการศึกษา:</strong> {selectedYear}</div>
+      <div><strong>จำนวนกิจกรรมทั้งหมด:</strong> {yearEvents.length} รายการ</div>
+      <div><strong>วันที่พิมพ์เอกสาร:</strong> {printDateStr}</div>
+      <div><strong>เว็บไซต์:</strong> www.technosrc.ac.th</div>
+    </section>
+
+    <!-- Content Table -->
+    {yearEvents.length > 0 ? (
+      <table class="calendar-table">
+        <thead>
+          <tr>
+            <th class="col-no">ที่</th>
+            <th class="col-date">วันที่จัดกิจกรรม</th>
+            <th class="col-time">เวลา</th>
+            <th class="col-title">ชื่องาน / กิจกรรม / กำหนดการสำคัญ</th>
+            <th class="col-cat">หมวดหมู่</th>
+            <th class="col-loc">สถานที่จัดกิจกรรม</th>
+          </tr>
+        </thead>
+        <tbody>
+          {yearEvents.map((ev, index) => {
+            const dateText = formatThaiDateFull(ev.startDate, ev.endDate);
+            const primaryCat = ev.categories && ev.categories.length > 0 ? ev.categories[0].name : 'กิจกรรมทั่วไป';
+            return (
+              <tr>
+                <td class="col-no">{index + 1}</td>
+                <td class="col-date">{dateText}</td>
+                <td class="col-time">{ev.time || 'ตามกำหนดการ'}</td>
+                <td class="col-title">
+                  {ev.isFeatured && <span class="featured-star" title="กิจกรรมสำคัญ">★</span>}
+                  {ev.title}
+                  {ev.excerpt && <span class="event-excerpt">{ev.excerpt}</span>}
+                </td>
+                <td class="col-cat">
+                  <span class="badge-category">{primaryCat}</span>
+                </td>
+                <td class="col-loc">{ev.location || 'วิทยาลัยเทคโนโลยีศรีราชา'}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    ) : (
+      <div class="empty-notice">
+        <p>ยังไม่มีข้อมูลกิจกรรมและกำหนดการสำหรับปีการศึกษา {selectedYear}</p>
+        <p style="font-size: 12px; margin-top: 6px; color: #94a3b8;">สามารถเพิ่มกิจกรรมใหม่ได้ผ่านระบบจัดการข้อมูล WordPress Admin</p>
+      </div>
+    )}
+
+    <!-- Sign-off & Notes Footer -->
+    <footer class="doc-footer-sign">
+      <div class="doc-notes">
+        <strong>หมายเหตุ:</strong>
+        <p>1. กำหนดการและกิจกรรมอาจมีการเปลี่ยนแปลงตามความเหมาะสมของวิทยาลัย</p>
+        <p>2. ตรวจสอบข้อมูลอัปเดตและรายละเอียดเพิ่มเติมได้ที่ www.technosrc.ac.th หรือฝ่ายพัฒนากิจกรรม</p>
+      </div>
+
+      <div class="doc-sign-box">
+        <div class="doc-sign-line"></div>
+        <p style="font-weight: 700; color: #1e293b;">( ฝ่ายวิชาการและงานทะเบียน )</p>
+        <p style="font-size: 11px;">วิทยาลัยเทคโนโลยีศรีราชา</p>
+      </div>
+    </footer>
+
+  </main>
+
+  <script define:vars={{ autoPrint }}>
+    // Trigger print dialog when clicking the print button
+    const printBtn = document.getElementById('btn-print-trigger');
+    if (printBtn) {
+      printBtn.addEventListener('click', () => {
+        window.print();
+      });
+    }
+
+    // Switch academic year
+    const yearSwitcher = document.getElementById('web-year-switcher');
+    if (yearSwitcher) {
+      yearSwitcher.addEventListener('change', (e) => {
+        const val = e.target.value;
+        const url = new URL(window.location.href);
+        url.searchParams.set('year', val);
+        url.searchParams.delete('auto');
+        window.location.href = url.toString();
+      });
+    }
+
+    // Auto-print support if requested via ?auto=1
+    if (autoPrint) {
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          window.print();
+        }, 350);
+      });
+    }
+  </script>
+</body>
+</html>

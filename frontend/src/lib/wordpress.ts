@@ -549,10 +549,11 @@ const LOCAL_MOCK_EVENTS: CollegeEvent[] = [
     slug: 'wai-kru-ceremony-2569',
     content: '<p>ขอเชิญชวนคณะผู้บริหาร ครู อาจารย์ บุคลากรทางการศึกษา และนักเรียนนักศึกษาทุกระดับชั้น เข้าร่วมพิธีไหว้ครู ประจำปีการศึกษา 2569 เพื่อร่วมแสดงความกตัญญูกตเวทิตาต่อครูอาจารย์ผู้ประสิทธิ์ประสาทวิชาความรู้ ณ หอประชุมใหญ่</p>',
     excerpt: 'ขอเชิญชวนคณะครู บุคลากร และนักเรียนนักศึกษาทุกระดับชั้น เข้าร่วมพิธีไหว้ครู ประจำปีการศึกษา 2569 เพื่อแสดงความกตัญญูกตเวทิตา',
+    academicYear: '2569',
     startDate: '2026-10-22',
     endDate: '2026-10-22',
     time: '08:30 - 12:00 น.',
-    location: 'หอประชุมวิทยาลัยเทคโนโลยีแหลมฉบัง',
+    location: 'หอประชุมวิทยาลัยเทคโนโลยีศรีราชา',
     organizer: 'ฝ่ายพัฒนากิจกรรมนักเรียน นักศึกษา',
     link: '',
     attachmentUrl: '',
@@ -567,11 +568,14 @@ const LOCAL_MOCK_EVENTS: CollegeEvent[] = [
     slug: 'chulalongkorn-day-2026',
     content: '<p>วิทยาลัยหยุดทำการเนื่องในวันคล้ายวันสวรรคตพระบาทสมเด็จพระจุลจอมเกล้าเจ้าอยู่หัว (วันปิยมหาราช)</p>',
     excerpt: 'วิทยาลัยหยุดทำการเนื่องในวันคล้ายวันสวรรคตพระบาทสมเด็จพระจุลจอมเกล้าเจ้าอยู่หัว (วันปิยมหาราช)',
+    academicYear: '2569',
     startDate: '2026-10-23',
     endDate: '2026-10-23',
     time: 'ตลอดวัน',
-    location: 'วิทยาลัยเทคโนโลยีแหลมฉบัง',
+    location: 'วิทยาลัยเทคโนโลยีศรีราชา',
     organizer: 'ฝ่ายบริหารทั่วไป',
+    link: '',
+    attachmentUrl: '',
     color: 'rose',
     isFeatured: false,
     thumbnail: null,
@@ -583,11 +587,14 @@ const LOCAL_MOCK_EVENTS: CollegeEvent[] = [
     slug: 'midterm-exam-term-2-2569',
     content: '<p>กำหนดการสอบวัดผลกลางภาคเรียนที่ 2 ประจำปีการศึกษา 2569 ระดับ ปวช. และ ปวส. ทุกสาขาวิชา ขอให้นักเรียนนักศึกษาเตรียมตัวและตรวจสอบตารางสอบให้เรียบร้อยก่อนวันสอบ</p>',
     excerpt: 'กำหนดการสอบวัดผลกลางภาคเรียนที่ 2 ประจำปีการศึกษา 2569 ระดับ ปวช. และ ปวส. ทุกสาขาวิชา',
+    academicYear: '2569',
     startDate: '2026-11-03',
     endDate: '2026-11-07',
     time: '08:30 - 16:30 น.',
     location: 'อาคารเรียน 1-3',
     organizer: 'งานวัดผลและประเมินผล',
+    link: '',
+    attachmentUrl: '',
     color: 'amber',
     isFeatured: true,
     thumbnail: null,
@@ -599,11 +606,14 @@ const LOCAL_MOCK_EVENTS: CollegeEvent[] = [
     slug: 'vocational-skills-competition-2026',
     content: '<p>นำทีมนักศึกษาตัวแทนวิทยาลัยเข้าร่วมการแข่งขันทักษะวิชาชีพ สาขาวิชาช่างยนต์ ช่างไฟฟ้ากำลัง เทคโนโลยีสารสนเทศ และการบัญชี ระดับภาคตะวันออก ประจำปีการศึกษา 2569</p>',
     excerpt: 'ตัวแทนนักศึกษาเข้าร่วมการแข่งขันทักษะวิชาชีพ สาขาวิชาช่างยนต์ ไฟฟ้า และเทคโนโลยีสารสนเทศ',
+    academicYear: '2569',
     startDate: '2026-11-18',
     endDate: '2026-11-20',
     time: '09:00 - 17:00 น.',
     location: 'ศูนย์ประชุมและนิทรรศการ',
     organizer: 'คณะกรรมการ อวท.',
+    link: '',
+    attachmentUrl: '',
     color: 'purple',
     isFeatured: true,
     thumbnail: null,
@@ -615,11 +625,14 @@ const LOCAL_MOCK_EVENTS: CollegeEvent[] = [
     slug: 'ethics-workshop-freshmen-2026',
     content: '<p>กิจกรรมส่งเสริมคุณธรรม จริยธรรม และการพัฒนาภาวะผู้นำ สำหรับนักศึกษาใหม่ เสริมสร้างทักษะการอยู่ร่วมกันในสังคมอย่างมีความสุข</p>',
     excerpt: 'กิจกรรมอบรมเชิงปฏิบัติการพัฒนาภาวะผู้นำ จริยธรรม และการปรับตัวในการเรียนวิชาชีพ',
+    academicYear: '2569',
     startDate: '2026-11-28',
     endDate: '2026-11-28',
     time: '08:30 - 15:30 น.',
     location: 'อาคารอเนกประสงค์',
     organizer: 'แผนกงานครูที่ปรึกษา',
+    link: '',
+    attachmentUrl: '',
     color: 'emerald',
     isFeatured: false,
     thumbnail: null,
@@ -630,12 +643,15 @@ const LOCAL_MOCK_EVENTS: CollegeEvent[] = [
 /**
  * Fetch college events from custom project-core REST API endpoint
  */
-export async function getCollegeEvents(category?: string): Promise<CollegeEvent[]> {
-  const cacheKey = `college_events_${category || 'all'}`;
+export async function getCollegeEvents(category?: string, academicYear?: string): Promise<CollegeEvent[]> {
+  const cacheKey = `college_events_${category || 'all'}_${academicYear || 'all'}`;
   const cached = getFromCache<CollegeEvent[]>(cacheKey);
   if (cached) return cached;
 
-  const query = category && category !== 'all' ? `?category=${encodeURIComponent(category)}` : '';
+  const params = new URLSearchParams();
+  if (category && category !== 'all') params.set('category', category);
+  if (academicYear && academicYear !== 'all') params.set('academic_year', academicYear);
+  const query = params.toString() ? `?${params.toString()}` : '';
   const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/events${query}`;
 
   try {
@@ -651,6 +667,7 @@ export async function getCollegeEvents(category?: string): Promise<CollegeEvent[
       slug: ev.slug || '',
       content: ev.content || '',
       excerpt: ev.excerpt || '',
+      academicYear: String(ev.academic_year || ev.academicYear || '2569'),
       startDate: ev.start_date || ev.startDate || '',
       endDate: ev.end_date || ev.endDate || '',
       time: ev.time || '',
@@ -673,6 +690,30 @@ export async function getCollegeEvents(category?: string): Promise<CollegeEvent[
     console.warn('[WordPress API] Unable to fetch college events:', error);
     return LOCAL_MOCK_EVENTS;
   }
+}
+
+/**
+ * Fetch all available academic years
+ */
+export async function getCollegeAcademicYears(): Promise<string[]> {
+  const cacheKey = 'college_academic_years';
+  const cached = getFromCache<string[]>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const res = await fetchWithTimeout(`${PROJECT_CORE_API_URL.replace(/\/$/, '')}/events?per_page=1`);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data.academicYears) && data.academicYears.length > 0) {
+        setInCache(cacheKey, data.academicYears);
+        return data.academicYears;
+      }
+    }
+  } catch (err) {
+    // fallback
+  }
+
+  return ['2569'];
 }
 
 /**

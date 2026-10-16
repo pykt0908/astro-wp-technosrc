@@ -139,6 +139,7 @@ class Project_Core_Custom_Fields {
 
         // College Event Meta Fields
         $event_text_fields = array(
+            'academic_year'        => 'sanitize_text_field',
             'event_start_date'     => 'sanitize_text_field',
             'event_end_date'       => 'sanitize_text_field',
             'event_time'           => 'sanitize_text_field',
@@ -640,6 +641,10 @@ class Project_Core_Custom_Fields {
     public function render_event_meta_box($post) {
         wp_nonce_field('project_core_event_nonce', 'project_core_event_nonce_field');
 
+        $academic_year  = get_post_meta($post->ID, 'academic_year', true);
+        if (empty($academic_year)) {
+            $academic_year = '2569';
+        }
         $start_date     = get_post_meta($post->ID, 'event_start_date', true);
         $end_date       = get_post_meta($post->ID, 'event_end_date', true);
         $time           = get_post_meta($post->ID, 'event_time', true);
@@ -651,6 +656,13 @@ class Project_Core_Custom_Fields {
         $is_featured    = get_post_meta($post->ID, 'is_featured', true);
         ?>
         <table class="form-table" style="max-width: 900px;">
+            <tr>
+                <th scope="row"><label for="academic_year"><strong><?php _e('ปีการศึกษา (Academic Year) *', 'project-core'); ?></strong></label></th>
+                <td>
+                    <input type="text" id="academic_year" name="academic_year" value="<?php echo esc_attr($academic_year); ?>" class="regular-text" style="width: 140px; font-weight: 700; font-size: 15px; color: #0047BA;" placeholder="เช่น 2569" />
+                    <span class="description"><?php _e('ระบุปีการศึกษา (พ.ศ.) เช่น 2569, 2568 (ใช้สำหรับจัดหมวดหมู่และดาวน์โหลดปฏิทินการศึกษา PDF)', 'project-core'); ?></span>
+                </td>
+            </tr>
             <tr>
                 <th scope="row"><label for="event_start_date"><strong><?php _e('วันที่เริ่มต้นกิจกรรม *', 'project-core'); ?></strong></label></th>
                 <td>
@@ -783,6 +795,7 @@ class Project_Core_Custom_Fields {
         // Save College Event Meta
         if (isset($_POST['project_core_event_nonce_field']) && wp_verify_nonce($_POST['project_core_event_nonce_field'], 'project_core_event_nonce')) {
             if (current_user_can('edit_post', $post_id)) {
+                $academic_year  = isset($_POST['academic_year']) ? sanitize_text_field($_POST['academic_year']) : '';
                 $start_date     = isset($_POST['event_start_date']) ? sanitize_text_field($_POST['event_start_date']) : '';
                 $end_date       = isset($_POST['event_end_date']) ? sanitize_text_field($_POST['event_end_date']) : '';
                 $time           = isset($_POST['event_time']) ? sanitize_text_field($_POST['event_time']) : '';
@@ -793,6 +806,17 @@ class Project_Core_Custom_Fields {
                 $color          = isset($_POST['event_color']) ? sanitize_text_field($_POST['event_color']) : 'blue';
                 $is_featured    = isset($_POST['is_featured']) ? '1' : '0';
 
+                if (empty($academic_year) && !empty($start_date)) {
+                    $parts = explode('-', $start_date);
+                    $y = (int) $parts[0];
+                    $m = isset($parts[1]) ? (int) $parts[1] : 6;
+                    $ay_calc = ($m < 5) ? ($y - 1) : $y;
+                    $academic_year = (string) ($ay_calc + 543);
+                } elseif (empty($academic_year)) {
+                    $academic_year = '2569';
+                }
+
+                update_post_meta($post_id, 'academic_year', $academic_year);
                 update_post_meta($post_id, 'event_start_date', $start_date);
                 update_post_meta($post_id, 'event_end_date', $end_date);
                 update_post_meta($post_id, 'event_time', $time);

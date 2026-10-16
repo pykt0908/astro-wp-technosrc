@@ -5,9 +5,21 @@ import type { CollegeEvent, CollegeEventCategory } from '../types/wordpress';
 interface Props {
   events?: CollegeEvent[];
   categories?: CollegeEventCategory[];
+  academicYears?: string[];
 }
 
-const { events = [], categories = [] } = Astro.props;
+const { events = [], categories = [], academicYears = [] } = Astro.props;
+
+// Compute available academic years
+const availableAcademicYears = Array.from(
+  new Set([
+    ...academicYears,
+    ...events.map((e) => e.academicYear).filter(Boolean),
+    '2569',
+  ])
+).sort((a, b) => b.localeCompare(a));
+
+const currentAcademicYear = availableAcademicYears[0] || '2569';
 
 // Month names in Thai
 const THAI_MONTHS_FULL = [
@@ -119,6 +131,7 @@ const serializedEvents = events.map((ev) => {
     slug: ev.slug,
     content: ev.content,
     excerpt: ev.excerpt,
+    academicYear: ev.academicYear || '2569',
     startDate: ev.startDate,
     endDate: ev.endDate,
     time: ev.time,
@@ -176,18 +189,47 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
         </p>
       </div>
 
-      <!-- Action: PDF Download Button -->
-      <div class="flex items-center gap-3 shrink-0">
+      <!-- Action: Academic Year Dropdown & PDF Download Button -->
+      <div class="flex flex-wrap items-center gap-2.5 sm:gap-3 shrink-0">
+        <!-- Academic Year Dropdown -->
+        <div class="relative flex items-center">
+          <label for="calendar-academic-year-select" class="sr-only">เลือกปีการศึกษา</label>
+          <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-blue-600">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <select
+            id="calendar-academic-year-select"
+            class="pl-8 pr-7 py-2 rounded-xl bg-blue-50/80 hover:bg-blue-100/70 text-blue-900 border border-blue-200/90 font-bold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition-colors appearance-none"
+            title="เลือกปีการศึกษาเพื่อดูและดาวน์โหลดปฏิทิน"
+          >
+            {availableAcademicYears.map((yr, idx) => (
+              <option value={yr} selected={yr === currentAcademicYear}>
+                ปีการศึกษา {yr} {idx === 0 ? '(ปัจจุบัน)' : ''}
+              </option>
+            ))}
+          </select>
+          <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none text-blue-500">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Action: PDF Download Button -->
         <a
-          href="/academic-calendar-2569.pdf"
+          id="calendar-download-pdf-btn"
+          href={`/calendar/print?year=${currentAcademicYear}&auto=1`}
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-blue-600 text-white text-xs sm:text-sm font-semibold shadow-xs hover:shadow-md transition-all duration-200 group"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-blue-600 text-white text-xs sm:text-sm font-semibold shadow-xs hover:shadow-md transition-all duration-200 group"
+          title="ดาวน์โหลดหรือสั่งพิมพ์ปฏิทินการศึกษาทางการแบบ PDF"
         >
           <svg class="w-4 h-4 text-blue-300 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <span>ดาวน์โหลดปฏิทินการศึกษา (PDF)</span>
+          <span id="calendar-download-pdf-text">ดาวน์โหลดปฏิทิน (PDF)</span>
         </a>
       </div>
     </div>
@@ -344,17 +386,14 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
         <!-- Empty state when no events match category or date -->
         <div
           id="calendar-empty-state"
-          class="hidden py-16 px-6 text-center bg-slate-50/80 rounded-2xl border border-dashed border-slate-300"
+          class="hidden py-16 px-6 text-center  rounded-2xl border border-dashed border-slate-300"
         >
           <div class="w-12 h-12 mx-auto rounded-full bg-slate-200/70 flex items-center justify-center text-slate-400 mb-3">
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
-          <h3 class="text-sm font-bold text-slate-800">ไม่มีกิจกรรมในช่วงเวลานี้</h3>
-          <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-            ไม่พบกิจกรรมตามหมวดหมู่หรือวันที่ท่านเลือก สามารถกดดูวันที่อื่นๆ หรือเลือกดู "ทั้งหมด" ได้ครับ
-          </p>
+          <h3 class="text-sm font-bold text-slate-800">-- ไม่พบกิจกรรม--</h3>
           <button
             type="button"
             id="cal-empty-reset-btn"
@@ -373,9 +412,10 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
               <article
                 class:list={[
                   'calendar-event-card bg-white rounded-2xl border border-slate-200/90 shadow-xs hover:shadow-md hover:border-blue-200 transition-all duration-200 overflow-hidden flex flex-col sm:flex-row items-stretch group cursor-pointer',
-                  !matchesInitialMonth ? 'hidden' : ''
+                  (!matchesInitialMonth || ev.academicYear !== currentAcademicYear) ? 'hidden' : ''
                 ]}
                 data-event-id={ev.id}
+                data-academic-year={ev.academicYear}
                 data-start-date={ev.startDate}
                 data-end-date={ev.endDate}
                 data-category-slugs={ev.categorySlugs.join(',')}
@@ -684,7 +724,7 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
 </style>
 
 <!-- Client Script for Interactive Month Calendar & Filtering -->
-<script define:vars={{ serializedEvents, THAI_MONTHS_FULL }}>
+<script define:vars={{ serializedEvents, THAI_MONTHS_FULL, currentAcademicYear }}>
   // Helper to check if event overlaps with a given month (0-indexed month)
   function eventMatchesMonth(startDate, endDate, year, month) {
     if (!startDate) return false;
@@ -699,13 +739,15 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
   const today = new Date();
   let currentYear = today.getFullYear();
   let currentMonth = today.getMonth(); // 0-indexed: 9 = October
+  let selectedAcademicYear = currentAcademicYear || '2569';
 
-  // If current month has no events but serializedEvents has events, match the first event month
-  const hasEventsInCurrentMonth = serializedEvents.some((ev) =>
+  // If current month has no events but serializedEvents has events, match the first event month of current academic year
+  const eventsInCurrentYear = serializedEvents.filter((ev) => ev.academicYear === selectedAcademicYear);
+  const hasEventsInCurrentMonth = eventsInCurrentYear.some((ev) =>
     eventMatchesMonth(ev.startDate, ev.endDate, currentYear, currentMonth)
   );
-  if (!hasEventsInCurrentMonth && serializedEvents.length > 0 && serializedEvents[0].startDate) {
-    const parts = serializedEvents[0].startDate.split('-');
+  if (!hasEventsInCurrentMonth && eventsInCurrentYear.length > 0 && eventsInCurrentYear[0].startDate) {
+    const parts = eventsInCurrentYear[0].startDate.split('-');
     if (parts.length >= 2) {
       currentYear = parseInt(parts[0], 10);
       currentMonth = parseInt(parts[1], 10) - 1;
@@ -716,6 +758,8 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
   let selectedDate = null; // YYYY-MM-DD or null
   let searchQuery = '';
 
+  const academicYearSelect = document.getElementById('calendar-academic-year-select');
+  const downloadPdfBtn = document.getElementById('calendar-download-pdf-btn');
   const searchInput = document.getElementById('calendar-search-input');
   const searchClearBtn = document.getElementById('calendar-search-clear-btn');
   const daysGrid = document.getElementById('cal-days-grid');
@@ -768,6 +812,11 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
     const dateColorsMap = new Map();
 
     serializedEvents.forEach((ev) => {
+      // Academic year filter check
+      if (selectedAcademicYear && ev.academicYear !== selectedAcademicYear) {
+        return;
+      }
+
       // Category filter check
       if (selectedCategory !== 'all' && !ev.categorySlugs.includes(selectedCategory)) {
         return;
@@ -910,6 +959,7 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
 
     eventCards.forEach((card) => {
       const catSlugs = (card.dataset.categorySlugs || '').split(',');
+      const eventAcademicYear = card.dataset.academicYear;
       const startDate = card.dataset.startDate;
       const endDate = card.dataset.endDate;
       const title = (card.dataset.title || '').toLowerCase();
@@ -917,6 +967,7 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
       const location = (card.dataset.location || '').toLowerCase();
       const organizer = (card.dataset.organizer || '').toLowerCase();
 
+      const matchesYear = !selectedAcademicYear || eventAcademicYear === selectedAcademicYear;
       const matchesCat = selectedCategory === 'all' || catSlugs.includes(selectedCategory);
 
       // Search matching (case-insensitive across title, excerpt, location, organizer)
@@ -931,7 +982,7 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
         matchesDate = eventMatchesMonth(startDate, endDate, currentYear, currentMonth);
       }
 
-      if (matchesCat && matchesSearch && matchesDate) {
+      if (matchesYear && matchesCat && matchesSearch && matchesDate) {
         card.classList.remove('hidden');
         visibleCount++;
       } else {
@@ -1047,6 +1098,31 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
       searchClearBtn.classList.add('hidden');
       applyFilters();
       searchInput.focus();
+    });
+  }
+
+  // Academic Year select listener
+  if (academicYearSelect) {
+    academicYearSelect.addEventListener('change', (e) => {
+      selectedAcademicYear = e.target.value;
+      if (downloadPdfBtn) {
+        downloadPdfBtn.href = `/calendar/print?year=${encodeURIComponent(selectedAcademicYear)}&auto=1`;
+      }
+
+      // Auto-jump calendar month to month with events in that year if current month has none
+      const yearEvents = serializedEvents.filter((ev) => ev.academicYear === selectedAcademicYear);
+      const hasEventsThisMonth = yearEvents.some((ev) => eventMatchesMonth(ev.startDate, ev.endDate, currentYear, currentMonth));
+      if (!hasEventsThisMonth && yearEvents.length > 0 && yearEvents[0].startDate) {
+        const parts = yearEvents[0].startDate.split('-');
+        if (parts.length >= 2) {
+          currentYear = parseInt(parts[0], 10);
+          currentMonth = parseInt(parts[1], 10) - 1;
+        }
+      }
+
+      selectedDate = null;
+      renderCalendar();
+      applyFilters();
     });
   }
 

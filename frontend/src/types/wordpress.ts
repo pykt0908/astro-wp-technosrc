@@ -150,6 +150,7 @@ export interface CollegeEvent {
   slug: string;
   content: string;
   excerpt: string;
+  academicYear: string;
   startDate: string;
   endDate: string;
   time: string;
