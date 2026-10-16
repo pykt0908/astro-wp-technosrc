@@ -229,7 +229,30 @@ const LOCAL_MOCK_SITE_SETTINGS: SiteSettings = {
     github: '',
   },
   footerCopyright: `© ${new Date().getFullYear()} วิทยาลัยเทคโนโลยีศรีราชา (Sriracha Technological College). สงวนลิขสิทธิ์ทุกประการ.`,
+  vtr: {
+    enabled: true,
+    badge: 'VTR แนะนำวิทยาลัย',
+    title: 'วิดีทัศน์แนะนำวิทยาลัยเทคโนโลยีศรีราชา',
+    subtitle: 'Sriracha Technological College Presentation Video',
+    description: 'มุ่งมั่นจัดการศึกษาด้านวิชาชีพและเทคโนโลยีที่ทันสมัย ส่งเสริมคุณธรรม จริยธรรม สู่มาตรฐานสากล ผลิตกำลังคนคุณภาพสู่ภาคอุตสาหกรรมและสังคม',
+    youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    youtubeId: 'dQw4w9WgXcQ',
+    embedUrl: 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ',
+  },
 };
+
+/**
+ * Extract 11-char YouTube Video ID from any YouTube URL format
+ */
+export function extractYouTubeId(url?: string): string {
+  if (!url) return '';
+  const trimmed = url.trim();
+  if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) {
+    return trimmed;
+  }
+  const match = trimmed.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i);
+  return match ? match[1] : '';
+}
 
 /**
  * Transforms raw WordPress REST API post item into clean Post domain model
@@ -534,8 +557,22 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     if (!res.ok) {
       throw new Error(`Custom Site Settings API returned ${res.status}`);
     }
-    const data: SiteSettings = await res.json();
-    return data;
+    const data: any = await res.json();
+    if (data && data.vtr) {
+      const ytUrl = data.vtr.youtube_url || data.vtr.youtubeUrl || '';
+      const ytId = data.vtr.youtube_id || data.vtr.youtubeId || extractYouTubeId(ytUrl);
+      data.vtr = {
+        enabled: data.vtr.enabled !== false,
+        badge: data.vtr.badge || 'VTR แนะนำวิทยาลัย',
+        title: data.vtr.title || 'วิดีทัศน์แนะนำวิทยาลัยเทคโนโลยีศรีราชา',
+        subtitle: data.vtr.subtitle || 'Sriracha Technological College Presentation Video',
+        description: data.vtr.description || '',
+        youtubeUrl: ytUrl,
+        youtubeId: ytId,
+        embedUrl: data.vtr.embed_url || data.vtr.embedUrl || (ytId ? `https://www.youtube-nocookie.com/embed/${ytId}` : ''),
+      };
+    }
+    return data as SiteSettings;
   } catch (error) {
     console.warn('[WordPress API] Unable to fetch site settings:', error);
     return LOCAL_MOCK_SITE_SETTINGS;

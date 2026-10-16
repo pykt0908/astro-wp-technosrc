@@ -54,6 +54,13 @@ class Project_Core_Site_Settings {
             'social_linkedin'   => '',
             'social_github'     => '',
             'footer_copyright'  => sprintf('© %s Technosrc. สงวนลิขสิทธิ์ทุกประการ.', gmdate('Y')),
+            // College VTR Video Section
+            'vtr_enabled'       => 1,
+            'vtr_badge'         => 'VTR แนะนำวิทยาลัย',
+            'vtr_title'         => 'วิดีทัศน์แนะนำวิทยาลัยเทคโนโลยีศรีราชา',
+            'vtr_subtitle'      => 'Sriracha Technological College Presentation Video',
+            'vtr_description'   => 'มุ่งมั่นจัดการศึกษาด้านวิชาชีพและเทคโนโลยีที่ทันสมัย สร้างสรรค์ทักษะสู่อนาคต เพื่อผลิตกำลังคนคุณภาพสู่ตลาดแรงงานและสากล',
+            'vtr_youtube_url'   => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
             // Webhook Configuration
             'webhook_url'       => '',
             'webhook_secret'    => '',
@@ -80,6 +87,14 @@ class Project_Core_Site_Settings {
         $output['social_linkedin']   = esc_url_raw($input['social_linkedin'] ?? '');
         $output['social_github']     = esc_url_raw($input['social_github'] ?? '');
         $output['footer_copyright']  = sanitize_text_field($input['footer_copyright'] ?? '');
+
+        // College VTR Video
+        $output['vtr_enabled']       = !empty($input['vtr_enabled']) ? 1 : 0;
+        $output['vtr_badge']         = sanitize_text_field($input['vtr_badge'] ?? '');
+        $output['vtr_title']         = sanitize_text_field($input['vtr_title'] ?? '');
+        $output['vtr_subtitle']      = sanitize_text_field($input['vtr_subtitle'] ?? '');
+        $output['vtr_description']   = sanitize_textarea_field($input['vtr_description'] ?? '');
+        $output['vtr_youtube_url']   = esc_url_raw($input['vtr_youtube_url'] ?? '');
 
         // Webhook
         $output['webhook_url']       = esc_url_raw($input['webhook_url'] ?? '');
@@ -166,6 +181,54 @@ class Project_Core_Site_Settings {
                     <tr>
                         <th scope="row"><label for="footer_copyright"><?php _e('Footer Copyright Text', 'project-core'); ?></label></th>
                         <td><input type="text" id="footer_copyright" name="<?php echo self::OPTION_KEY; ?>[footer_copyright]" value="<?php echo esc_attr($settings['footer_copyright']); ?>" class="large-text" /></td>
+                    </tr>
+                </table>
+
+                <h2 class="title" id="vtr-section" style="display: flex; align-items: center; gap: 8px;">
+                    <span class="dashicons dashicons-video-alt3" style="font-size: 24px; color: #dc2626;"></span>
+                    <?php _e('College VTR Video / วิดีโอแนะนำวิทยาลัย (YouTube Embed)', 'project-core'); ?>
+                </h2>
+                <p class="description" style="margin-bottom: 15px;"><?php _e('ตั้งค่าคลิปวิดีโอแนะนำวิทยาลัย (VTR) ที่จะแสดงต่อจากส่วนปฏิทินในหน้าแรกของเว็บไซต์ โดยสามารถคัดลอกลิงก์จาก YouTube มาใส่ได้โดยตรง', 'project-core'); ?></p>
+                <table class="form-table">
+                    <tr>
+                        <th scope="row"><?php _e('เปิดใช้งานส่วน VTR', 'project-core'); ?></th>
+                        <td>
+                            <label>
+                                <input type="checkbox" name="<?php echo self::OPTION_KEY; ?>[vtr_enabled]" value="1" <?php checked($settings['vtr_enabled'], 1); ?> />
+                                <?php _e('แสดงส่วนวิดีโอแนะนำวิทยาลัย (VTR Section) บนหน้าแรก', 'project-core'); ?>
+                            </label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="vtr_youtube_url"><?php _e('ลิงก์ YouTube (URL หรือ Embed)', 'project-core'); ?></label></th>
+                        <td>
+                            <input type="text" id="vtr_youtube_url" name="<?php echo self::OPTION_KEY; ?>[vtr_youtube_url]" value="<?php echo esc_attr($settings['vtr_youtube_url']); ?>" class="large-text" placeholder="https://www.youtube.com/watch?v=... หรือ https://youtu.be/..." />
+                            <p class="description"><?php _e('รองรับทุกลิงก์ของ YouTube เช่น <code>https://www.youtube.com/watch?v=XXXXX</code> หรือ <code>https://youtu.be/XXXXX</code> หรือ <code>https://www.youtube.com/shorts/XXXXX</code> (ระบบจะดึงรหัสวิดีโอมาแสดงอัตโนมัติ)', 'project-core'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="vtr_badge"><?php _e('ป้ายกำกับ (Badge Text)', 'project-core'); ?></label></th>
+                        <td>
+                            <input type="text" id="vtr_badge" name="<?php echo self::OPTION_KEY; ?>[vtr_badge]" value="<?php echo esc_attr($settings['vtr_badge']); ?>" class="regular-text" placeholder="เช่น VTR แนะนำวิทยาลัย" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="vtr_title"><?php _e('หัวข้อหลัก (Title)', 'project-core'); ?></label></th>
+                        <td>
+                            <input type="text" id="vtr_title" name="<?php echo self::OPTION_KEY; ?>[vtr_title]" value="<?php echo esc_attr($settings['vtr_title']); ?>" class="large-text" placeholder="เช่น วีดิทัศน์แนะนำวิทยาลัยเทคโนโลยีศรีราชา" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="vtr_subtitle"><?php _e('หัวข้อย่อย / ภาษาอังกฤษ (Subtitle)', 'project-core'); ?></label></th>
+                        <td>
+                            <input type="text" id="vtr_subtitle" name="<?php echo self::OPTION_KEY; ?>[vtr_subtitle]" value="<?php echo esc_attr($settings['vtr_subtitle']); ?>" class="large-text" placeholder="เช่น Sriracha Technological College Presentation Video" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="vtr_description"><?php _e('คำอธิบาย (Description)', 'project-core'); ?></label></th>
+                        <td>
+                            <textarea id="vtr_description" name="<?php echo self::OPTION_KEY; ?>[vtr_description]" rows="3" class="large-text" placeholder="ข้อความแนะนำวิทยาลัย สั้นๆ กระชับ..."><?php echo esc_textarea($settings['vtr_description']); ?></textarea>
+                        </td>
                     </tr>
                 </table>
 

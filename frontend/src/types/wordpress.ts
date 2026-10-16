@@ -134,6 +134,16 @@ export interface SiteSettings {
     github: string;
   };
   footerCopyright: string;
+  vtr?: {
+    enabled: boolean;
+    badge?: string;
+    title: string;
+    subtitle: string;
+    description: string;
+    youtubeUrl: string;
+    youtubeId?: string;
+    embedUrl?: string;
+  };
 }
 
 export interface CollegeEventCategory {

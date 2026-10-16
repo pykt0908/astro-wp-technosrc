@@ -1,0 +1,176 @@
+---
+// HomeVtrSection.astro - College Promotional VTR Section (YouTube Embed)
+import type { SiteSettings } from '../types/wordpress';
+
+interface Props {
+  vtr?: SiteSettings['vtr'];
+}
+
+const { vtr } = Astro.props;
+
+// Default fallbacks if not configured in WordPress
+const isEnabled = vtr ? vtr.enabled !== false : true;
+const title = vtr?.title || 'วิดีทัศน์แนะนำวิทยาลัยเทคโนโลยีศรีราชา';
+const subtitle = vtr?.subtitle || 'Sriracha Technological College Presentation Video';
+const description =
+  vtr?.description ||
+  'มุ่งมั่นจัดการศึกษาด้านวิชาชีพและเทคโนโลยีที่ทันสมัย ส่งเสริมคุณธรรม จริยธรรม สู่มาตรฐานสากล ผลิตกำลังคนคุณภาพเพื่อพัฒนาภาคอุตสาหกรรมและสังคมอย่างยั่งยืน';
+const badgeText = vtr?.badge || 'VTR แนะนำวิทยาลัย';
+const youtubeId = vtr?.youtubeId || 'dQw4w9WgXcQ';
+const youtubeUrl = vtr?.youtubeUrl || (youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : '');
+const embedUrl = vtr?.embedUrl || (youtubeId ? `https://www.youtube-nocookie.com/embed/${youtubeId}` : '');
+
+if (!isEnabled) {
+  // If disabled by admin in WordPress, do not render
+  return null;
+}
+---
+
+<section id="college-vtr-section" class="relative py-16 sm:py-24 bg-slate-950 text-white overflow-hidden select-none">
+  <!-- Ambient background glow elements -->
+  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-b from-blue-900/20 via-blue-600/10 to-transparent blur-3xl pointer-events-none -z-0"></div>
+  <div class="absolute -top-32 right-10 w-80 h-80 rounded-full bg-blue-600/15 blur-[100px] pointer-events-none -z-0"></div>
+  <div class="absolute -bottom-32 left-10 w-80 h-80 rounded-full bg-indigo-600/15 blur-[100px] pointer-events-none -z-0"></div>
+
+  <!-- Decorative subtle grid lines -->
+  <div class="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:24px_24px] opacity-25 pointer-events-none -z-0"></div>
+
+  <div class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Section Header with Glowing Pill Badge -->
+    <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+      
+      <!-- Live / Video Badge -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-950/80 border border-blue-500/30 text-blue-300 text-xs sm:text-sm font-semibold shadow-inner mb-4">
+        <span class="relative flex h-2.5 w-2.5">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
+        </span>
+        <span>{badgeText}</span>
+      </div>
+
+      <!-- Main Section Title -->
+      <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
+        {title}
+      </h2>
+
+      <!-- Subtitle & English Tagline -->
+      {subtitle && (
+        <p class="text-blue-400 font-semibold text-xs sm:text-sm tracking-wider uppercase mt-2">
+          {subtitle}
+        </p>
+      )}
+
+      <!-- Description -->
+      {description && (
+        <p class="text-slate-300 text-sm sm:text-base leading-relaxed mt-3.5 max-w-2xl mx-auto font-normal">
+          {description}
+        </p>
+      )}
+    </div>
+
+    <!-- Video Showcase Player Container with Ambient Backlight -->
+    <div class="relative max-w-4xl mx-auto group">
+      
+      <!-- Dynamic Ambient Backlight Glow -->
+      <div class="absolute -inset-1.5 sm:-inset-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-500 rounded-3xl sm:rounded-[32px] blur-xl sm:blur-2xl opacity-40 group-hover:opacity-75 transition-opacity duration-700 pointer-events-none"></div>
+
+      <!-- Video Player Frame -->
+      <div class="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-slate-900 border border-slate-700/80 shadow-2xl shadow-blue-950/50">
+        
+        {embedUrl ? (
+          <div class="relative w-full aspect-video bg-black">
+            <iframe
+              id="college-vtr-iframe"
+              class="absolute inset-0 w-full h-full border-0"
+              src={`${embedUrl}?rel=0&modestbranding=1&showinfo=0`}
+              title={title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+              loading="lazy"
+            ></iframe>
+          </div>
+        ) : (
+          <div class="w-full aspect-video bg-slate-900 flex flex-col items-center justify-center text-center p-6 sm:p-12">
+            <div class="w-16 h-16 rounded-2xl bg-blue-600/20 text-blue-400 flex items-center justify-center mb-4 border border-blue-500/30">
+              <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 class="text-base sm:text-lg font-bold text-white">ยังไม่มีการตั้งค่าลิงก์วิดีโอ</h3>
+            <p class="text-xs sm:text-sm text-slate-400 max-w-md mt-1.5">
+              สามารถเพิ่มหรือแก้ไขลิงก์คลิปวิดีโอ YouTube ของวิทยาลัยได้ที่ระบบจัดการหลังบ้าน (WordPress &gt; Site Settings &gt; College VTR Video)
+            </p>
+          </div>
+        )}
+
+        <!-- Bottom Action & Info Strip -->
+        <div class="px-4 sm:px-6 py-3.5 bg-slate-900/90 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
+          <div class="flex items-center gap-2">
+            <span class="inline-block w-2 h-2 rounded-full bg-blue-500"></span>
+            <span class="font-medium text-slate-300">วิทยาลัยเทคโนโลยีศรีราชา (Sriracha Technological College)</span>
+          </div>
+
+          {youtubeUrl && (
+            <a
+              href={youtubeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 text-blue-400 hover:text-blue-300 font-semibold transition-colors group/link"
+              title="เปิดดูบน YouTube"
+            >
+              <svg class="w-4 h-4 text-rose-500 fill-rose-500 shrink-0" viewBox="0 0 24 24">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+              <span>เปิดดูบน YouTube</span>
+              <svg class="w-3.5 h-3.5 group-hover/link:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          )}
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Key College Strengths Cards (Under the VTR) -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4 mt-8 sm:mt-12 max-w-4xl mx-auto">
+      
+      <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-blue-500/40 transition-colors">
+        <div class="w-8 h-8 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold mb-2.5">
+          🎓
+        </div>
+        <h4 class="text-xs sm:text-sm font-bold text-white leading-snug">หลักสูตรมาตรฐาน</h4>
+        <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">ระดับ ปวช. และ ปวส. สอดรับนโยบายอุตสาหกรรมเป้าหมาย</p>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-emerald-500/40 transition-colors">
+        <div class="w-8 h-8 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center font-bold mb-2.5">
+          🛠️
+        </div>
+        <h4 class="text-xs sm:text-sm font-bold text-white leading-snug">เครื่องมือทันสมัย</h4>
+        <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">ห้องปฏิบัติการครบครัน ฝึกปฏิบัติงานจริงอย่างมืออาชีพ</p>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-amber-500/40 transition-colors">
+        <div class="w-8 h-8 rounded-xl bg-amber-600/20 text-amber-400 flex items-center justify-center font-bold mb-2.5">
+          🤝
+        </div>
+        <h4 class="text-xs sm:text-sm font-bold text-white leading-snug">ทวิภาคีเข้มแข็ง</h4>
+        <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">ร่วมมือกับสถานประกอบการและโรงงานชั้นนำในพื้นที่ EEC</p>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-purple-500/40 transition-colors">
+        <div class="w-8 h-8 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center font-bold mb-2.5">
+          💼
+        </div>
+        <h4 class="text-xs sm:text-sm font-bold text-white leading-snug">มีงานทำ 100%</h4>
+        <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">จบแล้วมีงานรองรับ ต่อยอดระดับปริญญาตรีได้ทุกสาขา</p>
+      </div>
+
+    </div>
+
+  </div>
+</section>

@@ -116,9 +116,39 @@ class Project_Core_REST_API {
                 'github'       => $raw['social_github'],
             ),
             'footer_copyright' => $raw['footer_copyright'],
+            'vtr'              => array(
+                'enabled'      => !empty($raw['vtr_enabled']),
+                'badge'        => (string) ($raw['vtr_badge'] ?: 'VTR แนะนำวิทยาลัย'),
+                'title'        => (string) ($raw['vtr_title'] ?: 'วิดีทัศน์แนะนำวิทยาลัยเทคโนโลยีศรีราชา'),
+                'subtitle'     => (string) ($raw['vtr_subtitle'] ?: 'Sriracha Technological College Presentation Video'),
+                'description'  => (string) ($raw['vtr_description'] ?: 'มุ่งมั่นจัดการศึกษาด้านวิชาชีพและเทคโนโลยีที่ทันสมัย สร้างสรรค์ทักษะสู่อนาคต เพื่อผลิตกำลังคนคุณภาพสู่ตลาดแรงงานและสากล'),
+                'youtube_url'  => (string) ($raw['vtr_youtube_url'] ?: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'),
+                'youtube_id'   => $this->extract_youtube_id($raw['vtr_youtube_url'] ?: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'),
+                'embed_url'    => !empty($this->extract_youtube_id($raw['vtr_youtube_url'] ?: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ')) 
+                    ? 'https://www.youtube-nocookie.com/embed/' . $this->extract_youtube_id($raw['vtr_youtube_url'] ?: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ') 
+                    : '',
+            ),
         );
 
         return rest_ensure_response($safe_settings);
+    }
+
+    /**
+     * Extract 11-char YouTube Video ID from any YouTube URL format
+     */
+    private function extract_youtube_id($url) {
+        if (empty($url)) {
+            return '';
+        }
+        $url = trim($url);
+        if (preg_match('/^[a-zA-Z0-9_-]{11}$/', $url)) {
+            return $url;
+        }
+        $pattern = '/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i';
+        if (preg_match($pattern, $url, $matches)) {
+            return $matches[1];
+        }
+        return '';
     }
 
     /**
