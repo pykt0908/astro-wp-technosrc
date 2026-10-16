@@ -192,37 +192,68 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
       </div>
     </div>
 
-    <!-- Category Filter Chips -->
-    <div class="flex flex-wrap items-center gap-2 sm:gap-2.5 mb-8" id="calendar-category-filter">
-      <button
-        type="button"
-        class="calendar-category-btn active px-3.5 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer focus:outline-none"
-        data-cat-slug="all"
-      >
-        ทั้งหมด
-      </button>
-
-      {displayCategories.map((cat) => (
+    <!-- Filter and Search Bar -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 mb-8">
+      
+      <!-- Category Filter Chips (Left) -->
+      <div class="flex flex-wrap items-center gap-2 sm:gap-2.5" id="calendar-category-filter">
         <button
           type="button"
-          class="calendar-category-btn px-3.5 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer focus:outline-none"
-          data-cat-slug={cat.slug}
+          class="calendar-category-btn active px-3.5 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer focus:outline-none"
+          data-cat-slug="all"
         >
-          {cat.name}
+          ทั้งหมด
         </button>
-      ))}
 
-      <!-- Reset Filter indicator if date selected -->
-      <button
-        type="button"
-        id="calendar-reset-date-btn"
-        class="hidden items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition-colors cursor-pointer"
-      >
-        <span id="calendar-selected-date-label">กรองตามวันที่</span>
-        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
+        {displayCategories.map((cat) => (
+          <button
+            type="button"
+            class="calendar-category-btn px-3.5 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer focus:outline-none"
+            data-cat-slug={cat.slug}
+          >
+            {cat.name}
+          </button>
+        ))}
+
+        <!-- Reset Filter indicator if date selected -->
+        <button
+          type="button"
+          id="calendar-reset-date-btn"
+          class="hidden items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition-colors cursor-pointer"
+        >
+          <span id="calendar-selected-date-label">กรองตามวันที่</span>
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Search Input Box (Right) -->
+      <div class="relative w-full sm:w-72 lg:w-80 shrink-0">
+        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <input
+          type="text"
+          id="calendar-search-input"
+          placeholder="ค้นหากิจกรรม, กำหนดการ..."
+          autocomplete="off"
+          class="w-full pl-9.5 pr-8 py-2 rounded-xl text-xs sm:text-sm bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200/90 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all placeholder:text-slate-400 font-medium text-slate-800"
+        />
+        <button
+          type="button"
+          id="calendar-search-clear-btn"
+          class="hidden absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
+          aria-label="ล้างการค้นหา"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
     </div>
 
     <!-- 2-Column Bento Layout: Left = Interactive Calendar, Right = Events Timeline -->
@@ -348,6 +379,10 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
                 data-start-date={ev.startDate}
                 data-end-date={ev.endDate}
                 data-category-slugs={ev.categorySlugs.join(',')}
+                data-title={ev.title}
+                data-excerpt={ev.excerpt}
+                data-location={ev.location}
+                data-organizer={ev.organizer}
               >
                 <!-- Date Box (Left on tablet/desktop) -->
                 <div class="w-full sm:w-32 sm:min-w-[128px] bg-slate-50/80 p-3.5 sm:p-4 border-b sm:border-b-0 sm:border-r border-slate-100 flex sm:flex-col items-center justify-between sm:justify-center text-center relative">
@@ -679,7 +714,10 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
 
   let selectedCategory = 'all';
   let selectedDate = null; // YYYY-MM-DD or null
+  let searchQuery = '';
 
+  const searchInput = document.getElementById('calendar-search-input');
+  const searchClearBtn = document.getElementById('calendar-search-clear-btn');
   const daysGrid = document.getElementById('cal-days-grid');
   const monthTitle = document.getElementById('cal-month-title');
   const prevMonthBtn = document.getElementById('cal-prev-month');
@@ -850,21 +888,32 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
   // Apply filters on event cards
   function applyFilters() {
     let visibleCount = 0;
+    const q = searchQuery.trim().toLowerCase();
 
     eventCards.forEach((card) => {
       const catSlugs = (card.dataset.categorySlugs || '').split(',');
       const startDate = card.dataset.startDate;
       const endDate = card.dataset.endDate;
+      const title = (card.dataset.title || '').toLowerCase();
+      const excerpt = (card.dataset.excerpt || '').toLowerCase();
+      const location = (card.dataset.location || '').toLowerCase();
+      const organizer = (card.dataset.organizer || '').toLowerCase();
 
       const matchesCat = selectedCategory === 'all' || catSlugs.includes(selectedCategory);
 
-      // If a specific date is selected, filter by that day.
-      // Otherwise, filter by the active calendar month!
-      const matchesDate = selectedDate
-        ? dateMatches(startDate, endDate, selectedDate)
-        : eventMatchesMonth(startDate, endDate, currentYear, currentMonth);
+      // Search matching (case-insensitive across title, excerpt, location, organizer)
+      const matchesSearch = !q || title.includes(q) || excerpt.includes(q) || location.includes(q) || organizer.includes(q);
 
-      if (matchesCat && matchesDate) {
+      // Date matching:
+      // When searching with a query, search across all events unless user picked a specific day!
+      let matchesDate = true;
+      if (selectedDate) {
+        matchesDate = dateMatches(startDate, endDate, selectedDate);
+      } else if (!q) {
+        matchesDate = eventMatchesMonth(startDate, endDate, currentYear, currentMonth);
+      }
+
+      if (matchesCat && matchesSearch && matchesDate) {
         card.classList.remove('hidden');
         visibleCount++;
       } else {
@@ -947,11 +996,39 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
     emptyResetBtn.addEventListener('click', () => {
       selectedDate = null;
       selectedCategory = 'all';
+      searchQuery = '';
+      if (searchInput) searchInput.value = '';
+      if (searchClearBtn) searchClearBtn.classList.add('hidden');
       categoryButtons.forEach((b) => {
         b.classList.toggle('active', b.dataset.catSlug === 'all');
       });
       applyFilters();
       renderCalendar();
+    });
+  }
+
+  // Real-time Search input listeners
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      if (searchClearBtn) {
+        if (searchQuery.trim().length > 0) {
+          searchClearBtn.classList.remove('hidden');
+        } else {
+          searchClearBtn.classList.add('hidden');
+        }
+      }
+      applyFilters();
+    });
+  }
+
+  if (searchClearBtn && searchInput) {
+    searchClearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      searchQuery = '';
+      searchClearBtn.classList.add('hidden');
+      applyFilters();
+      searchInput.focus();
     });
   }
 
