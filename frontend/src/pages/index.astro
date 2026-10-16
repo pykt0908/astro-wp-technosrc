@@ -42,13 +42,13 @@ const banners = await getBanners();
       <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
         <a
           href="/services/"
-          class="w-full sm:w-auto px-8 py-3.5 text-base font-semibold text-white bg-[#0047BA] hover:bg-[#003893] rounded-xl shadow-lg shadow-blue-600/25 transition-all duration-200 hover:-translate-y-0.5"
+          class="w-full sm:w-auto px-8 py-3.5 text-base font-semibold text-white bg-[#0047BA] hover:bg-[#003893] rounded-md shadow-lg shadow-blue-600/25 transition-all duration-200 hover:-translate-y-0.5"
         >
           สำรวจหลักสูตรการเรียน
         </a>
         <a
           href="/contact/"
-          class="w-full sm:w-auto px-8 py-3.5 text-base font-semibold text-[#0047BA] hover:text-[#002D72] bg-white hover:bg-blue-50/80 border-2 border-[#0047BA] rounded-xl transition-all duration-200 shadow-sm"
+          class="w-full sm:w-auto px-8 py-3.5 text-base font-semibold text-[#0047BA] hover:text-[#002D72] bg-white hover:bg-blue-50/80 border-2 border-[#0047BA] rounded-md transition-all duration-200 shadow-sm"
         >
           ติดต่อสมัครเรียน
         </a>
@@ -56,19 +56,19 @@ const banners = await getBanners();
 
       <!-- Highlights Badges -->
       <div class="mt-16 pt-10 border-t border-slate-200 max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-slate-700 text-sm">
-        <div class="flex items-center justify-center gap-2 p-3 bg-white rounded-xl border border-blue-100 shadow-xs">
+        <div class="flex items-center justify-center gap-2 p-3 bg-white rounded-md border border-blue-100 shadow-xs">
           <span class="text-[#0047BA] font-bold text-base">🎓 ปวช. & ปวส.</span>
           <span class="text-xs sm:text-sm font-medium">มาตรฐานสากล</span>
         </div>
-        <div class="flex items-center justify-center gap-2 p-3 bg-white rounded-xl border border-blue-100 shadow-xs">
+        <div class="flex items-center justify-center gap-2 p-3 bg-white rounded-md border border-blue-100 shadow-xs">
           <span class="text-[#0047BA] font-bold text-base">⚡ 100%</span>
           <span class="text-xs sm:text-sm font-medium">ฝึกปฏิบัติจริง</span>
         </div>
-        <div class="flex items-center justify-center gap-2 p-3 bg-white rounded-xl border border-blue-100 shadow-xs">
+        <div class="flex items-center justify-center gap-2 p-3 bg-white rounded-md border border-blue-100 shadow-xs">
           <span class="text-[#0047BA] font-bold text-base">🤝 เครือข่าย</span>
           <span class="text-xs sm:text-sm font-medium">สถานประกอบการ</span>
         </div>
-        <div class="flex items-center justify-center gap-2 p-3 bg-white rounded-xl border border-blue-100 shadow-xs">
+        <div class="flex items-center justify-center gap-2 p-3 bg-white rounded-md border border-blue-100 shadow-xs">
           <span class="text-[#0047BA] font-bold text-base">📍 ศรีราชา</span>
           <span class="text-xs sm:text-sm font-medium">ทุ่งสุขลา ชลบุรี</span>
         </div>
@@ -84,7 +84,7 @@ const banners = await getBanners();
           {banners.map((banner) => (
             <a
               href={banner.targetUrl || '#'}
-              class="group relative rounded-2xl overflow-hidden aspect-[21/9] block border border-blue-100 shadow-md hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="group relative rounded-lg overflow-hidden aspect-[21/9] block border border-blue-100 shadow-md hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <picture>
                 <source media="(max-width: 640px)" srcset={banner.mobileImageUrl} />
@@ -125,8 +125,8 @@ const banners = await getBanners();
             วิทยาลัยเทคโนโลยีศรีราชา ตั้งอยู่ ณ ตำบลทุ่งสุขลา อำเภอศรีราชา จังหวัดชลบุรี มุ่งเน้นการจัดการเรียนการสอนสายอาชีพที่ตอบรับกับการเติบโตของเขตพัฒนาพิเศษภาคตะวันออก (EEC) เน้นผู้เรียนเป็นสำคัญ พร้อมอุปกรณ์และห้องปฏิบัติการที่ทันสมัย
           </p>
           <div class="mt-8 space-y-4">
-            <div class="flex items-start gap-4 p-4 rounded-xl bg-white border border-blue-100 shadow-xs">
-              <div class="p-2.5 rounded-lg bg-blue-50 text-[#0047BA] shrink-0">
+            <div class="flex items-start gap-4 p-4 rounded-md bg-white border border-blue-100 shadow-xs">
+              <div class="p-2.5 rounded-md bg-blue-50 text-[#0047BA] shrink-0">
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                 </svg>
@@ -136,8 +136,8 @@ const banners = await getBanners();
                 <p class="text-sm text-slate-600 mt-1">ทั้งสาขาวิชาช่างอุตสาหกรรม บริหารธุรกิจ และเทคโนโลยีสารสนเทศดิจิทัล</p>
               </div>
             </div>
-            <div class="flex items-start gap-4 p-4 rounded-xl bg-white border border-blue-100 shadow-xs">
-              <div class="p-2.5 rounded-lg bg-blue-50 text-[#0047BA] shrink-0">
+            <div class="flex items-start gap-4 p-4 rounded-md bg-white border border-blue-100 shadow-xs">
+              <div class="p-2.5 rounded-md bg-blue-50 text-[#0047BA] shrink-0">
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                 </svg>
@@ -150,7 +150,7 @@ const banners = await getBanners();
           </div>
         </div>
         <div class="relative">
-          <div class="aspect-[4/3] rounded-2xl overflow-hidden shadow-xl border border-blue-100 bg-white">
+          <div class="aspect-[4/3] rounded-lg overflow-hidden shadow-xl border border-blue-100 bg-white">
             <img
               src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1200&auto=format&fit=crop"
               alt="Students Collaboration"
@@ -195,7 +195,7 @@ const banners = await getBanners();
   <!-- Contact CTA Section: Two-tone Royal Blue & White -->
   <section class="py-12 sm:py-20 bg-slate-50">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <div class="rounded-3xl p-6 sm:p-10 lg:p-12 bg-gradient-to-br from-[#003893] via-[#0047BA] to-[#002D72] text-white relative overflow-hidden shadow-2xl shadow-blue-900/20">
+      <div class="rounded-xl p-6 sm:p-10 lg:p-12 bg-gradient-to-br from-[#003893] via-[#0047BA] to-[#002D72] text-white relative overflow-hidden shadow-2xl shadow-blue-900/20">
         <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
         <h2 class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white">สนใจสมัครเรียน หรือสอบถามข้อมูลเพิ่มเติม</h2>
         <p class="mt-4 text-sm sm:text-base text-blue-100 max-w-xl mx-auto leading-relaxed">
@@ -204,7 +204,7 @@ const banners = await getBanners();
         <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
             href="/contact/"
-            class="w-full sm:w-auto px-8 py-3.5 text-base font-bold text-[#003893] bg-white hover:bg-blue-50 rounded-xl shadow-lg transition-all duration-200 hover:-translate-y-0.5"
+            class="w-full sm:w-auto px-8 py-3.5 text-base font-bold text-[#003893] bg-white hover:bg-blue-50 rounded-md shadow-lg transition-all duration-200 hover:-translate-y-0.5"
           >
             ติดต่อฝ่ายรับสมัคร
           </a>
