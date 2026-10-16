@@ -98,6 +98,46 @@ const fallbackCover = 'https://images.unsplash.com/photo-1518770660439-4636190af
     <!-- Sanitized Content Body -->
     <div class="wp-content max-w-none bg-white p-5 sm:p-8 md:p-10 rounded-2xl border border-blue-100 shadow-xs" set:html={post.contentHtml} />
 
+    <!-- Photo Album Gallery (if available) -->
+    {post.gallery && post.gallery.length > 0 && (
+      <section class="mt-8 sm:mt-12 p-6 sm:p-8 bg-white rounded-2xl border border-blue-100 shadow-xs">
+        <div class="flex items-center gap-2.5 mb-6">
+          <div class="p-2 rounded-lg bg-blue-50 text-[#0047BA]">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900">อัลบั้มภาพกิจกรรม</h2>
+            <p class="text-xs text-slate-500">รวมภาพบรรยากาศทั้งหมด ({post.gallery.length} ภาพ)</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+          {post.gallery.map((img, idx) => (
+            <a
+              href={img.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="group relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-300 block focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <img
+                src={img.thumbUrl || img.url}
+                alt={img.alt || `${post.titlePlain} - ภาพที่ ${idx + 1}`}
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+              />
+              <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                <svg class="w-6 h-6 drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                </svg>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
     <!-- Share / Back to news footer -->
     <div class="mt-14 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
       <a

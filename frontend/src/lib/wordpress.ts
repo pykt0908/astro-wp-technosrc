@@ -37,70 +37,148 @@ function setInCache<T>(key: string, data: T): void {
 }
 
 // Fallback Mock Data for Local Development
+// Fallback Mock Data matching institution and user mockup
 const LOCAL_MOCK_POSTS: Post[] = [
   {
-    id: 1,
-    slug: 'technosrc-announces-cloud-integration',
-    titleHtml: 'Technosrc ประกาศเปิดตัวระบบบูรณาการคลาวด์รุ่นใหม่',
-    titlePlain: 'Technosrc ประกาศเปิดตัวระบบบูรณาการคลาวด์รุ่นใหม่',
-    excerptHtml: '<p>เพิ่มประสิทธิภาพการทำงานและรองรับการประมวลผลข้อมูลปริมาณมหาศาลด้วยโครงสร้างพื้นฐานระดับเอ็นเตอร์ไพรส์</p>',
-    excerptPlain: 'เพิ่มประสิทธิภาพการทำงานและรองรับการประมวลผลข้อมูลปริมาณมหาศาลด้วยโครงสร้างพื้นฐานระดับเอ็นเตอร์ไพรส์',
-    contentHtml: `
-      <p>Technosrc มีความยินดีที่จะประกาศการเปิดตัวโซลูชันระบบบูรณาการคลาวด์รุ่นใหม่ล่าสุด ที่ถูกออกแบบมาเพื่อเพิ่มความคล่องตัวในการทำงานขององค์กรทุกขนาด</p>
-      <h2>จุดเด่นของระบบ</h2>
-      <ul>
-        <li>ความเร็วและประสิทธิภาพการประมวลผลที่สูงขึ้นกว่า 40%</li>
-        <li>รองรับการเชื่อมต่อกับระบบเดิมอย่างไร้รอยต่อผ่าน API อัจฉริยะ</li>
-        <li>มาตรฐานความปลอดภัยระดับสากล พร้อมการสำรองข้อมูลอัตโนมัติ</li>
-      </ul>
-      <p>ทีมวิศวกรของเราได้พัฒนาเทคโนโลยีนี้โดยคำนึงถึงความต้องการของลูกค้าในยุคดิจิทัลเป็นหลัก เพื่อให้สามารถขยายขีดความสามารถทางธุรกิจได้อย่างมั่นคงและปลอดภัย</p>
-    `,
-    publishedAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-    modifiedAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-    coverUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop',
-    coverAlt: 'Cloud Infrastructure and Data Centers',
-    categoryIds: [1],
+    id: 22,
+    slug: 'meeting-dean-september-24-2026',
+    titleHtml: 'วันพฤหัสบดีที่ 24 กันยายน 2569 เวลา 15.30 น. ผู้ช่วยศาสตราจารย์ ดร.ลินดา นาคโปย คณบดีคณะครุศาสตร์ เป็นประธานการประชุม',
+    titlePlain: 'วันพฤหัสบดีที่ 24 กันยายน 2569 เวลา 15.30 น. ผู้ช่วยศาสตราจารย์ ดร.ลินดา นาคโปย คณบดีคณะครุศาสตร์ เป็นประธานการประชุม',
+    excerptHtml: '<p>วันพฤหัสบดีที่ 24 กันยายน 2569 เวลา 15.30 น. ผู้ช่วยศาสตราจารย์ ดร.ลินดา นาคโปย คณบดีคณะครุศาสตร์ เป็นประธานการประชุม ประธานสาขาวิชาและประธานหลักสูตรฯ เพื่อร่วมประชุมหารือและเตรียมความพร้อมในการเปิดภาคเรียน...</p>',
+    excerptPlain: 'วันพฤหัสบดีที่ 24 กันยายน 2569 เวลา 15.30 น. ผู้ช่วยศาสตราจารย์ ดร.ลินดา นาคโปย คณบดีคณะครุศาสตร์ เป็นประธานการประชุม ประธานสาขาวิชาและประธานหลักสูตรฯ เพื่อร่วมประชุมหารือและเตรียมความพร้อมในการเปิดภาคเรียน...',
+    contentHtml: '<p>วันพฤหัสบดีที่ 24 กันยายน 2569 เวลา 15.30 น. ผู้ช่วยศาสตราจารย์ ดร.ลินดา นาคโปย คณบดีคณะครุศาสตร์ เป็นประธานการประชุม ประธานสาขาวิชาและประธานหลักสูตรฯ เพื่อร่วมประชุมหารือและเตรียมความพร้อมในการเปิดภาคเรียน</p>',
+    publishedAt: '2026-09-24T15:30:00+07:00',
+    modifiedAt: '2026-09-24T15:30:00+07:00',
+    coverUrl: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?q=80&w=1200&auto=format&fit=crop',
+    coverAlt: 'การประชุมวิชาการและการบริหารวิทยาลัย',
+    categoryIds: [3],
     categoryNames: ['ข่าวประชาสัมพันธ์'],
-    seoMetaTitle: 'เปิดตัวระบบคลาวด์เอ็นเตอร์ไพรส์รุ่นใหม่ | Technosrc',
-    seoMetaDescription: 'ระบบบูรณาการคลาวด์ประสิทธิภาพสูง ยกระดับการประมวลผลข้อมูลองค์กร',
+    views: 36,
+    galleryCount: 3,
+    authorName: 'Admin',
+    authorRole: 'ผู้ดูแลระบบ',
+    authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120&auto=format&fit=crop',
+    gallery: [
+      { id: 1, url: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?q=80&w=1200&auto=format&fit=crop' },
+      { id: 2, url: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1200&auto=format&fit=crop' },
+      { id: 3, url: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1200&auto=format&fit=crop' },
+    ],
   },
   {
-    id: 2,
-    slug: 'annual-cybersecurity-trends-2026',
-    titleHtml: 'แนวโน้มความปลอดภัยทางไซเบอร์สำหรับองค์กรในปี 2026',
-    titlePlain: 'แนวโน้มความปลอดภัยทางไซเบอร์สำหรับองค์กรในปี 2026',
-    excerptHtml: '<p>เจาะลึกภัยคุกคามรูปแบบใหม่และกลยุทธ์ Zero Trust ที่ทุกองค์กรควรนำมาปรับใช้เพื่อความปลอดภัยสูงสุด</p>',
-    excerptPlain: 'เจาะลึกภัยคุกคามรูปแบบใหม่และกลยุทธ์ Zero Trust ที่ทุกองค์กรควรนำมาปรับใช้เพื่อความปลอดภัยสูงสุด',
-    contentHtml: `
-      <p>ในยุคที่เทคโนโลยี AI ก้าวหน้าอย่างรวดเร็ว ภัยคุกคามทางไซเบอร์ก็มีความซับซ้อนมากยิ่งขึ้น การรักษาความปลอดภัยแบบดั้งเดิมจึงอาจไม่เพียงพออีกต่อไป</p>
-      <h2>แนวทางปฏิบัติที่สำคัญ</h2>
-      <p>การนำแนวคิด <strong>Zero Trust Architecture</strong> เข้ามาใช้จะช่วยให้องค์กรสามารถตรวจสอบสิทธิ์การเข้าถึงอย่างเข้มงวดในทุกระดับ ไม่ว่าจะเป็นภายในหรือภายนอกเครือข่าย</p>
-    `,
-    publishedAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-    modifiedAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-    coverUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1200&auto=format&fit=crop',
-    coverAlt: 'Cybersecurity Network Monitoring',
-    categoryIds: [2],
-    categoryNames: ['เทคโนโลยี'],
-    seoMetaTitle: 'แนวโน้มความปลอดภัยทางไซเบอร์ปี 2026 | Technosrc',
-    seoMetaDescription: 'กลยุทธ์ Zero Trust และการรับมือภัยคุกคามไซเบอร์สำหรับองค์กร',
+    id: 23,
+    slug: 'chinese-language-study-tour-2026',
+    titleHtml: 'CN ✈️ คณะครุศาสตร์ร่วมส่งนักศึกษาสาขาวิชาภาษาจีน เดินทางศึกษาทักษะรายวิชาภาษาจีน ณ สาร...',
+    titlePlain: 'CN ✈️ คณะครุศาสตร์ร่วมส่งนักศึกษาสาขาวิชาภาษาจีน เดินทางศึกษาทักษะรายวิชาภาษาจีน ณ สาร...',
+    excerptHtml: '<p>CN ✈️ คณะครุศาสตร์ร่วมส่งนักศึกษาสาขาวิชาภาษาจีน เดินทางศึกษาทักษะรายวิชาภาษาจีน ณ สาธารณรัฐประชาชนจีน เพื่อเพิ่มพูนทักษะทางวิชาการและเปิดโลกทัศน์...</p>',
+    excerptPlain: 'CN ✈️ คณะครุศาสตร์ร่วมส่งนักศึกษาสาขาวิชาภาษาจีน เดินทางศึกษาทักษะรายวิชาภาษาจีน ณ สาธารณรัฐประชาชนจีน เพื่อเพิ่มพูนทักษะทางวิชาการและเปิดโลกทัศน์...',
+    contentHtml: '<p>CN ✈️ คณะครุศาสตร์ร่วมส่งนักศึกษาสาขาวิชาภาษาจีน เดินทางศึกษาทักษะรายวิชาภาษาจีน ณ สาธารณรัฐประชาชนจีน</p>',
+    publishedAt: '2026-09-24T10:00:00+07:00',
+    modifiedAt: '2026-09-24T10:00:00+07:00',
+    coverUrl: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800&auto=format&fit=crop',
+    coverAlt: 'นักศึกษาสาขาวิชาภาษาจีนเดินทางศึกษาดูงาน',
+    categoryIds: [3],
+    categoryNames: ['ข่าวประชาสัมพันธ์'],
+    views: 11,
+    galleryCount: 3,
+    authorName: 'Admin',
+    authorRole: 'ผู้ดูแลระบบ',
+    authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120&auto=format&fit=crop',
+    gallery: [
+      { id: 4, url: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1200&auto=format&fit=crop' },
+      { id: 5, url: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=1200&auto=format&fit=crop' },
+    ],
   },
   {
-    id: 3,
-    slug: 'smart-iot-solutions-for-industry',
-    titleHtml: 'นวัตกรรม Smart IoT ยกระดับอุตสาหกรรมการผลิต',
-    titlePlain: 'นวัตกรรม Smart IoT ยกระดับอุตสาหกรรมการผลิต',
-    excerptHtml: '<p>การผสานเซ็นเซอร์อัจฉริยะและการวิเคราะห์ข้อมูลเชิงลึกแบบเรียลไทม์เพื่อลดต้นทุนการบำรุงรักษา</p>',
-    excerptPlain: 'การผสานเซ็นเซอร์อัจฉริยะและการวิเคราะห์ข้อมูลเชิงลึกแบบเรียลไทม์เพื่อลดต้นทุนการบำรุงรักษา',
-    contentHtml: `
-      <p>ระบบเซ็นเซอร์อัจฉริยะ IoT ช่วยให้โรงงานสามารถตรวจสอบประสิทธิภาพของเครื่องจักรได้ตลอด 24 ชั่วโมง ช่วยลดเวลา Downtime และวางแผนซ่อมบำรุงล่วงหน้าได้อย่างแม่นยำ</p>
-    `,
-    publishedAt: new Date(Date.now() - 86400000 * 10).toISOString(),
-    modifiedAt: new Date(Date.now() - 86400000 * 10).toISOString(),
-    coverUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop',
-    coverAlt: 'Smart Industry IoT Sensor System',
-    categoryIds: [2],
-    categoryNames: ['เทคโนโลยี'],
+    id: 24,
+    slug: 'quality-assurance-assessment-2026',
+    titleHtml: '📣 คณะครุศาสตร์ ต้อนรับคณะผู้ตรวจประเมินคุณภาพการศึกษาภายใน ระดับคณะ ตามเกณ...',
+    titlePlain: '📣 คณะครุศาสตร์ ต้อนรับคณะผู้ตรวจประเมินคุณภาพการศึกษาภายใน ระดับคณะ ตามเกณ...',
+    excerptHtml: '<p>📣 คณะครุศาสตร์ ต้อนรับคณะผู้ตรวจประเมินคุณภาพการศึกษาภายใน ระดับคณะ ตามเกณฑ์ EdPEx ประจำปีการศึกษา 2569 เพื่อพัฒนามาตรฐานสู่ความเป็นเลิศ...</p>',
+    excerptPlain: '📣 คณะครุศาสตร์ ต้อนรับคณะผู้ตรวจประเมินคุณภาพการศึกษาภายใน ระดับคณะ ตามเกณฑ์ EdPEx ประจำปีการศึกษา 2569 เพื่อพัฒนามาตรฐานสู่ความเป็นเลิศ...',
+    contentHtml: '<p>📣 คณะครุศาสตร์ ต้อนรับคณะผู้ตรวจประเมินคุณภาพการศึกษาภายใน ระดับคณะ ตามเกณฑ์ EdPEx ประจำปีการศึกษา 2569</p>',
+    publishedAt: '2026-09-24T09:00:00+07:00',
+    modifiedAt: '2026-09-24T09:00:00+07:00',
+    coverUrl: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=800&auto=format&fit=crop',
+    coverAlt: 'คณะผู้ตรวจประเมินคุณภาพการศึกษาภายใน',
+    categoryIds: [3],
+    categoryNames: ['ข่าวประชาสัมพันธ์'],
+    views: 10,
+    galleryCount: 3,
+    authorName: 'Admin',
+    authorRole: 'ผู้ดูแลระบบ',
+    authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120&auto=format&fit=crop',
+    gallery: [
+      { id: 6, url: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=1200&auto=format&fit=crop' },
+    ],
+  },
+  {
+    id: 25,
+    slug: 'faculty-tshirt-preorder-2026',
+    titleHtml: 'เสื้อสวยๆ มาแล้วจ้า',
+    titlePlain: 'เสื้อสวยๆ มาแล้วจ้า',
+    excerptHtml: '<p>เสื้อสวยๆ มาแล้วจ้า ✅ เปิดรับ Pre-order เสื้อชวนครุศาสตร์ คืนถิ่น 86 ปี 👕 ราคาตัวละ 300 บาท ✅ ช่องทางการสั่งซื้อติดต่อฝ่ายกิจการนักศึกษา...</p>',
+    excerptPlain: 'เสื้อสวยๆ มาแล้วจ้า ✅ เปิดรับ Pre-order เสื้อชวนครุศาสตร์ คืนถิ่น 86 ปี 👕 ราคาตัวละ 300 บาท ✅ ช่องทางการสั่งซื้อติดต่อฝ่ายกิจการนักศึกษา...',
+    contentHtml: '<p>เสื้อสวยๆ มาแล้วจ้า ✅ เปิดรับ Pre-order เสื้อชวนครุศาสตร์ คืนถิ่น 86 ปี 👕 ราคาตัวละ 300 บาท</p>',
+    publishedAt: '2026-09-23T14:00:00+07:00',
+    modifiedAt: '2026-09-23T14:00:00+07:00',
+    coverUrl: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=800&auto=format&fit=crop',
+    coverAlt: 'เสื้อโครงการคืนถิ่น',
+    categoryIds: [3],
+    categoryNames: ['ข่าวประชาสัมพันธ์'],
+    views: 5,
+    galleryCount: 3,
+    authorName: 'Admin',
+    authorRole: 'ผู้ดูแลระบบ',
+    authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120&auto=format&fit=crop',
+    gallery: [
+      { id: 7, url: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=800&auto=format&fit=crop' },
+    ],
+  },
+  {
+    id: 26,
+    slug: 'executive-meeting-september-15-2026',
+    titleHtml: 'วันที่ 15 กันยายน 2569 ผู้ช่วยศาสตราจารย์ ดร.ลินดา นาคโปย คณบดีคณะครุศาสตร์ พร้อม...',
+    titlePlain: 'วันที่ 15 กันยายน 2569 ผู้ช่วยศาสตราจารย์ ดร.ลินดา นาคโปย คณบดีคณะครุศาสตร์ พร้อม...',
+    excerptHtml: '<p>วันที่ 15 กันยายน 2569 ผู้ช่วยศาสตราจารย์ ดร.ลินดา นาคโปย คณบดีคณะครุศาสตร์ พร้อมด้วยผู้บริหาร อาจารย์คณะ ร่วมประชุมพัฒนาหลักสูตรนวัตกรรม...</p>',
+    excerptPlain: 'วันที่ 15 กันยายน 2569 ผู้ช่วยศาสตราจารย์ ดร.ลินดา นาคโปย คณบดีคณะครุศาสตร์ พร้อมด้วยผู้บริหาร อาจารย์คณะ ร่วมประชุมพัฒนาหลักสูตรนวัตกรรม...',
+    contentHtml: '<p>วันที่ 15 กันยายน 2569 ผู้ช่วยศาสตราจารย์ ดร.ลินดา นาคโปย คณบดีคณะครุศาสตร์ พร้อมด้วยผู้บริหาร อาจารย์คณะ</p>',
+    publishedAt: '2026-09-15T11:00:00+07:00',
+    modifiedAt: '2026-09-15T11:00:00+07:00',
+    coverUrl: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=800&auto=format&fit=crop',
+    coverAlt: 'การประชุมพัฒนาหลักสูตร',
+    categoryIds: [4],
+    categoryNames: ['วิชาการ'],
+    views: 3,
+    galleryCount: 3,
+    authorName: 'Admin',
+    authorRole: 'ผู้ดูแลระบบ',
+    authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120&auto=format&fit=crop',
+    gallery: [
+      { id: 8, url: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=800&auto=format&fit=crop' },
+    ],
+  },
+  {
+    id: 27,
+    slug: 'university-collaboration-september-14-2026',
+    titleHtml: 'วันที่ 14 กันยายน 2569 ผู้ช่วยศาสตราจารย์ ดร.ลินดา นาคโปย คณบดีคณะครุศาสตร์ มหาว...',
+    titlePlain: 'วันที่ 14 กันยายน 2569 ผู้ช่วยศาสตราจารย์ ดร.ลินดา นาคโปย คณบดีคณะครุศาสตร์ มหาว...',
+    excerptHtml: '<p>วันที่ 14 กันยายน 2569 ผู้ช่วยศาสตราจารย์ ดร.ลินดา นาคโปย คณบดีคณะครุศาสตร์ มหาวิทยาลัยราชภัฏเพื่อส่งเสริมศักยภาพและพัฒนาองค์ความรู้ร่วมกัน...</p>',
+    excerptPlain: 'วันที่ 14 กันยายน 2569 ผู้ช่วยศาสตราจารย์ ดร.ลินดา นาคโปย คณบดีคณะครุศาสตร์ มหาวิทยาลัยราชภัฏเพื่อส่งเสริมศักยภาพและพัฒนาองค์ความรู้ร่วมกัน...',
+    contentHtml: '<p>วันที่ 14 กันยายน 2569 ผู้ช่วยศาสตราจารย์ ดร.ลินดา นาคโปย คณบดีคณะครุศาสตร์ มหาวิทยาลัยราชภัฏเพื่อส่งเสริมศักยภาพและพัฒนาองค์ความรู้ร่วมกัน</p>',
+    publishedAt: '2026-09-14T13:30:00+07:00',
+    modifiedAt: '2026-09-14T13:30:00+07:00',
+    coverUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=800&auto=format&fit=crop',
+    coverAlt: 'ความร่วมมือทางวิชาการ',
+    categoryIds: [3],
+    categoryNames: ['ข่าวประชาสัมพันธ์'],
+    views: 6,
+    galleryCount: 3,
+    authorName: 'Admin',
+    authorRole: 'ผู้ดูแลระบบ',
+    authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120&auto=format&fit=crop',
+    gallery: [
+      { id: 9, url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=800&auto=format&fit=crop' },
+    ],
   },
 ];
 
@@ -132,53 +210,61 @@ const LOCAL_MOCK_BANNERS: Banner[] = [
 ];
 
 const LOCAL_MOCK_SITE_SETTINGS: SiteSettings = {
-  siteName: 'TECHNOSRC',
-  siteTagline: 'Digital Innovation & Cloud Architecture',
-  logoUrl: '',
+  siteName: 'SERIRACHA TECHNOLOGY COLLEGE',
+  siteTagline: 'Institutional Excellence & Innovation',
+  logoUrl: '/logo/LOGO_SERIRACHA_COLOR_FULL.png',
   faviconUrl: '/favicon.svg',
   contact: {
-    email: 'contact@technosrc.com',
-    phone: '02-123-4567',
-    address: 'กรุงเทพมหานคร, ประเทศไทย',
-    officeHours: 'จันทร์ - ศุกร์ 09:00 - 18:00 น.',
+    email: 'contact@seriracha.ac.th',
+    phone: '065-465-0306',
+    address: 'ตำบลทุ่งสุขลา อำเภอศรีราชา จังหวัดชลบุรี',
+    officeHours: 'จันทร์ - ศุกร์ 08:30 - 17:00 น.',
   },
   social: {
     facebook: 'https://facebook.com',
-    line: '@technosrc',
-    linkedin: 'https://linkedin.com',
-    github: 'https://github.com',
+    line: '@seriracha',
+    linkedin: '',
+    github: '',
   },
-  footerCopyright: `© ${new Date().getFullYear()} Technosrc. สงวนลิขสิทธิ์ทุกประการ.`,
+  footerCopyright: `© ${new Date().getFullYear()} วิทยาลัยเทคโนโลยีศรีราชา (SERIRACHA TECHNOLOGY COLLEGE). สงวนลิขสิทธิ์ทุกประการ.`,
 };
 
 /**
  * Transforms raw WordPress REST API post item into clean Post domain model
  */
-function mapRawPostToPost(raw: WP_RawPost): Post {
+function mapRawPostToPost(raw: any): Post {
   const media = raw._embedded?.['wp:featuredmedia']?.[0];
-  const coverUrl = media?.source_url;
-  const coverAlt = media?.alt_text || stripHtml(raw.title.rendered);
+  const coverUrl = raw.coverUrl || media?.source_url || raw.meta?.seo_og_image_url;
+  const coverAlt = raw.coverAlt || media?.alt_text || stripHtml(raw.title?.rendered || raw.title || '');
 
   const termCategories = raw._embedded?.['wp:term']?.[0] || [];
-  const categoryNames = termCategories.map((term) => term.name);
+  const categoryNames = raw.categoryNames || termCategories.map((term: any) => term.name);
 
   return {
     id: raw.id,
     slug: raw.slug,
-    titleHtml: raw.title.rendered,
-    titlePlain: stripHtml(raw.title.rendered),
-    excerptHtml: sanitizeWordPressHtml(raw.excerpt.rendered),
-    excerptPlain: stripHtml(raw.excerpt.rendered),
-    contentHtml: sanitizeWordPressHtml(raw.content.rendered),
-    publishedAt: raw.date,
-    modifiedAt: raw.modified,
+    titleHtml: raw.titleHtml || raw.title?.rendered || raw.title || '',
+    titlePlain: raw.titlePlain || stripHtml(raw.title?.rendered || raw.title || ''),
+    excerptHtml: sanitizeWordPressHtml(raw.excerptHtml || raw.excerpt?.rendered || raw.excerpt || ''),
+    excerptPlain: raw.excerptPlain || stripHtml(raw.excerpt?.rendered || raw.excerpt || ''),
+    contentHtml: sanitizeWordPressHtml(raw.contentHtml || raw.content?.rendered || raw.content || ''),
+    publishedAt: raw.publishedAt || raw.date,
+    modifiedAt: raw.modifiedAt || raw.modified,
     coverUrl,
+    coverThumb: raw.coverThumb || coverUrl,
     coverAlt,
-    categoryIds: raw.categories || [],
+    categoryIds: raw.categoryIds || raw.categories || [],
     categoryNames,
-    seoMetaTitle: raw.meta?.seo_meta_title,
-    seoMetaDescription: raw.meta?.seo_meta_description,
-    seoOgImageUrl: raw.meta?.seo_og_image_url,
+    categories: raw.categories,
+    views: raw.views ?? (raw.post_views ? Number(raw.post_views) : 12),
+    gallery: raw.gallery || raw.post_gallery || [],
+    galleryCount: raw.galleryCount ?? (raw.gallery ? raw.gallery.length : (raw.post_gallery_count ? Number(raw.post_gallery_count) : 0)),
+    authorName: raw.authorName || 'Admin',
+    authorRole: raw.authorRole || 'ผู้ดูแลระบบ',
+    authorAvatar: raw.authorAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120&auto=format&fit=crop',
+    seoMetaTitle: raw.seoMetaTitle || raw.meta?.seo_meta_title,
+    seoMetaDescription: raw.seoMetaDescription || raw.meta?.seo_meta_description,
+    seoOgImageUrl: raw.seoOgImageUrl || raw.meta?.seo_og_image_url,
   };
 }
 
@@ -204,13 +290,38 @@ async function fetchWithTimeout(url: string): Promise<Response> {
 }
 
 /**
- * Get paginated list of published posts
+ * Get paginated list of published posts with category filtering support
  */
-export async function getPublishedPosts(page = 1, perPage = 9): Promise<PaginatedPosts> {
-  const cacheKey = `posts_p${page}_pp${perPage}`;
+export async function getPublishedPosts(page = 1, perPage = 20, category = 'all'): Promise<PaginatedPosts> {
+  const cacheKey = `posts_p${page}_pp${perPage}_cat${category}`;
   const cached = getFromCache<PaginatedPosts>(cacheKey);
   if (cached) return cached;
 
+  // 1. Try custom project-core REST API endpoint first (returns gallery, views, formatted categories)
+  const categoryParam = category && category !== 'all' ? `&category=${encodeURIComponent(category)}` : '';
+  const projectCoreUrl = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/posts?page=${page}&per_page=${perPage}${categoryParam}`;
+
+  try {
+    const res = await fetchWithTimeout(projectCoreUrl);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && Array.isArray(data.posts) && data.posts.length > 0) {
+        const posts = data.posts.map(mapRawPostToPost);
+        const result: PaginatedPosts = {
+          posts,
+          totalPosts: data.totalPosts || posts.length,
+          totalPages: data.totalPages || 1,
+          currentPage: page,
+        };
+        setInCache(cacheKey, result);
+        return result;
+      }
+    }
+  } catch (err) {
+    // Continue to standard WP fallback
+  }
+
+  // 2. Standard WordPress REST API fallback
   const url = `${WP_API_BASE_URL.replace(/\/$/, '')}/posts?status=publish&_embed=1&page=${page}&per_page=${perPage}&orderby=date&order=desc`;
 
   try {
@@ -334,7 +445,22 @@ export async function getCategories(): Promise<Category[]> {
   const cached = getFromCache<Category[]>(cacheKey);
   if (cached) return cached;
 
-  const url = `${WP_API_BASE_URL.replace(/\/$/, '')}/categories?per_page=100&hide_empty=true`;
+  // 1. Try custom project-core REST API endpoint first
+  try {
+    const res = await fetchWithTimeout(`${PROJECT_CORE_API_URL.replace(/\/$/, '')}/categories`);
+    if (res.ok) {
+      const cats: Category[] = await res.json();
+      if (Array.isArray(cats) && cats.length > 0) {
+        setInCache(cacheKey, cats);
+        return cats;
+      }
+    }
+  } catch (err) {
+    // Continue to standard WP fallback
+  }
+
+  // 2. Standard WordPress REST API fallback
+  const url = `${WP_API_BASE_URL.replace(/\/$/, '')}/categories?per_page=100&hide_empty=false`;
 
   try {
     const res = await fetchWithTimeout(url);
@@ -342,19 +468,22 @@ export async function getCategories(): Promise<Category[]> {
       return [];
     }
     const rawCategories: WP_RawCategory[] = await res.json();
-    const result = rawCategories.map((c) => ({
-      id: c.id,
-      name: c.name,
-      slug: c.slug,
-      count: c.count,
-    }));
+    const result = rawCategories
+      .filter((c) => c.slug !== 'uncategorized')
+      .map((c) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        count: c.count,
+      }));
     setInCache(cacheKey, result);
     return result;
   } catch (error) {
     console.warn('[WordPress API] Failed to fetch categories:', error);
     return [
-      { id: 1, name: 'ข่าวประชาสัมพันธ์', slug: 'news', count: 1 },
-      { id: 2, name: 'เทคโนโลยี', slug: 'technology', count: 2 },
+      { id: 3, name: 'ข่าวประชาสัมพันธ์', slug: 'pr-news', count: 5 },
+      { id: 4, name: 'วิชาการ', slug: 'academics', count: 1 },
+      { id: 5, name: 'กิจกรรมนักศึกษา', slug: 'student-activities', count: 0 },
     ];
   }
 }

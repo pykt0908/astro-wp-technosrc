@@ -59,6 +59,13 @@ export interface WP_RawCategory {
   parent: number;
 }
 
+export interface PostGalleryImage {
+  id: number;
+  url: string;
+  thumbUrl?: string;
+  alt?: string;
+}
+
 export interface Post {
   id: number;
   slug: string;
@@ -70,9 +77,17 @@ export interface Post {
   publishedAt: string;
   modifiedAt: string;
   coverUrl?: string;
+  coverThumb?: string;
   coverAlt?: string;
   categoryIds: number[];
   categoryNames?: string[];
+  categories?: Array<{ id: number; name: string; slug: string }>;
+  views?: number;
+  gallery?: PostGalleryImage[];
+  galleryCount?: number;
+  authorName?: string;
+  authorRole?: string;
+  authorAvatar?: string;
   seoMetaTitle?: string;
   seoMetaDescription?: string;
   seoOgImageUrl?: string;

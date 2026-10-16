@@ -41,6 +41,20 @@ class Project_Core_REST_API {
             'callback'            => array($this, 'get_banners'),
             'permission_callback' => '__return_true',
         ));
+
+        // Formatted posts endpoint with category filtering, gallery and views
+        register_rest_route(self::NAMESPACE, '/posts', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_posts'),
+            'permission_callback' => '__return_true',
+        ));
+
+        // Categories endpoint for filtering
+        register_rest_route(self::NAMESPACE, '/categories', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_categories'),
+            'permission_callback' => '__return_true',
+        ));
     }
 
     /**
@@ -159,5 +173,169 @@ class Project_Core_REST_API {
         }
 
         return rest_ensure_response($banners);
+    }
+
+    /**
+     * Get posts formatted for frontend with category filtering, gallery, and view count
+     */
+    public function get_posts(WP_REST_Request $request) {
+        $category = sanitize_text_field($request->get_param('category'));
+        $per_page = absint($request->get_param('per_page')) ?: 20;
+        $page     = absint($request->get_param('page')) ?: 1;
+
+        $query_args = array(
+            'post_type'      => 'post',
+            'post_status'    => 'publish',
+            'posts_per_page' => $per_page,
+            'paged'          => $page,
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+        );
+
+        if (!empty($category) && $category !== 'all') {
+            if (is_numeric($category)) {
+                $query_args['cat'] = (int) $category;
+            } else {
+                $query_args['category_name'] = $category;
+            }
+        }
+
+        $query = new WP_Query($query_args);
+        $posts = array();
+
+        if ($query->have_posts()) {
+            while ($query->have_posts()) {
+                $query->the_post();
+                $id = get_the_ID();
+
+                $cover_url   = get_the_post_thumbnail_url($id, 'large');
+                $cover_thumb = get_the_post_thumbnail_url($id, 'medium');
+
+                if (empty($cover_url)) {
+                    $cover_url = get_post_meta($id, 'post_cover_url', true);
+                }
+                if (empty($cover_url)) {
+                    $cover_url = get_post_meta($id, 'seo_og_image_url', true);
+                }
+                if (empty($cover_url) && !empty($gallery_data) && isset($gallery_data[0]['url'])) {
+                    $cover_url = $gallery_data[0]['url'];
+                }
+                if (empty($cover_thumb)) {
+                    $cover_thumb = $cover_url;
+                }
+
+                // Gallery
+                $gallery_data = get_post_meta($id, 'post_gallery_data', true);
+                if (!is_array($gallery_data) || empty($gallery_data)) {
+                    $gallery_ids_str = get_post_meta($id, 'post_gallery_ids', true);
+                    $gallery_data = array();
+                    if (!empty($gallery_ids_str)) {
+                        $ids = array_filter(array_map('absint', explode(',', $gallery_ids_str)));
+                        foreach ($ids as $img_id) {
+                            $full  = wp_get_attachment_image_url($img_id, 'full');
+                            $thumb = wp_get_attachment_image_url($img_id, 'medium');
+                            if ($full) {
+                                $gallery_data[] = array(
+                                    'id'       => $img_id,
+                                    'url'      => $full,
+                                    'thumbUrl' => $thumb ?: $full,
+                                    'alt'      => get_post_meta($img_id, '_wp_attachment_image_alt', true) ?: '',
+                                );
+                            }
+                        }
+                    }
+                }
+
+                $gallery_count = (int) get_post_meta($id, 'post_gallery_count', true);
+                if ($gallery_count <= 0) {
+                    $gallery_count = count($gallery_data);
+                }
+
+                // Views
+                $views = get_post_meta($id, 'post_views_count', true);
+                $views_count = $views !== '' ? (int) $views : 12;
+
+                // Categories
+                $cat_terms = get_the_category($id);
+                $categories_list = array();
+                $category_names  = array();
+                $category_ids    = array();
+                if (!empty($cat_terms) && !is_wp_error($cat_terms)) {
+                    foreach ($cat_terms as $ct) {
+                        $categories_list[] = array(
+                            'id'   => $ct->term_id,
+                            'name' => $ct->name,
+                            'slug' => $ct->slug,
+                        );
+                        $category_names[] = $ct->name;
+                        $category_ids[]   = $ct->term_id;
+                    }
+                }
+
+                $author_name = get_the_author();
+                if (empty($author_name)) $author_name = 'Admin';
+
+                $posts[] = array(
+                    'id'            => $id,
+                    'slug'          => get_post_field('post_name', $id),
+                    'titleHtml'     => get_the_title(),
+                    'titlePlain'    => wp_strip_all_tags(get_the_title()),
+                    'excerptHtml'   => get_the_excerpt(),
+                    'excerptPlain'  => wp_strip_all_tags(get_the_excerpt()),
+                    'contentHtml'   => apply_filters('the_content', get_the_content()),
+                    'coverUrl'      => $cover_url ?: '',
+                    'coverThumb'    => $cover_thumb ?: ($cover_url ?: ''),
+                    'coverAlt'      => wp_strip_all_tags(get_the_title()),
+                    'publishedAt'   => get_the_date('c'),
+                    'modifiedAt'    => get_the_modified_date('c'),
+                    'categories'    => $categories_list,
+                    'categoryNames' => $category_names,
+                    'categoryIds'   => $category_ids,
+                    'views'         => $views_count,
+                    'gallery'       => $gallery_data,
+                    'galleryCount'  => $gallery_count,
+                    'authorName'    => $author_name,
+                    'authorRole'    => 'ผู้ดูแลระบบ',
+                    'authorAvatar'  => get_avatar_url(get_the_author_meta('ID'), array('size' => 64)),
+                );
+            }
+            wp_reset_postdata();
+        }
+
+        return rest_ensure_response(array(
+            'posts'      => $posts,
+            'totalPosts' => (int) $query->found_posts,
+            'totalPages' => (int) $query->max_num_pages,
+            'page'       => $page,
+        ));
+    }
+
+    /**
+     * Get categories list for filtering
+     */
+    public function get_categories(WP_REST_Request $request) {
+        $categories = get_categories(array(
+            'hide_empty' => false,
+            'orderby'    => 'count',
+            'order'      => 'DESC',
+        ));
+
+        $result = array();
+        if (!empty($categories) && !is_wp_error($categories)) {
+            foreach ($categories as $cat) {
+                // Skip default Uncategorized if empty
+                if ($cat->slug === 'uncategorized' && $cat->count === 0) {
+                    continue;
+                }
+                $result[] = array(
+                    'id'    => $cat->term_id,
+                    'name'  => $cat->name,
+                    'slug'  => $cat->slug,
+                    'count' => (int) $cat->count,
+                );
+            }
+        }
+
+        return rest_ensure_response($result);
     }
 }

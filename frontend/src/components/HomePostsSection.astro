@@ -1,0 +1,444 @@
+---
+// HomePostsSection.astro - Post grid with category filter tabs and photo album badge matching user mockup
+import type { Post, Category } from '../types/wordpress';
+
+interface Props {
+  posts: Post[];
+  categories: Category[];
+}
+
+const { posts = [], categories = [] } = Astro.props;
+
+// Filter out Uncategorized
+const cleanCategories = categories.filter(
+  (c) => c && c.slug !== 'uncategorized' && c.name !== 'Uncategorized'
+);
+
+// Format Thai Date e.g. "24 ก.ย. 2569"
+function formatThaiDate(dateStr: string) {
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  const thaiMonths = [
+    'ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+    'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.',
+  ];
+  const day = d.getDate();
+  const month = thaiMonths[d.getMonth()];
+  const year = d.getFullYear() + 543;
+  return `${day} ${month} ${year}`;
+}
+
+const fallbackImage =
+  'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800&auto=format&fit=crop';
+
+// Initial split for the featured layout
+const featuredPost = posts[0];
+const topSidePosts = posts.slice(1, 3);
+const bottomPosts = posts.slice(3, 6);
+---
+
+<section class="py-10 sm:py-14 lg:py-16 bg-slate-50/60 border-t border-slate-100 select-none">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Category Filter Tabs -->
+    <div class="flex flex-wrap items-center gap-2 sm:gap-3 mb-8 sm:mb-10" id="category-filter-nav">
+      <button
+        type="button"
+        class="category-filter-btn active px-4 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 bg-[#0f172a] text-white shadow-xs cursor-pointer focus:outline-none"
+        data-category="all"
+      >
+        ทั้งหมด
+      </button>
+
+      {cleanCategories.map((cat) => (
+        <button
+          type="button"
+          class="category-filter-btn px-4 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 bg-white text-slate-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50 cursor-pointer focus:outline-none"
+          data-category={cat.id}
+          data-slug={cat.slug}
+        >
+          {cat.name}
+        </button>
+      ))}
+    </div>
+
+    <!-- Empty state notice when filter matches 0 posts -->
+    <div
+      id="posts-empty-notice"
+      class="hidden py-16 text-center bg-white rounded-2xl border border-slate-200/80 p-8"
+    >
+      <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+        </svg>
+      </div>
+      <h3 class="text-base font-bold text-slate-800">ยังไม่มีเนื้อหาในหมวดหมู่นี้</h3>
+      <p class="text-xs sm:text-sm text-slate-500 mt-1">สามารถเลือกหมวดหมู่อื่นเพื่อดูข่าวสารเพิ่มเติมได้ครับ</p>
+    </div>
+
+    <!-- Posts Container -->
+    <div id="posts-main-container">
+      <!-- Top Row: Featured Card (Left) + 2 Stacked Cards (Right) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        <!-- Big Left Featured Card -->
+        {featuredPost && (
+          <div
+            class="post-item-card lg:col-span-7 xl:col-span-8 flex flex-col"
+            data-categories={JSON.stringify(featuredPost.categoryIds || [])}
+          >
+            <article class="relative w-full h-full min-h-[420px] sm:min-h-[480px] lg:min-h-[500px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg border border-slate-900/10 group flex flex-col justify-end bg-slate-900">
+              <!-- Background Image -->
+              <img
+                src={featuredPost.coverUrl || fallbackImage}
+                alt={featuredPost.coverAlt || featuredPost.titlePlain}
+                class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                loading="eager"
+              />
+
+              <!-- Dark Gradient Overlays for High Legibility -->
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-transparent"></div>
+              <div class="absolute inset-0 bg-gradient-to-b from-slate-950/30 via-transparent to-transparent"></div>
+
+              <!-- Top-right Photo Album Badge (if post has gallery) -->
+              {(featuredPost.galleryCount ?? 0) > 0 && (
+                <div class="absolute top-4 right-4 z-10 px-3 py-1.5 rounded-full bg-black/70 backdrop-blur-md text-white text-xs font-semibold flex items-center gap-1.5 shadow-md border border-white/10">
+                  <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+                  </svg>
+                  <span>{featuredPost.galleryCount} ภาพ</span>
+                </div>
+              )}
+
+              <!-- Content Overlay -->
+              <div class="relative z-10 p-5 sm:p-7 lg:p-8 flex flex-col justify-end">
+                <!-- Meta tags row -->
+                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-300 mb-3">
+                  {featuredPost.categoryNames && featuredPost.categoryNames.length > 0 && (
+                    <span class="px-2.5 py-1 rounded bg-[#0047BA] text-white text-xs font-semibold shadow-xs">
+                      {featuredPost.categoryNames[0]}
+                    </span>
+                  )}
+                  <span class="flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <time>{formatThaiDate(featuredPost.publishedAt)}</time>
+                  </span>
+                  <span class="flex items-center gap-1 text-slate-300">
+                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    <span>{featuredPost.views ?? 15}</span>
+                  </span>
+                </div>
+
+                <!-- Title -->
+                <h3 class="text-xl sm:text-2xl lg:text-3xl font-black text-white leading-snug line-clamp-2 hover:text-sky-300 transition-colors">
+                  <a href={`/news/${featuredPost.slug}/`} class="focus:outline-none">
+                    {featuredPost.titlePlain}
+                  </a>
+                </h3>
+
+                <!-- Excerpt -->
+                <p class="text-xs sm:text-sm text-slate-300 line-clamp-2 mt-2 leading-relaxed max-w-3xl">
+                  {featuredPost.excerptPlain}
+                </p>
+
+                <!-- Bottom Bar: Author info & CTA -->
+                <div class="mt-5 pt-4 border-t border-white/15 flex items-center justify-between gap-4">
+                  <div class="flex items-center gap-2.5">
+                    <img
+                      src={featuredPost.authorAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120&auto=format&fit=crop'}
+                      alt={featuredPost.authorName || 'Admin'}
+                      class="w-9 h-9 rounded-full object-cover border-2 border-white/20"
+                      loading="lazy"
+                    />
+                    <div class="flex flex-col">
+                      <span class="text-xs sm:text-sm font-bold text-white leading-tight">
+                        {featuredPost.authorName || 'Admin'}
+                      </span>
+                      <span class="text-[11px] text-slate-400 leading-tight">
+                        {featuredPost.authorRole || 'ผู้ดูแลระบบ'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <a
+                    href={`/news/${featuredPost.slug}/`}
+                    class="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white text-slate-900 text-xs sm:text-sm font-bold shadow-md hover:bg-slate-100 hover:scale-105 active:scale-95 transition-all shrink-0 focus:outline-none"
+                  >
+                    <span>อ่านรายละเอียด</span>
+                    <svg class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </article>
+          </div>
+        )}
+
+        <!-- 2 Stacked Cards on the Right -->
+        <div class="lg:col-span-5 xl:col-span-4 flex flex-col gap-6">
+          {topSidePosts.map((post) => (
+            <div
+              class="post-item-card flex-1 flex flex-col"
+              data-categories={JSON.stringify(post.categoryIds || [])}
+            >
+              <article class="bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-xs hover:shadow-lg hover:border-blue-200 transition-all duration-300 flex flex-col h-full group">
+                <!-- Thumbnail -->
+                <a
+                  href={`/news/${post.slug}/`}
+                  class="relative block aspect-[16/9] overflow-hidden bg-slate-100 focus:outline-none"
+                >
+                  <img
+                    src={post.coverUrl || fallbackImage}
+                    alt={post.coverAlt || post.titlePlain}
+                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <!-- Category Badge -->
+                  {post.categoryNames && post.categoryNames.length > 0 && (
+                    <span class="absolute top-3 left-3 px-2.5 py-0.5 rounded bg-slate-900/80 backdrop-blur-xs text-white text-[11px] font-semibold shadow-xs">
+                      {post.categoryNames[0]}
+                    </span>
+                  )}
+                  <!-- Photo Album Badge -->
+                  {(post.galleryCount ?? 0) > 0 && (
+                    <span class="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded bg-black/75 backdrop-blur-xs text-white text-[11px] font-medium flex items-center gap-1 shadow-xs">
+                      <svg class="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+                      </svg>
+                      <span>{post.galleryCount} ภาพ</span>
+                    </span>
+                  )}
+                </a>
+
+                <!-- Card Body -->
+                <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between gap-3">
+                  <div>
+                    <!-- Meta Date & Views -->
+                    <div class="flex items-center gap-3 text-xs text-slate-400 mb-1.5">
+                      <span class="flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <time>{formatThaiDate(post.publishedAt)}</time>
+                      </span>
+                      <span class="flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <span>{post.views ?? 11}</span>
+                      </span>
+                    </div>
+
+                    <!-- Title -->
+                    <h4 class="text-sm sm:text-base font-bold text-slate-900 group-hover:text-[#0047BA] transition-colors line-clamp-2 leading-snug">
+                      <a href={`/news/${post.slug}/`}>
+                        {post.titlePlain}
+                      </a>
+                    </h4>
+
+                    <!-- Excerpt -->
+                    <p class="text-xs text-slate-500 line-clamp-2 mt-1 leading-relaxed">
+                      {post.excerptPlain}
+                    </p>
+                  </div>
+
+                  <!-- Footer: Author + Read More -->
+                  <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <img
+                        src={post.authorAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120&auto=format&fit=crop'}
+                        alt={post.authorName || 'Admin'}
+                        class="w-6 h-6 rounded-full object-cover"
+                        loading="lazy"
+                      />
+                      <span class="text-xs font-semibold text-slate-700">
+                        {post.authorName || 'Admin'}
+                      </span>
+                    </div>
+
+                    <a
+                      href={`/news/${post.slug}/`}
+                      class="inline-flex items-center gap-1 text-xs font-bold text-[#0056D2] hover:text-[#003893] transition-colors"
+                    >
+                      <span>อ่านต่อ</span>
+                      <svg class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </article>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Bottom Row: 3 Equal-width Cards -->
+      {bottomPosts.length > 0 && (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6 sm:mt-8">
+          {bottomPosts.map((post) => (
+            <div
+              class="post-item-card flex flex-col"
+              data-categories={JSON.stringify(post.categoryIds || [])}
+            >
+              <article class="bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-xs hover:shadow-lg hover:border-blue-200 transition-all duration-300 flex flex-col h-full group">
+                <!-- Thumbnail -->
+                <a
+                  href={`/news/${post.slug}/`}
+                  class="relative block aspect-[16/9] overflow-hidden bg-slate-100 focus:outline-none"
+                >
+                  <img
+                    src={post.coverUrl || fallbackImage}
+                    alt={post.coverAlt || post.titlePlain}
+                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <!-- Category Badge -->
+                  {post.categoryNames && post.categoryNames.length > 0 && (
+                    <span class="absolute top-3 left-3 px-2.5 py-0.5 rounded bg-slate-900/80 backdrop-blur-xs text-white text-[11px] font-semibold shadow-xs">
+                      {post.categoryNames[0]}
+                    </span>
+                  )}
+                  <!-- Photo Album Badge -->
+                  {(post.galleryCount ?? 0) > 0 && (
+                    <span class="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded bg-black/75 backdrop-blur-xs text-white text-[11px] font-medium flex items-center gap-1 shadow-xs">
+                      <svg class="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+                      </svg>
+                      <span>{post.galleryCount} ภาพ</span>
+                    </span>
+                  )}
+                </a>
+
+                <!-- Card Body -->
+                <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between gap-3">
+                  <div>
+                    <!-- Meta Date & Views -->
+                    <div class="flex items-center gap-3 text-xs text-slate-400 mb-1.5">
+                      <span class="flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <time>{formatThaiDate(post.publishedAt)}</time>
+                      </span>
+                      <span class="flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        <span>{post.views ?? 5}</span>
+                      </span>
+                    </div>
+
+                    <!-- Title -->
+                    <h4 class="text-sm sm:text-base font-bold text-slate-900 group-hover:text-[#0047BA] transition-colors line-clamp-2 leading-snug">
+                      <a href={`/news/${post.slug}/`}>
+                        {post.titlePlain}
+                      </a>
+                    </h4>
+
+                    <!-- Excerpt -->
+                    <p class="text-xs text-slate-500 line-clamp-2 mt-1 leading-relaxed">
+                      {post.excerptPlain}
+                    </p>
+                  </div>
+
+                  <!-- Footer: Author + Read More -->
+                  <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <img
+                        src={post.authorAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120&auto=format&fit=crop'}
+                        alt={post.authorName || 'Admin'}
+                        class="w-6 h-6 rounded-full object-cover"
+                        loading="lazy"
+                      />
+                      <span class="text-xs font-semibold text-slate-700">
+                        {post.authorName || 'Admin'}
+                      </span>
+                    </div>
+
+                    <a
+                      href={`/news/${post.slug}/`}
+                      class="inline-flex items-center gap-1 text-xs font-bold text-[#0056D2] hover:text-[#003893] transition-colors"
+                    >
+                      <span>อ่านต่อ</span>
+                      <svg class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+              </article>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+</section>
+
+<script>
+  function setupCategoryFiltering() {
+    const filterNav = document.getElementById('category-filter-nav');
+    if (!filterNav) return;
+
+    const filterBtns = filterNav.querySelectorAll<HTMLButtonElement>('.category-filter-btn');
+    const postCards = document.querySelectorAll<HTMLElement>('.post-item-card');
+    const emptyNotice = document.getElementById('posts-empty-notice');
+    const postsContainer = document.getElementById('posts-main-container');
+
+    filterBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        // Toggle active button style
+        filterBtns.forEach((b) => {
+          b.classList.remove('bg-[#0f172a]', 'text-white', 'border-transparent', 'shadow-xs', 'active');
+          b.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+        });
+
+        btn.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-200');
+        btn.classList.add('bg-[#0f172a]', 'text-white', 'border-transparent', 'shadow-xs', 'active');
+
+        const selectedCat = btn.getAttribute('data-category');
+        let visibleCount = 0;
+
+        postCards.forEach((card) => {
+          if (!selectedCat || selectedCat === 'all') {
+            card.style.display = '';
+            visibleCount++;
+          } else {
+            const cardCatIdsRaw = card.getAttribute('data-categories') || '[]';
+            try {
+              const cardCatIds: number[] = JSON.parse(cardCatIdsRaw);
+              const targetId = parseInt(selectedCat, 10);
+              if (cardCatIds.includes(targetId)) {
+                card.style.display = '';
+                visibleCount++;
+              } else {
+                card.style.display = 'none';
+              }
+            } catch (e) {
+              card.style.display = '';
+              visibleCount++;
+            }
+          }
+        });
+
+        if (visibleCount === 0) {
+          emptyNotice?.classList.remove('hidden');
+          if (postsContainer) postsContainer.style.display = 'none';
+        } else {
+          emptyNotice?.classList.add('hidden');
+          if (postsContainer) postsContainer.style.display = '';
+        }
+      });
+    });
+  }
+
+  setupCategoryFiltering();
+  document.addEventListener('astro:page-load', setupCategoryFiltering);
+</script>

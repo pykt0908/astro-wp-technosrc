@@ -16,15 +16,16 @@ class Project_Core_Custom_Fields {
         add_action('add_meta_boxes', array($this, 'add_meta_boxes'));
         add_action('save_post', array($this, 'save_meta_boxes'), 10, 2);
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
+        add_action('rest_api_init', array($this, 'register_rest_fields'));
     }
 
     /**
-     * Enqueue WordPress Media Uploader for Banner admin
+     * Enqueue WordPress Media Uploader for Banner and Post admin
      */
     public function enqueue_admin_scripts($hook) {
         global $post;
         if ($hook === 'post-new.php' || $hook === 'post.php') {
-            if (isset($post) && $post->post_type === 'banner') {
+            if (isset($post) && in_array($post->post_type, array('banner', 'post'), true)) {
                 wp_enqueue_media();
             }
         }
@@ -100,6 +101,82 @@ class Project_Core_Custom_Fields {
             'sanitize_callback' => 'esc_url_raw',
             'auth_callback'     => array($this, 'auth_check'),
         ));
+
+        // Post Photo Gallery & Views Meta Fields
+        register_post_meta('post', 'post_gallery_ids', array(
+            'show_in_rest'      => true,
+            'single'            => true,
+            'type'              => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'auth_callback'     => array($this, 'auth_check'),
+        ));
+
+        register_post_meta('post', 'post_gallery_count', array(
+            'show_in_rest'      => true,
+            'single'            => true,
+            'type'              => 'integer',
+            'default'           => 0,
+            'sanitize_callback' => 'absint',
+            'auth_callback'     => array($this, 'auth_check'),
+        ));
+
+        register_post_meta('post', 'post_views_count', array(
+            'show_in_rest'      => true,
+            'single'            => true,
+            'type'              => 'integer',
+            'default'           => 0,
+            'sanitize_callback' => 'absint',
+            'auth_callback'     => array($this, 'auth_check'),
+        ));
+    }
+
+    /**
+     * Register custom fields in WP REST API for posts
+     */
+    public function register_rest_fields() {
+        register_rest_field('post', 'post_gallery', array(
+            'get_callback' => function($post_arr) {
+                $id = $post_arr['id'];
+                $data = get_post_meta($id, 'post_gallery_data', true);
+                if (is_array($data) && !empty($data)) {
+                    return $data;
+                }
+                $ids_str = get_post_meta($id, 'post_gallery_ids', true);
+                if (!empty($ids_str)) {
+                    $ids = array_filter(array_map('absint', explode(',', $ids_str)));
+                    $res = array();
+                    foreach ($ids as $img_id) {
+                        $full = wp_get_attachment_image_url($img_id, 'full');
+                        $thumb = wp_get_attachment_image_url($img_id, 'medium');
+                        if ($full) {
+                            $res[] = array(
+                                'id'       => $img_id,
+                                'url'      => $full,
+                                'thumbUrl' => $thumb ?: $full,
+                                'alt'      => get_post_meta($img_id, '_wp_attachment_image_alt', true) ?: '',
+                            );
+                        }
+                    }
+                    return $res;
+                }
+                return array();
+            },
+            'schema' => array(
+                'description' => 'Photo album gallery array',
+                'type'        => 'array',
+            ),
+        ));
+
+        register_rest_field('post', 'post_views', array(
+            'get_callback' => function($post_arr) {
+                $views = get_post_meta($post_arr['id'], 'post_views_count', true);
+                return $views !== '' ? (int) $views : 0;
+            },
+            'schema' => array(
+                'description' => 'View count of post',
+                'type'        => 'integer',
+            ),
+        ));
     }
 
     public function auth_check() {
@@ -116,6 +193,16 @@ class Project_Core_Custom_Fields {
             __('Banner Settings / ตั้งค่าแบนเนอร์', 'project-core'),
             array($this, 'render_banner_meta_box'),
             'banner',
+            'normal',
+            'high'
+        );
+
+        // Post Photo Gallery Box (มีที่ให้ใส่ album ภาพเพิ่มเติม)
+        add_meta_box(
+            'project_core_post_gallery',
+            __('อัลบั้มภาพกิจกรรม / Photo Album Gallery', 'project-core'),
+            array($this, 'render_post_gallery_meta_box'),
+            'post',
             'normal',
             'high'
         );
@@ -318,6 +405,177 @@ class Project_Core_Custom_Fields {
     }
 
     /**
+     * Render Post Photo Gallery Meta Box
+     */
+    public function render_post_gallery_meta_box($post) {
+        wp_nonce_field('project_core_gallery_nonce', 'project_core_gallery_nonce_field');
+        $gallery_ids_str = get_post_meta($post->ID, 'post_gallery_ids', true) ?: '';
+        $gallery_ids = array_filter(array_map('absint', explode(',', $gallery_ids_str)));
+        ?>
+        <div class="project-core-gallery-wrap" style="padding: 10px 0;">
+            <p class="description" style="margin-bottom: 12px; font-size: 13px;">
+                <?php _e('อัปโหลดหรือเลือกรูปภาพเพิ่มเติมสำหรับกิจกรรมนี้เพื่อสร้างอัลบั้มภาพ (กดปุ่มด้านล่างเพื่อเลือกได้หลายรูปพร้อมกัน)', 'project-core'); ?>
+            </p>
+
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap;">
+                <input type="hidden" id="post_gallery_ids" name="post_gallery_ids" value="<?php echo esc_attr(implode(',', $gallery_ids)); ?>" />
+                <button type="button" class="button button-primary button-large" id="btn_upload_gallery_images" style="display: inline-flex; align-items: center; gap: 6px;">
+                    <span class="dashicons dashicons-images-alt2" style="margin-top: -1px;"></span>
+                    <?php _e('เพิ่มรูปภาพเข้าอัลบั้ม (เลือกหลายรูปได้)', 'project-core'); ?>
+                </button>
+                <button type="button" class="button button-secondary" id="btn_clear_gallery" style="<?php echo empty($gallery_ids) ? 'display: none;' : 'display: inline-flex;'; ?> align-items: center; gap: 4px; color: #b32d2e;">
+                    <span class="dashicons dashicons-trash" style="margin-top: -1px;"></span>
+                    <?php _e('ล้างอัลบั้มทั้งหมด', 'project-core'); ?>
+                </button>
+                <span id="gallery_count_label" style="font-size: 13px; color: #50575e; font-weight: 600;">
+                    <?php echo sprintf(__('รูปภาพในอัลบั้ม: %d รูป', 'project-core'), count($gallery_ids)); ?>
+                </span>
+            </div>
+
+            <!-- Thumbnail Grid Container -->
+            <div id="post_gallery_grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; background: #f6f7f7; border: 1px dashed #c3c4c7; border-radius: 6px; padding: 12px; min-height: 90px;">
+                <?php
+                if (!empty($gallery_ids)) {
+                    foreach ($gallery_ids as $img_id) {
+                        $thumb = wp_get_attachment_image_url($img_id, 'medium');
+                        if (!$thumb) continue;
+                        ?>
+                        <div class="gallery-item-card" data-id="<?php echo esc_attr($img_id); ?>" style="position: relative; border-radius: 6px; overflow: hidden; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #dcdcde;">
+                            <img src="<?php echo esc_url($thumb); ?>" style="width: 100%; aspect-ratio: 1; object-fit: cover; display: block;" />
+                            <button type="button" class="btn-remove-gallery-item" data-id="<?php echo esc_attr($img_id); ?>" style="position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,0.7); color: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; line-height: 1;" title="<?php esc_attr_e('ลบรูปนี้ออกจากอัลบั้ม', 'project-core'); ?>">
+                                &times;
+                            </button>
+                        </div>
+                        <?php
+                    }
+                }
+                ?>
+            </div>
+            <p id="gallery_empty_notice" style="<?php echo !empty($gallery_ids) ? 'display: none;' : ''; ?> text-align: center; color: #8c8f94; margin: 15px 0;">
+                <?php _e('ยังไม่มีรูปภาพในอัลบั้ม คลิกปุ่ม "เพิ่มรูปภาพเข้าอัลบั้ม" เพื่อเลือกรูป', 'project-core'); ?>
+            </p>
+        </div>
+
+        <script>
+        jQuery(document).ready(function($) {
+            var galleryFrame;
+            var $galleryGrid = $('#post_gallery_grid');
+            var $hiddenIds = $('#post_gallery_ids');
+            var $clearBtn = $('#btn_clear_gallery');
+            var $countLabel = $('#gallery_count_label');
+            var $emptyNotice = $('#gallery_empty_notice');
+
+            function getIds() {
+                var val = $hiddenIds.val();
+                return val ? val.split(',').filter(Boolean).map(function(n) { return parseInt(n, 10); }) : [];
+            }
+
+            function updateDisplay() {
+                var ids = getIds();
+                $countLabel.text('รูปภาพในอัลบั้ม: ' + ids.length + ' รูป');
+                if (ids.length > 0) {
+                    $clearBtn.show();
+                    $emptyNotice.hide();
+                } else {
+                    $clearBtn.hide();
+                    $emptyNotice.show();
+                }
+            }
+
+            $('#btn_upload_gallery_images').on('click', function(e) {
+                e.preventDefault();
+                if (galleryFrame) {
+                    galleryFrame.open();
+                    return;
+                }
+
+                galleryFrame = wp.media({
+                    title: '<?php echo esc_js(__('เลือกรูปภาพเข้าอัลบั้มกิจกรรม (กด Ctrl หรือ Shift เพื่อเลือกหลายรูป)', 'project-core')); ?>',
+                    button: { text: '<?php echo esc_js(__('เพิ่มรูปภาพที่เลือกเข้าอัลบั้ม', 'project-core')); ?>' },
+                    library: { type: 'image' },
+                    multiple: true
+                });
+
+                galleryFrame.on('select', function() {
+                    var selection = galleryFrame.state().get('selection');
+                    var currentIds = getIds();
+
+                    selection.each(function(attachment) {
+                        var att = attachment.toJSON();
+                        if (currentIds.indexOf(att.id) === -1) {
+                            currentIds.push(att.id);
+                            var imgUrl = (att.sizes && att.sizes.medium) ? att.sizes.medium.url : att.url;
+                            var cardHtml = '<div class="gallery-item-card" data-id="' + att.id + '" style="position: relative; border-radius: 6px; overflow: hidden; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #dcdcde;">' +
+                                '<img src="' + imgUrl + '" style="width: 100%; aspect-ratio: 1; object-fit: cover; display: block;" />' +
+                                '<button type="button" class="btn-remove-gallery-item" data-id="' + att.id + '" style="position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,0.7); color: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; line-height: 1;" title="ลบรูปนี้">&times;</button>' +
+                                '</div>';
+                            $galleryGrid.append(cardHtml);
+                        }
+                    });
+
+                    $hiddenIds.val(currentIds.join(','));
+                    updateDisplay();
+                });
+
+                galleryFrame.open();
+            });
+
+            // Remove single item
+            $galleryGrid.on('click', '.btn-remove-gallery-item', function(e) {
+                e.preventDefault();
+                var removeId = parseInt($(this).data('id'), 10);
+                var currentIds = getIds();
+                var newIds = currentIds.filter(function(id) { return id !== removeId; });
+                $hiddenIds.val(newIds.join(','));
+                $(this).closest('.gallery-item-card').remove();
+                updateDisplay();
+            });
+
+            // Clear all
+            $clearBtn.on('click', function(e) {
+                e.preventDefault();
+                if (confirm('<?php echo esc_js(__('คุณแน่ใจหรือไม่ว่าต้องการลบรูปภาพทั้งหมดออกจากอัลบั้มนี้?', 'project-core')); ?>')) {
+                    $hiddenIds.val('');
+                    $galleryGrid.empty();
+                    updateDisplay();
+                }
+            });
+        });
+        </script>
+        <?php
+    }
+
+    /**
+     * Render Post SEO & View Count Meta Box
+     */
+    public function render_post_seo_meta_box($post) {
+        wp_nonce_field('project_core_seo_nonce', 'project_core_seo_nonce_field');
+        $title = get_post_meta($post->ID, 'seo_meta_title', true);
+        $desc  = get_post_meta($post->ID, 'seo_meta_description', true);
+        $views = get_post_meta($post->ID, 'post_views_count', true);
+        if ($views === '') $views = '15';
+        ?>
+        <table class="form-table">
+            <tr>
+                <th scope="row"><label for="seo_meta_title"><?php _e('SEO Meta Title', 'project-core'); ?></label></th>
+                <td><input type="text" id="seo_meta_title" name="seo_meta_title" value="<?php echo esc_attr($title); ?>" class="large-text" /></td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="seo_meta_description"><?php _e('SEO Meta Description', 'project-core'); ?></label></th>
+                <td><textarea id="seo_meta_description" name="seo_meta_description" rows="3" class="large-text"><?php echo esc_textarea($desc); ?></textarea></td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="post_views_count"><?php _e('จำนวนการเข้าชม (Views count)', 'project-core'); ?></label></th>
+                <td>
+                    <input type="number" id="post_views_count" name="post_views_count" value="<?php echo esc_attr($views); ?>" style="width: 120px;" min="0" />
+                    <span class="description"><?php _e('ตัวเลขยอดวิวแสดงบนการ์ดข่าวสาร', 'project-core'); ?></span>
+                </td>
+            </tr>
+        </table>
+        <?php
+    }
+
+    /**
      * Save Meta Boxes with Nonce and Permission validation
      */
     public function save_meta_boxes($post_id, $post) {
@@ -350,16 +608,44 @@ class Project_Core_Custom_Fields {
             }
         }
 
-        // Save Post SEO Meta
+        // Save Post Photo Gallery Meta
+        if (isset($_POST['project_core_gallery_nonce_field']) && wp_verify_nonce($_POST['project_core_gallery_nonce_field'], 'project_core_gallery_nonce')) {
+            if (current_user_can('edit_post', $post_id)) {
+                $raw_ids = isset($_POST['post_gallery_ids']) ? sanitize_text_field($_POST['post_gallery_ids']) : '';
+                $clean_ids = array_filter(array_map('absint', explode(',', $raw_ids)));
+
+                update_post_meta($post_id, 'post_gallery_ids', implode(',', $clean_ids));
+                update_post_meta($post_id, 'post_gallery_count', count($clean_ids));
+
+                $gallery_data = array();
+                foreach ($clean_ids as $img_id) {
+                    $full  = wp_get_attachment_image_url($img_id, 'full');
+                    $thumb = wp_get_attachment_image_url($img_id, 'medium');
+                    if ($full) {
+                        $gallery_data[] = array(
+                            'id'       => $img_id,
+                            'url'      => $full,
+                            'thumbUrl' => $thumb ?: $full,
+                            'alt'      => get_post_meta($img_id, '_wp_attachment_image_alt', true) ?: '',
+                        );
+                    }
+                }
+                update_post_meta($post_id, 'post_gallery_data', $gallery_data);
+            }
+        }
+
+        // Save Post SEO & Views Meta
         if (isset($_POST['project_core_seo_nonce_field']) && wp_verify_nonce($_POST['project_core_seo_nonce_field'], 'project_core_seo_nonce')) {
             if (current_user_can('edit_post', $post_id)) {
                 $meta_title = isset($_POST['seo_meta_title']) ? sanitize_text_field($_POST['seo_meta_title']) : '';
                 $meta_desc  = isset($_POST['seo_meta_description']) ? sanitize_textarea_field($_POST['seo_meta_description']) : '';
                 $og_image   = isset($_POST['seo_og_image_url']) ? esc_url_raw($_POST['seo_og_image_url']) : '';
+                $views      = isset($_POST['post_views_count']) ? absint($_POST['post_views_count']) : 0;
 
                 update_post_meta($post_id, 'seo_meta_title', $meta_title);
                 update_post_meta($post_id, 'seo_meta_description', $meta_desc);
                 update_post_meta($post_id, 'seo_og_image_url', $og_image);
+                update_post_meta($post_id, 'post_views_count', $views);
             }
         }
     }
