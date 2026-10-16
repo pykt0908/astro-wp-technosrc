@@ -3,12 +3,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import HomeCarousel from '../components/HomeCarousel.astro';
 import HomeIntroSection from '../components/HomeIntroSection.astro';
 import HomePostsSection from '../components/HomePostsSection.astro';
-import { getBanners, getPublishedPosts, getCategories } from '../lib/wordpress';
+import HomeCalendarSection from '../components/HomeCalendarSection.astro';
+import {
+  getBanners,
+  getPublishedPosts,
+  getCategories,
+  getCollegeEvents,
+  getCollegeEventCategories,
+} from '../lib/wordpress';
 
-const [banners, postsData, categories] = await Promise.all([
+const [banners, postsData, categories, collegeEvents, eventCategories] = await Promise.all([
   getBanners(),
   getPublishedPosts(1, 20),
   getCategories(),
+  getCollegeEvents(),
+  getCollegeEventCategories(),
 ]);
 
 const posts = postsData.posts;
@@ -21,5 +30,6 @@ const posts = postsData.posts;
   <HomeCarousel banners={banners} />
   <HomeIntroSection />
   <HomePostsSection posts={posts} categories={categories} />
+  <HomeCalendarSection events={collegeEvents} categories={eventCategories} />
 </BaseLayout>
 

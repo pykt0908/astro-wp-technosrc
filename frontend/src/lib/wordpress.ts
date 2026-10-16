@@ -6,6 +6,8 @@ import type {
   WP_RawCategory,
   Banner,
   SiteSettings,
+  CollegeEvent,
+  CollegeEventCategory,
 } from '../types/wordpress';
 import { sanitizeWordPressHtml, stripHtml } from './sanitize';
 
@@ -538,4 +540,169 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     console.warn('[WordPress API] Unable to fetch site settings:', error);
     return LOCAL_MOCK_SITE_SETTINGS;
   }
+}
+
+const LOCAL_MOCK_EVENTS: CollegeEvent[] = [
+  {
+    id: 29,
+    title: 'พิธีไหว้ครู ประจำปีการศึกษา 2569',
+    slug: 'wai-kru-ceremony-2569',
+    content: '<p>ขอเชิญชวนคณะผู้บริหาร ครู อาจารย์ บุคลากรทางการศึกษา และนักเรียนนักศึกษาทุกระดับชั้น เข้าร่วมพิธีไหว้ครู ประจำปีการศึกษา 2569 เพื่อร่วมแสดงความกตัญญูกตเวทิตาต่อครูอาจารย์ผู้ประสิทธิ์ประสาทวิชาความรู้ ณ หอประชุมใหญ่</p>',
+    excerpt: 'ขอเชิญชวนคณะครู บุคลากร และนักเรียนนักศึกษาทุกระดับชั้น เข้าร่วมพิธีไหว้ครู ประจำปีการศึกษา 2569 เพื่อแสดงความกตัญญูกตเวทิตา',
+    startDate: '2026-10-22',
+    endDate: '2026-10-22',
+    time: '08:30 - 12:00 น.',
+    location: 'หอประชุมวิทยาลัยเทคโนโลยีแหลมฉบัง',
+    organizer: 'ฝ่ายพัฒนากิจกรรมนักเรียน นักศึกษา',
+    link: '',
+    attachmentUrl: '',
+    color: 'blue',
+    isFeatured: true,
+    thumbnail: null,
+    categories: [{ id: 8, name: 'กิจกรรมนักศึกษา', slug: 'student-activities' }],
+  },
+  {
+    id: 30,
+    title: 'วันปิยมหาราช (วันหยุดราชการ)',
+    slug: 'chulalongkorn-day-2026',
+    content: '<p>วิทยาลัยหยุดทำการเนื่องในวันคล้ายวันสวรรคตพระบาทสมเด็จพระจุลจอมเกล้าเจ้าอยู่หัว (วันปิยมหาราช)</p>',
+    excerpt: 'วิทยาลัยหยุดทำการเนื่องในวันคล้ายวันสวรรคตพระบาทสมเด็จพระจุลจอมเกล้าเจ้าอยู่หัว (วันปิยมหาราช)',
+    startDate: '2026-10-23',
+    endDate: '2026-10-23',
+    time: 'ตลอดวัน',
+    location: 'วิทยาลัยเทคโนโลยีแหลมฉบัง',
+    organizer: 'ฝ่ายบริหารทั่วไป',
+    color: 'rose',
+    isFeatured: false,
+    thumbnail: null,
+    categories: [{ id: 10, name: 'วันสำคัญและวันหยุด', slug: 'holidays' }],
+  },
+  {
+    id: 31,
+    title: 'สอบวัดผลกลางภาคเรียนที่ 2/2569',
+    slug: 'midterm-exam-term-2-2569',
+    content: '<p>กำหนดการสอบวัดผลกลางภาคเรียนที่ 2 ประจำปีการศึกษา 2569 ระดับ ปวช. และ ปวส. ทุกสาขาวิชา ขอให้นักเรียนนักศึกษาเตรียมตัวและตรวจสอบตารางสอบให้เรียบร้อยก่อนวันสอบ</p>',
+    excerpt: 'กำหนดการสอบวัดผลกลางภาคเรียนที่ 2 ประจำปีการศึกษา 2569 ระดับ ปวช. และ ปวส. ทุกสาขาวิชา',
+    startDate: '2026-11-03',
+    endDate: '2026-11-07',
+    time: '08:30 - 16:30 น.',
+    location: 'อาคารเรียน 1-3',
+    organizer: 'งานวัดผลและประเมินผล',
+    color: 'amber',
+    isFeatured: true,
+    thumbnail: null,
+    categories: [{ id: 7, name: 'กำหนดการศึกษา', slug: 'academic-schedule' }],
+  },
+  {
+    id: 32,
+    title: 'การแข่งขันทักษะวิชาชีพและทักษะพื้นฐาน ระดับภาค',
+    slug: 'vocational-skills-competition-2026',
+    content: '<p>นำทีมนักศึกษาตัวแทนวิทยาลัยเข้าร่วมการแข่งขันทักษะวิชาชีพ สาขาวิชาช่างยนต์ ช่างไฟฟ้ากำลัง เทคโนโลยีสารสนเทศ และการบัญชี ระดับภาคตะวันออก ประจำปีการศึกษา 2569</p>',
+    excerpt: 'ตัวแทนนักศึกษาเข้าร่วมการแข่งขันทักษะวิชาชีพ สาขาวิชาช่างยนต์ ไฟฟ้า และเทคโนโลยีสารสนเทศ',
+    startDate: '2026-11-18',
+    endDate: '2026-11-20',
+    time: '09:00 - 17:00 น.',
+    location: 'ศูนย์ประชุมและนิทรรศการ',
+    organizer: 'คณะกรรมการ อวท.',
+    color: 'purple',
+    isFeatured: true,
+    thumbnail: null,
+    categories: [{ id: 9, name: 'วิชาการและอบรม', slug: 'academic-training' }],
+  },
+  {
+    id: 33,
+    title: 'โครงการส่งเสริมคุณธรรมและจริยธรรมนักศึกษาใหม่',
+    slug: 'ethics-workshop-freshmen-2026',
+    content: '<p>กิจกรรมส่งเสริมคุณธรรม จริยธรรม และการพัฒนาภาวะผู้นำ สำหรับนักศึกษาใหม่ เสริมสร้างทักษะการอยู่ร่วมกันในสังคมอย่างมีความสุข</p>',
+    excerpt: 'กิจกรรมอบรมเชิงปฏิบัติการพัฒนาภาวะผู้นำ จริยธรรม และการปรับตัวในการเรียนวิชาชีพ',
+    startDate: '2026-11-28',
+    endDate: '2026-11-28',
+    time: '08:30 - 15:30 น.',
+    location: 'อาคารอเนกประสงค์',
+    organizer: 'แผนกงานครูที่ปรึกษา',
+    color: 'emerald',
+    isFeatured: false,
+    thumbnail: null,
+    categories: [{ id: 8, name: 'กิจกรรมนักศึกษา', slug: 'student-activities' }],
+  },
+];
+
+/**
+ * Fetch college events from custom project-core REST API endpoint
+ */
+export async function getCollegeEvents(category?: string): Promise<CollegeEvent[]> {
+  const cacheKey = `college_events_${category || 'all'}`;
+  const cached = getFromCache<CollegeEvent[]>(cacheKey);
+  if (cached) return cached;
+
+  const query = category && category !== 'all' ? `?category=${encodeURIComponent(category)}` : '';
+  const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/events${query}`;
+
+  try {
+    const res = await fetchWithTimeout(url);
+    if (!res.ok) {
+      throw new Error(`Custom Events API returned ${res.status}`);
+    }
+    const data = await res.json();
+    const rawEvents = Array.isArray(data.events) ? data.events : (Array.isArray(data) ? data : []);
+    const result: CollegeEvent[] = rawEvents.map((ev: any) => ({
+      id: ev.id,
+      title: ev.title || '',
+      slug: ev.slug || '',
+      content: ev.content || '',
+      excerpt: ev.excerpt || '',
+      startDate: ev.start_date || ev.startDate || '',
+      endDate: ev.end_date || ev.endDate || '',
+      time: ev.time || '',
+      location: ev.location || '',
+      organizer: ev.organizer || '',
+      link: ev.link || '',
+      attachmentUrl: ev.attachment_url || ev.attachmentUrl || '',
+      color: ev.color || 'blue',
+      isFeatured: !!ev.is_featured,
+      thumbnail: ev.thumbnail || null,
+      categories: Array.isArray(ev.categories) ? ev.categories : [],
+    }));
+
+    if (result.length > 0) {
+      setInCache(cacheKey, result);
+      return result;
+    }
+    return LOCAL_MOCK_EVENTS;
+  } catch (error) {
+    console.warn('[WordPress API] Unable to fetch college events:', error);
+    return LOCAL_MOCK_EVENTS;
+  }
+}
+
+/**
+ * Fetch event categories from custom project-core REST API endpoint
+ */
+export async function getCollegeEventCategories(): Promise<CollegeEventCategory[]> {
+  const cacheKey = 'college_event_categories';
+  const cached = getFromCache<CollegeEventCategory[]>(cacheKey);
+  if (cached) return cached;
+
+  const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/event-categories`;
+
+  try {
+    const res = await fetchWithTimeout(url);
+    if (!res.ok) {
+      throw new Error(`Custom Event Categories API returned ${res.status}`);
+    }
+    const cats: CollegeEventCategory[] = await res.json();
+    if (Array.isArray(cats) && cats.length > 0) {
+      setInCache(cacheKey, cats);
+      return cats;
+    }
+  } catch (err) {
+    // Return fallback
+  }
+
+  return [
+    { id: 7, name: 'กำหนดการศึกษา', slug: 'academic-schedule', count: 1 },
+    { id: 8, name: 'กิจกรรมนักศึกษา', slug: 'student-activities', count: 2 },
+    { id: 9, name: 'วิชาการและอบรม', slug: 'academic-training', count: 1 },
+    { id: 10, name: 'วันสำคัญและวันหยุด', slug: 'holidays', count: 1 },
+  ];
 }

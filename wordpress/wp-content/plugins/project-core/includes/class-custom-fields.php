@@ -25,7 +25,7 @@ class Project_Core_Custom_Fields {
     public function enqueue_admin_scripts($hook) {
         global $post;
         if ($hook === 'post-new.php' || $hook === 'post.php') {
-            if (isset($post) && in_array($post->post_type, array('banner', 'post'), true)) {
+            if (isset($post) && in_array($post->post_type, array('banner', 'post', 'college_event'), true)) {
                 wp_enqueue_media();
             }
         }
@@ -128,6 +128,37 @@ class Project_Core_Custom_Fields {
             'sanitize_callback' => 'absint',
             'auth_callback'     => array($this, 'auth_check'),
         ));
+
+        // College Event Meta Fields
+        $event_text_fields = array(
+            'event_start_date'     => 'sanitize_text_field',
+            'event_end_date'       => 'sanitize_text_field',
+            'event_time'           => 'sanitize_text_field',
+            'event_location'       => 'sanitize_text_field',
+            'event_organizer'      => 'sanitize_text_field',
+            'event_link'           => 'esc_url_raw',
+            'event_attachment_url' => 'esc_url_raw',
+            'event_color'          => 'sanitize_text_field',
+        );
+
+        foreach ($event_text_fields as $field_key => $sanitize_cb) {
+            register_post_meta('college_event', $field_key, array(
+                'show_in_rest'      => true,
+                'single'            => true,
+                'type'              => 'string',
+                'sanitize_callback' => $sanitize_cb,
+                'auth_callback'     => array($this, 'auth_check'),
+            ));
+        }
+
+        register_post_meta('college_event', 'is_featured', array(
+            'show_in_rest'      => true,
+            'single'            => true,
+            'type'              => 'boolean',
+            'default'           => false,
+            'sanitize_callback' => 'rest_sanitize_boolean',
+            'auth_callback'     => array($this, 'auth_check'),
+        ));
     }
 
     /**
@@ -203,6 +234,16 @@ class Project_Core_Custom_Fields {
             __('อัลบั้มภาพกิจกรรม / Photo Album Gallery', 'project-core'),
             array($this, 'render_post_gallery_meta_box'),
             'post',
+            'normal',
+            'high'
+        );
+
+        // College Event details box
+        add_meta_box(
+            'project_core_event_details',
+            __('กำหนดการและสถานที่จัดกิจกรรม / Event Details', 'project-core'),
+            array($this, 'render_event_meta_box'),
+            'college_event',
             'normal',
             'high'
         );
@@ -576,6 +617,117 @@ class Project_Core_Custom_Fields {
     }
 
     /**
+     * Render College Event Meta Box
+     */
+    public function render_event_meta_box($post) {
+        wp_nonce_field('project_core_event_nonce', 'project_core_event_nonce_field');
+
+        $start_date     = get_post_meta($post->ID, 'event_start_date', true);
+        $end_date       = get_post_meta($post->ID, 'event_end_date', true);
+        $time           = get_post_meta($post->ID, 'event_time', true);
+        $location       = get_post_meta($post->ID, 'event_location', true);
+        $organizer      = get_post_meta($post->ID, 'event_organizer', true);
+        $link           = get_post_meta($post->ID, 'event_link', true);
+        $attachment_url = get_post_meta($post->ID, 'event_attachment_url', true);
+        $color          = get_post_meta($post->ID, 'event_color', true) ?: 'blue';
+        $is_featured    = get_post_meta($post->ID, 'is_featured', true);
+        ?>
+        <table class="form-table" style="max-width: 900px;">
+            <tr>
+                <th scope="row"><label for="event_start_date"><strong><?php _e('วันที่เริ่มต้นกิจกรรม *', 'project-core'); ?></strong></label></th>
+                <td>
+                    <input type="date" id="event_start_date" name="event_start_date" value="<?php echo esc_attr($start_date); ?>" required style="padding: 5px 10px; font-size: 14px;" />
+                    <span class="description"><?php _e('วันที่เริ่มจัดกิจกรรม (ค.ศ. เช่น 2026-10-26 ระบบหน้าบ้านจะแปลงเป็น พ.ศ. ให้อัตโนมัติ)', 'project-core'); ?></span>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="event_end_date"><?php _e('วันที่สิ้นสุดกิจกรรม', 'project-core'); ?></label></th>
+                <td>
+                    <input type="date" id="event_end_date" name="event_end_date" value="<?php echo esc_attr($end_date); ?>" style="padding: 5px 10px; font-size: 14px;" />
+                    <span class="description"><?php _e('เว้นว่างไว้ได้หากเป็นกิจกรรมวันเดียว', 'project-core'); ?></span>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="event_time"><?php _e('เวลาจัดกิจกรรม', 'project-core'); ?></label></th>
+                <td>
+                    <input type="text" id="event_time" name="event_time" value="<?php echo esc_attr($time); ?>" class="regular-text" placeholder="เช่น 08:30 - 16:30 น. หรือ ตลอดวัน" />
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="event_location"><?php _e('สถานที่จัดกิจกรรม', 'project-core'); ?></label></th>
+                <td>
+                    <input type="text" id="event_location" name="event_location" value="<?php echo esc_attr($location); ?>" class="large-text" placeholder="เช่น หอประชุมใหญ่ อาคารเฉลิมพระเกียรติ หรือ ห้องประชุม 101" />
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="event_organizer"><?php _e('หน่วยงาน / ผู้รับผิดชอบ', 'project-core'); ?></label></th>
+                <td>
+                    <input type="text" id="event_organizer" name="event_organizer" value="<?php echo esc_attr($organizer); ?>" class="regular-text" placeholder="เช่น ฝ่ายวิชาการ หรือ สโมสรนักศึกษา" />
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="event_color"><?php _e('ธีมสีของกิจกรรม (Badge Theme)', 'project-core'); ?></label></th>
+                <td>
+                    <select id="event_color" name="event_color" style="padding: 4px 8px;">
+                        <option value="blue" <?php selected($color, 'blue'); ?>>สีน้ำเงิน (วิชาการ / กิจกรรมทั่วไป)</option>
+                        <option value="emerald" <?php selected($color, 'emerald'); ?>>สีเขียว (กิจกรรมนักศึกษา / ชุมนุม)</option>
+                        <option value="amber" <?php selected($color, 'amber'); ?>>สีส้มเหลือง (กำหนดการ / ลงทะเบียน)</option>
+                        <option value="rose" <?php selected($color, 'rose'); ?>>สีแดง (วันสำคัญ / วันหยุดนักขัตฤกษ์)</option>
+                        <option value="purple" <?php selected($color, 'purple'); ?>>สีม่วง (พิธีการ / พิเศษ)</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="event_link"><?php _e('ลิงก์รายละเอียดเพิ่มเติม', 'project-core'); ?></label></th>
+                <td>
+                    <input type="url" id="event_link" name="event_link" value="<?php echo esc_attr($link); ?>" class="large-text" placeholder="https://... (เว้นว่างได้)" />
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="event_attachment_url"><?php _e('เอกสารประกาศ / ปฏิทิน PDF', 'project-core'); ?></label></th>
+                <td>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="text" id="event_attachment_url" name="event_attachment_url" value="<?php echo esc_attr($attachment_url); ?>" class="large-text" placeholder="https://... ลิงก์ไฟล์ประกาศหรือไฟล์แนบ PDF" />
+                        <button type="button" class="button" id="btn_upload_event_pdf">เลือกไฟล์สื่อ</button>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><?php _e('กิจกรรมไฮไลท์', 'project-core'); ?></th>
+                <td>
+                    <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                        <input type="checkbox" id="is_featured" name="is_featured" value="1" <?php checked($is_featured, '1'); ?> />
+                        <strong><?php _e('ตั้งเป็นกิจกรรมสำคัญ / ไฮไลท์ (ติดป้ายดาว ★ โดดเด่น)', 'project-core'); ?></strong>
+                    </label>
+                </td>
+            </tr>
+        </table>
+        <script>
+        jQuery(document).ready(function($) {
+            var eventPdfFrame;
+            $('#btn_upload_event_pdf').on('click', function(e) {
+                e.preventDefault();
+                if (eventPdfFrame) {
+                    eventPdfFrame.open();
+                    return;
+                }
+                eventPdfFrame = wp.media({
+                    title: 'เลือกหรืออัปโหลดเอกสารแนบ',
+                    button: { text: 'ใช้ไฟล์นี้' },
+                    multiple: false
+                });
+                eventPdfFrame.on('select', function() {
+                    var attachment = eventPdfFrame.state().get('selection').first().toJSON();
+                    $('#event_attachment_url').val(attachment.url);
+                });
+                eventPdfFrame.open();
+            });
+        });
+        </script>
+        <?php
+    }
+
+    /**
      * Save Meta Boxes with Nonce and Permission validation
      */
     public function save_meta_boxes($post_id, $post) {
@@ -605,6 +757,31 @@ class Project_Core_Custom_Fields {
                 } elseif (empty($desktop_image_url)) {
                     delete_post_thumbnail($post_id);
                 }
+            }
+        }
+
+        // Save College Event Meta
+        if (isset($_POST['project_core_event_nonce_field']) && wp_verify_nonce($_POST['project_core_event_nonce_field'], 'project_core_event_nonce')) {
+            if (current_user_can('edit_post', $post_id)) {
+                $start_date     = isset($_POST['event_start_date']) ? sanitize_text_field($_POST['event_start_date']) : '';
+                $end_date       = isset($_POST['event_end_date']) ? sanitize_text_field($_POST['event_end_date']) : '';
+                $time           = isset($_POST['event_time']) ? sanitize_text_field($_POST['event_time']) : '';
+                $location       = isset($_POST['event_location']) ? sanitize_text_field($_POST['event_location']) : '';
+                $organizer      = isset($_POST['event_organizer']) ? sanitize_text_field($_POST['event_organizer']) : '';
+                $link           = isset($_POST['event_link']) ? esc_url_raw($_POST['event_link']) : '';
+                $attachment_url = isset($_POST['event_attachment_url']) ? esc_url_raw($_POST['event_attachment_url']) : '';
+                $color          = isset($_POST['event_color']) ? sanitize_text_field($_POST['event_color']) : 'blue';
+                $is_featured    = isset($_POST['is_featured']) ? '1' : '0';
+
+                update_post_meta($post_id, 'event_start_date', $start_date);
+                update_post_meta($post_id, 'event_end_date', $end_date);
+                update_post_meta($post_id, 'event_time', $time);
+                update_post_meta($post_id, 'event_location', $location);
+                update_post_meta($post_id, 'event_organizer', $organizer);
+                update_post_meta($post_id, 'event_link', $link);
+                update_post_meta($post_id, 'event_attachment_url', $attachment_url);
+                update_post_meta($post_id, 'event_color', $color);
+                update_post_meta($post_id, 'is_featured', $is_featured);
             }
         }
 

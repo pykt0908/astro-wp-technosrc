@@ -135,3 +135,29 @@ export interface SiteSettings {
   };
   footerCopyright: string;
 }
+
+export interface CollegeEventCategory {
+  id: number;
+  name: string;
+  slug: string;
+  count?: number;
+}
+
+export interface CollegeEvent {
+  id: number;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string;
+  startDate: string;
+  endDate: string;
+  time: string;
+  location: string;
+  organizer: string;
+  link: string;
+  attachmentUrl: string;
+  color: 'blue' | 'emerald' | 'amber' | 'rose' | 'purple' | string;
+  isFeatured: boolean;
+  thumbnail?: string | null;
+  categories: CollegeEventCategory[];
+}

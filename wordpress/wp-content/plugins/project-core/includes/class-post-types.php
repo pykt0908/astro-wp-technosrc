@@ -16,6 +16,8 @@ class Project_Core_Post_Types {
         add_action('init', array($this, 'register_taxonomies'));
         add_filter('manage_banner_posts_columns', array($this, 'set_banner_columns'));
         add_action('manage_banner_posts_custom_column', array($this, 'render_banner_columns'), 10, 2);
+        add_filter('manage_college_event_posts_columns', array($this, 'set_event_columns'));
+        add_action('manage_college_event_posts_custom_column', array($this, 'render_event_columns'), 10, 2);
         add_action('pre_get_posts', array($this, 'admin_banner_sort_order'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_banner_list_scripts'));
         add_action('admin_footer', array($this, 'render_banner_reorder_script'));
@@ -23,9 +25,10 @@ class Project_Core_Post_Types {
     }
 
     /**
-     * Register Banner Custom Post Type
+     * Register Custom Post Types (Banner & College Event)
      */
     public function register_post_types() {
+        // Banner CPT
         $labels = array(
             'name'                  => __('Banners', 'project-core'),
             'singular_name'         => __('Banner', 'project-core'),
@@ -61,12 +64,50 @@ class Project_Core_Post_Types {
         );
 
         register_post_type('banner', $args);
+
+        // College Event CPT (ปฏิทินกิจกรรมวิทยาลัย)
+        $event_labels = array(
+            'name'                  => __('ปฏิทินกิจกรรม', 'project-core'),
+            'singular_name'         => __('กิจกรรม', 'project-core'),
+            'menu_name'             => __('ปฏิทินวิทยาลัย', 'project-core'),
+            'name_admin_bar'        => __('กิจกรรม', 'project-core'),
+            'add_new'               => __('เพิ่มกิจกรรมใหม่', 'project-core'),
+            'add_new_item'          => __('เพิ่มกิจกรรมใหม่', 'project-core'),
+            'new_item'              => __('กิจกรรมใหม่', 'project-core'),
+            'edit_item'             => __('แก้ไขกิจกรรม', 'project-core'),
+            'view_item'             => __('ดูกิจกรรม', 'project-core'),
+            'all_items'             => __('กิจกรรมทั้งหมด', 'project-core'),
+            'search_items'          => __('ค้นหากิจกรรม', 'project-core'),
+            'not_found'             => __('ไม่พบกิจกรรมในปฏิทิน', 'project-core'),
+            'not_found_in_trash'    => __('ไม่พบกิจกรรมในถังขยะ', 'project-core'),
+        );
+
+        $event_args = array(
+            'labels'             => $event_labels,
+            'public'             => false,
+            'publicly_queryable' => false,
+            'show_ui'            => true,
+            'show_in_menu'       => true,
+            'query_var'          => false,
+            'rewrite'            => false,
+            'capability_type'    => 'post',
+            'has_archive'        => false,
+            'hierarchical'       => false,
+            'menu_position'      => 21,
+            'menu_icon'          => 'dashicons-calendar-alt',
+            'supports'           => array('title', 'editor', 'thumbnail'),
+            'show_in_rest'       => true,
+            'rest_base'          => 'events',
+        );
+
+        register_post_type('college_event', $event_args);
     }
 
     /**
      * Register Taxonomies
      */
     public function register_taxonomies() {
+        // Banner Position
         $labels = array(
             'name'              => __('Banner Positions / ตำแหน่งแบนเนอร์', 'project-core'),
             'singular_name'     => __('Banner Position', 'project-core'),
@@ -90,6 +131,32 @@ class Project_Core_Post_Types {
         );
 
         register_taxonomy('banner_position', array('banner'), $args);
+
+        // Event Category (หมวดหมู่ปฏิทินกิจกรรม)
+        $event_cat_labels = array(
+            'name'              => __('หมวดหมู่กิจกรรม', 'project-core'),
+            'singular_name'     => __('หมวดหมู่กิจกรรม', 'project-core'),
+            'search_items'      => __('ค้นหาหมวดหมู่', 'project-core'),
+            'all_items'         => __('หมวดหมู่ทั้งหมด', 'project-core'),
+            'edit_item'         => __('แก้ไขหมวดหมู่', 'project-core'),
+            'update_item'       => __('อัปเดตหมวดหมู่', 'project-core'),
+            'add_new_item'      => __('เพิ่มหมวดหมู่ใหม่', 'project-core'),
+            'new_item_name'     => __('ชื่อหมวดหมู่ใหม่', 'project-core'),
+            'menu_name'         => __('หมวดหมู่กิจกรรม', 'project-core'),
+        );
+
+        $event_cat_args = array(
+            'hierarchical'      => true,
+            'labels'            => $event_cat_labels,
+            'show_ui'           => true,
+            'show_admin_column' => true,
+            'query_var'         => false,
+            'rewrite'           => false,
+            'show_in_rest'      => true,
+            'rest_base'         => 'event-categories',
+        );
+
+        register_taxonomy('event_category', array('college_event'), $event_cat_args);
     }
 
     /**
@@ -154,6 +221,62 @@ class Project_Core_Post_Types {
                     echo '<span style="display: inline-block; padding: 2px 8px; border-radius: 4px; background: #fcf0f1; color: #d63638; font-weight: 600; font-size: 12px;">ปิดใช้งาน</span>';
                 } else {
                     echo '<span style="display: inline-block; padding: 2px 8px; border-radius: 4px; background: #ecf7ed; color: #007017; font-weight: 600; font-size: 12px;">เปิดใช้งาน</span>';
+                }
+                break;
+        }
+    }
+
+    /**
+     * Define custom columns in College Events admin list
+     */
+    public function set_event_columns($columns) {
+        $new_columns = array();
+        $new_columns['cb']                      = $columns['cb'];
+        $new_columns['title']                   = __('ชื่องาน / กิจกรรม', 'project-core');
+        $new_columns['event_date']              = __('วันที่จัดกิจกรรม', 'project-core');
+        $new_columns['event_time']              = __('เวลา', 'project-core');
+        $new_columns['event_location']          = __('สถานที่', 'project-core');
+        $new_columns['taxonomy-event_category'] = __('หมวดหมู่', 'project-core');
+        $new_columns['is_featured']             = __('ไฮไลท์', 'project-core');
+        $new_columns['date']                    = __('วันที่สร้าง', 'project-core');
+        return $new_columns;
+    }
+
+    /**
+     * Render custom columns in College Events admin list
+     */
+    public function render_event_columns($column, $post_id) {
+        switch ($column) {
+            case 'event_date':
+                $start = get_post_meta($post_id, 'event_start_date', true);
+                $end   = get_post_meta($post_id, 'event_end_date', true);
+                if (!empty($start)) {
+                    $str = esc_html($start);
+                    if (!empty($end) && $end !== $start) {
+                        $str .= ' ถึง ' . esc_html($end);
+                    }
+                    echo '<strong style="color: #0047BA;">' . $str . '</strong>';
+                } else {
+                    echo '<span style="color: #a7aaad;">—</span>';
+                }
+                break;
+
+            case 'event_time':
+                $time = get_post_meta($post_id, 'event_time', true);
+                echo !empty($time) ? esc_html($time) : '<span style="color: #a7aaad;">—</span>';
+                break;
+
+            case 'event_location':
+                $loc = get_post_meta($post_id, 'event_location', true);
+                echo !empty($loc) ? esc_html($loc) : '<span style="color: #a7aaad;">—</span>';
+                break;
+
+            case 'is_featured':
+                $feat = get_post_meta($post_id, 'is_featured', true);
+                if ($feat === '1' || $feat === 1 || $feat === true) {
+                    echo '<span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#fef3c7;color:#b45309;font-weight:700;font-size:12px;">★ ไฮไลท์</span>';
+                } else {
+                    echo '<span style="color: #a7aaad;">—</span>';
                 }
                 break;
         }

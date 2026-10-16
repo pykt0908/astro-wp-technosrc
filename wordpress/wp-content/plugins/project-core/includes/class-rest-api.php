@@ -55,6 +55,20 @@ class Project_Core_REST_API {
             'callback'            => array($this, 'get_categories'),
             'permission_callback' => '__return_true',
         ));
+
+        // College events endpoint
+        register_rest_route(self::NAMESPACE, '/events', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_events'),
+            'permission_callback' => '__return_true',
+        ));
+
+        // Event categories endpoint
+        register_rest_route(self::NAMESPACE, '/event-categories', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_event_categories'),
+            'permission_callback' => '__return_true',
+        ));
     }
 
     /**
@@ -332,6 +346,115 @@ class Project_Core_REST_API {
                     'name'  => $cat->name,
                     'slug'  => $cat->slug,
                     'count' => (int) $cat->count,
+                );
+            }
+        }
+
+        return rest_ensure_response($result);
+    }
+
+    /**
+     * Get college events formatted for frontend
+     */
+    public function get_events(WP_REST_Request $request) {
+        $category = sanitize_text_field($request->get_param('category'));
+        $per_page = absint($request->get_param('per_page')) ?: 50;
+        $page     = absint($request->get_param('page')) ?: 1;
+
+        $query_args = array(
+            'post_type'      => 'college_event',
+            'post_status'    => 'publish',
+            'posts_per_page' => $per_page,
+            'paged'          => $page,
+            'meta_key'       => 'event_start_date',
+            'orderby'        => 'meta_value',
+            'order'          => 'ASC',
+        );
+
+        if (!empty($category) && $category !== 'all') {
+            $query_args['tax_query'] = array(
+                array(
+                    'taxonomy' => 'event_category',
+                    'field'    => is_numeric($category) ? 'term_id' : 'slug',
+                    'terms'    => $category,
+                ),
+            );
+        }
+
+        $query = new WP_Query($query_args);
+        $events = array();
+
+        if ($query->have_posts()) {
+            while ($query->have_posts()) {
+                $query->the_post();
+                $id = get_the_ID();
+
+                $terms = get_the_terms($id, 'event_category');
+                $cats = array();
+                if ($terms && !is_wp_error($terms)) {
+                    foreach ($terms as $t) {
+                        $cats[] = array(
+                            'id'   => $t->term_id,
+                            'name' => $t->name,
+                            'slug' => $t->slug,
+                        );
+                    }
+                }
+
+                $thumb_url = get_the_post_thumbnail_url($id, 'large');
+                if (!$thumb_url) {
+                    $thumb_url = null;
+                }
+
+                $events[] = array(
+                    'id'             => $id,
+                    'title'          => html_entity_decode(get_the_title()),
+                    'slug'           => get_post_field('post_name', $id),
+                    'content'        => apply_filters('the_content', get_the_content()),
+                    'excerpt'        => wp_strip_all_tags(get_the_excerpt()),
+                    'start_date'     => (string) get_post_meta($id, 'event_start_date', true),
+                    'end_date'       => (string) get_post_meta($id, 'event_end_date', true),
+                    'time'           => (string) get_post_meta($id, 'event_time', true),
+                    'location'       => (string) get_post_meta($id, 'event_location', true),
+                    'organizer'      => (string) get_post_meta($id, 'event_organizer', true),
+                    'link'           => (string) get_post_meta($id, 'event_link', true),
+                    'attachment_url' => (string) get_post_meta($id, 'event_attachment_url', true),
+                    'color'          => (string) (get_post_meta($id, 'event_color', true) ?: 'blue'),
+                    'is_featured'    => (bool) get_post_meta($id, 'is_featured', true),
+                    'thumbnail'      => $thumb_url,
+                    'categories'     => $cats,
+                );
+            }
+            wp_reset_postdata();
+        }
+
+        return rest_ensure_response(array(
+            'events'      => $events,
+            'totalEvents' => (int) $query->found_posts,
+            'totalPages'  => (int) $query->max_num_pages,
+            'page'        => $page,
+        ));
+    }
+
+    /**
+     * Get event categories list
+     */
+    public function get_event_categories(WP_REST_Request $request) {
+        $terms = get_terms(array(
+            'taxonomy'   => 'event_category',
+            'hide_empty' => false,
+            'orderby'    => 'name',
+            'order'      => 'ASC',
+        ));
+
+        $result = array();
+        if (!empty($terms) && !is_wp_error($terms)) {
+            foreach ($terms as $term) {
+                $result[] = array(
+                    'id'    => $term->term_id,
+                    'name'  => $term->name,
+                    'slug'  => $term->slug,
+                    'count' => (int) $term->count,
                 );
             }
         }
