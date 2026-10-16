@@ -174,28 +174,28 @@ const categorySlug = post.categories?.[0]?.slug || 'general';
           </div>
         </header>
 
-        <!-- Featured Graphic (Clean, natural presentation with Lightbox zoom) -->
-        <figure class="my-6">
-          <div class="max-w-2xl mx-auto rounded-xl overflow-hidden border border-slate-200/80 shadow-xs bg-white group cursor-zoom-in relative">
+        <!-- Featured Graphic (Full width of the article column) -->
+        <figure class="my-6 sm:my-8 w-full">
+          <div class="w-full rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200/80 shadow-xs bg-slate-100 group cursor-zoom-in relative">
             <img
               src={post.coverUrl || fallbackCover}
               alt={post.coverAlt || post.titlePlain}
               loading="eager"
-              class="w-full h-auto object-contain block mx-auto transition-transform duration-300 group-hover:scale-[1.01]"
+              class="w-full h-auto block transition-transform duration-300 group-hover:scale-[1.01]"
               id="featured-image-zoom"
               data-full={post.coverUrl || fallbackCover}
               data-alt={post.coverAlt || post.titlePlain}
               onerror={`this.onerror=null;this.src='${fallbackCover}';`}
             />
-            <div class="absolute bottom-2.5 right-2.5 bg-slate-900/70 hover:bg-slate-900/90 text-white text-[11px] font-medium px-2.5 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 shadow-sm pointer-events-none">
-              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="absolute bottom-3 right-3 bg-slate-900/75 hover:bg-slate-900/90 text-white text-xs font-medium px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 shadow-md pointer-events-none">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
               </svg>
-              <span>คลิกเพื่อขยายภาพ</span>
+              <span>คลิกเพื่อดูภาพขนาดเต็ม</span>
             </div>
           </div>
           {post.coverAlt && (
-            <figcaption class="mt-2 text-center text-xs text-slate-400">
+            <figcaption class="mt-2.5 text-center text-xs text-slate-400">
               {post.coverAlt}
             </figcaption>
           )}
