@@ -29,30 +29,32 @@ const programs = [
 >
   <div class="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center max-w-3xl mx-auto mb-16">
-      <span class="text-xs font-semibold text-blue-400 tracking-wider uppercase">หลักสูตรที่เปิดสอน</span>
-      <h1 class="text-4xl sm:text-5xl font-extrabold text-white mt-3 tracking-tight">
+      <span class="inline-block px-3 py-1 rounded-full bg-blue-100 text-[#003893] text-xs font-semibold tracking-wider uppercase mb-3">
+        หลักสูตรที่เปิดสอน
+      </span>
+      <h1 class="text-4xl sm:text-5xl font-extrabold text-slate-900 mt-2 tracking-tight">
         หลักสูตรคุณภาพ ตอบโจทย์โลกอนาคต
       </h1>
-      <p class="mt-4 text-base sm:text-lg text-slate-300">
+      <p class="mt-4 text-base sm:text-lg text-slate-600">
         เรียนรู้กับอาจารย์ผู้เชี่ยวชาญ เครื่องมือครบครัน เสริมสร้างทักษะสู่การทำงานจริงในระดับสากล
       </p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       {programs.map((prog) => (
-        <div class="glass-panel p-8 rounded-2xl border border-blue-900/50 flex flex-col justify-between hover:border-blue-400/50 transition-all duration-300">
+        <div class="bg-white p-8 rounded-2xl border border-blue-100 shadow-sm flex flex-col justify-between hover:border-blue-300 hover:shadow-xl transition-all duration-300">
           <div>
-            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600/30 to-indigo-600/30 text-blue-400 flex items-center justify-center mb-6 border border-blue-500/30 shadow-md">
+            <div class="w-12 h-12 rounded-xl bg-blue-50 text-[#0047BA] flex items-center justify-center mb-6 border border-blue-200 shadow-xs">
               <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={prog.icon} />
               </svg>
             </div>
-            <h2 class="text-xl font-bold text-white mb-3">{prog.title}</h2>
-            <p class="text-sm text-slate-300 leading-relaxed mb-6">{prog.desc}</p>
-            <ul class="space-y-2.5 text-xs text-slate-300">
+            <h2 class="text-xl font-bold text-slate-900 mb-3">{prog.title}</h2>
+            <p class="text-sm text-slate-600 leading-relaxed mb-6">{prog.desc}</p>
+            <ul class="space-y-2.5 text-xs text-slate-700">
               {prog.features.map((feat) => (
                 <li class="flex items-center gap-2">
-                  <svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg class="w-4 h-4 text-[#0047BA] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
                   <span>{feat}</span>
@@ -60,10 +62,10 @@ const programs = [
               ))}
             </ul>
           </div>
-          <div class="mt-8 pt-6 border-t border-blue-900/50">
+          <div class="mt-8 pt-6 border-t border-slate-100">
             <a
               href="/contact/"
-              class="inline-flex items-center gap-2 text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+              class="inline-flex items-center gap-2 text-sm font-bold text-[#0047BA] hover:text-[#002D72] transition-colors"
             >
               <span>สนใจสมัครเรียนหลักสูตรนี้</span>
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -12,14 +12,14 @@ const banners = await getBanners();
   description="วิทยาลัยเทคโนโลยีศรีราชา มุ่งมั่นจัดการศึกษาด้านวิชาชีพและเทคโนโลยีที่ทันสมัย ตำบลทุ่งสุขลา อำเภอศรีราชา จังหวัดชลบุรี"
 >
   <!-- Hero Section -->
-  <section class="relative overflow-hidden pt-16 pb-24 lg:pt-24 lg:pb-32">
-    <!-- Royal Blue Glow backgrounds -->
-    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[380px] bg-gradient-to-tr from-blue-700/25 via-blue-600/20 to-indigo-700/20 blur-[130px] rounded-full pointer-events-none"></div>
-    <div class="absolute -top-24 left-10 w-96 h-96 bg-blue-600/15 blur-[110px] rounded-full pointer-events-none"></div>
+  <section class="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-28 bg-gradient-to-b from-blue-50/60 via-white to-slate-50">
+    <!-- Subtle Royal Blue Accent Glows -->
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-blue-200/40 blur-[130px] rounded-full pointer-events-none"></div>
+    <div class="absolute top-0 right-10 w-96 h-96 bg-sky-100/50 blur-[100px] rounded-full pointer-events-none"></div>
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
       <!-- Logo badge in hero -->
-      <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-blue-900/40 border border-blue-500/30 text-blue-300 text-xs font-semibold mb-8 backdrop-blur-md shadow-lg shadow-blue-950/50">
+      <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-white border border-blue-200 text-[#003893] text-xs font-semibold mb-8 shadow-sm">
         <img
           src="/logo/LOGO_SERIRACHA_COLOR_FULL.png"
           alt="Logo"
@@ -28,49 +28,49 @@ const banners = await getBanners();
         <span>SERIRACHA TECHNOLOGY COLLEGE • ชลบุรี</span>
       </div>
 
-      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.2] max-w-4xl mx-auto">
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-slate-900 tracking-tight leading-[1.2] max-w-4xl mx-auto">
         พัฒนาทักษะวิชาชีพสู่อนาคต
-        <span class="block mt-2 bg-gradient-to-r from-blue-400 via-sky-300 to-indigo-300 bg-clip-text text-transparent">
+        <span class="block mt-2 text-[#0047BA]">
           วิทยาลัยเทคโนโลยีศรีราชา
         </span>
       </h1>
 
-      <p class="mt-6 text-base sm:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed">
+      <p class="mt-6 text-base sm:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
         มุ่งมั่นจัดการศึกษาด้านวิชาชีพและเทคโนโลยีสมัยใหม่ สร้างผู้เรียนให้มีความรู้ ทักษะ คุณธรรม พร้อมก้าวสู่ตลาดแรงงานสากล
       </p>
 
       <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
         <a
           href="/services/"
-          class="w-full sm:w-auto px-8 py-3.5 text-base font-semibold text-white bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 rounded-xl shadow-xl shadow-blue-700/30 transition-all duration-200 hover:shadow-blue-600/50 hover:-translate-y-0.5 border border-blue-400/20"
+          class="w-full sm:w-auto px-8 py-3.5 text-base font-semibold text-white bg-[#0047BA] hover:bg-[#003893] rounded-xl shadow-lg shadow-blue-600/25 transition-all duration-200 hover:-translate-y-0.5"
         >
           สำรวจหลักสูตรการเรียน
         </a>
         <a
           href="/contact/"
-          class="w-full sm:w-auto px-8 py-3.5 text-base font-semibold text-blue-200 hover:text-white bg-blue-950/60 hover:bg-blue-900/60 border border-blue-700/50 rounded-xl transition-all duration-200 shadow-md"
+          class="w-full sm:w-auto px-8 py-3.5 text-base font-semibold text-[#0047BA] hover:text-[#002D72] bg-white hover:bg-blue-50/80 border-2 border-[#0047BA] rounded-xl transition-all duration-200 shadow-sm"
         >
           ติดต่อสมัครเรียน
         </a>
       </div>
 
       <!-- Highlights Badges -->
-      <div class="mt-16 pt-10 border-t border-blue-900/50 max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-slate-300 text-sm">
-        <div class="flex items-center justify-center gap-2">
-          <span class="text-blue-400 font-bold text-lg">🎓 ปวช. & ปวส.</span>
-          <span>หลักสูตรมาตรฐาน</span>
+      <div class="mt-16 pt-10 border-t border-slate-200 max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-slate-700 text-sm">
+        <div class="flex items-center justify-center gap-2 p-3 bg-white rounded-xl border border-blue-100 shadow-xs">
+          <span class="text-[#0047BA] font-bold text-base">🎓 ปวช. & ปวส.</span>
+          <span class="text-xs sm:text-sm font-medium">มาตรฐานสากล</span>
         </div>
-        <div class="flex items-center justify-center gap-2">
-          <span class="text-sky-400 font-bold text-lg">⚡ 100%</span>
-          <span>ฝึกปฏิบัติจริง</span>
+        <div class="flex items-center justify-center gap-2 p-3 bg-white rounded-xl border border-blue-100 shadow-xs">
+          <span class="text-[#0047BA] font-bold text-base">⚡ 100%</span>
+          <span class="text-xs sm:text-sm font-medium">ฝึกปฏิบัติจริง</span>
         </div>
-        <div class="flex items-center justify-center gap-2">
-          <span class="text-indigo-400 font-bold text-lg">🤝 เครือข่าย</span>
-          <span>สถานประกอบการ</span>
+        <div class="flex items-center justify-center gap-2 p-3 bg-white rounded-xl border border-blue-100 shadow-xs">
+          <span class="text-[#0047BA] font-bold text-base">🤝 เครือข่าย</span>
+          <span class="text-xs sm:text-sm font-medium">สถานประกอบการ</span>
         </div>
-        <div class="flex items-center justify-center gap-2">
-          <span class="text-blue-300 font-bold text-lg">📍 ศรีราชา</span>
-          <span>ทุ่งสุขลา ชลบุรี</span>
+        <div class="flex items-center justify-center gap-2 p-3 bg-white rounded-xl border border-blue-100 shadow-xs">
+          <span class="text-[#0047BA] font-bold text-base">📍 ศรีราชา</span>
+          <span class="text-xs sm:text-sm font-medium">ทุ่งสุขลา ชลบุรี</span>
         </div>
       </div>
     </div>
@@ -78,13 +78,13 @@ const banners = await getBanners();
 
   <!-- Dynamic Banners Section -->
   {banners.length > 0 && (
-    <section class="py-10 bg-[#040814]/60">
+    <section class="py-12 bg-white">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           {banners.map((banner) => (
             <a
               href={banner.targetUrl || '#'}
-              class="group relative rounded-2xl overflow-hidden aspect-[21/9] block border border-blue-900/50 shadow-xl shadow-blue-950/40 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              class="group relative rounded-2xl overflow-hidden aspect-[21/9] block border border-blue-100 shadow-md hover:shadow-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <picture>
                 <source media="(max-width: 640px)" srcset={banner.mobileImageUrl} />
@@ -95,10 +95,10 @@ const banners = await getBanners();
                   class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </picture>
-              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent flex items-end p-6">
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/30 to-transparent flex items-end p-6">
                 <div>
-                  <span class="text-xs font-semibold text-blue-400 tracking-wider uppercase">ประชาสัมพันธ์ & กิจกรรม</span>
-                  <h3 class="text-lg sm:text-xl font-bold text-white mt-1 group-hover:text-blue-300 transition-colors">
+                  <span class="text-xs font-semibold text-sky-300 tracking-wider uppercase">ประชาสัมพันธ์ & กิจกรรม</span>
+                  <h3 class="text-lg sm:text-xl font-bold text-white mt-1 group-hover:text-sky-200 transition-colors">
                     {banner.title}
                   </h3>
                 </div>
@@ -111,44 +111,46 @@ const banners = await getBanners();
   )}
 
   <!-- College Intro Section -->
-  <section class="py-20 bg-blue-950/20 border-y border-blue-900/50">
+  <section class="py-20 bg-slate-50 border-y border-slate-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <div>
-          <span class="text-xs font-semibold text-blue-400 tracking-wider uppercase">เกี่ยวกับวิทยาลัย</span>
-          <h2 class="text-3xl sm:text-4xl font-bold text-white mt-2 leading-tight">
+          <span class="inline-block px-3 py-1 rounded-full bg-blue-100 text-[#003893] text-xs font-semibold tracking-wider uppercase mb-3">
+            เกี่ยวกับวิทยาลัย
+          </span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 leading-tight">
             สร้างคน สร้างอาชีพ สู่มาตรฐานสากล
           </h2>
-          <p class="mt-4 text-slate-300 leading-relaxed">
+          <p class="mt-4 text-slate-600 leading-relaxed text-base">
             วิทยาลัยเทคโนโลยีศรีราชา ตั้งอยู่ ณ ตำบลทุ่งสุขลา อำเภอศรีราชา จังหวัดชลบุรี มุ่งเน้นการจัดการเรียนการสอนสายอาชีพที่ตอบรับกับการเติบโตของเขตพัฒนาพิเศษภาคตะวันออก (EEC) เน้นผู้เรียนเป็นสำคัญ พร้อมอุปกรณ์และห้องปฏิบัติการที่ทันสมัย
           </p>
           <div class="mt-8 space-y-4">
-            <div class="flex items-start gap-4">
-              <div class="p-2.5 rounded-lg bg-blue-600/20 text-blue-400 mt-1 border border-blue-500/30">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="flex items-start gap-4 p-4 rounded-xl bg-white border border-blue-100 shadow-xs">
+              <div class="p-2.5 rounded-lg bg-blue-50 text-[#0047BA] shrink-0">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
               <div>
-                <h3 class="text-base font-semibold text-white">หลักสูตรตรงความต้องการตลาดแรงงาน</h3>
-                <p class="text-sm text-slate-400 mt-1">ทั้งสาขาวิชาช่างอุตสาหกรรม บริหารธุรกิจ และเทคโนโลยีสารสนเทศดิจิทัล</p>
+                <h3 class="text-base font-bold text-slate-900">หลักสูตรตรงความต้องการตลาดแรงงาน</h3>
+                <p class="text-sm text-slate-600 mt-1">ทั้งสาขาวิชาช่างอุตสาหกรรม บริหารธุรกิจ และเทคโนโลยีสารสนเทศดิจิทัล</p>
               </div>
             </div>
-            <div class="flex items-start gap-4">
-              <div class="p-2.5 rounded-lg bg-indigo-600/20 text-indigo-400 mt-1 border border-indigo-500/30">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="flex items-start gap-4 p-4 rounded-xl bg-white border border-blue-100 shadow-xs">
+              <div class="p-2.5 rounded-lg bg-blue-50 text-[#0047BA] shrink-0">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                 </svg>
               </div>
               <div>
-                <h3 class="text-base font-semibold text-white">ความร่วมมือกับสถานประกอบการชั้นนำ</h3>
-                <p class="text-sm text-slate-400 mt-1">โอกาสฝึกงานจริงและมีตำแหน่งงานรองรับทันทีหลังสำเร็จการศึกษา</p>
+                <h3 class="text-base font-bold text-slate-900">ความร่วมมือกับสถานประกอบการชั้นนำ</h3>
+                <p class="text-sm text-slate-600 mt-1">โอกาสฝึกงานจริงและมีตำแหน่งงานรองรับทันทีหลังสำเร็จการศึกษา</p>
               </div>
             </div>
           </div>
         </div>
         <div class="relative">
-          <div class="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-blue-800/60 bg-blue-950">
+          <div class="aspect-[4/3] rounded-2xl overflow-hidden shadow-xl border border-blue-100 bg-white">
             <img
               src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1200&auto=format&fit=crop"
               alt="Students Collaboration"
@@ -162,16 +164,18 @@ const banners = await getBanners();
   </section>
 
   <!-- Featured News Section -->
-  <section class="py-24">
+  <section class="py-24 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
         <div>
-          <span class="text-xs font-semibold text-blue-400 tracking-wider uppercase">อัปเดตล่าสุด</span>
-          <h2 class="text-3xl sm:text-4xl font-bold text-white mt-2">ข่าวสารและกิจกรรมวิทยาลัย</h2>
+          <span class="inline-block px-3 py-1 rounded-full bg-blue-100 text-[#003893] text-xs font-semibold tracking-wider uppercase mb-2">
+            อัปเดตล่าสุด
+          </span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">ข่าวสารและกิจกรรมวิทยาลัย</h2>
         </div>
         <a
           href="/news/"
-          class="mt-4 md:mt-0 inline-flex items-center gap-1.5 text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+          class="mt-4 md:mt-0 inline-flex items-center gap-1.5 text-sm font-bold text-[#0047BA] hover:text-[#002D72] transition-colors"
         >
           <span>ดูข่าวทั้งหมด</span>
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -188,19 +192,19 @@ const banners = await getBanners();
     </div>
   </section>
 
-  <!-- Contact CTA Section -->
-  <section class="py-20 bg-gradient-to-b from-transparent to-[#040814]">
+  <!-- Contact CTA Section: Two-tone Royal Blue & White -->
+  <section class="py-20 bg-slate-50">
     <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <div class="glass-panel rounded-3xl p-10 sm:p-14 border border-blue-500/30 relative overflow-hidden shadow-2xl shadow-blue-950/60">
-        <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-blue-600/15 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="rounded-3xl p-10 sm:p-14 bg-gradient-to-br from-[#003893] via-[#0047BA] to-[#002D72] text-white relative overflow-hidden shadow-2xl shadow-blue-900/20">
+        <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
         <h2 class="text-3xl sm:text-4xl font-extrabold text-white">สนใจสมัครเรียน หรือสอบถามข้อมูลเพิ่มเติม</h2>
-        <p class="mt-4 text-slate-300 max-w-xl mx-auto">
+        <p class="mt-4 text-blue-100 max-w-xl mx-auto leading-relaxed">
           เปิดรับสมัครนักเรียน นักศึกษาใหม่ ระดับ ปวช. และ ปวส. ติดต่อฝ่ายแนะแนวและรับสมัครได้ทุกวันทำการ
         </p>
         <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
             href="/contact/"
-            class="px-8 py-3.5 text-base font-semibold text-white bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 rounded-xl shadow-lg shadow-blue-700/30 transition-all duration-200 border border-blue-400/20"
+            class="px-8 py-3.5 text-base font-bold text-[#003893] bg-white hover:bg-blue-50 rounded-xl shadow-lg transition-all duration-200 hover:-translate-y-0.5"
           >
             ติดต่อฝ่ายรับสมัคร
           </a>

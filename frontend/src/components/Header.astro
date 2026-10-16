@@ -19,11 +19,11 @@ function isActive(href: string) {
 }
 ---
 
-<header class="sticky top-0 z-50 glass-panel border-b border-blue-900/60 shadow-lg shadow-blue-950/40">
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-blue-100 shadow-sm transition-all duration-200">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-20">
       <!-- Logo & Brand -->
-      <a href="/" class="flex items-center gap-3.5 group focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-lg p-1">
+      <a href="/" class="flex items-center gap-3.5 group focus:outline-none focus:ring-2 focus:ring-blue-600 rounded-lg p-1">
         <div class="w-12 h-12 rounded-full overflow-hidden group-hover:scale-105 transition-transform duration-300 flex items-center justify-center shrink-0">
           <img
             src="/logo/LOGO_SERIRACHA_COLOR_FULL.png"
@@ -33,10 +33,10 @@ function isActive(href: string) {
           />
         </div>
         <div class="flex flex-col">
-          <span class="text-base sm:text-lg font-bold tracking-tight text-white group-hover:text-blue-400 transition-colors leading-snug">
+          <span class="text-base sm:text-lg font-bold tracking-tight text-[#003893] group-hover:text-[#0047ba] transition-colors leading-snug">
             วิทยาลัยเทคโนโลยีศรีราชา
           </span>
-          <span class="text-[10px] uppercase tracking-wider text-blue-300/80 font-medium">
+          <span class="text-[10px] uppercase tracking-wider text-blue-600 font-semibold">
             SERIRACHA TECHNOLOGY COLLEGE
           </span>
         </div>
@@ -51,8 +51,8 @@ function isActive(href: string) {
               href={link.href}
               class={`px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                 active
-                  ? 'text-blue-400 bg-blue-600/15 font-semibold border border-blue-500/20'
-                  : 'text-slate-300 hover:text-white hover:bg-blue-900/30'
+                  ? 'text-[#0047ba] bg-blue-50 font-bold border border-blue-200/80 shadow-xs'
+                  : 'text-slate-700 hover:text-[#0047ba] hover:bg-blue-50/60'
               }`}
             >
               {link.label}
@@ -65,7 +65,7 @@ function isActive(href: string) {
       <div class="hidden md:flex items-center gap-4">
         <a
           href="/contact/"
-          class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 rounded-lg shadow-lg shadow-blue-700/30 transition-all duration-200 hover:shadow-blue-600/50 hover:-translate-y-0.5"
+          class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-white bg-[#0047ba] hover:bg-[#003893] rounded-lg shadow-md shadow-blue-600/25 transition-all duration-200 hover:shadow-blue-600/40 hover:-translate-y-0.5"
         >
           ติดต่อสอบถาม
         </a>
@@ -76,7 +76,7 @@ function isActive(href: string) {
         <button
           id="mobile-menu-btn"
           type="button"
-          class="p-2 rounded-lg text-slate-300 hover:text-white hover:bg-blue-900/40 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          class="p-2 rounded-lg text-slate-700 hover:text-[#0047ba] hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-600"
           aria-label="Toggle navigation menu"
           aria-expanded="false"
         >
@@ -92,7 +92,7 @@ function isActive(href: string) {
   </div>
 
   <!-- Mobile Dropdown Menu -->
-  <div id="mobile-menu" class="hidden md:hidden px-4 pt-2 pb-6 space-y-2 border-t border-blue-900/60 bg-slate-950/95 backdrop-blur-xl">
+  <div id="mobile-menu" class="hidden md:hidden px-4 pt-2 pb-6 space-y-2 border-t border-blue-100 bg-white shadow-lg">
     {navLinks.map((link) => {
       const active = isActive(link.href);
       return (
@@ -100,8 +100,8 @@ function isActive(href: string) {
           href={link.href}
           class={`block px-4 py-3 rounded-lg text-base font-medium transition-colors ${
             active
-              ? 'text-blue-400 bg-blue-600/15 font-semibold'
-              : 'text-slate-300 hover:text-white hover:bg-blue-900/30'
+              ? 'text-[#0047ba] bg-blue-50 font-bold border border-blue-200'
+              : 'text-slate-700 hover:text-[#0047ba] hover:bg-blue-50/60'
           }`}
         >
           {link.label}
@@ -111,7 +111,7 @@ function isActive(href: string) {
     <div class="pt-4">
       <a
         href="/contact/"
-        class="block w-full text-center px-4 py-3 text-base font-medium text-white bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 rounded-lg shadow-md"
+        class="block w-full text-center px-4 py-3 text-base font-semibold text-white bg-[#0047ba] hover:bg-[#003893] rounded-lg shadow-md"
       >
         ติดต่อสอบถาม
       </a>
