@@ -161,6 +161,33 @@ class Project_Core_Post_Types {
         );
 
         register_taxonomy('event_category', array('college_event'), $event_cat_args);
+
+        // Academic Year Taxonomy (ปีการศึกษา - จัดการ เพิ่ม ลบ แก้ไข ได้)
+        $academic_year_labels = array(
+            'name'              => __('ปีการศึกษา', 'project-core'),
+            'singular_name'     => __('ปีการศึกษา', 'project-core'),
+            'search_items'      => __('ค้นหาปีการศึกษา', 'project-core'),
+            'all_items'         => __('ปีการศึกษาทั้งหมด', 'project-core'),
+            'edit_item'         => __('แก้ไขปีการศึกษา', 'project-core'),
+            'update_item'       => __('อัปเดตปีการศึกษา', 'project-core'),
+            'add_new_item'      => __('เพิ่มปีการศึกษาใหม่', 'project-core'),
+            'new_item_name'     => __('ชื่อปีการศึกษาใหม่ (เช่น 2569)', 'project-core'),
+            'menu_name'         => __('ปีการศึกษา', 'project-core'),
+            'back_to_items'     => __('← กลับไปหน้ารายการปีการศึกษา', 'project-core'),
+        );
+
+        $academic_year_args = array(
+            'hierarchical'      => true,
+            'labels'            => $academic_year_labels,
+            'show_ui'           => true,
+            'show_admin_column' => false, // Custom column rendered manually
+            'query_var'         => true,
+            'rewrite'           => false,
+            'show_in_rest'      => true,
+            'rest_base'         => 'academic-years',
+        );
+
+        register_taxonomy('academic_year', array('college_event'), $academic_year_args);
     }
 
     /**
@@ -253,16 +280,21 @@ class Project_Core_Post_Types {
     public function render_event_columns($column, $post_id) {
         switch ($column) {
             case 'academic_year':
-                $ay = get_post_meta($post_id, 'academic_year', true);
-                if (empty($ay)) {
-                    $start = get_post_meta($post_id, 'event_start_date', true);
-                    if (!empty($start)) {
-                        $parts = explode('-', $start);
-                        $y = (int) $parts[0];
-                        $m = isset($parts[1]) ? (int) $parts[1] : 6;
-                        $ay = (string) ((($m < 5) ? ($y - 1) : $y) + 543);
-                    } else {
-                        $ay = '2569';
+                $ay_terms = get_the_terms($post_id, 'academic_year');
+                if ($ay_terms && !is_wp_error($ay_terms) && !empty($ay_terms)) {
+                    $ay = $ay_terms[0]->name;
+                } else {
+                    $ay = get_post_meta($post_id, 'academic_year', true);
+                    if (empty($ay)) {
+                        $start = get_post_meta($post_id, 'event_start_date', true);
+                        if (!empty($start)) {
+                            $parts = explode('-', $start);
+                            $y = (int) $parts[0];
+                            $m = isset($parts[1]) ? (int) $parts[1] : 6;
+                            $ay = (string) ((($m < 5) ? ($y - 1) : $y) + 543);
+                        } else {
+                            $ay = '2569';
+                        }
                     }
                 }
                 echo '<span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#e0f2fe;color:#0369a1;font-weight:700;font-size:12px;">' . esc_html($ay) . '</span>';
@@ -505,17 +537,21 @@ class Project_Core_Post_Types {
             return;
         }
 
-        // 1. Academic Year filter
-        global $wpdb;
-        $years = $wpdb->get_col("SELECT DISTINCT meta_value FROM {$wpdb->postmeta} WHERE meta_key = 'academic_year' AND meta_value != '' ORDER BY meta_value DESC");
-        if (empty($years)) {
-            $years = array('2569');
-        }
+        // 1. Academic Year filter (from academic_year taxonomy)
         $selected_year = isset($_GET['filter_academic_year']) ? sanitize_text_field($_GET['filter_academic_year']) : '';
+        $year_terms = get_terms(array(
+            'taxonomy'   => 'academic_year',
+            'hide_empty' => false,
+            'orderby'    => 'name',
+            'order'      => 'DESC',
+        ));
+
         echo '<select name="filter_academic_year" id="filter_academic_year" style="margin-right: 6px;">';
         echo '<option value="">' . esc_html__('— ทุกปีการศึกษา —', 'project-core') . '</option>';
-        foreach ($years as $yr) {
-            echo '<option value="' . esc_attr($yr) . '" ' . selected($selected_year, $yr, false) . '>ปีการศึกษา ' . esc_html($yr) . '</option>';
+        if (!is_wp_error($year_terms) && !empty($year_terms)) {
+            foreach ($year_terms as $yt) {
+                echo '<option value="' . esc_attr($yt->slug) . '" ' . selected($selected_year, $yt->slug, false) . '>ปีการศึกษา ' . esc_html($yt->name) . ' (' . $yt->count . ')</option>';
+            }
         }
         echo '</select>';
 
@@ -542,28 +578,30 @@ class Project_Core_Post_Types {
     public function admin_event_filter_query($query) {
         global $pagenow;
         if (is_admin() && $pagenow === 'edit.php' && $query->is_main_query() && $query->get('post_type') === 'college_event') {
+            $tax_query = $query->get('tax_query') ?: array();
+
             // Category filter
             if (isset($_GET['event_category']) && !empty($_GET['event_category']) && $_GET['event_category'] !== '0') {
                 $slug = sanitize_text_field($_GET['event_category']);
-                $query->set('tax_query', array(
-                    array(
-                        'taxonomy' => 'event_category',
-                        'field'    => 'slug',
-                        'terms'    => $slug,
-                    ),
-                ));
+                $tax_query[] = array(
+                    'taxonomy' => 'event_category',
+                    'field'    => 'slug',
+                    'terms'    => $slug,
+                );
             }
 
-            // Academic Year filter
+            // Academic Year taxonomy filter
             if (isset($_GET['filter_academic_year']) && !empty($_GET['filter_academic_year'])) {
-                $ay = sanitize_text_field($_GET['filter_academic_year']);
-                $meta_query = $query->get('meta_query') ?: array();
-                $meta_query[] = array(
-                    'key'     => 'academic_year',
-                    'value'   => $ay,
-                    'compare' => '=',
+                $ay_slug = sanitize_text_field($_GET['filter_academic_year']);
+                $tax_query[] = array(
+                    'taxonomy' => 'academic_year',
+                    'field'    => 'slug',
+                    'terms'    => $ay_slug,
                 );
-                $query->set('meta_query', $meta_query);
+            }
+
+            if (!empty($tax_query)) {
+                $query->set('tax_query', $tax_query);
             }
         }
     }

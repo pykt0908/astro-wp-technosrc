@@ -701,19 +701,22 @@ export async function getCollegeAcademicYears(): Promise<string[]> {
   if (cached) return cached;
 
   try {
-    const res = await fetchWithTimeout(`${PROJECT_CORE_API_URL.replace(/\/$/, '')}/events?per_page=1`);
+    const res = await fetchWithTimeout(`${PROJECT_CORE_API_URL.replace(/\/$/, '')}/academic-years`);
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data.academicYears) && data.academicYears.length > 0) {
-        setInCache(cacheKey, data.academicYears);
-        return data.academicYears;
+      if (Array.isArray(data) && data.length > 0) {
+        const years = data.map((item: any) => String(item.name || item.slug)).filter(Boolean);
+        if (years.length > 0) {
+          setInCache(cacheKey, years);
+          return years;
+        }
       }
     }
   } catch (err) {
     // fallback
   }
 
-  return ['2569'];
+  return ['2569', '2568'];
 }
 
 /**

@@ -641,7 +641,19 @@ class Project_Core_Custom_Fields {
     public function render_event_meta_box($post) {
         wp_nonce_field('project_core_event_nonce', 'project_core_event_nonce_field');
 
-        $academic_year  = get_post_meta($post->ID, 'academic_year', true);
+        // Academic Year terms from taxonomy
+        $ay_terms = get_terms(array(
+            'taxonomy'   => 'academic_year',
+            'hide_empty' => false,
+            'orderby'    => 'name',
+            'order'      => 'DESC',
+        ));
+
+        // Get currently assigned term for post
+        $post_ay_terms = get_the_terms($post->ID, 'academic_year');
+        $academic_year = ($post_ay_terms && !is_wp_error($post_ay_terms) && !empty($post_ay_terms)) 
+            ? $post_ay_terms[0]->name 
+            : get_post_meta($post->ID, 'academic_year', true);
         if (empty($academic_year)) {
             $academic_year = '2569';
         }
@@ -659,8 +671,22 @@ class Project_Core_Custom_Fields {
             <tr>
                 <th scope="row"><label for="academic_year"><strong><?php _e('ปีการศึกษา (Academic Year) *', 'project-core'); ?></strong></label></th>
                 <td>
-                    <input type="text" id="academic_year" name="academic_year" value="<?php echo esc_attr($academic_year); ?>" class="regular-text" style="width: 140px; font-weight: 700; font-size: 15px; color: #0047BA;" placeholder="เช่น 2569" />
-                    <span class="description"><?php _e('ระบุปีการศึกษา (พ.ศ.) เช่น 2569, 2568 (ใช้สำหรับจัดหมวดหมู่และดาวน์โหลดปฏิทินการศึกษา PDF)', 'project-core'); ?></span>
+                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <select id="academic_year" name="academic_year" style="min-width: 170px; font-weight: 700; font-size: 14px; padding: 4px 8px; color: #0047BA;">
+                            <?php if (!empty($ay_terms) && !is_wp_error($ay_terms)) : ?>
+                                <?php foreach ($ay_terms as $t) : ?>
+                                    <option value="<?php echo esc_attr($t->name); ?>" <?php selected($academic_year, $t->name); ?>>ปีการศึกษา <?php echo esc_html($t->name); ?></option>
+                                <?php endforeach; ?>
+                            <?php else : ?>
+                                <option value="2569" <?php selected($academic_year, '2569'); ?>>ปีการศึกษา 2569</option>
+                                <option value="2568" <?php selected($academic_year, '2568'); ?>>ปีการศึกษา 2568</option>
+                            <?php endif; ?>
+                        </select>
+                        <a href="<?php echo esc_url(admin_url('edit-tags.php?taxonomy=academic_year&post_type=college_event')); ?>" target="_blank" class="button" title="ไปหน้าเพิ่ม ลบ แก้ไข รายการปีการศึกษา">
+                            <span class="dashicons dashicons-category" style="font-size: 16px; line-height: 28px; vertical-align: middle;"></span> <?php _e('จัดการปีการศึกษา (เพิ่ม / ลบ / แก้ไข)', 'project-core'); ?> ↗
+                        </a>
+                    </div>
+                    <p class="description" style="margin-top: 5px;"><?php _e('เลือกปีการศึกษาที่จัดกิจกรรมนี้ หรือคลิกปุ่ม "จัดการปีการศึกษา" เพื่อเพิ่มปีการศึกษาใหม่ เช่น 2570 หรือแก้ไข/ลบปีเดิม', 'project-core'); ?></p>
                 </td>
             </tr>
             <tr>
@@ -815,6 +841,12 @@ class Project_Core_Custom_Fields {
                 } elseif (empty($academic_year)) {
                     $academic_year = '2569';
                 }
+
+                // Ensure term exists in academic_year taxonomy and set it
+                if (!term_exists($academic_year, 'academic_year')) {
+                    wp_insert_term($academic_year, 'academic_year', array('slug' => $academic_year));
+                }
+                wp_set_object_terms($post_id, $academic_year, 'academic_year', false);
 
                 update_post_meta($post_id, 'academic_year', $academic_year);
                 update_post_meta($post_id, 'event_start_date', $start_date);

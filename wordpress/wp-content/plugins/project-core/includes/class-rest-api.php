@@ -69,6 +69,13 @@ class Project_Core_REST_API {
             'callback'            => array($this, 'get_event_categories'),
             'permission_callback' => '__return_true',
         ));
+
+        // Academic years endpoint
+        register_rest_route(self::NAMESPACE, '/academic-years', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_academic_years'),
+            'permission_callback' => '__return_true',
+        ));
     }
 
     /**
@@ -427,16 +434,21 @@ class Project_Core_REST_API {
                     $thumb_url = null;
                 }
 
-                $ay = (string) get_post_meta($id, 'academic_year', true);
-                if (empty($ay)) {
-                    $s_date = (string) get_post_meta($id, 'event_start_date', true);
-                    if (!empty($s_date)) {
-                        $p = explode('-', $s_date);
-                        $y = (int) $p[0];
-                        $m = isset($p[1]) ? (int) $p[1] : 6;
-                        $ay = (string) ((($m < 5) ? ($y - 1) : $y) + 543);
-                    } else {
-                        $ay = '2569';
+                $ay_terms = get_the_terms($id, 'academic_year');
+                if ($ay_terms && !is_wp_error($ay_terms) && !empty($ay_terms)) {
+                    $ay = $ay_terms[0]->name;
+                } else {
+                    $ay = (string) get_post_meta($id, 'academic_year', true);
+                    if (empty($ay)) {
+                        $s_date = (string) get_post_meta($id, 'event_start_date', true);
+                        if (!empty($s_date)) {
+                            $p = explode('-', $s_date);
+                            $y = (int) $p[0];
+                            $m = isset($p[1]) ? (int) $p[1] : 6;
+                            $ay = (string) ((($m < 5) ? ($y - 1) : $y) + 543);
+                        } else {
+                            $ay = '2569';
+                        }
                     }
                 }
 
@@ -463,10 +475,24 @@ class Project_Core_REST_API {
             wp_reset_postdata();
         }
 
-        global $wpdb;
-        $available_years = $wpdb->get_col("SELECT DISTINCT meta_value FROM {$wpdb->postmeta} WHERE meta_key = 'academic_year' AND meta_value != '' ORDER BY meta_value DESC");
+        $term_years = get_terms(array(
+            'taxonomy'   => 'academic_year',
+            'hide_empty' => false,
+            'orderby'    => 'name',
+            'order'      => 'DESC',
+        ));
+        $available_years = array();
+        if (!is_wp_error($term_years) && !empty($term_years)) {
+            foreach ($term_years as $ty) {
+                $available_years[] = $ty->name;
+            }
+        }
         if (empty($available_years)) {
-            $available_years = array('2569');
+            global $wpdb;
+            $available_years = $wpdb->get_col("SELECT DISTINCT meta_value FROM {$wpdb->postmeta} WHERE meta_key = 'academic_year' AND meta_value != '' ORDER BY meta_value DESC");
+            if (empty($available_years)) {
+                $available_years = array('2569');
+            }
         }
 
         return rest_ensure_response(array(
@@ -477,6 +503,38 @@ class Project_Core_REST_API {
             'totalPages'     => (int) $query->max_num_pages,
             'page'           => $page,
         ));
+    }
+
+    /**
+     * Get academic years list from taxonomy
+     */
+    public function get_academic_years(WP_REST_Request $request) {
+        $terms = get_terms(array(
+            'taxonomy'   => 'academic_year',
+            'hide_empty' => false,
+            'orderby'    => 'name',
+            'order'      => 'DESC',
+        ));
+
+        $result = array();
+        if (!is_wp_error($terms) && !empty($terms)) {
+            foreach ($terms as $t) {
+                $result[] = array(
+                    'id'    => $t->term_id,
+                    'name'  => $t->name,
+                    'slug'  => $t->slug,
+                    'count' => $t->count,
+                );
+            }
+        }
+
+        if (empty($result)) {
+            $result = array(
+                array('id' => 1, 'name' => '2569', 'slug' => '2569', 'count' => 6),
+            );
+        }
+
+        return rest_ensure_response($result);
     }
 
     /**
