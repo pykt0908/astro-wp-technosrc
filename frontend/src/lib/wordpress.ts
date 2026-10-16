@@ -1,11 +1,23 @@
-import type { Post, Category, PaginatedPosts, WP_RawPost, WP_RawCategory } from '../types/wordpress';
+import type {
+  Post,
+  Category,
+  PaginatedPosts,
+  WP_RawPost,
+  WP_RawCategory,
+  Banner,
+  SiteSettings,
+} from '../types/wordpress';
 import { sanitizeWordPressHtml, stripHtml } from './sanitize';
 
-const WP_API_BASE_URL = process.env.WP_API_BASE_URL || 'https://example.com/cms/wp-json/wp/v2';
+// Base API endpoints
+// Standard WP REST API: /wp-json/wp/v2
+// Custom Project Core API: /wp-json/project-core/v1
+const WP_API_BASE_URL = process.env.WP_API_BASE_URL || 'http://localhost:8080/wp-json/wp/v2';
+const PROJECT_CORE_API_URL = WP_API_BASE_URL.replace(/\/wp\/v2\/?$/, '/project-core/v1');
 const FETCH_TIMEOUT_MS = 10000;
 const IS_CI = process.env.CI === 'true';
 
-// Sample fallback posts for local development if CMS is not yet configured or unreachable
+// Fallback Mock Data for Local Development
 const LOCAL_MOCK_POSTS: Post[] = [
   {
     id: 1,
@@ -30,6 +42,8 @@ const LOCAL_MOCK_POSTS: Post[] = [
     coverAlt: 'Cloud Infrastructure and Data Centers',
     categoryIds: [1],
     categoryNames: ['ข่าวประชาสัมพันธ์'],
+    seoMetaTitle: 'เปิดตัวระบบคลาวด์เอ็นเตอร์ไพรส์รุ่นใหม่ | Technosrc',
+    seoMetaDescription: 'ระบบบูรณาการคลาวด์ประสิทธิภาพสูง ยกระดับการประมวลผลข้อมูลองค์กร',
   },
   {
     id: 2,
@@ -49,6 +63,8 @@ const LOCAL_MOCK_POSTS: Post[] = [
     coverAlt: 'Cybersecurity Network Monitoring',
     categoryIds: [2],
     categoryNames: ['เทคโนโลยี'],
+    seoMetaTitle: 'แนวโน้มความปลอดภัยทางไซเบอร์ปี 2026 | Technosrc',
+    seoMetaDescription: 'กลยุทธ์ Zero Trust และการรับมือภัยคุกคามไซเบอร์สำหรับองค์กร',
   },
   {
     id: 3,
@@ -68,6 +84,45 @@ const LOCAL_MOCK_POSTS: Post[] = [
     categoryNames: ['เทคโนโลยี'],
   },
 ];
+
+const LOCAL_MOCK_BANNERS: Banner[] = [
+  {
+    id: 101,
+    title: 'Modern Cloud Architecture & Astro Headless CMS',
+    desktopImageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1400&auto=format&fit=crop',
+    mobileImageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800&auto=format&fit=crop',
+    targetUrl: '/services/',
+    menuOrder: 1,
+  },
+  {
+    id: 102,
+    title: 'Enterprise Software Solutions for Thai Businesses',
+    desktopImageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1400&auto=format&fit=crop',
+    mobileImageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop',
+    targetUrl: '/contact/',
+    menuOrder: 2,
+  },
+];
+
+const LOCAL_MOCK_SITE_SETTINGS: SiteSettings = {
+  siteName: 'TECHNOSRC',
+  siteTagline: 'Digital Innovation & Cloud Architecture',
+  logoUrl: '',
+  faviconUrl: '/favicon.svg',
+  contact: {
+    email: 'contact@technosrc.com',
+    phone: '02-123-4567',
+    address: 'กรุงเทพมหานคร, ประเทศไทย',
+    officeHours: 'จันทร์ - ศุกร์ 09:00 - 18:00 น.',
+  },
+  social: {
+    facebook: 'https://facebook.com',
+    line: '@technosrc',
+    linkedin: 'https://linkedin.com',
+    github: 'https://github.com',
+  },
+  footerCopyright: `© ${new Date().getFullYear()} Technosrc. สงวนลิขสิทธิ์ทุกประการ.`,
+};
 
 /**
  * Transforms raw WordPress REST API post item into clean Post domain model
@@ -94,14 +149,16 @@ function mapRawPostToPost(raw: WP_RawPost): Post {
     coverAlt,
     categoryIds: raw.categories || [],
     categoryNames,
+    seoMetaTitle: raw.meta?.seo_meta_title,
+    seoMetaDescription: raw.meta?.seo_meta_description,
+    seoOgImageUrl: raw.meta?.seo_og_image_url,
   };
 }
 
 /**
  * Helper to fetch with timeout and standard headers
  */
-async function wpFetch(endpoint: string): Promise<Response> {
-  const url = `${WP_API_BASE_URL.replace(/\/$/, '')}/${endpoint.replace(/^\//, '')}`;
+async function fetchWithTimeout(url: string): Promise<Response> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
@@ -110,7 +167,7 @@ async function wpFetch(endpoint: string): Promise<Response> {
       signal: controller.signal,
       headers: {
         Accept: 'application/json',
-        'User-Agent': 'Astro-Headless-Client/1.0',
+        'User-Agent': 'Technosrc-Astro-Client/1.0',
       },
     });
     return res;
@@ -123,8 +180,10 @@ async function wpFetch(endpoint: string): Promise<Response> {
  * Get paginated list of published posts
  */
 export async function getPublishedPosts(page = 1, perPage = 9): Promise<PaginatedPosts> {
+  const url = `${WP_API_BASE_URL.replace(/\/$/, '')}/posts?status=publish&_embed=1&page=${page}&per_page=${perPage}&orderby=date&order=desc`;
+
   try {
-    const res = await wpFetch(`posts?status=publish&_embed=1&page=${page}&per_page=${perPage}&orderby=date&order=desc`);
+    const res = await fetchWithTimeout(url);
 
     if (!res.ok) {
       if (res.status === 400 && page > 1) {
@@ -151,7 +210,6 @@ export async function getPublishedPosts(page = 1, perPage = 9): Promise<Paginate
       throw new Error(`[WordPress CI Error] Build failed because CMS API is unreachable: ${error}`);
     }
 
-    // In local dev without live CMS, return mock sample posts
     const startIndex = (page - 1) * perPage;
     const paginated = LOCAL_MOCK_POSTS.slice(startIndex, startIndex + perPage);
     const totalPages = Math.max(1, Math.ceil(LOCAL_MOCK_POSTS.length / perPage));
@@ -166,11 +224,13 @@ export async function getPublishedPosts(page = 1, perPage = 9): Promise<Paginate
 }
 
 /**
- * Fetch all published posts across all pages (used for getStaticPaths and detail routes)
+ * Fetch all published posts across all pages (used for getStaticPaths)
  */
 export async function getAllPublishedPosts(): Promise<Post[]> {
+  const url = `${WP_API_BASE_URL.replace(/\/$/, '')}/posts?status=publish&_embed=1&page=1&per_page=100&orderby=date&order=desc`;
+
   try {
-    const firstPageRes = await wpFetch('posts?status=publish&_embed=1&page=1&per_page=100&orderby=date&order=desc');
+    const firstPageRes = await fetchWithTimeout(url);
 
     if (!firstPageRes.ok) {
       throw new Error(`WordPress API returned status ${firstPageRes.status}: ${firstPageRes.statusText}`);
@@ -182,7 +242,8 @@ export async function getAllPublishedPosts(): Promise<Post[]> {
 
     if (totalPages > 1) {
       for (let p = 2; p <= totalPages; p++) {
-        const pageRes = await wpFetch(`posts?status=publish&_embed=1&page=${p}&per_page=100&orderby=date&order=desc`);
+        const pageUrl = `${WP_API_BASE_URL.replace(/\/$/, '')}/posts?status=publish&_embed=1&page=${p}&per_page=100&orderby=date&order=desc`;
+        const pageRes = await fetchWithTimeout(pageUrl);
         if (pageRes.ok) {
           const pageData: WP_RawPost[] = await pageRes.json();
           allRawPosts = allRawPosts.concat(pageData);
@@ -206,8 +267,10 @@ export async function getAllPublishedPosts(): Promise<Post[]> {
  * Fetch a single post by its slug
  */
 export async function getPostBySlug(slug: string): Promise<Post | null> {
+  const url = `${WP_API_BASE_URL.replace(/\/$/, '')}/posts?slug=${encodeURIComponent(slug)}&status=publish&_embed=1`;
+
   try {
-    const res = await wpFetch(`posts?slug=${encodeURIComponent(slug)}&status=publish&_embed=1`);
+    const res = await fetchWithTimeout(url);
 
     if (!res.ok) {
       throw new Error(`WordPress API returned ${res.status}`);
@@ -234,8 +297,10 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
  * Fetch categories
  */
 export async function getCategories(): Promise<Category[]> {
+  const url = `${WP_API_BASE_URL.replace(/\/$/, '')}/categories?per_page=100&hide_empty=true`;
+
   try {
-    const res = await wpFetch('categories?per_page=100&hide_empty=true');
+    const res = await fetchWithTimeout(url);
     if (!res.ok) {
       return [];
     }
@@ -252,5 +317,44 @@ export async function getCategories(): Promise<Category[]> {
       { id: 1, name: 'ข่าวประชาสัมพันธ์', slug: 'news', count: 1 },
       { id: 2, name: 'เทคโนโลยี', slug: 'technology', count: 2 },
     ];
+  }
+}
+
+/**
+ * Fetch active banners from custom project-core REST API endpoint
+ */
+export async function getBanners(position?: string): Promise<Banner[]> {
+  const query = position ? `?position=${encodeURIComponent(position)}` : '';
+  const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/banners${query}`;
+
+  try {
+    const res = await fetchWithTimeout(url);
+    if (!res.ok) {
+      throw new Error(`Custom Banners API returned ${res.status}`);
+    }
+    const data: Banner[] = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.warn('[WordPress API] Unable to fetch banners:', error);
+    return LOCAL_MOCK_BANNERS;
+  }
+}
+
+/**
+ * Fetch global site settings from custom project-core REST API endpoint
+ */
+export async function getSiteSettings(): Promise<SiteSettings> {
+  const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/site-settings`;
+
+  try {
+    const res = await fetchWithTimeout(url);
+    if (!res.ok) {
+      throw new Error(`Custom Site Settings API returned ${res.status}`);
+    }
+    const data: SiteSettings = await res.json();
+    return data;
+  } catch (error) {
+    console.warn('[WordPress API] Unable to fetch site settings:', error);
+    return LOCAL_MOCK_SITE_SETTINGS;
   }
 }

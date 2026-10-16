@@ -1,0 +1,79 @@
+services:
+  db:
+    image: mariadb:10.11
+    container_name: technosrc_wp_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-wordpress}
+      MYSQL_USER: ${DB_USER:-wp_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-wp_password_secure}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_password_secure}
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    networks:
+      - technosrc_network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  wordpress:
+    image: wordpress:6.7.1-php8.2-apache
+    container_name: technosrc_wp_app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${WP_LOCAL_PORT:-8080}:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${DB_NAME:-wordpress}
+      WORDPRESS_DB_USER: ${DB_USER:-wp_user}
+      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD:-wp_password_secure}
+      WORDPRESS_DEBUG: 1
+      WORDPRESS_DEBUG_LOG: 1
+      WORDPRESS_DEBUG_DISPLAY: 0
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_HOME', 'http://localhost:8080');
+        define('WP_SITEURL', 'http://localhost:8080');
+    volumes:
+      - wp_data:/var/www/html
+      # Bind-mount custom plugin for live development
+      - ./wordpress/wp-content/plugins/project-core:/var/www/html/wp-content/plugins/project-core
+      # Bind-mount custom themes
+      - ./wordpress/wp-content/themes:/var/www/html/wp-content/themes
+    networks:
+      - technosrc_network
+
+  phpmyadmin:
+    image: phpmyadmin:5.2.2-apache
+    container_name: technosrc_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${PMA_LOCAL_PORT:-8081}:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: ${DB_USER:-wp_user}
+      PMA_PASSWORD: ${DB_PASSWORD:-wp_password_secure}
+      UPLOAD_LIMIT: 64M
+    networks:
+      - technosrc_network
+
+volumes:
+  db_data:
+    name: technosrc_mariadb_data
+  wp_data:
+    name: technosrc_wordpress_data
+
+networks:
+  technosrc_network:
+    name: technosrc_network
+    driver: bridge

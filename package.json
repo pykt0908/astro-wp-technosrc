@@ -1,26 +1,16 @@
 {
-  "name": "technosrc-web",
-  "type": "module",
-  "version": "0.0.1",
+  "name": "technosrc-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Technosrc - Astro Frontend + WordPress Headless Monorepo",
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro",
-    "check": "astro check"
-  },
-  "dependencies": {
-    "@astrojs/check": "^0.9.4",
-    "@astrojs/sitemap": "^3.2.1",
-    "@tailwindcss/vite": "^4.0.0",
-    "astro": "^5.3.0",
-    "sanitize-html": "^2.14.0",
-    "tailwindcss": "^4.0.0",
-    "typescript": "^5.7.3"
-  },
-  "devDependencies": {
-    "@types/node": "^22.13.0",
-    "@types/sanitize-html": "^2.13.0"
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "preview": "npm --prefix frontend run preview",
+    "check": "npm --prefix frontend run check",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "docker:reset": "docker compose down -v && docker compose up -d"
   }
 }

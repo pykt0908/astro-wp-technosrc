@@ -41,6 +41,11 @@ export interface WP_RawPost {
   categories: number[];
   tags: number[];
   _embedded?: WP_Embedded;
+  meta?: {
+    seo_meta_title?: string;
+    seo_meta_description?: string;
+    seo_og_image_url?: string;
+  };
 }
 
 export interface WP_RawCategory {
@@ -68,6 +73,9 @@ export interface Post {
   coverAlt?: string;
   categoryIds: number[];
   categoryNames?: string[];
+  seoMetaTitle?: string;
+  seoMetaDescription?: string;
+  seoOgImageUrl?: string;
 }
 
 export interface Category {
@@ -82,4 +90,33 @@ export interface PaginatedPosts {
   totalPosts: number;
   totalPages: number;
   currentPage: number;
+}
+
+export interface Banner {
+  id: number;
+  title: string;
+  desktopImageUrl: string;
+  mobileImageUrl: string;
+  targetUrl: string;
+  menuOrder: number;
+}
+
+export interface SiteSettings {
+  siteName: string;
+  siteTagline: string;
+  logoUrl: string;
+  faviconUrl: string;
+  contact: {
+    email: string;
+    phone: string;
+    address: string;
+    officeHours: string;
+  };
+  social: {
+    facebook: string;
+    line: string;
+    linkedin: string;
+    github: string;
+  };
+  footerCopyright: string;
 }

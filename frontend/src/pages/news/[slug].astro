@@ -42,9 +42,9 @@ const fallbackCover = 'https://images.unsplash.com/photo-1518770660439-4636190af
 ---
 
 <BaseLayout
-  title={post.titlePlain}
-  description={post.excerptPlain}
-  image={post.coverUrl || fallbackCover}
+  title={post.seoMetaTitle || post.titlePlain}
+  description={post.seoMetaDescription || post.excerptPlain}
+  image={post.seoOgImageUrl || post.coverUrl || fallbackCover}
   type="article"
   publishedTime={post.publishedAt}
   modifiedTime={post.modifiedAt}

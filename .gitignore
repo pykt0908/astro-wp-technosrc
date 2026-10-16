@@ -1,24 +1,34 @@
-# build output
-dist/
-
-# generated types
-.astro/
-
-# dependencies
-node_modules/
-
-# logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# environment variables
+# Environment variables
 .env
-.env.production
 .env.local
 .env.*.local
+*.env
 
-# OS files
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Build artifacts
+dist/
+*/dist/
+.astro/
+*/.astro/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+*.log
+wordpress/wp-content/debug.log
+
+# WordPress uploads and persistent data
+wordpress/wp-content/uploads/
+wordpress/wp-content/upgrade/
+wordpress/wp-content/cache/
+*.sql
+*.sql.gz
+*.tar.gz
+
+# OS generated files
 .DS_Store
 Thumbs.db
