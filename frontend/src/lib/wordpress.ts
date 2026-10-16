@@ -12,10 +12,13 @@ import { sanitizeWordPressHtml, stripHtml } from './sanitize';
 // Base API endpoints
 // Standard WP REST API: /wp-json/wp/v2
 // Custom Project Core API: /wp-json/project-core/v1
-const WP_API_BASE_URL = process.env.WP_API_BASE_URL || 'http://localhost:8080/wp-json/wp/v2';
+const WP_API_BASE_URL =
+  (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.WP_API_BASE_URL) ||
+  process.env.WP_API_BASE_URL ||
+  'http://localhost:8080/wp-json/wp/v2';
 const PROJECT_CORE_API_URL = WP_API_BASE_URL.replace(/\/wp\/v2\/?$/, '/project-core/v1');
 const FETCH_TIMEOUT_MS = 10000;
-const IS_CI = process.env.CI === 'true';
+const IS_CI = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.CI === 'true') || process.env.CI === 'true';
 
 // Fallback Mock Data for Local Development
 const LOCAL_MOCK_POSTS: Post[] = [
