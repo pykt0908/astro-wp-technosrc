@@ -391,15 +391,25 @@ class Project_Core_REST_API {
 
                 $terms = get_the_terms($id, 'event_category');
                 $cats = array();
+                $primary_cat_color = 'blue';
+
                 if ($terms && !is_wp_error($terms)) {
-                    foreach ($terms as $t) {
+                    foreach ($terms as $index => $t) {
+                        $cat_color = get_term_meta($t->term_id, 'category_color', true) ?: 'blue';
+                        if ($index === 0) {
+                            $primary_cat_color = $cat_color;
+                        }
                         $cats[] = array(
-                            'id'   => $t->term_id,
-                            'name' => $t->name,
-                            'slug' => $t->slug,
+                            'id'    => $t->term_id,
+                            'name'  => $t->name,
+                            'slug'  => $t->slug,
+                            'color' => $cat_color,
                         );
                     }
                 }
+
+                $event_color_meta = get_post_meta($id, 'event_color', true);
+                $final_color = (!empty($event_color_meta) && $event_color_meta !== 'auto') ? $event_color_meta : $primary_cat_color;
 
                 $thumb_url = get_the_post_thumbnail_url($id, 'large');
                 if (!$thumb_url) {
@@ -419,7 +429,7 @@ class Project_Core_REST_API {
                     'organizer'      => (string) get_post_meta($id, 'event_organizer', true),
                     'link'           => (string) get_post_meta($id, 'event_link', true),
                     'attachment_url' => (string) get_post_meta($id, 'event_attachment_url', true),
-                    'color'          => (string) (get_post_meta($id, 'event_color', true) ?: 'blue'),
+                    'color'          => $final_color,
                     'is_featured'    => (bool) get_post_meta($id, 'is_featured', true),
                     'thumbnail'      => $thumb_url,
                     'categories'     => $cats,
@@ -450,11 +460,13 @@ class Project_Core_REST_API {
         $result = array();
         if (!empty($terms) && !is_wp_error($terms)) {
             foreach ($terms as $term) {
+                $cat_color = get_term_meta($term->term_id, 'category_color', true) ?: 'blue';
                 $result[] = array(
                     'id'    => $term->term_id,
                     'name'  => $term->name,
                     'slug'  => $term->slug,
                     'count' => (int) $term->count,
+                    'color' => $cat_color,
                 );
             }
         }

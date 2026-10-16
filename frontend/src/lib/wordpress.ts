@@ -690,8 +690,15 @@ export async function getCollegeEventCategories(): Promise<CollegeEventCategory[
     if (!res.ok) {
       throw new Error(`Custom Event Categories API returned ${res.status}`);
     }
-    const cats: CollegeEventCategory[] = await res.json();
-    if (Array.isArray(cats) && cats.length > 0) {
+    const rawCats = await res.json();
+    if (Array.isArray(rawCats) && rawCats.length > 0) {
+      const cats: CollegeEventCategory[] = rawCats.map((c: any) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        color: c.color || 'blue',
+        count: c.count,
+      }));
       setInCache(cacheKey, cats);
       return cats;
     }
@@ -700,9 +707,9 @@ export async function getCollegeEventCategories(): Promise<CollegeEventCategory[
   }
 
   return [
-    { id: 7, name: 'กำหนดการศึกษา', slug: 'academic-schedule', count: 1 },
-    { id: 8, name: 'กิจกรรมนักศึกษา', slug: 'student-activities', count: 2 },
-    { id: 9, name: 'วิชาการและอบรม', slug: 'academic-training', count: 1 },
-    { id: 10, name: 'วันสำคัญและวันหยุด', slug: 'holidays', count: 1 },
+    { id: 7, name: 'กำหนดการศึกษา', slug: 'academic-schedule', color: 'amber', count: 1 },
+    { id: 8, name: 'กิจกรรมนักศึกษา', slug: 'student-activities', color: 'blue', count: 2 },
+    { id: 9, name: 'วิชาการและอบรม', slug: 'academic-training', color: 'purple', count: 1 },
+    { id: 10, name: 'วันสำคัญและวันหยุด', slug: 'holidays', color: 'rose', count: 1 },
   ];
 }

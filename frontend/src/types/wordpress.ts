@@ -140,6 +140,7 @@ export interface CollegeEventCategory {
   id: number;
   name: string;
   slug: string;
+  color?: string;
   count?: number;
 }
 

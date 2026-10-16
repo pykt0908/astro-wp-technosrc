@@ -103,10 +103,10 @@ const COLOR_CONFIG: Record<string, { bg: string; text: string; border: string; d
 
 // Clean categories
 const displayCategories = categories.length > 0 ? categories : [
-  { id: 7, name: 'กำหนดการศึกษา', slug: 'academic-schedule' },
-  { id: 8, name: 'กิจกรรมนักศึกษา', slug: 'student-activities' },
-  { id: 9, name: 'วิชาการและอบรม', slug: 'academic-training' },
-  { id: 10, name: 'วันสำคัญและวันหยุด', slug: 'holidays' },
+  { id: 7, name: 'กำหนดการศึกษา', slug: 'academic-schedule', color: 'amber' },
+  { id: 8, name: 'กิจกรรมนักศึกษา', slug: 'student-activities', color: 'blue' },
+  { id: 9, name: 'วิชาการและอบรม', slug: 'academic-training', color: 'purple' },
+  { id: 10, name: 'วันสำคัญและวันหยุด', slug: 'holidays', color: 'rose' },
 ];
 
 // Serialize events for client-side calendar filtering
@@ -292,20 +292,16 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
             <!-- Dynamic days will be injected via JS -->
           </div>
 
-          <!-- Color Legend -->
+          <!-- Color Legend (Dynamic from categories) -->
           <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-slate-600 font-medium">
-            <span class="flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-blue-600"></span> กิจกรรมนักศึกษา
-            </span>
-            <span class="flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-amber-500"></span> กำหนดการศึกษา
-            </span>
-            <span class="flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-purple-600"></span> วิชาการ/อบรม
-            </span>
-            <span class="flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-rose-500"></span> วันหยุด/สำคัญ
-            </span>
+            {displayCategories.map((cat) => {
+              const conf = COLOR_CONFIG[cat.color || 'blue'] || COLOR_CONFIG.blue;
+              return (
+                <span class="flex items-center gap-1.5">
+                  <span class={`w-2 h-2 rounded-full ${conf.dot}`}></span> {cat.name}
+                </span>
+              );
+            })}
           </div>
         </div>
 
@@ -595,12 +591,17 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
     align-items: center;
     justify-content: center;
     border-radius: 0.75rem;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.15s ease-in-out;
     position: relative;
     user-select: none;
+    padding: 2px 0;
+  }
+
+  .cal-day-cell .cal-day-num {
+    line-height: 1;
   }
 
   .cal-day-cell.other-month {
@@ -624,18 +625,26 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
     box-shadow: 0 4px 10px rgba(0, 71, 186, 0.3);
   }
 
-  .cal-day-cell.has-event::after {
-    content: '';
-    position: absolute;
-    bottom: 3px;
-    width: 4px;
-    height: 4px;
-    border-radius: 9999px;
-    background-color: #0047BA;
+  .cal-day-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 6px;
+    margin-top: 3px;
   }
 
-  .cal-day-cell.selected.has-event::after {
-    background-color: #ffffff;
+  .cal-color-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 9999px;
+    display: inline-block;
+    transition: background-color 0.15s;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
+  }
+
+  .cal-day-cell.selected .cal-color-dot {
+    background-color: #ffffff !important;
   }
 </style>
 
@@ -708,9 +717,17 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
     return false;
   }
 
-  // Get set of dates in current month that have events
-  function getEventDatesInMonth(year, month) {
-    const datesWithEvents = new Set();
+  const COLOR_HEX_MAP = {
+    blue: '#0047BA',
+    emerald: '#059669',
+    amber: '#d97706',
+    rose: '#e11d48',
+    purple: '#7c3aed',
+  };
+
+  // Get map of date -> Set of unique colors for that date
+  function getEventColorsInMonth(year, month) {
+    const dateColorsMap = new Map();
 
     serializedEvents.forEach((ev) => {
       // Category filter check
@@ -722,17 +739,21 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
 
       const sDate = ev.startDate;
       const eDate = ev.endDate || ev.startDate;
+      const evColor = ev.color || 'blue';
 
       const totalDays = new Date(year, month + 1, 0).getDate();
       for (let day = 1; day <= totalDays; day++) {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         if (sDate <= dateStr && eDate >= dateStr) {
-          datesWithEvents.add(dateStr);
+          if (!dateColorsMap.has(dateStr)) {
+            dateColorsMap.set(dateStr, new Set());
+          }
+          dateColorsMap.get(dateStr).add(evColor);
         }
       }
     });
 
-    return datesWithEvents;
+    return dateColorsMap;
   }
 
   // Render Month Calendar
@@ -750,13 +771,16 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
     const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
     const prevMonthDays = new Date(currentYear, currentMonth, 0).getDate();
 
-    const eventDates = getEventDatesInMonth(currentYear, currentMonth);
+    const dateColorsMap = getEventColorsInMonth(currentYear, currentMonth);
 
     // Prev month padding
     for (let i = firstDayIndex - 1; i >= 0; i--) {
       const cell = document.createElement('div');
       cell.className = 'cal-day-cell other-month';
-      cell.textContent = prevMonthDays - i;
+      const numSpan = document.createElement('span');
+      numSpan.className = 'cal-day-num';
+      numSpan.textContent = prevMonthDays - i;
+      cell.appendChild(numSpan);
       daysGrid.appendChild(cell);
     }
 
@@ -766,7 +790,8 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
       const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       
       let classes = 'cal-day-cell';
-      if (eventDates.has(dateStr)) {
+      const colorsSet = dateColorsMap.get(dateStr);
+      if (colorsSet && colorsSet.size > 0) {
         classes += ' has-event';
       }
       if (selectedDate === dateStr) {
@@ -779,8 +804,33 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
       }
 
       cell.className = classes;
-      cell.textContent = day;
       cell.dataset.date = dateStr;
+
+      // Day number
+      const dayNum = document.createElement('span');
+      dayNum.className = 'cal-day-num';
+      dayNum.textContent = day;
+      cell.appendChild(dayNum);
+
+      // Dots container under day number
+      const dotsWrap = document.createElement('div');
+      dotsWrap.className = 'cal-day-dots';
+
+      if (colorsSet && colorsSet.size > 0) {
+        Array.from(colorsSet).slice(0, 3).forEach((col) => {
+          const dot = document.createElement('span');
+          dot.className = 'cal-color-dot';
+          const hex = COLOR_HEX_MAP[col] || '#0047BA';
+          dot.style.backgroundColor = hex;
+          dotsWrap.appendChild(dot);
+        });
+      } else {
+        // Transparent spacer for equal height alignment
+        dotsWrap.classList.add('opacity-0', 'pointer-events-none');
+        dotsWrap.innerHTML = '<span class="cal-color-dot"></span>';
+      }
+
+      cell.appendChild(dotsWrap);
 
       cell.addEventListener('click', () => {
         if (selectedDate === dateStr) {

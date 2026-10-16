@@ -17,6 +17,14 @@ class Project_Core_Custom_Fields {
         add_action('save_post', array($this, 'save_meta_boxes'), 10, 2);
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
         add_action('rest_api_init', array($this, 'register_rest_fields'));
+
+        // Event Category Taxonomy Color Fields
+        add_action('event_category_add_form_fields', array($this, 'add_event_category_color_field'));
+        add_action('event_category_edit_form_fields', array($this, 'edit_event_category_color_field'), 10, 2);
+        add_action('created_event_category', array($this, 'save_event_category_color_field'));
+        add_action('edited_event_category', array($this, 'save_event_category_color_field'));
+        add_filter('manage_edit-event_category_columns', array($this, 'add_event_category_color_column'));
+        add_filter('manage_event_category_custom_column', array($this, 'render_event_category_color_column'), 10, 3);
     }
 
     /**
@@ -157,6 +165,16 @@ class Project_Core_Custom_Fields {
             'type'              => 'boolean',
             'default'           => false,
             'sanitize_callback' => 'rest_sanitize_boolean',
+            'auth_callback'     => array($this, 'auth_check'),
+        ));
+
+        // Event Category Color Term Meta
+        register_term_meta('event_category', 'category_color', array(
+            'show_in_rest'      => true,
+            'single'            => true,
+            'type'              => 'string',
+            'default'           => 'blue',
+            'sanitize_callback' => 'sanitize_text_field',
             'auth_callback'     => array($this, 'auth_check'),
         ));
     }
@@ -669,12 +687,14 @@ class Project_Core_Custom_Fields {
                 <th scope="row"><label for="event_color"><?php _e('ธีมสีของกิจกรรม (Badge Theme)', 'project-core'); ?></label></th>
                 <td>
                     <select id="event_color" name="event_color" style="padding: 4px 8px;">
-                        <option value="blue" <?php selected($color, 'blue'); ?>>สีน้ำเงิน (วิชาการ / กิจกรรมทั่วไป)</option>
-                        <option value="emerald" <?php selected($color, 'emerald'); ?>>สีเขียว (กิจกรรมนักศึกษา / ชุมนุม)</option>
-                        <option value="amber" <?php selected($color, 'amber'); ?>>สีส้มเหลือง (กำหนดการ / ลงทะเบียน)</option>
-                        <option value="rose" <?php selected($color, 'rose'); ?>>สีแดง (วันสำคัญ / วันหยุดนักขัตฤกษ์)</option>
-                        <option value="purple" <?php selected($color, 'purple'); ?>>สีม่วง (พิธีการ / พิเศษ)</option>
+                        <option value="auto" <?php selected($color, 'auto'); ?>>✨ ใช้สีตามหมวดหมู่กิจกรรมอัตโนมัติ (แนะนำ)</option>
+                        <option value="blue" <?php selected($color, 'blue'); ?>>สีน้ำเงิน (Royal Blue)</option>
+                        <option value="emerald" <?php selected($color, 'emerald'); ?>>สีเขียว (Emerald)</option>
+                        <option value="amber" <?php selected($color, 'amber'); ?>>สีส้มเหลือง (Amber)</option>
+                        <option value="rose" <?php selected($color, 'rose'); ?>>สีแดง (Rose)</option>
+                        <option value="purple" <?php selected($color, 'purple'); ?>>สีม่วง (Purple)</option>
                     </select>
+                    <p class="description" style="margin-top: 4px;"><?php _e('ปกติระบบจะใช้สีตามที่ตั้งค่าไว้ใน "หมวดหมู่กิจกรรม" ให้อัตโนมัติ จึงไม่ต้องเลือกสีทุกครั้ง', 'project-core'); ?></p>
                 </td>
             </tr>
             <tr>
@@ -825,5 +845,96 @@ class Project_Core_Custom_Fields {
                 update_post_meta($post_id, 'post_views_count', $views);
             }
         }
+    }
+
+    /**
+     * Add color field to Add Event Category form
+     */
+    public function add_event_category_color_field() {
+        ?>
+        <div class="form-field term-color-wrap">
+            <label for="category_color"><?php _e('โทนสีหมวดหมู่ (Category Color & Calendar Dot)', 'project-core'); ?></label>
+            <select name="category_color" id="category_color" style="max-width: 320px;">
+                <option value="blue">🔵 สีน้ำเงิน (Royal Blue - #0047BA)</option>
+                <option value="emerald">🟢 สีเขียวมรกต (Emerald Green - #059669)</option>
+                <option value="amber">🟠 สีส้ม/เหลือง (Amber Orange - #d97706)</option>
+                <option value="rose">🔴 สีแดง/ชมพู (Rose Red - #e11d48)</option>
+                <option value="purple">🟣 สีม่วง (Purple - #7c3aed)</option>
+            </select>
+            <p class="description"><?php _e('เลือกสีประจำหมวดหมู่ ซึ่งจะนำไปแสดงเป็นจุดสี (Dot) ใต้วันที่บนปฏิทิน และแถบสีของกิจกรรมในหมวดนี้โดยอัตโนมัติ', 'project-core'); ?></p>
+        </div>
+        <?php
+    }
+
+    /**
+     * Edit color field on Edit Event Category form
+     */
+    public function edit_event_category_color_field($term) {
+        $color = get_term_meta($term->term_id, 'category_color', true) ?: 'blue';
+        ?>
+        <tr class="form-field term-color-wrap">
+            <th scope="row"><label for="category_color"><?php _e('โทนสีหมวดหมู่ (Category Color & Calendar Dot)', 'project-core'); ?></label></th>
+            <td>
+                <select name="category_color" id="category_color" style="max-width: 320px;">
+                    <option value="blue" <?php selected($color, 'blue'); ?>>🔵 สีน้ำเงิน (Royal Blue - #0047BA)</option>
+                    <option value="emerald" <?php selected($color, 'emerald'); ?>>🟢 สีเขียวมรกต (Emerald Green - #059669)</option>
+                    <option value="amber" <?php selected($color, 'amber'); ?>>🟠 สีส้ม/เหลือง (Amber Orange - #d97706)</option>
+                    <option value="rose" <?php selected($color, 'rose'); ?>>🔴 สีแดง/ชมพู (Rose Red - #e11d48)</option>
+                    <option value="purple" <?php selected($color, 'purple'); ?>>🟣 สีม่วง (Purple - #7c3aed)</option>
+                </select>
+                <p class="description"><?php _e('เลือกสีประจำหมวดหมู่ ซึ่งจะนำไปแสดงเป็นจุดสี (Dot) ใต้วันที่บนปฏิทิน และแถบสีของกิจกรรมในหมวดนี้โดยอัตโนมัติ', 'project-core'); ?></p>
+            </td>
+        </tr>
+        <?php
+    }
+
+    /**
+     * Save category color field
+     */
+    public function save_event_category_color_field($term_id) {
+        if (isset($_POST['category_color'])) {
+            $allowed = array('blue', 'emerald', 'amber', 'rose', 'purple');
+            $val = sanitize_text_field($_POST['category_color']);
+            if (in_array($val, $allowed, true)) {
+                update_term_meta($term_id, 'category_color', $val);
+            }
+        }
+    }
+
+    /**
+     * Add column header to event_category admin table
+     */
+    public function add_event_category_color_column($columns) {
+        $new_columns = array();
+        foreach ($columns as $key => $title) {
+            $new_columns[$key] = $title;
+            if ($key === 'name') {
+                $new_columns['category_color'] = __('สีประจำหมวด (จุดปฏิทิน)', 'project-core');
+            }
+        }
+        return $new_columns;
+    }
+
+    /**
+     * Render column content in event_category admin table
+     */
+    public function render_event_category_color_column($content, $column_name, $term_id) {
+        if ($column_name === 'category_color') {
+            $color = get_term_meta($term_id, 'category_color', true) ?: 'blue';
+            $color_map = array(
+                'blue'    => array('bg' => '#0047BA', 'label' => 'น้ำเงิน'),
+                'emerald' => array('bg' => '#059669', 'label' => 'เขียว'),
+                'amber'   => array('bg' => '#d97706', 'label' => 'ส้ม/เหลือง'),
+                'rose'    => array('bg' => '#e11d48', 'label' => 'แดง/ชมพู'),
+                'purple'  => array('bg' => '#7c3aed', 'label' => 'ม่วง'),
+            );
+            $info = isset($color_map[$color]) ? $color_map[$color] : array('bg' => '#0047BA', 'label' => $color);
+            return sprintf(
+                '<span style="display:inline-flex; align-items:center; gap:6px; font-weight:600;"><span style="display:inline-block; width:12px; height:12px; border-radius:50%%; background:%s;"></span> %s</span>',
+                esc_attr($info['bg']),
+                esc_html($info['label'])
+            );
+        }
+        return $content;
     }
 }
