@@ -127,8 +127,8 @@ class Project_Core_REST_API {
                 'embed_url'          => !empty($this->extract_youtube_id($raw['vtr_youtube_url'] ?: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ')) 
                     ? 'https://www.youtube-nocookie.com/embed/' . $this->extract_youtube_id($raw['vtr_youtube_url'] ?: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ') 
                     : '',
-                'rating_score'       => (string) ($raw['vtr_rating_score'] ?? '4.9/5'),
-                'rating_text'        => (string) ($raw['vtr_rating_text'] ?? 'มาตรฐาน สอศ. Based on 1,500+ นักศึกษา'),
+                'rating_score'       => (string) ($raw['vtr_rating_score'] ?? ''),
+                'rating_text'        => (string) ($raw['vtr_rating_text'] ?? ''),
                 'primary_btn_text'   => (string) ($raw['vtr_primary_btn_text'] ?? 'สมัครเรียนออนไลน์'),
                 'primary_btn_url'    => (string) ($raw['vtr_primary_btn_url'] ?? '/apply'),
                 'secondary_btn_text' => (string) ($raw['vtr_secondary_btn_text'] ?? 'ดูหลักสูตรที่เปิดสอน →'),

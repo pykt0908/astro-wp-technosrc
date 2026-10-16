@@ -15,8 +15,9 @@ const description =
   vtr?.description ||
   'Get an inside look at the campus environment, cutting-edge laboratories, and career-ready curriculum designed to empower the next generation of professional talent.';
 
-const ratingScore = vtr?.ratingScore || '4.9/5';
-const ratingText = vtr?.ratingText || 'มาตรฐาน สอศ. Based on 1,500+ นักศึกษา';
+const badgeText = vtr?.badge || '';
+const ratingScore = vtr?.ratingScore || '';
+const ratingText = vtr?.ratingText || '';
 
 const primaryBtnText = vtr?.primaryBtnText || 'สมัครเรียนออนไลน์';
 const primaryBtnUrl = vtr?.primaryBtnUrl || '/apply';
@@ -42,25 +43,36 @@ if (!isEnabled) {
     
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-start mb-10 sm:mb-14">
       
+      <!-- Left Column: Title & Badge/Rating -->
       <div class="lg:col-span-7 flex flex-col justify-start">
+        {badgeText && (
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/60 text-blue-700 text-xs sm:text-sm font-semibold mb-3 self-start shadow-2xs">
+            <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+            <span>{badgeText}</span>
+          </div>
+        )}
+
         <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-[1.18] sm:leading-[1.15]">
           {title}
         </h2>
 
-        <div class="flex flex-wrap items-center gap-2.5 sm:gap-3 mt-4 sm:mt-5 text-sm sm:text-base font-medium text-slate-700">
-          <span class="font-bold text-slate-900 tracking-tight">{ratingScore}</span>
-          
-          <div class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200/60 text-emerald-800 text-xs sm:text-sm font-bold shadow-2xs">
-            <svg class="w-4 h-4 fill-[#00b67a] text-[#00b67a] shrink-0" viewBox="0 0 24 24">
+        {(ratingScore || ratingText) && (
+          <div class="flex flex-wrap items-center gap-2 mt-4 sm:mt-5 text-sm sm:text-base font-medium text-slate-700">
+            {ratingScore && (
+              <span class="font-bold text-slate-900 tracking-tight">{ratingScore}</span>
+            )}
+            
+            <svg class="w-4 h-4 fill-amber-400 text-amber-400 shrink-0" viewBox="0 0 24 24">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
             </svg>
-            <span class="font-extrabold text-[#005128] tracking-tight">Trustpilot</span>
-          </div>
 
-          <span class="text-xs sm:text-sm text-slate-500 font-normal">
-            {ratingText}
-          </span>
-        </div>
+            {ratingText && (
+              <span class="text-xs sm:text-sm text-slate-500 font-normal">
+                {ratingText}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       <div class="lg:col-span-5 flex flex-col justify-between space-y-5 lg:pt-1">
