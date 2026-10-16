@@ -618,8 +618,8 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
     color: #ffffff !important;
   }
 
-  /* Calendar day cell styles */
-  .cal-day-cell {
+  /* Calendar day cell styles (Global for dynamically generated DOM) */
+  :global(.cal-day-cell) {
     aspect-ratio: 1 / 1;
     display: flex;
     flex-direction: column;
@@ -635,50 +635,50 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
     padding: 2px 0;
   }
 
-  .cal-day-cell .cal-day-num {
+  :global(.cal-day-cell .cal-day-num) {
     line-height: 1;
   }
 
-  .cal-day-cell.other-month {
+  :global(.cal-day-cell.other-month) {
     color: #cbd5e1;
     cursor: default;
   }
 
-  .cal-day-cell:not(.other-month):hover {
+  :global(.cal-day-cell:not(.other-month):hover) {
     background-color: #f1f5f9;
     color: #0047BA;
   }
 
-  .cal-day-cell.today {
+  :global(.cal-day-cell.today) {
     border: 1.5px solid #0047BA;
     color: #0047BA;
   }
 
-  .cal-day-cell.selected {
+  :global(.cal-day-cell.selected) {
     background-color: #0047BA !important;
     color: #ffffff !important;
     box-shadow: 0 4px 10px rgba(0, 71, 186, 0.3);
   }
 
-  .cal-day-dots {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    height: 6px;
-    margin-top: 3px;
+  :global(.cal-day-dots) {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    height: 7px !important;
+    margin-top: 3px !important;
   }
 
-  .cal-color-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 9999px;
-    display: inline-block;
-    transition: background-color 0.15s;
-    box-shadow: 0 0 1px rgba(0, 0, 0, 0.2);
+  :global(.cal-color-dot) {
+    width: 6px !important;
+    height: 6px !important;
+    border-radius: 9999px !important;
+    display: inline-block !important;
+    flex-shrink: 0 !important;
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.25);
   }
 
-  .cal-day-cell.selected .cal-color-dot {
+  :global(.cal-day-cell.selected .cal-color-dot) {
     background-color: #ffffff !important;
   }
 </style>
@@ -853,19 +853,37 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
       // Dots container under day number
       const dotsWrap = document.createElement('div');
       dotsWrap.className = 'cal-day-dots';
+      dotsWrap.style.display = 'flex';
+      dotsWrap.style.alignItems = 'center';
+      dotsWrap.style.justifyContent = 'center';
+      dotsWrap.style.gap = '3px';
+      dotsWrap.style.height = '7px';
+      dotsWrap.style.marginTop = '3px';
 
       if (colorsSet && colorsSet.size > 0) {
         Array.from(colorsSet).slice(0, 3).forEach((col) => {
           const dot = document.createElement('span');
           dot.className = 'cal-color-dot';
-          const hex = COLOR_HEX_MAP[col] || '#0047BA';
+          const hex = COLOR_HEX_MAP[col] || (col && col.startsWith('#') ? col : '#0047BA');
+          dot.style.width = '6px';
+          dot.style.height = '6px';
+          dot.style.borderRadius = '50%';
+          dot.style.display = 'inline-block';
+          dot.style.flexShrink = '0';
           dot.style.backgroundColor = hex;
           dotsWrap.appendChild(dot);
         });
       } else {
         // Transparent spacer for equal height alignment
-        dotsWrap.classList.add('opacity-0', 'pointer-events-none');
-        dotsWrap.innerHTML = '<span class="cal-color-dot"></span>';
+        dotsWrap.style.opacity = '0';
+        dotsWrap.style.pointerEvents = 'none';
+        const spacer = document.createElement('span');
+        spacer.className = 'cal-color-dot';
+        spacer.style.width = '6px';
+        spacer.style.height = '6px';
+        spacer.style.borderRadius = '50%';
+        spacer.style.display = 'inline-block';
+        dotsWrap.appendChild(spacer);
       }
 
       cell.appendChild(dotsWrap);
