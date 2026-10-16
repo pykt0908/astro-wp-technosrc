@@ -230,6 +230,19 @@ class Project_Core_Custom_Fields {
                 </p>
             </div>
 
+            <!-- Order Number Field -->
+            <div style="margin-bottom: 20px; padding-top: 16px; border-top: 1px solid #dcdcde;">
+                <label for="banner_menu_order" style="font-weight: 700; font-size: 14px; display: block; margin-bottom: 8px; color: #1d2327;">
+                    <?php _e('ลำดับการแสดงผลของแบนเนอร์ (Display Order)', 'project-core'); ?>
+                </label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="number" id="banner_menu_order" name="banner_menu_order" value="<?php echo (int) $post->menu_order; ?>" class="small-text" min="0" step="1" style="width: 80px; padding: 6px; text-align: center; font-weight: bold; font-size: 15px;" />
+                    <span style="color: #646970; font-size: 13px;">
+                        <?php _e('(ใส่เลข 1 เพื่อแสดงเป็นภาพแรกสุด หรือลากสลับตำแหน่งได้ง่ายๆ ในหน้า "แบนเนอร์ทั้งหมด")', 'project-core'); ?>
+                    </span>
+                </div>
+            </div>
+
             <!-- Active Checkbox -->
             <div style="padding-top: 16px; border-top: 1px solid #dcdcde;">
                 <label style="font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: #1d2327;">
@@ -346,6 +359,17 @@ class Project_Core_Custom_Fields {
                     set_post_thumbnail($post_id, $desktop_image_id);
                 } elseif (empty($desktop_image_url)) {
                     delete_post_thumbnail($post_id);
+                }
+
+                // Update menu_order
+                if (isset($_POST['banner_menu_order'])) {
+                    $new_order = intval($_POST['banner_menu_order']);
+                    remove_action('save_post', array($this, 'save_meta_boxes'), 10);
+                    wp_update_post(array(
+                        'ID'         => $post_id,
+                        'menu_order' => $new_order,
+                    ));
+                    add_action('save_post', array($this, 'save_meta_boxes'), 10, 2);
                 }
             }
         }
