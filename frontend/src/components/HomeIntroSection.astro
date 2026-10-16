@@ -1,0 +1,140 @@
+---
+// HomeIntroSection.astro - Institutional Hero Intro Section below banner
+---
+
+<section class="relative bg-white py-16 sm:py-20 lg:py-28 overflow-hidden select-none">
+  <!-- Subtle Giant Background Watermark -->
+  <div
+    class="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden z-0"
+    aria-hidden="true"
+  >
+    <span
+      class="text-[14vw] font-black text-slate-100/90 tracking-widest uppercase whitespace-nowrap leading-none select-none"
+    >
+      TECHNOLOGICAL COLLEGE
+    </span>
+  </div>
+
+  <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+      <!-- Left Column: Typography Headline -->
+      <div class="lg:col-span-7 xl:col-span-8 flex flex-col items-start">
+        <!-- Top Subtitle -->
+        <p class="text-[#0056D2] font-bold text-xs sm:text-sm md:text-base tracking-wider mb-4 sm:mb-6">
+          เปิดโอกาสใหม่ ๆ ในการเรียนรู้และพัฒนาทักษะของคุณ
+        </p>
+
+        <!-- Big Bold Title -->
+        <h2 class="flex flex-col font-black tracking-tight leading-[0.95]">
+          <span class="text-slate-900 text-6xl sm:text-7xl md:text-8xl lg:text-[105px] xl:text-[124px] font-black uppercase">
+            THE
+          </span>
+          <span class="text-slate-900 text-6xl sm:text-7xl md:text-8xl lg:text-[105px] xl:text-[124px] font-black uppercase mt-1 sm:mt-2">
+            FUTURE
+          </span>
+          <span class="stroke-text-blue text-5xl sm:text-6xl md:text-7xl lg:text-[90px] xl:text-[110px] font-black mt-2 sm:mt-4">
+            เริ่มต้นที่นี่
+          </span>
+        </h2>
+      </div>
+
+      <!-- Right Column: Logo, Tagline & Action Button -->
+      <div class="lg:col-span-5 xl:col-span-4 flex flex-col items-center justify-center text-center">
+        <!-- Circular College Emblem Logo -->
+        <div class="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-white p-1.5 shadow-xl shadow-blue-900/10 border border-blue-50 flex items-center justify-center mb-6 sm:mb-8 group transition-transform duration-300 hover:scale-105">
+          <img
+            src="/logo/LOGO_SERIRACHA_COLOR_FULL.png"
+            alt="ตราสัญลักษณ์ วิทยาลัยเทคโนโลยีศรีราชา"
+            class="w-full h-full object-contain rounded-full"
+            loading="lazy"
+            width="160"
+            height="160"
+          />
+        </div>
+
+        <!-- Description Paragraph -->
+        <p class="text-slate-600 font-medium text-sm sm:text-base leading-relaxed max-w-xs sm:max-w-sm mb-6 sm:mb-8">
+          มุ่งเน้นความเป็นเลิศทางนวัตกรรมและเทคโนโลยี<br />
+          สร้างความพร้อมให้นักศึกษาสู่ตลาดแรงงาน<br />
+          ระดับสากล
+        </p>
+
+        <!-- Circular Action Button with Down Arrow -->
+        <div class="flex flex-col items-center gap-2.5">
+          <a
+            href="/contact/"
+            class="w-12 h-12 rounded-full bg-black text-white hover:bg-slate-800 flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110 active:scale-95 group focus:outline-none focus:ring-4 focus:ring-black/20"
+            aria-label="ไปยังหน้าติดต่อสมัครเรียน"
+          >
+            <svg
+              class="w-5 h-5 transition-transform duration-300 group-hover:translate-y-0.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </a>
+          <a
+            href="/contact/"
+            class="text-xs sm:text-sm font-semibold text-slate-800 hover:text-[#0047BA] transition-colors"
+          >
+            สนใจสมัครเรียนกับเรา
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Floating Scroll-to-Top Button -->
+<button
+  type="button"
+  id="scroll-to-top-btn"
+  class="fixed bottom-6 right-6 z-40 w-10 h-10 sm:w-11 sm:h-11 rounded-md bg-white border border-slate-200 shadow-md text-slate-700 hover:text-[#0047BA] hover:border-blue-300 hover:bg-blue-50/50 flex items-center justify-center transition-all duration-300 opacity-0 pointer-events-none hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+  aria-label="เลื่อนขึ้นด้านบน"
+>
+  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+  </svg>
+</button>
+
+<style>
+  .stroke-text-blue {
+    color: transparent;
+    -webkit-text-stroke: 2px #38bdf8;
+    text-stroke: 2px #38bdf8;
+    display: inline-block;
+  }
+  @media (min-width: 1024px) {
+    .stroke-text-blue {
+      -webkit-text-stroke: 2.5px #38bdf8;
+      text-stroke: 2.5px #38bdf8;
+    }
+  }
+</style>
+
+<script>
+  function initScrollToTop() {
+    const btn = document.getElementById('scroll-to-top-btn');
+    if (!btn) return;
+
+    function handleScroll() {
+      if (window.scrollY > 300) {
+        btn?.classList.remove('opacity-0', 'pointer-events-none');
+        btn?.classList.add('opacity-100', 'pointer-events-auto');
+      } else {
+        btn?.classList.add('opacity-0', 'pointer-events-none');
+        btn?.classList.remove('opacity-100', 'pointer-events-auto');
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    btn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  initScrollToTop();
+  document.addEventListener('astro:page-load', initScrollToTop);
+</script>

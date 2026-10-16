@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HomeCarousel from '../components/HomeCarousel.astro';
+import HomeIntroSection from '../components/HomeIntroSection.astro';
 import { getBanners } from '../lib/wordpress';
 
 const banners = await getBanners();
@@ -11,4 +12,6 @@ const banners = await getBanners();
   description="วิทยาลัยเทคโนโลยีศรีราชา มุ่งมั่นจัดการศึกษาด้านวิชาชีพและเทคโนโลยีที่ทันสมัย ตำบลทุ่งสุขลา อำเภอศรีราชา จังหวัดชลบุรี"
 >
   <HomeCarousel banners={banners} />
+  <HomeIntroSection />
 </BaseLayout>
+
