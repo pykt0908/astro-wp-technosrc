@@ -1,197 +1,223 @@
 ---
 // HomeVtrSection.astro - College Promotional VTR Section (Matching Mockup Layout)
-import type { SiteSettings } from '../types/wordpress';
+import type { SiteSettings } from "../types/wordpress";
 
 interface Props {
-  vtr?: SiteSettings['vtr'];
+  vtr?: SiteSettings["vtr"];
 }
 
 const { vtr } = Astro.props;
 
 // Video settings from WordPress (Only YouTube embed URL is configured via WP)
 const isEnabled = vtr ? vtr.enabled !== false : true;
-const youtubeId = vtr?.youtubeId || 'dQw4w9WgXcQ';
-const embedUrl = vtr?.embedUrl || (youtubeId ? `https://www.youtube-nocookie.com/embed/${youtubeId}` : '');
-const coverImageUrl = youtubeId ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg` : '';
+const youtubeId = vtr?.youtubeId || "dQw4w9WgXcQ";
+const embedUrl =
+  vtr?.embedUrl ||
+  (youtubeId ? `https://www.youtube-nocookie.com/embed/${youtubeId}` : "");
+const coverImageUrl = youtubeId
+  ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`
+  : "";
 
 // Hardcoded text content
-const badgeText = 'VTR แนะนำวิทยาลัย';
-const title = 'วิดีทัศน์แนะนำวิทยาลัยเทคโนโลยีศรีราชา';
+const title = "วิดีโอแนะนำวิทยาลัยฯ";
 const description =
-  'มุ่งมั่นจัดการศึกษาด้านวิชาชีพและเทคโนโลยีที่ทันสมัย ส่งเสริมคุณธรรม จริยธรรม สู่มาตรฐานสากล ผลิตกำลังคนคุณภาพเพื่อพัฒนาภาคอุตสาหกรรมและสังคมอย่างยั่งยืน';
+  "มุ่งมั่นจัดการศึกษาด้านวิชาชีพและเทคโนโลยีที่ทันสมัย ส่งเสริมคุณธรรม จริยธรรม สู่มาตรฐานสากล ผลิตกำลังคนคุณภาพเพื่อพัฒนาภาคอุตสาหกรรมและสังคมอย่างยั่งยืน";
 
-const ratingScore = '4.9/5';
-const ratingText = 'มาตรฐาน สอศ. Based on 1,500+ นักศึกษา';
+const primaryBtnText = "สมัครเรียนออนไลน์";
+const primaryBtnUrl = "/apply";
 
-const primaryBtnText = 'สมัครเรียนออนไลน์';
-const primaryBtnUrl = '/apply';
-
-const secondaryBtnText = 'ดูหลักสูตรที่เปิดสอน →';
-const secondaryBtnUrl = '/academics';
+const secondaryBtnText = "ดูหลักสูตรที่เปิดสอน →";
+const secondaryBtnUrl = "/academics";
 
 if (!isEnabled) {
   return null;
 }
 ---
 
-<section id="college-vtr-section" class="py-16 sm:py-24 bg-white text-slate-900 overflow-hidden">
+<section
+  id="college-vtr-section"
+  class="py-16 sm:py-24 bg-white text-slate-900 overflow-hidden"
+>
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-start mb-10 sm:mb-14">
-      
+    <div
+      class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-start mb-10 sm:mb-14"
+    >
       <!-- Left Column: Title & Badge/Rating -->
       <div class="lg:col-span-7 flex flex-col justify-start">
-        {badgeText && (
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/60 text-blue-700 text-xs sm:text-sm font-semibold mb-3 self-start shadow-2xs">
-            <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
-            <span>{badgeText}</span>
-          </div>
-        )}
-
-        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-[1.18] sm:leading-[1.15]">
+        <h2
+          class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-[1.18] sm:leading-[1.15]"
+        >
           {title}
         </h2>
-
-        {(ratingScore || ratingText) && (
-          <div class="flex flex-wrap items-center gap-2 mt-4 sm:mt-5 text-sm sm:text-base font-medium text-slate-700">
-            {ratingScore && (
-              <span class="font-bold text-slate-900 tracking-tight">{ratingScore}</span>
-            )}
-            
-            <svg class="w-4 h-4 fill-amber-400 text-amber-400 shrink-0" viewBox="0 0 24 24">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-            </svg>
-
-            {ratingText && (
-              <span class="text-xs sm:text-sm text-slate-500 font-normal">
-                {ratingText}
-              </span>
-            )}
-          </div>
-        )}
       </div>
 
-      <div class="lg:col-span-5 flex flex-col justify-between space-y-5 lg:pt-1">
-        {description && (
-          <p class="text-slate-600 text-sm sm:text-base leading-relaxed font-normal">
-            {description}
-          </p>
-        )}
+      <div
+        class="lg:col-span-5 flex flex-col justify-between space-y-5 lg:pt-1"
+      >
+        {
+          description && (
+            <p class="text-slate-600 text-sm sm:text-base leading-relaxed font-normal">
+              {description}
+            </p>
+          )
+        }
 
         <div class="flex flex-wrap items-center gap-3 pt-1">
-          {primaryBtnText && (
-            <a
-              href={primaryBtnUrl}
-              class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-slate-950 hover:bg-black text-white text-sm font-semibold shadow-xs hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
-            >
-              {primaryBtnText}
-            </a>
-          )}
+          {
+            primaryBtnText && (
+              <a
+                href={primaryBtnUrl}
+                class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-slate-950 hover:bg-black text-white text-sm font-semibold shadow-xs hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
+              >
+                {primaryBtnText}
+              </a>
+            )
+          }
 
-          {secondaryBtnText && (
-            <a
-              href={secondaryBtnUrl}
-              class="group inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white hover:bg-slate-50 text-slate-900 text-sm font-semibold border border-slate-300 hover:border-slate-400 shadow-xs hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
-            >
-              <span>{secondaryBtnText}</span>
-              <svg class="w-4 h-4 text-slate-500 group-hover:text-slate-900 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-              </svg>
-            </a>
-          )}
+          {
+            secondaryBtnText && (
+              <a
+                href={secondaryBtnUrl}
+                class="group inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white hover:bg-slate-50 text-slate-900 text-sm font-semibold border border-slate-300 hover:border-slate-400 shadow-xs hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer"
+              >
+                <span>{secondaryBtnText}</span>
+                <svg
+                  class="w-4 h-4 text-slate-500 group-hover:text-slate-900 group-hover:translate-x-1 transition-all"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M14 5l7 7m0 0l-7 7m7-7H3"
+                  />
+                </svg>
+              </a>
+            )
+          }
         </div>
       </div>
-
     </div>
 
-    <div class="relative w-full rounded-2xl sm:rounded-3xl md:rounded-[28px] overflow-hidden bg-slate-900 shadow-xl border border-slate-200/80 group">
-      
-      {embedUrl ? (
-        <div id="vtr-player-container" class="relative w-full aspect-video bg-slate-950 cursor-pointer select-none">
-          
-          <img
-            id="vtr-cover-img"
-            src={coverImageUrl}
-            data-ytid={youtubeId}
-            alt={title}
-            loading="lazy"
-            class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.01]"
-          />
+    <div
+      class="relative w-full rounded-2xl sm:rounded-3xl md:rounded-[28px] overflow-hidden bg-slate-900 shadow-xl border border-slate-200/80 group"
+    >
+      {
+        embedUrl ? (
+          <div
+            id="vtr-player-container"
+            class="relative w-full aspect-video bg-slate-950 cursor-pointer select-none"
+          >
+            <img
+              id="vtr-cover-img"
+              src={coverImageUrl}
+              data-ytid={youtubeId}
+              alt={title}
+              loading="lazy"
+              class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.01]"
+            />
 
-          <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none" />
 
-          <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-            <button
-              type="button"
-              id="vtr-play-trigger-btn"
-              aria-label="Play Video"
-              class="pointer-events-auto relative flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full bg-white shadow-2xl transition-all duration-300 group-hover:scale-110 group-active:scale-95 ring-4 sm:ring-8 ring-white/40 cursor-pointer"
-            >
-              <svg
-                class="w-7 h-7 sm:w-9 sm:h-9 md:w-10 md:h-10 text-indigo-600 fill-indigo-600 translate-x-0.5 drop-shadow-xs"
-                viewBox="0 0 24 24"
+            <div class="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+              <button
+                type="button"
+                id="vtr-play-trigger-btn"
+                aria-label="Play Video"
+                class="pointer-events-auto relative flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full bg-white shadow-2xl transition-all duration-300 group-hover:scale-110 group-active:scale-95 ring-4 sm:ring-8 ring-white/40 cursor-pointer"
               >
-                <path d="M8 5v14l11-7z" />
+                <svg
+                  class="w-7 h-7 sm:w-9 sm:h-9 md:w-10 md:h-10 text-indigo-600 fill-indigo-600 translate-x-0.5 drop-shadow-xs"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </button>
+            </div>
+
+            <template id="vtr-iframe-template">
+              <iframe
+                class="absolute inset-0 w-full h-full border-0 z-20"
+                src={`${embedUrl}?autoplay=1&rel=0&modestbranding=1`}
+                title={title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+              />
+            </template>
+          </div>
+        ) : (
+          <div class="w-full aspect-video bg-slate-900 flex flex-col items-center justify-center text-center p-6 sm:p-12">
+            <div class="w-16 h-16 rounded-2xl bg-blue-600/20 text-blue-400 flex items-center justify-center mb-4 border border-blue-500/30">
+              <svg
+                class="w-8 h-8"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
-            </button>
+            </div>
+            <h3 class="text-base sm:text-lg font-bold text-white">
+              ยังไม่มีการตั้งค่าลิงก์วิดีโอ
+            </h3>
+            <p class="text-xs sm:text-sm text-slate-400 max-w-md mt-1.5">
+              สามารถเพิ่มหรือแก้ไขลิงก์คลิปวิดีโอ YouTube
+              ของวิทยาลัยได้ที่ระบบจัดการหลังบ้าน (WordPress &gt; Site Settings
+              &gt; College VTR Video)
+            </p>
           </div>
-
-          <template id="vtr-iframe-template">
-            <iframe
-              class="absolute inset-0 w-full h-full border-0 z-20"
-              src={`${embedUrl}?autoplay=1&rel=0&modestbranding=1`}
-              title={title}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              allowfullscreen
-            ></iframe>
-          </template>
-
-        </div>
-      ) : (
-        <div class="w-full aspect-video bg-slate-900 flex flex-col items-center justify-center text-center p-6 sm:p-12">
-          <div class="w-16 h-16 rounded-2xl bg-blue-600/20 text-blue-400 flex items-center justify-center mb-4 border border-blue-500/30">
-            <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h3 class="text-base sm:text-lg font-bold text-white">ยังไม่มีการตั้งค่าลิงก์วิดีโอ</h3>
-          <p class="text-xs sm:text-sm text-slate-400 max-w-md mt-1.5">
-            สามารถเพิ่มหรือแก้ไขลิงก์คลิปวิดีโอ YouTube ของวิทยาลัยได้ที่ระบบจัดการหลังบ้าน (WordPress &gt; Site Settings &gt; College VTR Video)
-          </p>
-        </div>
-      )}
-
+        )
+      }
     </div>
-
   </div>
 </section>
 
 <script>
-  const coverImg = document.getElementById('vtr-cover-img') as HTMLImageElement | null;
+  const coverImg = document.getElementById(
+    "vtr-cover-img",
+  ) as HTMLImageElement | null;
   if (coverImg && coverImg.dataset.ytid) {
-    coverImg.addEventListener('error', () => {
-      coverImg.src = `https://img.youtube.com/vi/${coverImg.dataset.ytid}/hqdefault.jpg`;
-    }, { once: true });
+    coverImg.addEventListener(
+      "error",
+      () => {
+        coverImg.src = `https://img.youtube.com/vi/${coverImg.dataset.ytid}/hqdefault.jpg`;
+      },
+      { once: true },
+    );
   }
 
-  const container = document.getElementById('vtr-player-container');
-  const template = document.getElementById('vtr-iframe-template') as HTMLTemplateElement | null;
+  const container = document.getElementById("vtr-player-container");
+  const template = document.getElementById(
+    "vtr-iframe-template",
+  ) as HTMLTemplateElement | null;
 
   if (container && template) {
     const startPlayback = () => {
       const content = template.content.cloneNode(true);
-      container.innerHTML = '';
+      container.innerHTML = "";
       container.appendChild(content);
-      container.classList.remove('cursor-pointer');
+      container.classList.remove("cursor-pointer");
     };
 
-    container.addEventListener('click', startPlayback, { once: true });
-    
-    const playBtn = document.getElementById('vtr-play-trigger-btn');
+    container.addEventListener("click", startPlayback, { once: true });
+
+    const playBtn = document.getElementById("vtr-play-trigger-btn");
     if (playBtn) {
-      playBtn.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
+      playBtn.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
           startPlayback();
         }

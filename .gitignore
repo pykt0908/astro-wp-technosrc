@@ -25,6 +25,7 @@ wordpress/wp-content/debug.log
 wordpress/wp-content/uploads/
 wordpress/wp-content/upgrade/
 wordpress/wp-content/cache/
+wordpress/wp-content/themes/twenty*
 *.sql
 *.sql.gz
 *.tar.gz
