@@ -413,7 +413,8 @@ class Project_Core_REST_API {
 
                 if ($terms && !is_wp_error($terms)) {
                     foreach ($terms as $index => $t) {
-                        $cat_color = get_term_meta($t->term_id, 'category_color', true) ?: 'blue';
+                        $raw_color = get_term_meta($t->term_id, 'category_color', true);
+                        $cat_color = $this->resolve_color_hex($raw_color);
                         if ($index === 0) {
                             $primary_cat_color = $cat_color;
                         }
@@ -427,7 +428,7 @@ class Project_Core_REST_API {
                 }
 
                 $event_color_meta = get_post_meta($id, 'event_color', true);
-                $final_color = (!empty($event_color_meta) && $event_color_meta !== 'auto') ? $event_color_meta : $primary_cat_color;
+                $final_color = (!empty($event_color_meta) && $event_color_meta !== 'auto') ? $this->resolve_color_hex($event_color_meta) : $primary_cat_color;
 
                 $thumb_url = get_the_post_thumbnail_url($id, 'large');
                 if (!$thumb_url) {
@@ -571,7 +572,8 @@ class Project_Core_REST_API {
         $result = array();
         if (!empty($terms) && !is_wp_error($terms)) {
             foreach ($terms as $term) {
-                $cat_color = get_term_meta($term->term_id, 'category_color', true) ?: 'blue';
+                $raw_color = get_term_meta($term->term_id, 'category_color', true);
+                $cat_color = $this->resolve_color_hex($raw_color);
                 $result[] = array(
                     'id'    => $term->term_id,
                     'name'  => $term->name,
@@ -583,5 +585,29 @@ class Project_Core_REST_API {
         }
 
         return rest_ensure_response($result);
+    }
+
+    /**
+     * Resolve color string or preset name into valid hex
+     */
+    private function resolve_color_hex($color) {
+        $map = array(
+            'blue'    => '#0047BA',
+            'emerald' => '#059669',
+            'green'   => '#059669',
+            'amber'   => '#d97706',
+            'yellow'  => '#d97706',
+            'orange'  => '#d97706',
+            'rose'    => '#e11d48',
+            'red'     => '#e11d48',
+            'purple'  => '#7c3aed',
+        );
+        if (!empty($color) && isset($map[$color])) {
+            return $map[$color];
+        }
+        if (!empty($color) && preg_match('/^#[a-fA-F0-9]{3,6}$/', $color)) {
+            return $color;
+        }
+        return '#0047BA';
     }
 }

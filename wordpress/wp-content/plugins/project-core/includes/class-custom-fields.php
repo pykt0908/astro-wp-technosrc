@@ -37,6 +37,20 @@ class Project_Core_Custom_Fields {
                 wp_enqueue_media();
             }
         }
+
+        // Enqueue WP Color Picker for event_category taxonomy screens
+        $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+        $is_event_category = false;
+        if ($screen && $screen->taxonomy === 'event_category') {
+            $is_event_category = true;
+        } elseif (($hook === 'edit-tags.php' || $hook === 'term.php') && isset($_GET['taxonomy']) && $_GET['taxonomy'] === 'event_category') {
+            $is_event_category = true;
+        }
+
+        if ($is_event_category) {
+            wp_enqueue_style('wp-color-picker');
+            wp_enqueue_script('wp-color-picker');
+        }
     }
 
     /**
@@ -908,43 +922,128 @@ class Project_Core_Custom_Fields {
     }
 
     /**
-     * Add color field to Add Event Category form
+     * Convert color name or hex into valid hex string
+     */
+    public function get_category_color_hex($val) {
+        $map = array(
+            'blue'    => '#0047BA',
+            'emerald' => '#059669',
+            'green'   => '#059669',
+            'amber'   => '#d97706',
+            'yellow'  => '#d97706',
+            'orange'  => '#d97706',
+            'rose'    => '#e11d48',
+            'red'     => '#e11d48',
+            'purple'  => '#7c3aed',
+        );
+        if (!empty($val) && isset($map[$val])) {
+            return $map[$val];
+        }
+        if (!empty($val) && preg_match('/^#[a-fA-F0-9]{3,6}$/', $val)) {
+            return $val;
+        }
+        return '#0047BA';
+    }
+
+    /**
+     * Add color picker field to Add Event Category form
      */
     public function add_event_category_color_field() {
         ?>
         <div class="form-field term-color-wrap">
-            <label for="category_color"><?php _e('โทนสีหมวดหมู่ (Category Color & Calendar Dot)', 'project-core'); ?></label>
-            <select name="category_color" id="category_color" style="max-width: 320px;">
-                <option value="blue">🔵 สีน้ำเงิน (Royal Blue - #0047BA)</option>
-                <option value="emerald">🟢 สีเขียวมรกต (Emerald Green - #059669)</option>
-                <option value="amber">🟠 สีส้ม/เหลือง (Amber Orange - #d97706)</option>
-                <option value="rose">🔴 สีแดง/ชมพู (Rose Red - #e11d48)</option>
-                <option value="purple">🟣 สีม่วง (Purple - #7c3aed)</option>
-            </select>
-            <p class="description"><?php _e('เลือกสีประจำหมวดหมู่ ซึ่งจะนำไปแสดงเป็นจุดสี (Dot) ใต้วันที่บนปฏิทิน และแถบสีของกิจกรรมในหมวดนี้โดยอัตโนมัติ', 'project-core'); ?></p>
+            <label for="category_color"><?php _e('สีประจำหมวดหมู่ (Category Color Picker & Calendar Dot)', 'project-core'); ?></label>
+            <div style="margin-bottom: 8px;">
+                <input type="text" name="category_color" id="category_color" value="#0047BA" class="event-category-color-picker" data-default-color="#0047BA" />
+            </div>
+            <div style="margin-top: 6px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                <span style="font-size: 11px; color: #64748b; font-weight: 600;">สีแนะนำ:</span>
+                <button type="button" class="button button-small color-preset-btn" data-color="#0047BA" style="background:#0047BA;color:#fff;border:none;font-weight:600;border-radius:4px;">🔵 น้ำเงิน</button>
+                <button type="button" class="button button-small color-preset-btn" data-color="#059669" style="background:#059669;color:#fff;border:none;font-weight:600;border-radius:4px;">🟢 เขียว</button>
+                <button type="button" class="button button-small color-preset-btn" data-color="#d97706" style="background:#d97706;color:#fff;border:none;font-weight:600;border-radius:4px;">🟠 ส้ม</button>
+                <button type="button" class="button button-small color-preset-btn" data-color="#e11d48" style="background:#e11d48;color:#fff;border:none;font-weight:600;border-radius:4px;">🔴 แดง</button>
+                <button type="button" class="button button-small color-preset-btn" data-color="#7c3aed" style="background:#7c3aed;color:#fff;border:none;font-weight:600;border-radius:4px;">🟣 ม่วง</button>
+                <button type="button" class="button button-small color-preset-btn" data-color="#0284c7" style="background:#0284c7;color:#fff;border:none;font-weight:600;border-radius:4px;">🔷 ฟ้า</button>
+            </div>
+            <p class="description"><?php _e('คลิกเลือกสีจาก Color Picker หรือกรอกรหัสสี Hex (#RRGGBB) สีนี้จะนำไปแสดงเป็นจุดสีใต้วันที่บนปฏิทิน และแถบสีประจำแถวกิจกรรมโดยอัตโนมัติ', 'project-core'); ?></p>
         </div>
+        <script>
+        jQuery(document).ready(function($) {
+            function initColorPickers() {
+                if ($.fn.wpColorPicker) {
+                    $('.event-category-color-picker').not('.wp-color-picker').wpColorPicker({
+                        defaultColor: '#0047BA'
+                    });
+                }
+            }
+            initColorPickers();
+            $(document).ajaxComplete(function(event, xhr, settings) {
+                if (settings.data && settings.data.indexOf('action=add-tag') !== -1) {
+                    if ($.fn.wpColorPicker && $('.event-category-color-picker').data('wpColorPicker')) {
+                        $('.event-category-color-picker').wpColorPicker('color', '#0047BA');
+                    } else {
+                        $('.event-category-color-picker').val('#0047BA');
+                    }
+                }
+            });
+            $(document).on('click', '.color-preset-btn', function(e) {
+                e.preventDefault();
+                var c = $(this).data('color');
+                var $input = $(this).closest('.term-color-wrap').find('.event-category-color-picker');
+                if ($.fn.wpColorPicker && $input.data('wpColorPicker')) {
+                    $input.wpColorPicker('color', c);
+                } else {
+                    $input.val(c).trigger('change');
+                }
+            });
+        });
+        </script>
         <?php
     }
 
     /**
-     * Edit color field on Edit Event Category form
+     * Edit color picker field on Edit Event Category form
      */
     public function edit_event_category_color_field($term) {
-        $color = get_term_meta($term->term_id, 'category_color', true) ?: 'blue';
+        $color_raw = get_term_meta($term->term_id, 'category_color', true) ?: '#0047BA';
+        $color = $this->get_category_color_hex($color_raw);
         ?>
         <tr class="form-field term-color-wrap">
-            <th scope="row"><label for="category_color"><?php _e('โทนสีหมวดหมู่ (Category Color & Calendar Dot)', 'project-core'); ?></label></th>
+            <th scope="row"><label for="category_color"><?php _e('สีประจำหมวดหมู่ (Category Color Picker & Calendar Dot)', 'project-core'); ?></label></th>
             <td>
-                <select name="category_color" id="category_color" style="max-width: 320px;">
-                    <option value="blue" <?php selected($color, 'blue'); ?>>🔵 สีน้ำเงิน (Royal Blue - #0047BA)</option>
-                    <option value="emerald" <?php selected($color, 'emerald'); ?>>🟢 สีเขียวมรกต (Emerald Green - #059669)</option>
-                    <option value="amber" <?php selected($color, 'amber'); ?>>🟠 สีส้ม/เหลือง (Amber Orange - #d97706)</option>
-                    <option value="rose" <?php selected($color, 'rose'); ?>>🔴 สีแดง/ชมพู (Rose Red - #e11d48)</option>
-                    <option value="purple" <?php selected($color, 'purple'); ?>>🟣 สีม่วง (Purple - #7c3aed)</option>
-                </select>
-                <p class="description"><?php _e('เลือกสีประจำหมวดหมู่ ซึ่งจะนำไปแสดงเป็นจุดสี (Dot) ใต้วันที่บนปฏิทิน และแถบสีของกิจกรรมในหมวดนี้โดยอัตโนมัติ', 'project-core'); ?></p>
+                <div style="margin-bottom: 8px;">
+                    <input type="text" name="category_color" id="category_color" value="<?php echo esc_attr($color); ?>" class="event-category-color-picker" data-default-color="#0047BA" />
+                </div>
+                <div style="margin-top: 6px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                    <span style="font-size: 11px; color: #64748b; font-weight: 600;">สีแนะนำ:</span>
+                    <button type="button" class="button button-small color-preset-btn" data-color="#0047BA" style="background:#0047BA;color:#fff;border:none;font-weight:600;border-radius:4px;">🔵 น้ำเงิน</button>
+                    <button type="button" class="button button-small color-preset-btn" data-color="#059669" style="background:#059669;color:#fff;border:none;font-weight:600;border-radius:4px;">🟢 เขียว</button>
+                    <button type="button" class="button button-small color-preset-btn" data-color="#d97706" style="background:#d97706;color:#fff;border:none;font-weight:600;border-radius:4px;">🟠 ส้ม</button>
+                    <button type="button" class="button button-small color-preset-btn" data-color="#e11d48" style="background:#e11d48;color:#fff;border:none;font-weight:600;border-radius:4px;">🔴 แดง</button>
+                    <button type="button" class="button button-small color-preset-btn" data-color="#7c3aed" style="background:#7c3aed;color:#fff;border:none;font-weight:600;border-radius:4px;">🟣 ม่วง</button>
+                    <button type="button" class="button button-small color-preset-btn" data-color="#0284c7" style="background:#0284c7;color:#fff;border:none;font-weight:600;border-radius:4px;">🔷 ฟ้า</button>
+                </div>
+                <p class="description"><?php _e('คลิกเลือกสีจาก Color Picker หรือกรอกรหัสสี Hex (#RRGGBB) สีนี้จะนำไปแสดงเป็นจุดสีใต้วันที่บนปฏิทิน และแถบสีประจำแถวกิจกรรมโดยอัตโนมัติ', 'project-core'); ?></p>
             </td>
         </tr>
+        <script>
+        jQuery(document).ready(function($) {
+            if ($.fn.wpColorPicker) {
+                $('.event-category-color-picker').wpColorPicker({
+                    defaultColor: '#0047BA'
+                });
+            }
+            $(document).on('click', '.color-preset-btn', function(e) {
+                e.preventDefault();
+                var c = $(this).data('color');
+                var $input = $(this).closest('.term-color-wrap').find('.event-category-color-picker');
+                if ($.fn.wpColorPicker && $input.data('wpColorPicker')) {
+                    $input.wpColorPicker('color', c);
+                } else {
+                    $input.val(c).trigger('change');
+                }
+            });
+        });
+        </script>
         <?php
     }
 
@@ -953,11 +1052,12 @@ class Project_Core_Custom_Fields {
      */
     public function save_event_category_color_field($term_id) {
         if (isset($_POST['category_color'])) {
-            $allowed = array('blue', 'emerald', 'amber', 'rose', 'purple');
-            $val = sanitize_text_field($_POST['category_color']);
-            if (in_array($val, $allowed, true)) {
-                update_term_meta($term_id, 'category_color', $val);
+            $raw = sanitize_text_field($_POST['category_color']);
+            $val = sanitize_hex_color($raw);
+            if (!$val) {
+                $val = $this->get_category_color_hex($raw);
             }
+            update_term_meta($term_id, 'category_color', $val);
         }
     }
 
@@ -980,19 +1080,15 @@ class Project_Core_Custom_Fields {
      */
     public function render_event_category_color_column($content, $column_name, $term_id) {
         if ($column_name === 'category_color') {
-            $color = get_term_meta($term_id, 'category_color', true) ?: 'blue';
-            $color_map = array(
-                'blue'    => array('bg' => '#0047BA', 'label' => 'น้ำเงิน'),
-                'emerald' => array('bg' => '#059669', 'label' => 'เขียว'),
-                'amber'   => array('bg' => '#d97706', 'label' => 'ส้ม/เหลือง'),
-                'rose'    => array('bg' => '#e11d48', 'label' => 'แดง/ชมพู'),
-                'purple'  => array('bg' => '#7c3aed', 'label' => 'ม่วง'),
-            );
-            $info = isset($color_map[$color]) ? $color_map[$color] : array('bg' => '#0047BA', 'label' => $color);
+            $color = get_term_meta($term_id, 'category_color', true) ?: '#0047BA';
+            $hex = $this->get_category_color_hex($color);
             return sprintf(
-                '<span style="display:inline-flex; align-items:center; gap:6px; font-weight:600;"><span style="display:inline-block; width:12px; height:12px; border-radius:50%%; background:%s;"></span> %s</span>',
-                esc_attr($info['bg']),
-                esc_html($info['label'])
+                '<span style="display:inline-flex; align-items:center; gap:8px; font-weight:600;">
+                    <span style="display:inline-block; width:16px; height:16px; border-radius:50%%; background:%s; box-shadow:0 0 0 1px rgba(0,0,0,0.15); flex-shrink:0;"></span>
+                    <code style="font-size:11px; background:#f1f5f9; color:#334155; padding:2px 6px; border-radius:4px; font-family:monospace;">%s</code>
+                </span>',
+                esc_attr($hex),
+                esc_html($hex)
             );
         }
         return $content;
