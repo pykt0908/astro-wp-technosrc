@@ -740,12 +740,6 @@ class Project_Core_Custom_Fields {
                 </td>
             </tr>
             <tr>
-                <th scope="row"><label for="event_organizer"><?php _e('หน่วยงาน / ผู้รับผิดชอบ', 'project-core'); ?></label></th>
-                <td>
-                    <input type="text" id="event_organizer" name="event_organizer" value="<?php echo esc_attr($organizer); ?>" class="regular-text" placeholder="เช่น ฝ่ายวิชาการ หรือ สโมสรนักศึกษา" />
-                </td>
-            </tr>
-            <tr>
                 <th scope="row"><label for="event_color"><?php _e('ธีมสีของกิจกรรม (Badge Theme)', 'project-core'); ?></label></th>
                 <td>
                     <select id="event_color" name="event_color" style="padding: 4px 8px;">
