@@ -155,6 +155,7 @@ export interface CollegeEvent {
   endDate: string;
   time: string;
   location: string;
+  note?: string;
   organizer: string;
   link: string;
   attachmentUrl: string;

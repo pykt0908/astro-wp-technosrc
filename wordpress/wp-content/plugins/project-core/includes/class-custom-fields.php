@@ -158,6 +158,7 @@ class Project_Core_Custom_Fields {
             'event_end_date'       => 'sanitize_text_field',
             'event_time'           => 'sanitize_text_field',
             'event_location'       => 'sanitize_text_field',
+            'event_note'           => 'sanitize_text_field',
             'event_organizer'      => 'sanitize_text_field',
             'event_link'           => 'esc_url_raw',
             'event_attachment_url' => 'esc_url_raw',
@@ -675,6 +676,7 @@ class Project_Core_Custom_Fields {
         $end_date       = get_post_meta($post->ID, 'event_end_date', true);
         $time           = get_post_meta($post->ID, 'event_time', true);
         $location       = get_post_meta($post->ID, 'event_location', true);
+        $note           = get_post_meta($post->ID, 'event_note', true);
         $organizer      = get_post_meta($post->ID, 'event_organizer', true);
         $link           = get_post_meta($post->ID, 'event_link', true);
         $attachment_url = get_post_meta($post->ID, 'event_attachment_url', true);
@@ -728,6 +730,13 @@ class Project_Core_Custom_Fields {
                 <th scope="row"><label for="event_location"><?php _e('สถานที่จัดกิจกรรม', 'project-core'); ?></label></th>
                 <td>
                     <input type="text" id="event_location" name="event_location" value="<?php echo esc_attr($location); ?>" class="large-text" placeholder="เช่น หอประชุมใหญ่ อาคารเฉลิมพระเกียรติ หรือ ห้องประชุม 101" />
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="event_note"><?php _e('หมายเหตุ', 'project-core'); ?></label></th>
+                <td>
+                    <input type="text" id="event_note" name="event_note" value="<?php echo esc_attr($note); ?>" class="large-text" placeholder="เช่น เฉพาะนักเรียน ปวช.1 หรือข้อความหมายเหตุอื่นๆ (ใส่หรือไม่ใส่ก็ได้)" />
+                    <p class="description"><?php _e('ข้อความหมายเหตุเพิ่มเติม จะนำไปแสดงในช่องหมายเหตุเมื่อสั่งพิมพ์ปฏิทิน (จะใส่หรือไม่ใส่ก็ได้)', 'project-core'); ?></p>
                 </td>
             </tr>
             <tr>
@@ -841,6 +850,7 @@ class Project_Core_Custom_Fields {
                 $end_date       = isset($_POST['event_end_date']) ? sanitize_text_field($_POST['event_end_date']) : '';
                 $time           = isset($_POST['event_time']) ? sanitize_text_field($_POST['event_time']) : '';
                 $location       = isset($_POST['event_location']) ? sanitize_text_field($_POST['event_location']) : '';
+                $note           = isset($_POST['event_note']) ? sanitize_text_field($_POST['event_note']) : '';
                 $organizer      = isset($_POST['event_organizer']) ? sanitize_text_field($_POST['event_organizer']) : '';
                 $link           = isset($_POST['event_link']) ? esc_url_raw($_POST['event_link']) : '';
                 $attachment_url = isset($_POST['event_attachment_url']) ? esc_url_raw($_POST['event_attachment_url']) : '';
@@ -871,6 +881,7 @@ class Project_Core_Custom_Fields {
                 update_post_meta($post_id, 'event_end_date', $end_date);
                 update_post_meta($post_id, 'event_time', $time);
                 update_post_meta($post_id, 'event_location', $location);
+                update_post_meta($post_id, 'event_note', $note);
                 update_post_meta($post_id, 'event_organizer', $organizer);
                 update_post_meta($post_id, 'event_link', $link);
                 update_post_meta($post_id, 'event_attachment_url', $attachment_url);

@@ -457,25 +457,55 @@ const yearEvents = allEvents
         color: var(--row-accent, #0047ba) !important;
       }
 
-      .row-cat-blue td { background-color: #eff6ff !important; }
-      .row-cat-blue .col-date { color: #0047ba !important; }
-      .row-cat-blue td:first-child { border-left: 4.5px solid #0047ba !important; }
+      .row-cat-blue td {
+        background-color: #eff6ff !important;
+      }
+      .row-cat-blue .col-date {
+        color: #0047ba !important;
+      }
+      .row-cat-blue td:first-child {
+        border-left: 4.5px solid #0047ba !important;
+      }
 
-      .row-cat-emerald td { background-color: #ecfdf5 !important; }
-      .row-cat-emerald .col-date { color: #059669 !important; }
-      .row-cat-emerald td:first-child { border-left: 4.5px solid #059669 !important; }
+      .row-cat-emerald td {
+        background-color: #ecfdf5 !important;
+      }
+      .row-cat-emerald .col-date {
+        color: #059669 !important;
+      }
+      .row-cat-emerald td:first-child {
+        border-left: 4.5px solid #059669 !important;
+      }
 
-      .row-cat-amber td { background-color: #fffbeb !important; }
-      .row-cat-amber .col-date { color: #d97706 !important; }
-      .row-cat-amber td:first-child { border-left: 4.5px solid #d97706 !important; }
+      .row-cat-amber td {
+        background-color: #fffbeb !important;
+      }
+      .row-cat-amber .col-date {
+        color: #d97706 !important;
+      }
+      .row-cat-amber td:first-child {
+        border-left: 4.5px solid #d97706 !important;
+      }
 
-      .row-cat-rose td { background-color: #fff1f2 !important; }
-      .row-cat-rose .col-date { color: #e11d48 !important; }
-      .row-cat-rose td:first-child { border-left: 4.5px solid #e11d48 !important; }
+      .row-cat-rose td {
+        background-color: #fff1f2 !important;
+      }
+      .row-cat-rose .col-date {
+        color: #e11d48 !important;
+      }
+      .row-cat-rose td:first-child {
+        border-left: 4.5px solid #e11d48 !important;
+      }
 
-      .row-cat-purple td { background-color: #f5f3ff !important; }
-      .row-cat-purple .col-date { color: #7c3aed !important; }
-      .row-cat-purple td:first-child { border-left: 4.5px solid #7c3aed !important; }
+      .row-cat-purple td {
+        background-color: #f5f3ff !important;
+      }
+      .row-cat-purple .col-date {
+        color: #7c3aed !important;
+      }
+      .row-cat-purple td:first-child {
+        border-left: 4.5px solid #7c3aed !important;
+      }
 
       .col-no {
         width: 38px;
@@ -510,9 +540,10 @@ const yearEvents = allEvents
         line-height: 1.4;
       }
 
-      .col-loc {
+      .col-note {
         width: 180px;
         font-size: 12px;
+        color: #334155;
       }
 
       /* Legend Bar Below Table */
@@ -922,13 +953,13 @@ const yearEvents = allEvents
         yearEvents.length > 0 ? (
           <>
             <table class="calendar-table">
-              <thead>
+              <thead class=" ">
                 <tr>
-                  <th class="col-no">ที่</th>
-                  <th class="col-date">วันที่จัดกิจกรรม</th>
-                  <th class="col-time">เวลา</th>
-                  <th class="col-title">กิจกรรม</th>
-                  <th class="col-loc">สถานที่จัดกิจกรรม</th>
+                  <th class="col-no ">ที่</th>
+                  <th class="col-date ">วันที่</th>
+                  <th class="col-time ">เวลา</th>
+                  <th class="col-title ">กิจกรรม</th>
+                  <th class="col-note ">หมายเหตุ</th>
                 </tr>
               </thead>
               <tbody>
@@ -957,8 +988,8 @@ const yearEvents = allEvents
                           <span class="event-excerpt">{ev.excerpt}</span>
                         )}
                       </td>
-                      <td class="col-loc">
-                        {ev.location || "วิทยาลัยเทคโนโลยีศรีราชา"}
+                      <td class="col-note">
+                        {ev.note || "-"}
                       </td>
                     </tr>
                   );
@@ -968,7 +999,7 @@ const yearEvents = allEvents
 
             {legendCategories.length > 0 && (
               <div class="calendar-legend-bar">
-                <span class="legend-title">สัญลักษณ์สีหมวดหมู่กิจกรรม:</span>
+                <span class="legend-title">หมายเหตุ:</span>
                 <div class="legend-items">
                   {legendCategories.map((cat) => {
                     const hex = resolveColorHex(cat.color);

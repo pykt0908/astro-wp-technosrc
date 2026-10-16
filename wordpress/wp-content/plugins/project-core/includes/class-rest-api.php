@@ -464,6 +464,7 @@ class Project_Core_REST_API {
                     'end_date'       => (string) get_post_meta($id, 'event_end_date', true),
                     'time'           => (string) get_post_meta($id, 'event_time', true),
                     'location'       => (string) get_post_meta($id, 'event_location', true),
+                    'note'           => (string) get_post_meta($id, 'event_note', true),
                     'organizer'      => (string) get_post_meta($id, 'event_organizer', true),
                     'link'           => (string) get_post_meta($id, 'event_link', true),
                     'attachment_url' => (string) get_post_meta($id, 'event_attachment_url', true),
