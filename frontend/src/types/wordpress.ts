@@ -143,6 +143,13 @@ export interface SiteSettings {
     youtubeUrl: string;
     youtubeId?: string;
     embedUrl?: string;
+    ratingScore?: string;
+    ratingText?: string;
+    primaryBtnText?: string;
+    primaryBtnUrl?: string;
+    secondaryBtnText?: string;
+    secondaryBtnUrl?: string;
+    coverImageUrl?: string;
   };
 }
 

@@ -117,16 +117,23 @@ class Project_Core_REST_API {
             ),
             'footer_copyright' => $raw['footer_copyright'],
             'vtr'              => array(
-                'enabled'      => !empty($raw['vtr_enabled']),
-                'badge'        => (string) ($raw['vtr_badge'] ?: 'VTR แนะนำวิทยาลัย'),
-                'title'        => (string) ($raw['vtr_title'] ?: 'วิดีทัศน์แนะนำวิทยาลัยเทคโนโลยีศรีราชา'),
-                'subtitle'     => (string) ($raw['vtr_subtitle'] ?: 'Sriracha Technological College Presentation Video'),
-                'description'  => (string) ($raw['vtr_description'] ?: 'มุ่งมั่นจัดการศึกษาด้านวิชาชีพและเทคโนโลยีที่ทันสมัย สร้างสรรค์ทักษะสู่อนาคต เพื่อผลิตกำลังคนคุณภาพสู่ตลาดแรงงานและสากล'),
-                'youtube_url'  => (string) ($raw['vtr_youtube_url'] ?: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'),
-                'youtube_id'   => $this->extract_youtube_id($raw['vtr_youtube_url'] ?: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'),
-                'embed_url'    => !empty($this->extract_youtube_id($raw['vtr_youtube_url'] ?: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ')) 
+                'enabled'            => !empty($raw['vtr_enabled']),
+                'badge'              => (string) ($raw['vtr_badge'] ?: 'VTR แนะนำวิทยาลัย'),
+                'title'              => (string) ($raw['vtr_title'] ?: 'ก้าวสู่อนาคตวิชาชีพที่มั่นคง กับวิทยาลัยเทคโนโลยีศรีราชา'),
+                'subtitle'           => (string) ($raw['vtr_subtitle'] ?: 'Sriracha Technological College Presentation Video'),
+                'description'        => (string) ($raw['vtr_description'] ?: 'สัมผัสบรรยากาศการเรียนการสอน หลักสูตรวิชาชีพที่ทันสมัย พร้อมเครื่องมือและนวัตกรรมระดับมาตรฐานสากล ร่วมผลิตกำลังคนคุณภาพสู่ภาคอุตสาหกรรม'),
+                'youtube_url'        => (string) ($raw['vtr_youtube_url'] ?: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'),
+                'youtube_id'         => $this->extract_youtube_id($raw['vtr_youtube_url'] ?: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'),
+                'embed_url'          => !empty($this->extract_youtube_id($raw['vtr_youtube_url'] ?: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ')) 
                     ? 'https://www.youtube-nocookie.com/embed/' . $this->extract_youtube_id($raw['vtr_youtube_url'] ?: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ') 
                     : '',
+                'rating_score'       => (string) ($raw['vtr_rating_score'] ?? '4.9/5'),
+                'rating_text'        => (string) ($raw['vtr_rating_text'] ?? 'มาตรฐาน สอศ. Based on 1,500+ นักศึกษา'),
+                'primary_btn_text'   => (string) ($raw['vtr_primary_btn_text'] ?? 'สมัครเรียนออนไลน์'),
+                'primary_btn_url'    => (string) ($raw['vtr_primary_btn_url'] ?? '/apply'),
+                'secondary_btn_text' => (string) ($raw['vtr_secondary_btn_text'] ?? 'ดูหลักสูตรที่เปิดสอน →'),
+                'secondary_btn_url'  => (string) ($raw['vtr_secondary_btn_url'] ?? '/academics'),
+                'cover_image_url'    => (string) ($raw['vtr_cover_image_url'] ?? ''),
             ),
         );
 
