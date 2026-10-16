@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-primary: 14 165 233;
+    --color-primary-dark: 2 132 199;
+    --color-accent: 99 102 241;
+    --font-thai: 'Noto Sans Thai', system-ui, -apple-system, sans-serif;
+  }
+
+  html {
+    font-family: var(--font-thai);
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: #0b0f19;
+    color: #e2e8f0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* Custom styled prose for WordPress content */
+.wp-content {
+  color: #cbd5e1;
+  line-height: 1.8;
+  font-size: 1.05rem;
+}
+
+.wp-content p {
+  margin-bottom: 1.5rem;
+}
+
+.wp-content h1,
+.wp-content h2,
+.wp-content h3,
+.wp-content h4,
+.wp-content h5,
+.wp-content h6 {
+  color: #f8fafc;
+  font-weight: 700;
+  margin-top: 2.25rem;
+  margin-bottom: 1rem;
+  line-height: 1.35;
+}
+
+.wp-content h2 {
+  font-size: 1.75rem;
+  border-bottom: 1px solid #1e293b;
+  padding-bottom: 0.5rem;
+}
+
+.wp-content h3 {
+  font-size: 1.4rem;
+}
+
+.wp-content ul,
+.wp-content ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.wp-content ul {
+  list-style-type: disc;
+}
+
+.wp-content ol {
+  list-style-type: decimal;
+}
+
+.wp-content li {
+  margin-bottom: 0.5rem;
+}
+
+.wp-content blockquote {
+  border-left: 4px solid #0284c7;
+  padding-left: 1.25rem;
+  font-style: italic;
+  color: #94a3b8;
+  margin: 1.75rem 0;
+  background: rgba(2, 132, 199, 0.05);
+  border-radius: 0 0.5rem 0.5rem 0;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.wp-content img {
+  border-radius: 0.75rem;
+  max-width: 100%;
+  height: auto;
+  margin: 2rem auto;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.wp-content a {
+  color: #38bdf8;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  transition: color 0.2s ease;
+}
+
+.wp-content a:hover {
+  color: #7dd3fc;
+}
+
+.wp-content figure {
+  margin: 2rem 0;
+}
+
+.wp-content figcaption {
+  font-size: 0.875rem;
+  text-align: center;
+  color: #64748b;
+  margin-top: 0.5rem;
+}
+
+/* Glassmorphism helpers */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(56, 189, 248, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+}

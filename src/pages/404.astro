@@ -1,0 +1,29 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="ไม่พบหน้าที่คุณต้องการ (404)" description="หน้าที่คุณกำลังค้นหาไม่มีอยู่หรือถูกย้ายไปแล้ว">
+  <div class="py-24 sm:py-36 max-w-3xl mx-auto px-4 text-center">
+    <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-sky-500/10 text-sky-400 mb-8 border border-sky-500/20">
+      <span class="text-3xl font-extrabold">404</span>
+    </div>
+    <h1 class="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">ไม่พบหน้าที่ต้องการ</h1>
+    <p class="mt-4 text-lg text-slate-400 max-w-lg mx-auto">
+      หน้าที่คุณกำลังเรียกหาอาจถูกย้าย ลบ หรือ URL ที่กรอกอาจไม่ถูกต้อง
+    </p>
+    <div class="mt-10 flex items-center justify-center gap-4">
+      <a
+        href="/"
+        class="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-sky-500 to-indigo-600 rounded-xl shadow-lg shadow-sky-500/25 hover:shadow-sky-500/40 transition-all"
+      >
+        กลับสู่หน้าแรก
+      </a>
+      <a
+        href="/news/"
+        class="px-6 py-3 text-sm font-semibold text-slate-300 hover:text-white bg-slate-900 border border-slate-700 rounded-xl transition-all"
+      >
+        อ่านข่าวสารล่าสุด
+      </a>
+    </div>
+  </div>
+</BaseLayout>

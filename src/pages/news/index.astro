@@ -1,0 +1,80 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NewsCard from '../../components/NewsCard.astro';
+import { getPublishedPosts, getCategories } from '../../lib/wordpress';
+
+const POSTS_PER_PAGE = 6;
+const { posts, totalPosts, totalPages } = await getPublishedPosts(1, POSTS_PER_PAGE);
+const categories = await getCategories();
+---
+
+<BaseLayout
+  title="ข่าวสารและบทความเทคโนโลยี"
+  description="ติดตามข่าวสาร บทความเทคโนโลยี และการอัปเดตนวัตกรรมดิจิทัลจากทีมวิศวกร Technosrc"
+>
+  <div class="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <span class="text-xs font-semibold text-sky-400 tracking-wider uppercase">บล็อก & ข่าวสาร</span>
+      <h1 class="text-4xl sm:text-5xl font-extrabold text-white mt-3 tracking-tight">
+        ข่าวสารและบทความล่าสุด
+      </h1>
+      <p class="mt-4 text-lg text-slate-300">
+        บทความและสาระน่ารู้เกี่ยวกับคลาวด์ สถาปัตยกรรมซอฟต์แวร์ และโซลูชันดิจิทัลสำหรับองค์กร
+      </p>
+
+      <!-- Category Filter Pills -->
+      {categories.length > 0 && (
+        <div class="mt-8 flex flex-wrap justify-center gap-2">
+          <span class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-sky-500 text-white shadow-sm">
+            ทั้งหมด ({totalPosts})
+          </span>
+          {categories.map((cat) => (
+            <span class="px-3.5 py-1.5 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700/60">
+              {cat.name} ({cat.count})
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+
+    <!-- Posts Grid -->
+    {posts.length > 0 ? (
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {posts.map((post) => (
+          <NewsCard post={post} />
+        ))}
+      </div>
+    ) : (
+      <div class="text-center py-20 bg-slate-900/30 rounded-2xl border border-slate-800">
+        <p class="text-slate-400">ยังไม่มีบทความในขณะนี้</p>
+      </div>
+    )}
+
+    <!-- Pagination -->
+    {totalPages > 1 && (
+      <nav class="mt-16 flex items-center justify-center gap-2" aria-label="Pagination">
+        <span class="px-4 py-2 text-sm font-semibold text-white bg-sky-500 rounded-lg shadow-sm">
+          1
+        </span>
+        {Array.from({ length: totalPages - 1 }, (_, i) => i + 2).map((pageNum) => (
+          <a
+            href={`/news/page/${pageNum}/`}
+            class="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-lg transition-colors"
+          >
+            {pageNum}
+          </a>
+        ))}
+        <a
+          href="/news/page/2/"
+          class="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-900 hover:bg-slate-800 border border-slate-700 rounded-lg transition-colors inline-flex items-center gap-1"
+        >
+          <span>ถัดไป</span>
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      </nav>
+    )}
+  </div>
+</BaseLayout>

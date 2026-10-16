@@ -1,0 +1,76 @@
+---
+import type { Post } from '../types/wordpress';
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+
+// Format Thai date
+const dateObj = new Date(post.publishedAt);
+const formattedDate = !isNaN(dateObj.getTime())
+  ? dateObj.toLocaleDateString('th-TH', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  : post.publishedAt;
+
+const fallbackCover = 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop';
+---
+
+<article class="glass-card rounded-2xl overflow-hidden flex flex-col group border border-slate-800/80">
+  <!-- Thumbnail -->
+  <a href={`/news/${post.slug}/`} class="relative block aspect-[16/9] overflow-hidden bg-slate-900 focus:outline-none">
+    <img
+      src={post.coverUrl || fallbackCover}
+      alt={post.coverAlt || post.titlePlain}
+      loading="lazy"
+      decoding="async"
+      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+      onerror={`this.onerror=null;this.src='${fallbackCover}';`}
+    />
+    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity"></div>
+    {post.categoryNames && post.categoryNames.length > 0 && (
+      <span class="absolute top-3 left-3 px-2.5 py-1 text-xs font-semibold rounded-md bg-sky-500/90 text-white backdrop-blur-md shadow-md">
+        {post.categoryNames[0]}
+      </span>
+    )}
+  </a>
+
+  <!-- Content -->
+  <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+    <div class="space-y-2">
+      <div class="flex items-center gap-2 text-xs text-slate-400">
+        <svg class="w-4 h-4 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <time datetime={post.publishedAt}>{formattedDate}</time>
+      </div>
+
+      <h3 class="text-lg font-bold text-white group-hover:text-sky-400 transition-colors line-clamp-2 leading-snug">
+        <a href={`/news/${post.slug}/`} class="focus:outline-none focus:underline">
+          {post.titlePlain}
+        </a>
+      </h3>
+
+      <p class="text-sm text-slate-400 line-clamp-3 leading-relaxed">
+        {post.excerptPlain}
+      </p>
+    </div>
+
+    <!-- Read more link -->
+    <div class="pt-2">
+      <a
+        href={`/news/${post.slug}/`}
+        class="inline-flex items-center gap-1.5 text-xs font-semibold text-sky-400 hover:text-sky-300 transition-colors"
+      >
+        <span>อ่านต่อ</span>
+        <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </a>
+    </div>
+  </div>
+</article>

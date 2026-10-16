@@ -1,0 +1,136 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NewsCard from '../../components/NewsCard.astro';
+import { getAllPublishedPosts } from '../../lib/wordpress';
+import type { Post } from '../../types/wordpress';
+
+export const getStaticPaths = (async () => {
+  const allPosts = await getAllPublishedPosts();
+
+  return allPosts.map((post) => {
+    // Find up to 3 related posts (excluding current post)
+    const relatedPosts = allPosts
+      .filter((p) => p.id !== post.id)
+      .slice(0, 3);
+
+    return {
+      params: { slug: post.slug },
+      props: { post, relatedPosts },
+    };
+  });
+}) satisfies GetStaticPaths;
+
+interface Props {
+  post: Post;
+  relatedPosts: Post[];
+}
+
+const { post, relatedPosts } = Astro.props;
+
+// Date formatting
+const dateObj = new Date(post.publishedAt);
+const formattedDate = !isNaN(dateObj.getTime())
+  ? dateObj.toLocaleDateString('th-TH', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  : post.publishedAt;
+
+const fallbackCover = 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop';
+---
+
+<BaseLayout
+  title={post.titlePlain}
+  description={post.excerptPlain}
+  image={post.coverUrl || fallbackCover}
+  type="article"
+  publishedTime={post.publishedAt}
+  modifiedTime={post.modifiedAt}
+  articleSection={post.categoryNames?.[0] || 'เทคโนโลยี'}
+>
+  <article class="py-12 sm:py-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Breadcrumbs -->
+    <nav class="flex items-center gap-2 text-xs text-slate-400 mb-8" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-sky-400 transition-colors">หน้าแรก</a>
+      <span>/</span>
+      <a href="/news/" class="hover:text-sky-400 transition-colors">ข่าวสารและบทความ</a>
+      <span>/</span>
+      <span class="text-slate-200 truncate max-w-[200px] sm:max-w-md">{post.titlePlain}</span>
+    </nav>
+
+    <!-- Header / Meta -->
+    <header class="mb-10">
+      {post.categoryNames && post.categoryNames.length > 0 && (
+        <span class="inline-block px-3 py-1 rounded-md text-xs font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20 mb-4">
+          {post.categoryNames[0]}
+        </span>
+      )}
+
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-[1.25] tracking-tight">
+        {post.titlePlain}
+      </h1>
+
+      <div class="mt-6 flex items-center gap-4 text-xs text-slate-400 border-b border-slate-800 pb-6">
+        <div class="flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <time datetime={post.publishedAt}>เผยแพร่เมื่อ: {formattedDate}</time>
+        </div>
+        <span>•</span>
+        <span>Technosrc Editorial Team</span>
+      </div>
+    </header>
+
+    <!-- Featured Image -->
+    <div class="mb-12 rounded-2xl overflow-hidden aspect-[16/9] bg-slate-900 border border-slate-800 shadow-2xl">
+      <img
+        src={post.coverUrl || fallbackCover}
+        alt={post.coverAlt || post.titlePlain}
+        loading="eager"
+        class="w-full h-full object-cover"
+        onerror={`this.onerror=null;this.src='${fallbackCover}';`}
+      />
+    </div>
+
+    <!-- Sanitized Content Body -->
+    <div class="wp-content max-w-none" set:html={post.contentHtml} />
+
+    <!-- Share / Back to news footer -->
+    <div class="mt-14 pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <a
+        href="/news/"
+        class="inline-flex items-center gap-2 text-sm font-semibold text-sky-400 hover:text-sky-300 transition-colors"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+        <span>กลับไปหน้ารวมข่าวสาร</span>
+      </a>
+      <div class="flex items-center gap-2 text-xs text-slate-400">
+        <span>แชร์บทความนี้:</span>
+        <button
+          type="button"
+          onclick="navigator.clipboard.writeText(window.location.href); alert('คัดลอกลิงก์เรียบร้อยแล้ว');"
+          class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition-colors"
+        >
+          คัดลอกลิงก์
+        </button>
+      </div>
+    </div>
+
+    <!-- Related Posts -->
+    {relatedPosts.length > 0 && (
+      <section class="mt-20 pt-16 border-t border-slate-800">
+        <h2 class="text-2xl font-bold text-white mb-8">บทความที่เกี่ยวข้อง</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {relatedPosts.map((related) => (
+            <NewsCard post={related} />
+          ))}
+        </div>
+      </section>
+    )}
+  </article>
+</BaseLayout>
