@@ -1,21 +1,30 @@
 ---
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getAllPublishedPosts } from '../../lib/wordpress';
-import type { Post } from '../../types/wordpress';
+import NewsCard from '../../components/NewsCard.astro';
+import { getAllPublishedPosts, getCategories } from '../../lib/wordpress';
+import type { Post, Category } from '../../types/wordpress';
 
 export const getStaticPaths = (async () => {
-  const allPosts = await getAllPublishedPosts();
+  const [allPosts, categories] = await Promise.all([
+    getAllPublishedPosts(),
+    getCategories(),
+  ]);
 
   return allPosts.map((post) => {
-    // Find up to 4 related posts (excluding current post)
+    // Find up to 3 related posts for the bottom section
     const relatedPosts = allPosts
+      .filter((p) => p.id !== post.id)
+      .slice(0, 3);
+
+    // Latest 4 posts for sidebar
+    const latestPosts = allPosts
       .filter((p) => p.id !== post.id)
       .slice(0, 4);
 
     return {
       params: { slug: post.slug },
-      props: { post, relatedPosts },
+      props: { post, relatedPosts, latestPosts, categories },
     };
   });
 }) satisfies GetStaticPaths;
@@ -23,9 +32,11 @@ export const getStaticPaths = (async () => {
 interface Props {
   post: Post;
   relatedPosts: Post[];
+  latestPosts: Post[];
+  categories: Category[];
 }
 
-const { post, relatedPosts = [] } = Astro.props;
+const { post, relatedPosts = [], latestPosts = [], categories = [] } = Astro.props;
 
 // Date formatting in Thai
 const dateObj = new Date(post.publishedAt);
@@ -37,7 +48,7 @@ const formattedDate = !isNaN(dateObj.getTime())
     })
   : post.publishedAt;
 
-function formatShortThaiDate(dateStr: string) {
+function formatShortDate(dateStr: string) {
   const d = new Date(dateStr);
   if (isNaN(d.getTime())) return dateStr;
   const thaiMonths = [
@@ -48,6 +59,8 @@ function formatShortThaiDate(dateStr: string) {
 }
 
 const fallbackCover = 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1200&auto=format&fit=crop';
+const categoryName = post.categoryNames?.[0] || 'ข่าวประชาสัมพันธ์';
+const categorySlug = post.categories?.[0]?.slug || 'general';
 ---
 
 <BaseLayout
@@ -57,236 +70,236 @@ const fallbackCover = 'https://images.unsplash.com/photo-1523240795612-9a054b0db
   type="article"
   publishedTime={post.publishedAt}
   modifiedTime={post.modifiedAt}
-  articleSection={post.categoryNames?.[0] || 'ข่าวประชาสัมพันธ์'}
+  articleSection={categoryName}
 >
   <!-- Main Container: Exactly matching Navbar width (max-w-[1440px]) -->
-  <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
+  <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
     
-    <!-- Modern Polished Breadcrumbs Bar -->
-    <nav
-      class="flex items-center gap-2 sm:gap-2.5 text-xs sm:text-sm bg-slate-50/90 border border-slate-200/90 rounded-xl px-4 py-3 sm:px-5 sm:py-3.5 mb-6 sm:mb-8 shadow-xs overflow-x-auto select-none"
-      aria-label="Breadcrumb"
-    >
-      <a
-        href="/"
-        class="inline-flex items-center gap-1.5 font-semibold text-slate-600 hover:text-[#0047BA] transition-colors shrink-0"
-      >
-        <svg class="w-4 h-4 text-[#0047BA]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-        </svg>
-        <span>หน้าแรก</span>
+    <!-- Clean, Human Editorial Breadcrumb (No redundant long title duplication) -->
+    <nav class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 mb-6 select-none" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-[#0047BA] transition-colors">หน้าแรก</a>
+      <span class="text-slate-300">/</span>
+      <a href="/news/" class="hover:text-[#0047BA] transition-colors">ข่าวสารและกิจกรรม</a>
+      <span class="text-slate-300">/</span>
+      <a href={`/news/?category=${categorySlug}`} class="text-[#0047BA] font-medium hover:underline">
+        {categoryName}
       </a>
-
-      <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-      </svg>
-
-      <a
-        href="/news/"
-        class="font-semibold text-slate-600 hover:text-[#0047BA] transition-colors shrink-0"
-      >
-        ข่าวสารและกิจกรรม
-      </a>
-
-      {post.categoryNames && post.categoryNames.length > 0 && (
-        <>
-          <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-          </svg>
-          <span class="font-medium text-slate-500 shrink-0">
-            {post.categoryNames[0]}
-          </span>
-        </>
-      )}
-
-      <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-      </svg>
-
-      <span
-        class="font-bold text-slate-900 truncate max-w-[200px] sm:max-w-xs md:max-w-md lg:max-w-xl"
-        aria-current="page"
-      >
-        {post.titlePlain}
-      </span>
     </nav>
 
-    <!-- Main Content & Sidebar Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+    <!-- Main Grid: Editorial Layout with 8 cols content + 4 cols sidebar -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-start">
       
-      <!-- Left Column: Main Article Body (8 cols on lg, 9 cols on xl) -->
-      <article class="lg:col-span-8 xl:col-span-9 flex flex-col">
+      <!-- Main Article Column (8 cols) -->
+      <article class="lg:col-span-8 flex flex-col min-w-0">
         
         <!-- Article Header -->
-        <header class="mb-6 sm:mb-8">
-          <!-- Category Badge -->
-          {post.categoryNames && post.categoryNames.length > 0 && (
-            <span class="inline-block px-3 py-1 rounded-md text-xs font-bold bg-blue-100 text-[#003893] mb-3 sm:mb-4">
-              {post.categoryNames[0]}
-            </span>
-          )}
+        <header class="mb-6">
+          <div class="flex items-center gap-2 mb-3">
+            <a
+              href={`/news/?category=${categorySlug}`}
+              class="inline-flex items-center text-xs font-semibold text-[#0047BA] hover:underline"
+            >
+              {categoryName}
+            </a>
+          </div>
 
-          <!-- Article Title -->
-          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 leading-snug tracking-tight">
+          <h1 class="text-2xl sm:text-3xl lg:text-[36px] font-extrabold text-slate-900 leading-snug tracking-tight">
             {post.titlePlain}
           </h1>
 
-          <!-- Meta Row: Date, Views, Author -->
-          <div class="mt-4 sm:mt-5 flex flex-wrap items-center gap-3 sm:gap-4 text-xs text-slate-500 border-b border-slate-200 pb-5">
-            <div class="flex items-center gap-2">
-              <img
-                src={post.authorAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120&auto=format&fit=crop'}
-                alt={post.authorName || 'Admin'}
-                class="w-6 h-6 rounded-full object-cover"
-                loading="lazy"
-              />
-              <span class="font-semibold text-slate-700">{post.authorName || 'Admin'}</span>
+          <!-- Meta Bar & Real Share Options -->
+          <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-500">
+            <div class="flex items-center gap-3">
+              <time datetime={post.publishedAt} class="font-medium text-slate-600">
+                {formattedDate}
+              </time>
+              <span class="text-slate-300">•</span>
+              <span class="flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                เข้าชม {post.views ?? 24} ครั้ง
+              </span>
             </div>
 
-            <span class="text-slate-300">•</span>
+            <!-- Authentic Social Sharing Bar (Facebook, LINE, Copy) -->
+            <div class="flex items-center gap-2" id="share-bar">
+              <span class="text-slate-400 text-xs hidden sm:inline">แชร์:</span>
+              
+              <!-- LINE Share -->
+              <a
+                href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(`https://technosrc.ac.th/news/${post.slug}/`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="w-7 h-7 rounded-full bg-[#06C755] hover:opacity-90 text-white flex items-center justify-center transition-opacity"
+                title="แชร์ไปยัง LINE"
+                aria-label="แชร์ไปยัง LINE"
+              >
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.084.495.242l2.482 3.376v-2.99c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314" />
+                </svg>
+              </a>
 
-            <div class="flex items-center gap-1.5">
-              <svg class="w-4 h-4 text-[#0047BA]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <time datetime={post.publishedAt}>{formattedDate}</time>
-            </div>
+              <!-- Facebook Share -->
+              <a
+                href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://technosrc.ac.th/news/${post.slug}/`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="w-7 h-7 rounded-full bg-[#1877F2] hover:opacity-90 text-white flex items-center justify-center transition-opacity"
+                title="แชร์ไปยัง Facebook"
+                aria-label="แชร์ไปยัง Facebook"
+              >
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                </svg>
+              </a>
 
-            <span class="text-slate-300">•</span>
-
-            <div class="flex items-center gap-1.5 text-slate-500">
-              <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-              <span>{post.views ?? 15} เข้าชม</span>
+              <!-- Copy Link Button -->
+              <button
+                type="button"
+                id="copy-link-btn"
+                class="relative h-7 px-2.5 rounded-full border border-slate-200 hover:border-slate-300 bg-white text-slate-600 hover:text-slate-900 text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                title="คัดลอกลิงก์"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                <span>คัดลอกลิงก์</span>
+                <span id="copy-tooltip" class="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-slate-800 text-white text-[10px] rounded opacity-0 pointer-events-none transition-opacity whitespace-nowrap">
+                  คัดลอกแล้ว!
+                </span>
+              </button>
             </div>
           </div>
         </header>
 
-        <!-- Featured Image: Optimized for 900x900 square & landscape graphics without severe cropping -->
-        <div class="mb-8 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-sm flex items-center justify-center max-h-[620px]">
-          <img
-            src={post.coverUrl || fallbackCover}
-            alt={post.coverAlt || post.titlePlain}
-            loading="eager"
-            class="w-full max-h-[620px] object-contain sm:object-cover"
-            onerror={`this.onerror=null;this.src='${fallbackCover}';`}
-          />
-        </div>
+        <!-- Featured Graphic (Clean, natural presentation without AI letterbox background) -->
+        <figure class="my-6">
+          <div class="max-w-2xl mx-auto rounded-xl overflow-hidden border border-slate-200/80 shadow-xs bg-white">
+            <img
+              src={post.coverUrl || fallbackCover}
+              alt={post.coverAlt || post.titlePlain}
+              loading="eager"
+              class="w-full h-auto object-contain block mx-auto cursor-zoom-in"
+              id="featured-image-zoom"
+              onerror={`this.onerror=null;this.src='${fallbackCover}';`}
+            />
+          </div>
+          {post.coverAlt && (
+            <figcaption class="mt-2 text-center text-xs text-slate-400">
+              {post.coverAlt}
+            </figcaption>
+          )}
+        </figure>
 
-        <!-- Sanitized Content Body -->
+        <!-- Article Content Body -->
         <div
-          class="wp-content max-w-none bg-white p-6 sm:p-8 md:p-10 rounded-2xl border border-slate-200 shadow-xs leading-relaxed text-slate-800 text-sm sm:text-base space-y-4"
+          class="wp-content mt-6 leading-relaxed text-slate-700"
           set:html={post.contentHtml}
         />
 
-        <!-- Photo Album Gallery (if available) -->
+        <!-- Event Photo Album Gallery (When available) -->
         {post.gallery && post.gallery.length > 0 && (
-          <section class="mt-8 sm:mt-10 p-6 sm:p-8 bg-white rounded-2xl border border-slate-200 shadow-xs">
-            <div class="flex items-center justify-between gap-4 mb-6">
-              <div class="flex items-center gap-2.5">
-                <div class="p-2 rounded-lg bg-blue-50 text-[#0047BA]">
-                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </div>
-                <div>
-                  <h2 class="text-base sm:text-lg font-bold text-slate-900">อัลบั้มภาพกิจกรรม</h2>
-                  <p class="text-xs text-slate-500">รวมภาพบรรยากาศทั้งหมด ({post.gallery.length} ภาพ)</p>
-                </div>
+          <section class="mt-12 pt-8 border-t border-slate-200" id="photo-album">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+                  ประมวลภาพกิจกรรม
+                </h2>
+                <p class="text-xs text-slate-500 mt-0.5">
+                  ทั้งหมด {post.gallery.length} ภาพ (คลิกที่ภาพเพื่อดูขนาดเต็ม)
+                </p>
               </div>
-
-              <span class="text-xs font-semibold px-2.5 py-1 rounded bg-slate-100 text-slate-700">
-                คลิกเพื่อดูภาพขนาดเต็ม
-              </span>
             </div>
 
-            <!-- Gallery Grid -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {post.gallery.map((img, idx) => (
-                <a
-                  href={img.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="group relative aspect-square rounded-xl overflow-hidden bg-slate-100 border border-slate-200/80 shadow-xs hover:shadow-md transition-all duration-300 block focus:outline-none focus:ring-2 focus:ring-blue-500"
+                <button
+                  type="button"
+                  class="gallery-thumbnail group relative aspect-square rounded-lg overflow-hidden bg-slate-100 border border-slate-200/80 focus:outline-none focus:ring-2 focus:ring-[#0047BA] cursor-pointer"
+                  data-full={img.url}
+                  data-idx={idx}
+                  data-total={post.gallery.length}
+                  data-alt={img.alt || `${post.titlePlain} - ภาพที่ ${idx + 1}`}
                 >
                   <img
                     src={img.thumbUrl || img.url}
                     alt={img.alt || `${post.titlePlain} - ภาพที่ ${idx + 1}`}
-                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     loading="lazy"
                   />
-                  <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-                    <svg class="w-6 h-6 drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div class="absolute inset-0 bg-slate-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                    <svg class="w-5 h-5 drop-shadow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
                     </svg>
                   </div>
-                </a>
+                </button>
               ))}
             </div>
           </section>
         )}
 
-        <!-- Bottom Share / Return to news footer -->
-        <div class="mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <!-- Bottom Return & Share Footnote -->
+        <div class="mt-12 pt-6 border-t border-slate-200 flex flex-wrap items-center justify-between gap-4">
           <a
             href="/news/"
-            class="inline-flex items-center gap-2 text-sm font-bold text-[#0047BA] hover:text-[#002D72] transition-colors"
+            class="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-[#0047BA] hover:text-[#002D72] transition-colors"
           >
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            <span>กลับไปหน้ารวมข่าวสาร</span>
+            <span>ย้อนกลับไปหน้ารวมข่าวสาร</span>
           </a>
 
-          <div class="flex items-center gap-2 text-xs text-slate-600">
-            <span>แชร์บทความนี้:</span>
-            <button
-              type="button"
-              onclick="navigator.clipboard.writeText(window.location.href); alert('คัดลอกลิงก์เรียบร้อยแล้ว');"
-              class="px-3.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-medium transition-colors cursor-pointer"
+          <div class="flex items-center gap-2 text-xs text-slate-500">
+            <span>หมวดหมู่:</span>
+            <a
+              href={`/news/?category=${categorySlug}`}
+              class="font-medium text-[#0047BA] hover:underline"
             >
-              คัดลอกลิงก์
-            </button>
+              {categoryName}
+            </a>
           </div>
         </div>
       </article>
 
-      <!-- Right Column: Sidebar (4 cols on lg, 3 cols on xl) -->
-      <aside class="lg:col-span-4 xl:col-span-3 space-y-6 lg:sticky lg:top-24">
+      <!-- Sidebar Column (4 cols) -->
+      <aside class="lg:col-span-4 space-y-8 lg:sticky lg:top-24">
         
-        <!-- Widget 1: Related / Recent News -->
-        {relatedPosts.length > 0 && (
-          <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 sm:p-6">
-            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span>ข่าวสารที่เกี่ยวข้อง</span>
+        <!-- Latest News List -->
+        {latestPosts.length > 0 && (
+          <div class="pb-6 border-b border-slate-200">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                ข่าวสารล่าสุด
+              </h3>
               <a href="/news/" class="text-xs font-semibold text-[#0047BA] hover:underline">
                 ทั้งหมด &rarr;
               </a>
-            </h3>
+            </div>
 
             <div class="space-y-4">
-              {relatedPosts.map((related) => (
+              {latestPosts.map((item) => (
                 <article class="flex items-start gap-3 group">
                   <a
-                    href={`/news/${related.slug}/`}
-                    class="w-20 h-20 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-100 focus:outline-none"
+                    href={`/news/${item.slug}/`}
+                    class="w-16 h-16 rounded-lg overflow-hidden bg-slate-100 shrink-0 border border-slate-200/80 focus:outline-none block"
                   >
                     <img
-                      src={related.coverUrl || fallbackCover}
-                      alt={related.coverAlt || related.titlePlain}
+                      src={item.coverUrl || fallbackCover}
+                      alt={item.coverAlt || item.titlePlain}
                       class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       loading="lazy"
                     />
                   </a>
                   <div class="flex flex-col min-w-0">
-                    <span class="text-[11px] text-slate-400 mb-1">
-                      {formatShortThaiDate(related.publishedAt)}
-                    </span>
-                    <h4 class="text-xs font-bold text-slate-800 group-hover:text-[#0047BA] transition-colors line-clamp-2 leading-snug">
-                      <a href={`/news/${related.slug}/`}>
-                        {related.titlePlain}
+                    <time class="text-[11px] text-slate-400 mb-0.5">
+                      {formatShortDate(item.publishedAt)}
+                    </time>
+                    <h4 class="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-[#0047BA] transition-colors line-clamp-2 leading-snug">
+                      <a href={`/news/${item.slug}/`}>
+                        {item.titlePlain}
                       </a>
                     </h4>
                   </div>
@@ -296,41 +309,257 @@ const fallbackCover = 'https://images.unsplash.com/photo-1523240795612-9a054b0db
           </div>
         )}
 
-        <!-- Widget 2: Institutional Admission Box -->
-        <div class="rounded-2xl p-6 bg-gradient-to-br from-[#003893] to-[#002D72] text-white shadow-md">
-          <div class="w-12 h-12 rounded-full bg-white/15 flex items-center justify-center mb-4">
-            <img
-              src="/logo/LOGO_SERIRACHA_COLOR_FULL.png"
-              alt="วิทยาลัยเทคโนโลยีศรีราชา"
-              class="w-10 h-10 object-contain"
-            />
+        <!-- Categories List -->
+        {categories.length > 0 && (
+          <div class="pb-6 border-b border-slate-200">
+            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3">
+              หมวดหมู่ข่าวสาร
+            </h3>
+            <div class="flex flex-wrap gap-1.5">
+              {categories
+                .filter((c) => c.slug !== 'uncategorized')
+                .map((cat) => (
+                  <a
+                    href={`/news/?category=${cat.slug}`}
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-slate-700 bg-slate-50 hover:bg-blue-50 hover:text-[#0047BA] border border-slate-200/80 transition-colors"
+                  >
+                    <span>{cat.name}</span>
+                    <span class="text-[10px] text-slate-400">({cat.count})</span>
+                  </a>
+                ))}
+            </div>
           </div>
-          <h4 class="text-base font-bold text-white mb-1">วิทยาลัยเทคโนโลยีศรีราชา</h4>
-          <p class="text-xs text-blue-100/90 leading-relaxed mb-4">
-            มุ่งเน้นความเป็นเลิศทางนวัตกรรมและเทคโนโลยี เปิดรับสมัครนักศึกษาใหม่ ปวช. และ ปวส.
+        )}
+
+        <!-- Official Channels & Quick Shortcuts (Authentic Institutional Links) -->
+        <div class="p-5 rounded-xl bg-slate-50/70 border border-slate-200/80 space-y-3">
+          <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider">
+            ช่องทางติดต่อ & ติดตาม
+          </h4>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            ติดตามข่าวสาร กิจกรรม และประกาศอย่างเป็นทางการของวิทยาลัยเทคโนโลยีศรีราชา
           </p>
-          <div class="space-y-2 text-xs text-blue-100/90 mb-5">
-            <div class="flex items-center gap-2">
-              <svg class="w-4 h-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+          <div class="pt-2 space-y-2">
+            <a
+              href="https://facebook.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:text-[#1877F2] hover:border-blue-200 transition-colors shadow-2xs"
+            >
+              <svg class="w-4 h-4 text-[#1877F2] fill-current" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+              </svg>
+              <span>Facebook: วิทยาลัยเทคโนโลยีศรีราชา</span>
+            </a>
+
+            <a
+              href="tel:0654650306"
+              class="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:text-[#0047BA] hover:border-blue-200 transition-colors shadow-2xs"
+            >
+              <svg class="w-4 h-4 text-[#0047BA]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
               </svg>
-              <span>065-465-0306</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <svg class="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12c0 2.17.7 4.19 1.94 5.86L3 22l4.28-.89A9.957 9.957 0 0012 22c5.52 0 10-4.48 10-10S17.52 2 12 2z" />
-              </svg>
-              <span>LINE: @sriracha</span>
-            </div>
+              <span>โทร. 065-465-0306</span>
+            </a>
           </div>
-          <a
-            href="/contact/"
-            class="block w-full py-2.5 px-4 text-center rounded-lg bg-[#EA580C] hover:bg-[#C2410C] text-white text-xs font-bold shadow-md transition-colors"
-          >
-            สมัครเรียนออนไลน์
-          </a>
         </div>
       </aside>
     </div>
+
+    <!-- Related Articles Section (Full 1440px Container) -->
+    {relatedPosts.length > 0 && (
+      <section class="mt-16 pt-12 border-t border-slate-200">
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900">
+              ข่าวสารอื่นๆ ที่เกี่ยวข้อง
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+              ติดตามกิจกรรมและประกาศที่น่าสนใจเพิ่มเติม
+            </p>
+          </div>
+          <a
+            href="/news/"
+            class="text-xs sm:text-sm font-semibold text-[#0047BA] hover:text-[#002D72] transition-colors flex items-center gap-1"
+          >
+            <span>ดูทั้งหมด</span>
+            <span>&rarr;</span>
+          </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {relatedPosts.map((related) => (
+            <NewsCard post={related} />
+          ))}
+        </div>
+      </section>
+    )}
+  </div>
+
+  <!-- Interactive Lightbox Modal for Photo Gallery -->
+  <div
+    id="lightbox-modal"
+    class="fixed inset-0 z-50 bg-black/90 hidden items-center justify-center p-4 select-none backdrop-blur-xs"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Image Preview"
+  >
+    <!-- Close Button -->
+    <button
+      type="button"
+      id="lightbox-close"
+      class="absolute top-4 right-4 text-white/80 hover:text-white p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors cursor-pointer z-10"
+      aria-label="ปิด"
+    >
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+    <!-- Prev Button -->
+    <button
+      type="button"
+      id="lightbox-prev"
+      class="absolute left-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors cursor-pointer z-10"
+      aria-label="ภาพก่อนหน้า"
+    >
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
+
+    <!-- Image & Counter Container -->
+    <div class="max-w-4xl max-h-[85vh] flex flex-col items-center">
+      <img
+        id="lightbox-img"
+        src=""
+        alt=""
+        class="max-w-full max-h-[75vh] object-contain rounded-lg shadow-2xl"
+      />
+      <div id="lightbox-caption" class="mt-3 text-center text-xs text-white/70"></div>
+    </div>
+
+    <!-- Next Button -->
+    <button
+      type="button"
+      id="lightbox-next"
+      class="absolute right-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors cursor-pointer z-10"
+      aria-label="ภาพถัดไป"
+    >
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </button>
   </div>
 </BaseLayout>
+
+<script>
+  function setupPageScripts() {
+    // 1. Copy Link Tooltip
+    const copyBtn = document.getElementById('copy-link-btn');
+    const tooltip = document.getElementById('copy-tooltip');
+
+    if (copyBtn && tooltip) {
+      copyBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(window.location.href);
+          tooltip.classList.remove('opacity-0');
+          setTimeout(() => {
+            tooltip.classList.add('opacity-0');
+          }, 2000);
+        } catch {
+          alert('คัดลอกลิงก์สำเร็จ');
+        }
+      });
+    }
+
+    // 2. Lightbox Gallery Viewer
+    const modal = document.getElementById('lightbox-modal');
+    const modalImg = document.getElementById('lightbox-img') as HTMLImageElement | null;
+    const modalCaption = document.getElementById('lightbox-caption');
+    const closeBtn = document.getElementById('lightbox-close');
+    const prevBtn = document.getElementById('lightbox-prev');
+    const nextBtn = document.getElementById('lightbox-next');
+
+    const thumbButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('.gallery-thumbnail'));
+    let currentIndex = 0;
+
+    function openLightbox(index: number) {
+      if (!modal || !modalImg || thumbButtons.length === 0) return;
+      currentIndex = index;
+      const targetBtn = thumbButtons[currentIndex];
+      const fullUrl = targetBtn.getAttribute('data-full') || '';
+      const alt = targetBtn.getAttribute('data-alt') || '';
+      const total = thumbButtons.length;
+
+      modalImg.src = fullUrl;
+      modalImg.alt = alt;
+      if (modalCaption) {
+        modalCaption.textContent = `${currentIndex + 1} / ${total} - ${alt}`;
+      }
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      if (!modal) return;
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+
+    function showNext() {
+      if (thumbButtons.length === 0) return;
+      const nextIdx = (currentIndex + 1) % thumbButtons.length;
+      openLightbox(nextIdx);
+    }
+
+    function showPrev() {
+      if (thumbButtons.length === 0) return;
+      const prevIdx = (currentIndex - 1 + thumbButtons.length) % thumbButtons.length;
+      openLightbox(prevIdx);
+    }
+
+    thumbButtons.forEach((btn, idx) => {
+      btn.addEventListener('click', () => openLightbox(idx));
+    });
+
+    // Also zoom featured image if clicked
+    const featuredZoom = document.getElementById('featured-image-zoom');
+    if (featuredZoom && thumbButtons.length === 0) {
+      featuredZoom.addEventListener('click', () => {
+        if (!modal || !modalImg) return;
+        modalImg.src = (featuredZoom as HTMLImageElement).src;
+        modalImg.alt = (featuredZoom as HTMLImageElement).alt;
+        if (modalCaption) modalCaption.textContent = modalImg.alt;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+        document.body.style.overflow = 'hidden';
+      });
+    }
+
+    closeBtn?.addEventListener('click', closeLightbox);
+    nextBtn?.addEventListener('click', showNext);
+    prevBtn?.addEventListener('click', showPrev);
+
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) closeLightbox();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (modal && !modal.classList.contains('hidden')) {
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowRight') showNext();
+        if (e.key === 'ArrowLeft') showPrev();
+      }
+    });
+  }
+
+  setupPageScripts();
+  document.addEventListener('astro:page-load', setupPageScripts);
+</script>
