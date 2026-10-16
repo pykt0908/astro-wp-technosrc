@@ -174,17 +174,25 @@ const categorySlug = post.categories?.[0]?.slug || 'general';
           </div>
         </header>
 
-        <!-- Featured Graphic (Clean, natural presentation without AI letterbox background) -->
+        <!-- Featured Graphic (Clean, natural presentation with Lightbox zoom) -->
         <figure class="my-6">
-          <div class="max-w-2xl mx-auto rounded-xl overflow-hidden border border-slate-200/80 shadow-xs bg-white">
+          <div class="max-w-2xl mx-auto rounded-xl overflow-hidden border border-slate-200/80 shadow-xs bg-white group cursor-zoom-in relative">
             <img
               src={post.coverUrl || fallbackCover}
               alt={post.coverAlt || post.titlePlain}
               loading="eager"
-              class="w-full h-auto object-contain block mx-auto cursor-zoom-in"
+              class="w-full h-auto object-contain block mx-auto transition-transform duration-300 group-hover:scale-[1.01]"
               id="featured-image-zoom"
+              data-full={post.coverUrl || fallbackCover}
+              data-alt={post.coverAlt || post.titlePlain}
               onerror={`this.onerror=null;this.src='${fallbackCover}';`}
             />
+            <div class="absolute bottom-2.5 right-2.5 bg-slate-900/70 hover:bg-slate-900/90 text-white text-[11px] font-medium px-2.5 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 shadow-sm pointer-events-none">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+              </svg>
+              <span>คลิกเพื่อขยายภาพ</span>
+            </div>
           </div>
           {post.coverAlt && (
             <figcaption class="mt-2 text-center text-xs text-slate-400">
@@ -193,31 +201,31 @@ const categorySlug = post.categories?.[0]?.slug || 'general';
           )}
         </figure>
 
-        <!-- Article Content Body -->
-        <div
-          class="wp-content mt-6 leading-relaxed text-slate-700"
-          set:html={post.contentHtml}
-        />
-
-        <!-- Event Photo Album Gallery (When available) -->
+        <!-- Event Photo Album Gallery (Directly below Feature Image as requested) -->
         {post.gallery && post.gallery.length > 0 && (
-          <section class="mt-12 pt-8 border-t border-slate-200" id="photo-album">
-            <div class="flex items-center justify-between mb-4">
-              <div>
-                <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+          <section class="mb-8 p-4 sm:p-5 rounded-xl bg-slate-50/80 border border-slate-200/80" id="photo-album">
+            <div class="flex items-center justify-between mb-3.5">
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-[#0047BA]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <h2 class="text-sm sm:text-base font-bold text-slate-900">
                   ประมวลภาพกิจกรรม
                 </h2>
-                <p class="text-xs text-slate-500 mt-0.5">
-                  ทั้งหมด {post.gallery.length} ภาพ (คลิกที่ภาพเพื่อดูขนาดเต็ม)
-                </p>
+                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-[#003893]">
+                  {post.gallery.length} ภาพ
+                </span>
               </div>
+              <span class="text-xs text-slate-400 hidden sm:inline">
+                คลิกที่ภาพเพื่อเปิดดูขนาดเต็ม
+              </span>
             </div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 sm:gap-3">
               {post.gallery.map((img, idx) => (
                 <button
                   type="button"
-                  class="gallery-thumbnail group relative aspect-square rounded-lg overflow-hidden bg-slate-100 border border-slate-200/80 focus:outline-none focus:ring-2 focus:ring-[#0047BA] cursor-pointer"
+                  class="gallery-thumbnail group relative aspect-square rounded-lg overflow-hidden bg-slate-200 border border-slate-200/80 focus:outline-none focus:ring-2 focus:ring-[#0047BA] cursor-pointer shadow-2xs hover:shadow-md transition-all duration-200"
                   data-full={img.url}
                   data-idx={idx}
                   data-total={post.gallery.length}
@@ -229,8 +237,8 @@ const categorySlug = post.categories?.[0]?.slug || 'general';
                     class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     loading="lazy"
                   />
-                  <div class="absolute inset-0 bg-slate-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-                    <svg class="w-5 h-5 drop-shadow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div class="absolute inset-0 bg-slate-900/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                    <svg class="w-6 h-6 drop-shadow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
                     </svg>
                   </div>
@@ -239,6 +247,12 @@ const categorySlug = post.categories?.[0]?.slug || 'general';
             </div>
           </section>
         )}
+
+        <!-- Article Content Body -->
+        <div
+          class="wp-content mt-4 leading-relaxed text-slate-700"
+          set:html={post.contentHtml}
+        />
 
         <!-- Bottom Return & Share Footnote -->
         <div class="mt-12 pt-6 border-t border-slate-200 flex flex-wrap items-center justify-between gap-4">
@@ -474,7 +488,7 @@ const categorySlug = post.categories?.[0]?.slug || 'general';
       });
     }
 
-    // 2. Lightbox Gallery Viewer
+    // 2. Interactive Lightbox Viewer (Featured Image & Event Photo Gallery)
     const modal = document.getElementById('lightbox-modal');
     const modalImg = document.getElementById('lightbox-img') as HTMLImageElement | null;
     const modalCaption = document.getElementById('lightbox-caption');
@@ -482,22 +496,47 @@ const categorySlug = post.categories?.[0]?.slug || 'general';
     const prevBtn = document.getElementById('lightbox-prev');
     const nextBtn = document.getElementById('lightbox-next');
 
+    const featuredZoom = document.getElementById('featured-image-zoom');
     const thumbButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('.gallery-thumbnail'));
+
+    interface LightboxItem {
+      url: string;
+      alt: string;
+    }
+
+    const items: LightboxItem[] = [];
+
+    // Add featured image as item 0
+    if (featuredZoom) {
+      items.push({
+        url: (featuredZoom as HTMLImageElement).getAttribute('data-full') || (featuredZoom as HTMLImageElement).src,
+        alt: (featuredZoom as HTMLImageElement).getAttribute('data-alt') || 'ภาพหน้าปกบทความ',
+      });
+    }
+
+    // Add gallery images
+    thumbButtons.forEach((btn) => {
+      items.push({
+        url: btn.getAttribute('data-full') || '',
+        alt: btn.getAttribute('data-alt') || '',
+      });
+    });
+
     let currentIndex = 0;
 
     function openLightbox(index: number) {
-      if (!modal || !modalImg || thumbButtons.length === 0) return;
-      currentIndex = index;
-      const targetBtn = thumbButtons[currentIndex];
-      const fullUrl = targetBtn.getAttribute('data-full') || '';
-      const alt = targetBtn.getAttribute('data-alt') || '';
-      const total = thumbButtons.length;
+      if (!modal || !modalImg || items.length === 0) return;
+      currentIndex = Math.max(0, Math.min(index, items.length - 1));
+      const currentItem = items[currentIndex];
 
-      modalImg.src = fullUrl;
-      modalImg.alt = alt;
+      modalImg.src = currentItem.url;
+      modalImg.alt = currentItem.alt;
       if (modalCaption) {
-        modalCaption.textContent = `${currentIndex + 1} / ${total} - ${alt}`;
+        modalCaption.textContent = `${currentIndex + 1} / ${items.length} — ${currentItem.alt}`;
       }
+
+      if (prevBtn) prevBtn.style.display = items.length > 1 ? 'flex' : 'none';
+      if (nextBtn) nextBtn.style.display = items.length > 1 ? 'flex' : 'none';
 
       modal.classList.remove('hidden');
       modal.classList.add('flex');
@@ -512,36 +551,25 @@ const categorySlug = post.categories?.[0]?.slug || 'general';
     }
 
     function showNext() {
-      if (thumbButtons.length === 0) return;
-      const nextIdx = (currentIndex + 1) % thumbButtons.length;
+      if (items.length <= 1) return;
+      const nextIdx = (currentIndex + 1) % items.length;
       openLightbox(nextIdx);
     }
 
     function showPrev() {
-      if (thumbButtons.length === 0) return;
-      const prevIdx = (currentIndex - 1 + thumbButtons.length) % thumbButtons.length;
+      if (items.length <= 1) return;
+      const prevIdx = (currentIndex - 1 + items.length) % items.length;
       openLightbox(prevIdx);
     }
 
-    thumbButtons.forEach((btn, idx) => {
-      btn.addEventListener('click', () => openLightbox(idx));
-    });
+    // Featured image click -> open at 0
+    featuredZoom?.addEventListener('click', () => openLightbox(0));
 
-    // Also zoom featured image if clicked
-    const featuredZoom = document.getElementById('featured-image-zoom');
-    if (featuredZoom && thumbButtons.length === 0) {
-      featuredZoom.addEventListener('click', () => {
-        if (!modal || !modalImg) return;
-        modalImg.src = (featuredZoom as HTMLImageElement).src;
-        modalImg.alt = (featuredZoom as HTMLImageElement).alt;
-        if (modalCaption) modalCaption.textContent = modalImg.alt;
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        if (prevBtn) prevBtn.style.display = 'none';
-        if (nextBtn) nextBtn.style.display = 'none';
-        document.body.style.overflow = 'hidden';
-      });
-    }
+    // Gallery thumbnail clicks -> open at their corresponding index
+    thumbButtons.forEach((btn, idx) => {
+      const targetIndex = featuredZoom ? idx + 1 : idx;
+      btn.addEventListener('click', () => openLightbox(targetIndex));
+    });
 
     closeBtn?.addEventListener('click', closeLightbox);
     nextBtn?.addEventListener('click', showNext);
