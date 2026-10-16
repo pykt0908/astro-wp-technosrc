@@ -22,6 +22,10 @@ class Project_Core_Post_Types {
         add_action('admin_enqueue_scripts', array($this, 'enqueue_banner_list_scripts'));
         add_action('admin_footer', array($this, 'render_banner_reorder_script'));
         add_action('wp_ajax_project_core_reorder_banners', array($this, 'ajax_reorder_banners'));
+
+        // College Events Admin Filters
+        add_action('restrict_manage_posts', array($this, 'filter_events_by_category'), 10, 2);
+        add_action('pre_get_posts', array($this, 'admin_event_filter_query'));
     }
 
     /**
@@ -150,7 +154,7 @@ class Project_Core_Post_Types {
             'labels'            => $event_cat_labels,
             'show_ui'           => true,
             'show_admin_column' => true,
-            'query_var'         => false,
+            'query_var'         => true,
             'rewrite'           => false,
             'show_in_rest'      => true,
             'rest_base'         => 'event-categories',
@@ -474,5 +478,48 @@ class Project_Core_Post_Types {
         }
 
         wp_send_json_success(array('message' => 'Reordered successfully'));
+    }
+
+    /**
+     * Add category dropdown filter above College Events admin list
+     */
+    public function filter_events_by_category($post_type, $which) {
+        if ($post_type !== 'college_event' || $which !== 'top') {
+            return;
+        }
+
+        $selected = isset($_GET['event_category']) ? sanitize_text_field($_GET['event_category']) : '';
+
+        wp_dropdown_categories(array(
+            'show_option_all' => __('— หมวดหมู่กิจกรรมทั้งหมด —', 'project-core'),
+            'taxonomy'        => 'event_category',
+            'name'            => 'event_category',
+            'orderby'         => 'name',
+            'selected'        => $selected,
+            'hierarchical'    => true,
+            'depth'           => 3,
+            'show_count'      => true,
+            'hide_empty'      => false,
+            'value_field'     => 'slug',
+        ));
+    }
+
+    /**
+     * Filter College Events by taxonomy in admin query
+     */
+    public function admin_event_filter_query($query) {
+        global $pagenow;
+        if (is_admin() && $pagenow === 'edit.php' && $query->is_main_query() && $query->get('post_type') === 'college_event') {
+            if (isset($_GET['event_category']) && !empty($_GET['event_category']) && $_GET['event_category'] !== '0') {
+                $slug = sanitize_text_field($_GET['event_category']);
+                $query->set('tax_query', array(
+                    array(
+                        'taxonomy' => 'event_category',
+                        'field'    => 'slug',
+                        'terms'    => $slug,
+                    ),
+                ));
+            }
+        }
     }
 }
