@@ -194,11 +194,6 @@ const categorySlug = post.categories?.[0]?.slug || 'general';
               <span>คลิกเพื่อดูภาพขนาดเต็ม</span>
             </div>
           </div>
-          {post.coverAlt && (
-            <figcaption class="mt-2.5 text-center text-xs text-slate-400">
-              {post.coverAlt}
-            </figcaption>
-          )}
 
           <!-- Event Photo Strip (Directly below Feature Image, no title header, 4 slots with +N overlay) -->
           {post.gallery && post.gallery.length > 0 && (
