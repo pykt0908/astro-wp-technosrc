@@ -48,30 +48,29 @@ function isItemActive(item: NavItem) {
 ---
 
 <header class="sticky top-0 z-50 w-full bg-white shadow-xs">
-  <!-- Top Bar: Website Institutional Deep Navy Bar -->
+  <!-- 1. Top Bar: Website Institutional Deep Navy Bar (#002D72) -->
   <div class="bg-[#002D72] text-white text-xs border-b border-blue-900/80">
-    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-10 flex items-center justify-between gap-4">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-9 sm:h-10 flex items-center justify-between gap-3 sm:gap-4">
       
       <!-- Left: Phone Contact (No 'ชำระเงิน' as requested) -->
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
         <a href="tel:038123456" class="flex items-center gap-1.5 text-blue-100 hover:text-white transition-colors">
-          <!-- Mobile Phone Icon -->
-          <svg class="w-3.5 h-3.5 text-sky-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="w-3.5 h-3.5 text-sky-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
           </svg>
-          <span class="text-blue-200">โทรติดต่อ</span>
+          <span class="text-blue-200 hidden xs:inline">โทรติดต่อ</span>
           <strong class="font-bold text-white tracking-wide">038-123-456</strong>
         </a>
       </div>
 
-      <!-- Right: Desktop (Search Input + Operating Hours + Line Badge) -->
-      <div class="hidden md:flex items-center gap-4 lg:gap-6">
+      <!-- Right Desktop (>= lg: 1024px): Search Box + Operating Hours + Line Badge -->
+      <div class="hidden lg:flex items-center gap-4 xl:gap-6">
         <!-- Top Search Box -->
         <div class="relative">
           <input
             type="text"
             placeholder="ค้นหาหลักสูตร, ข่าวสาร, บทความ..."
-            class="w-60 lg:w-72 bg-white text-slate-800 placeholder-slate-400 text-xs rounded-md pl-3 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-400 shadow-xs"
+            class="w-56 xl:w-72 bg-white text-slate-800 placeholder-slate-400 text-xs rounded-md pl-3 pr-8 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-400 shadow-xs"
           />
           <button type="button" aria-label="Search" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#0047BA]">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -81,7 +80,7 @@ function isItemActive(item: NavItem) {
         </div>
 
         <!-- Operating Hours -->
-        <div class="flex items-center gap-1.5 text-blue-100 text-xs">
+        <div class="flex items-center gap-1.5 text-blue-100 text-xs shrink-0">
           <svg class="w-3.5 h-3.5 text-sky-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
@@ -93,9 +92,8 @@ function isItemActive(item: NavItem) {
           href="https://line.me"
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center gap-1.5 bg-[#06C755] hover:bg-[#05b34c] text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-xs transition-colors"
+          class="inline-flex items-center gap-1.5 bg-[#06C755] hover:bg-[#05b34c] text-white text-[11px] font-bold px-2.5 py-1 rounded-full shadow-xs transition-colors shrink-0"
         >
-          <!-- Line Chat Icon -->
           <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
             <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.477.254l2.484 3.374V8.108c0-.345.282-.63.628-.63.349 0 .628.285.628.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314" />
           </svg>
@@ -103,8 +101,8 @@ function isItemActive(item: NavItem) {
         </a>
       </div>
 
-      <!-- Right: Mobile compact Line badge -->
-      <div class="flex md:hidden items-center gap-2">
+      <!-- Right Mobile/Tablet (< lg: 1024px): Compact Line Badge -->
+      <div class="flex lg:hidden items-center gap-2 shrink-0">
         <a
           href="https://line.me"
           target="_blank"
@@ -121,13 +119,13 @@ function isItemActive(item: NavItem) {
     </div>
   </div>
 
-  <!-- Main Navbar: Clean White Bar -->
+  <!-- 2. Main Navbar: Clean White Bar -->
   <div class="border-b border-slate-200">
-    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-3 sm:gap-4">
       
-      <!-- Brand Logo & Title -->
-      <a href="/" class="flex items-center gap-2.5 sm:gap-3 group focus:outline-none shrink-0 min-w-0">
-        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+      <!-- Brand Logo & Title (Responsive: Shrinks gracefully, never causes overflow) -->
+      <a href="/" class="flex items-center gap-2.5 sm:gap-3 group focus:outline-none min-w-0 flex-1 sm:flex-initial">
+        <div class="w-10 h-10 sm:w-11 lg:w-12 sm:h-11 lg:h-12 rounded-full overflow-hidden flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
           <img
             src="/logo/LOGO_SERIRACHA_COLOR_FULL.png"
             alt="วิทยาลัยเทคโนโลยีศรีราชา"
@@ -139,14 +137,14 @@ function isItemActive(item: NavItem) {
           <span class="text-sm sm:text-base lg:text-lg font-bold text-slate-900 group-hover:text-[#0047BA] transition-colors leading-tight truncate">
             วิทยาลัยเทคโนโลยีศรีราชา
           </span>
-          <span class="text-[11px] sm:text-xs uppercase tracking-wider text-slate-500 font-medium leading-tight mt-0.5 hidden sm:block">
+          <span class="text-[10px] sm:text-xs uppercase tracking-wider text-slate-500 font-medium leading-tight mt-0.5 hidden sm:block truncate">
             SRIRACHA TECHNOLOGICAL COLLEGE
           </span>
         </div>
       </a>
 
-      <!-- Desktop Nav Items -->
-      <nav class="hidden lg:flex items-center gap-6 xl:gap-8 text-sm font-semibold text-slate-800">
+      <!-- Desktop Nav Items: Displayed on >= xl (1280px) to guarantee zero crowding or wrapping -->
+      <nav class="hidden xl:flex items-center gap-5 2xl:gap-7 text-sm font-semibold text-slate-800">
         {navItems.map((item) => {
           const active = isItemActive(item);
           const hasChildren = item.children && item.children.length > 0;
@@ -186,20 +184,20 @@ function isItemActive(item: NavItem) {
         })}
       </nav>
 
-      <!-- Right Controls: Search Icon, Moon Icon, TH Language, CTA Button -->
-      <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-        <!-- Search Button (Desktop & Tablet only, mobile has it in dropdown) -->
+      <!-- Right Controls: Tools, CTA button, and Mobile Hamburger -->
+      <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
+        <!-- Search Button (Desktop >= xl only, since Top Bar has search box) -->
         <button
           type="button"
           aria-label="Search"
-          class="hidden md:flex w-9 h-9 sm:w-10 sm:h-10 rounded-xl border border-slate-200 items-center justify-center text-slate-600 hover:text-[#0047BA] hover:border-slate-300 hover:bg-slate-50 transition-colors shadow-xs"
+          class="hidden xl:flex w-9 h-9 sm:w-10 sm:h-10 rounded-xl border border-slate-200 items-center justify-center text-slate-600 hover:text-[#0047BA] hover:border-slate-300 hover:bg-slate-50 transition-colors shadow-xs"
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </button>
 
-        <!-- Moon Toggle Button (Desktop & Tablet only) -->
+        <!-- Moon Toggle Button (Desktop & Tablet >= md) -->
         <button
           type="button"
           aria-label="Toggle Theme"
@@ -210,13 +208,12 @@ function isItemActive(item: NavItem) {
           </svg>
         </button>
 
-        <!-- Language Selector Button (Desktop & Tablet only) -->
+        <!-- Language Selector Button (Desktop & Tablet >= md) -->
         <div class="hidden md:block relative group/lang">
           <button
             type="button"
             class="h-9 sm:h-10 px-2.5 sm:px-3 rounded-xl border border-slate-200 flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#0047BA] hover:border-slate-300 hover:bg-slate-50 transition-colors shadow-xs"
           >
-            <!-- Globe Icon -->
             <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
             </svg>
@@ -228,18 +225,19 @@ function isItemActive(item: NavItem) {
         </div>
 
         <!-- Website Royal Blue CTA Button: 'สอบถามบริการ' -->
+        <!-- Shown on sm: and up (hidden on tiny mobile screens to avoid cramming; mobile has it inside drawer) -->
         <a
           href="/contact/"
-          class="h-9 sm:h-10 px-3 sm:px-5 rounded-xl bg-[#0047BA] hover:bg-[#003893] active:bg-[#002D72] text-white text-xs sm:text-sm font-bold shadow-md shadow-blue-700/25 transition-all duration-200 hover:-translate-y-0.5 inline-flex items-center justify-center whitespace-nowrap"
+          class="hidden sm:inline-flex h-9 sm:h-10 px-3.5 sm:px-5 rounded-xl bg-[#0047BA] hover:bg-[#003893] active:bg-[#002D72] text-white text-xs sm:text-sm font-bold shadow-md shadow-blue-700/25 transition-all duration-200 hover:-translate-y-0.5 items-center justify-center whitespace-nowrap"
         >
           สอบถามบริการ
         </a>
 
-        <!-- Mobile Menu Toggle Button -->
+        <!-- Mobile / Tablet Hamburger Toggle Button (Active on < xl screens) -->
         <button
           id="mobile-menu-btn"
           type="button"
-          class="lg:hidden p-2 rounded-xl text-slate-700 hover:text-[#0047BA] hover:bg-slate-100 focus:outline-none"
+          class="xl:hidden w-10 h-10 rounded-xl text-slate-700 hover:text-[#0047BA] hover:bg-slate-100 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[#0047BA]/30 transition-colors"
           aria-label="Toggle navigation menu"
           aria-expanded="false"
         >
@@ -255,24 +253,39 @@ function isItemActive(item: NavItem) {
     </div>
   </div>
 
-  <!-- Mobile Dropdown Menu -->
-  <div id="mobile-menu" class="hidden lg:hidden bg-white border-b border-slate-200 px-4 py-4 space-y-2 shadow-lg">
-    <!-- Mobile Search -->
-    <div class="relative mb-3">
+  <!-- 3. Mobile / Tablet Dropdown Menu Drawer (Visible on < xl when opened) -->
+  <div
+    id="mobile-menu"
+    class="hidden xl:hidden bg-white border-b border-slate-200 px-4 py-4 space-y-3 shadow-2xl max-h-[calc(100dvh-4.5rem)] overflow-y-auto overscroll-contain transition-all"
+    style="display: none;"
+  >
+    <!-- Top Action in Drawer: Prominent CTA Button on Mobile -->
+    <a
+      href="/contact/"
+      class="sm:hidden w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#0047BA] hover:bg-[#003893] text-white text-sm font-bold shadow-md shadow-blue-700/25 transition-colors mb-2"
+    >
+      <span>สอบถามบริการ / สมัครเรียน</span>
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+      </svg>
+    </a>
+
+    <!-- Mobile Quick Search -->
+    <div class="relative mb-2">
       <input
         type="text"
-        placeholder="ค้นหาหลักสูตร, ข่าวสาร..."
-        class="w-full bg-slate-50 text-slate-800 placeholder-slate-400 text-xs rounded-lg pl-3 pr-8 py-2 border border-slate-200"
+        placeholder="ค้นหาหลักสูตร, ข่าวสาร, บทความ..."
+        class="w-full bg-slate-50 text-slate-800 placeholder-slate-400 text-xs rounded-xl pl-3.5 pr-9 py-2.5 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0047BA]/20 focus:border-[#0047BA]"
       />
-      <button type="button" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400">
+      <button type="button" aria-label="Search" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#0047BA]">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
       </button>
     </div>
 
-    <!-- Mobile Quick Tools: Theme & Language -->
-    <div class="flex items-center gap-2 mb-3">
+    <!-- Mobile Quick Tools: Theme & Language (< md) -->
+    <div class="flex md:hidden items-center gap-2 mb-2">
       <button
         type="button"
         class="flex-1 py-2 px-3 rounded-xl border border-slate-200 flex items-center justify-center gap-2 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 transition-colors"
@@ -280,7 +293,7 @@ function isItemActive(item: NavItem) {
         <svg class="w-4 h-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
         </svg>
-        <span>สลับโหมดการแสดงผล</span>
+        <span>โหมดมืด (Dark)</span>
       </button>
       <button
         type="button"
@@ -293,15 +306,15 @@ function isItemActive(item: NavItem) {
       </button>
     </div>
 
-    <!-- Navigation List with Native Smooth Collapsible Dropdowns -->
-    <div class="space-y-1">
+    <!-- Navigation List with Native Collapsible Accordions -->
+    <nav class="space-y-1" aria-label="Mobile Navigation">
       {navItems.map((item) => {
         const active = isItemActive(item);
         const hasChildren = item.children && item.children.length > 0;
 
         if (hasChildren) {
           return (
-            <details class="group/acc rounded-xl overflow-hidden">
+            <details class="group/acc rounded-xl overflow-hidden border border-slate-100">
               <summary class={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-colors cursor-pointer select-none list-none ${
                 active ? 'text-[#0047BA] bg-blue-50/70 font-bold' : 'text-slate-800 hover:text-[#0047BA] hover:bg-slate-50'
               }`}>
@@ -310,7 +323,7 @@ function isItemActive(item: NavItem) {
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
               </summary>
-              <div class="pl-4 pr-2 py-1.5 space-y-1 bg-slate-50/50 rounded-b-xl">
+              <div class="pl-4 pr-2 py-1.5 space-y-1 bg-slate-50/60 rounded-b-xl border-t border-slate-100">
                 {item.children?.map((sub) => (
                   <a
                     href={sub.href}
@@ -335,7 +348,7 @@ function isItemActive(item: NavItem) {
           </a>
         );
       })}
-    </div>
+    </nav>
 
     <!-- Mobile Contact & Hours Info -->
     <div class="pt-3 border-t border-slate-100 flex flex-col gap-2 text-xs text-slate-600">
@@ -347,39 +360,77 @@ function isItemActive(item: NavItem) {
         <span class="text-slate-500">เวลาทำการ:</span>
         <span>จ.-ศ. 8:30-16:30 น.</span>
       </div>
-      <a
-        href="/contact/"
-        class="w-full text-center mt-2 py-2.5 rounded-xl bg-[#0047BA] hover:bg-[#003893] text-white text-xs font-bold shadow-md shadow-blue-700/20"
-      >
-        สอบถามบริการ
-      </a>
     </div>
   </div>
 </header>
 
 <script>
   function setupMobileMenu() {
-    const btn = document.getElementById('mobile-menu-btn');
-    const menu = document.getElementById('mobile-menu');
-    const menuIcon = document.getElementById('menu-icon');
-    const closeIcon = document.getElementById('close-icon');
+    const btn = document.getElementById('mobile-menu-btn') as HTMLElement | null;
+    const menu = document.getElementById('mobile-menu') as HTMLElement | null;
+    const menuIcon = document.getElementById('menu-icon') as HTMLElement | null;
+    const closeIcon = document.getElementById('close-icon') as HTMLElement | null;
 
-    if (btn && menu && menuIcon && closeIcon) {
-      btn.onclick = () => {
-        const isOpen = !menu.classList.contains('hidden');
-        if (isOpen) {
-          menu.classList.add('hidden');
-          menuIcon.classList.remove('hidden');
-          closeIcon.classList.add('hidden');
-          btn.setAttribute('aria-expanded', 'false');
-        } else {
-          menu.classList.remove('hidden');
-          menuIcon.classList.add('hidden');
-          closeIcon.classList.remove('hidden');
-          btn.setAttribute('aria-expanded', 'true');
-        }
-      };
+    if (!btn || !menu || !menuIcon || !closeIcon) return;
+
+    const navMenu = menu;
+    const navBtn = btn;
+    const navMenuIcon = menuIcon;
+    const navCloseIcon = closeIcon;
+
+    function openMenu() {
+      navMenu.style.display = 'block';
+      navMenu.classList.remove('hidden');
+      navMenuIcon.classList.add('hidden');
+      navCloseIcon.classList.remove('hidden');
+      navBtn.setAttribute('aria-expanded', 'true');
+      document.body.classList.add('overflow-hidden', 'xl:overflow-auto');
     }
+
+    function closeMenu() {
+      navMenu.style.display = 'none';
+      navMenu.classList.add('hidden');
+      navMenuIcon.classList.remove('hidden');
+      navCloseIcon.classList.add('hidden');
+      navBtn.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('overflow-hidden', 'xl:overflow-auto');
+    }
+
+    // Always reset to closed state on initial load or route transition
+    closeMenu();
+
+    // Toggle click handler
+    navBtn.onclick = (e) => {
+      e.stopPropagation();
+      const isClosed = navMenu.classList.contains('hidden') || navMenu.style.display === 'none';
+      if (isClosed) {
+        openMenu();
+      } else {
+        closeMenu();
+      }
+    };
+
+    // Close when clicking any link inside the menu
+    navMenu.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        closeMenu();
+      });
+    });
+
+    // Close on click outside
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      if (!navBtn.contains(target) && !navMenu.contains(target)) {
+        closeMenu();
+      }
+    });
+
+    // Close on ESC key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeMenu();
+      }
+    });
   }
 
   setupMobileMenu();
