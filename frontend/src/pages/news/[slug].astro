@@ -1,7 +1,6 @@
 ---
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import NewsCard from '../../components/NewsCard.astro';
 import { getAllPublishedPosts, getCategories } from '../../lib/wordpress';
 import type { Post, Category } from '../../types/wordpress';
 
@@ -12,11 +11,6 @@ export const getStaticPaths = (async () => {
   ]);
 
   return allPosts.map((post) => {
-    // Find up to 3 related posts for the bottom section
-    const relatedPosts = allPosts
-      .filter((p) => p.id !== post.id)
-      .slice(0, 3);
-
     // Latest 4 posts for sidebar
     const latestPosts = allPosts
       .filter((p) => p.id !== post.id)
@@ -24,19 +18,18 @@ export const getStaticPaths = (async () => {
 
     return {
       params: { slug: post.slug },
-      props: { post, relatedPosts, latestPosts, categories },
+      props: { post, latestPosts, categories },
     };
   });
 }) satisfies GetStaticPaths;
 
 interface Props {
   post: Post;
-  relatedPosts: Post[];
   latestPosts: Post[];
   categories: Category[];
 }
 
-const { post, relatedPosts = [], latestPosts = [], categories = [] } = Astro.props;
+const { post, latestPosts = [], categories = [] } = Astro.props;
 
 // Date formatting in Thai
 const dateObj = new Date(post.publishedAt);
@@ -388,35 +381,6 @@ const categorySlug = post.categories?.[0]?.slug || 'general';
         </div>
       </aside>
     </div>
-
-    <!-- Related Articles Section (Full 1440px Container) -->
-    {relatedPosts.length > 0 && (
-      <section class="mt-16 pt-12 border-t border-slate-200">
-        <div class="flex items-center justify-between mb-8">
-          <div>
-            <h2 class="text-xl sm:text-2xl font-bold text-slate-900">
-              ข่าวสารอื่นๆ ที่เกี่ยวข้อง
-            </h2>
-            <p class="text-xs sm:text-sm text-slate-500 mt-1">
-              ติดตามกิจกรรมและประกาศที่น่าสนใจเพิ่มเติม
-            </p>
-          </div>
-          <a
-            href="/news/"
-            class="text-xs sm:text-sm font-semibold text-[#0047BA] hover:text-[#002D72] transition-colors flex items-center gap-1"
-          >
-            <span>ดูทั้งหมด</span>
-            <span>&rarr;</span>
-          </a>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {relatedPosts.map((related) => (
-            <NewsCard post={related} />
-          ))}
-        </div>
-      </section>
-    )}
   </div>
 
   <!-- Interactive Lightbox Modal for Photo Gallery -->
