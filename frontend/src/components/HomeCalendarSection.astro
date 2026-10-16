@@ -109,44 +109,59 @@ function getThaiDateParts(startDateStr: string, endDateStr?: string) {
   };
 }
 
-// Color badges configuration
-const COLOR_CONFIG: Record<string, { bg: string; text: string; border: string; dot: string; bar: string }> = {
-  blue: {
-    bg: 'bg-blue-50',
-    text: 'text-blue-700',
-    border: 'border-blue-200/70',
-    dot: 'bg-blue-600',
-    bar: 'bg-blue-600',
-  },
-  emerald: {
-    bg: 'bg-emerald-50',
-    text: 'text-emerald-700',
-    border: 'border-emerald-200/70',
-    dot: 'bg-emerald-600',
-    bar: 'bg-emerald-600',
-  },
-  amber: {
-    bg: 'bg-amber-50',
-    text: 'text-amber-800',
-    border: 'border-amber-200/70',
-    dot: 'bg-amber-500',
-    bar: 'bg-amber-500',
-  },
-  rose: {
-    bg: 'bg-rose-50',
-    text: 'text-rose-700',
-    border: 'border-rose-200/70',
-    dot: 'bg-rose-600',
-    bar: 'bg-rose-600',
-  },
-  purple: {
-    bg: 'bg-purple-50',
-    text: 'text-purple-700',
-    border: 'border-purple-200/70',
-    dot: 'bg-purple-600',
-    bar: 'bg-purple-600',
-  },
+
+
+const COLOR_NAME_TO_HEX: Record<string, string> = {
+  blue: '#0047BA',
+  emerald: '#059669',
+  green: '#059669',
+  amber: '#d97706',
+  yellow: '#d97706',
+  orange: '#d97706',
+  rose: '#e11d48',
+  red: '#e11d48',
+  purple: '#7c3aed',
 };
+
+function resolveColorHex(color?: string): string {
+  if (!color) return '#0047BA';
+  const c = color.trim().toLowerCase();
+  if (COLOR_NAME_TO_HEX[c]) return COLOR_NAME_TO_HEX[c];
+  if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(c)) return c;
+  return '#0047BA';
+}
+
+function hexToPresetName(hexOrName?: string): 'blue' | 'emerald' | 'amber' | 'rose' | 'purple' {
+  if (!hexOrName) return 'blue';
+  const c = hexOrName.trim().toLowerCase();
+  if (c === 'emerald' || c === 'green' || c === '#059669' || c === '#10b981' || c === '#16a34a') return 'emerald';
+  if (c === 'amber' || c === 'yellow' || c === 'orange' || c === '#d97706' || c === '#f59e0b' || c === '#ea580c') return 'amber';
+  if (c === 'rose' || c === 'red' || c === '#e11d48' || c === '#f43f5e' || c === '#ef4444' || c === '#dc2626') return 'rose';
+  if (c === 'purple' || c === '#7c3aed' || c === '#8b5cf6' || c === '#9333ea') return 'purple';
+  return 'blue';
+}
+
+function hexToSoftBg(hex: string): string {
+  const clean = hex.replace('#', '');
+  if (clean.length === 6) {
+    const r = parseInt(clean.substring(0, 2), 16);
+    const g = parseInt(clean.substring(2, 4), 16);
+    const b = parseInt(clean.substring(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, 0.08)`;
+  }
+  return 'rgba(0, 71, 186, 0.08)';
+}
+
+function hexToBorder(hex: string): string {
+  const clean = hex.replace('#', '');
+  if (clean.length === 6) {
+    const r = parseInt(clean.substring(0, 2), 16);
+    const g = parseInt(clean.substring(2, 4), 16);
+    const b = parseInt(clean.substring(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, 0.28)`;
+  }
+  return 'rgba(0, 71, 186, 0.28)';
+}
 
 // Clean categories
 const displayCategories = categories.length > 0 ? categories : [
@@ -159,7 +174,10 @@ const displayCategories = categories.length > 0 ? categories : [
 // Serialize events for client-side calendar filtering
 const serializedEvents = events.map((ev) => {
   const parts = getThaiDateParts(ev.startDate, ev.endDate);
-  const colorKey = ev.color && COLOR_CONFIG[ev.color] ? ev.color : 'blue';
+  const primaryCatColor = ev.categories && ev.categories[0]?.color;
+  const rawColor = (ev.color && ev.color !== 'auto' ? ev.color : null) || primaryCatColor || ev.color || 'blue';
+  const hex = resolveColorHex(rawColor);
+  const presetKey = hexToPresetName(hex);
   return {
     id: ev.id,
     title: ev.title,
@@ -175,7 +193,8 @@ const serializedEvents = events.map((ev) => {
     organizer: ev.organizer,
     link: ev.link,
     attachmentUrl: ev.attachmentUrl,
-    color: colorKey,
+    color: hex,
+    presetColor: presetKey,
     isFeatured: ev.isFeatured,
     thumbnail: ev.thumbnail,
     categories: ev.categories || [],
@@ -283,15 +302,19 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
           ทั้งหมด
         </button>
 
-        {displayCategories.map((cat) => (
-          <button
-            type="button"
-            class="calendar-category-btn px-3.5 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer focus:outline-none"
-            data-cat-slug={cat.slug}
-          >
-            {cat.name}
-          </button>
-        ))}
+        {displayCategories.map((cat) => {
+          const hex = resolveColorHex(cat.color);
+          return (
+            <button
+              type="button"
+              class="calendar-category-btn px-3.5 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer focus:outline-none inline-flex items-center gap-1.5"
+              data-cat-slug={cat.slug}
+            >
+              <span class="w-2 h-2 rounded-full inline-block shrink-0" style={`background-color: ${hex};`}></span>
+              <span>{cat.name}</span>
+            </button>
+          );
+        })}
 
         <!-- Reset Filter indicator if date selected -->
         <button
@@ -404,10 +427,11 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
           <!-- Color Legend (Dynamic from categories) -->
           <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] text-slate-600 font-medium">
             {displayCategories.map((cat) => {
-              const conf = COLOR_CONFIG[cat.color || 'blue'] || COLOR_CONFIG.blue;
+              const hex = resolveColorHex(cat.color);
               return (
                 <span class="flex items-center gap-1.5">
-                  <span class={`w-2 h-2 rounded-full ${conf.dot}`}></span> {cat.name}
+                  <span class="w-2.5 h-2.5 rounded-full inline-block shrink-0 shadow-xs" style={`background-color: ${hex};`}></span>
+                  <span class="text-slate-700 font-medium">{cat.name}</span>
                 </span>
               );
             })}
@@ -442,7 +466,9 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
         <!-- Events Cards Container -->
         <div id="calendar-events-list" class="flex flex-col gap-3.5">
           {serializedEvents.map((ev) => {
-            const conf = COLOR_CONFIG[ev.color] || COLOR_CONFIG.blue;
+            const hex = ev.color;
+            const softBg = hexToSoftBg(hex);
+            const borderHex = hexToBorder(hex);
             const matchesInitialMonth = eventMatchesMonth(ev.startDate, ev.endDate, initialYear, initialMonth);
             return (
               <article
@@ -462,8 +488,8 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
               >
                 <!-- Date Box (Left on tablet/desktop) -->
                 <div class="w-full sm:w-32 sm:min-w-[128px] bg-slate-50/80 p-3.5 sm:p-4 border-b sm:border-b-0 sm:border-r border-slate-100 flex sm:flex-col items-center justify-between sm:justify-center text-center relative">
-                  <!-- Colored Accent Bar -->
-                  <div class={`absolute top-0 left-0 right-0 h-1 sm:h-1.5 ${conf.bar}`}></div>
+                  <!-- Colored Accent Bar with real event/category color -->
+                  <div class="absolute top-0 left-0 right-0 h-1 sm:h-1.5" style={`background-color: ${hex};`}></div>
                   
                   <span class="text-xs sm:text-xs font-bold text-slate-500 uppercase tracking-wide">
                     {ev.dateParts.monthText}
@@ -482,7 +508,10 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
                     <!-- Top Category & Featured Tag -->
                     <div class="flex flex-wrap items-center gap-2 mb-2">
                       {ev.categories.length > 0 && (
-                        <span class={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold ${conf.bg} ${conf.text} border ${conf.border}`}>
+                        <span
+                          class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold"
+                          style={`background-color: ${softBg}; color: ${hex}; border: 1px solid ${borderHex};`}
+                        >
                           {ev.categories[0].name}
                         </span>
                       )}
@@ -843,6 +872,34 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
     purple: '#7c3aed',
   };
 
+  function clientResolveHex(col) {
+    if (!col) return '#0047BA';
+    if (col.startsWith('#')) return col;
+    return COLOR_HEX_MAP[col] || '#0047BA';
+  }
+
+  function clientHexToSoftBg(hex) {
+    const clean = hex.replace('#', '');
+    if (clean.length === 6) {
+      const r = parseInt(clean.substring(0, 2), 16);
+      const g = parseInt(clean.substring(2, 4), 16);
+      const b = parseInt(clean.substring(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, 0.08)`;
+    }
+    return 'rgba(0, 71, 186, 0.08)';
+  }
+
+  function clientHexToBorder(hex) {
+    const clean = hex.replace('#', '');
+    if (clean.length === 6) {
+      const r = parseInt(clean.substring(0, 2), 16);
+      const g = parseInt(clean.substring(2, 4), 16);
+      const b = parseInt(clean.substring(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, 0.28)`;
+    }
+    return 'rgba(0, 71, 186, 0.28)';
+  }
+
   // Get map of date -> Set of unique colors for that date
   function getEventColorsInMonth(year, month) {
     const dateColorsMap = new Map();
@@ -862,7 +919,7 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
 
       const sDate = ev.startDate;
       const eDate = ev.endDate || ev.startDate;
-      const evColor = ev.color || 'blue';
+      const evColor = ev.color || '#0047BA';
 
       const totalDays = new Date(year, month + 1, 0).getDate();
       for (let day = 1; day <= totalDays; day++) {
@@ -949,7 +1006,7 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
         Array.from(colorsSet).slice(0, 3).forEach((col) => {
           const dot = document.createElement('span');
           dot.className = 'cal-color-dot';
-          const hex = COLOR_HEX_MAP[col] || (col && col.startsWith('#') ? col : '#0047BA');
+          const hex = clientResolveHex(col);
           dot.style.width = '6px';
           dot.style.height = '6px';
           dot.style.borderRadius = '50%';
@@ -1181,6 +1238,10 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
     if (modalCategoryBadge) {
       const catName = ev.categories && ev.categories.length > 0 ? ev.categories[0].name : 'กิจกรรมวิทยาลัย';
       modalCategoryBadge.textContent = catName;
+      const hex = clientResolveHex(ev.color);
+      modalCategoryBadge.style.backgroundColor = clientHexToSoftBg(hex);
+      modalCategoryBadge.style.color = hex;
+      modalCategoryBadge.style.borderColor = clientHexToBorder(hex);
     }
 
     if (modalDateText) {
