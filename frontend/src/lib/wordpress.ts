@@ -212,7 +212,7 @@ const LOCAL_MOCK_BANNERS: Banner[] = [
 ];
 
 const LOCAL_MOCK_SITE_SETTINGS: SiteSettings = {
-  siteName: 'SERIRACHA TECHNOLOGY COLLEGE',
+  siteName: 'Sriracha Technological College',
   siteTagline: 'Institutional Excellence & Innovation',
   logoUrl: '/logo/LOGO_SERIRACHA_COLOR_FULL.png',
   faviconUrl: '/favicon.svg',
@@ -228,7 +228,7 @@ const LOCAL_MOCK_SITE_SETTINGS: SiteSettings = {
     linkedin: '',
     github: '',
   },
-  footerCopyright: `© ${new Date().getFullYear()} วิทยาลัยเทคโนโลยีศรีราชา (SERIRACHA TECHNOLOGY COLLEGE). สงวนลิขสิทธิ์ทุกประการ.`,
+  footerCopyright: `© ${new Date().getFullYear()} วิทยาลัยเทคโนโลยีศรีราชา (Sriracha Technological College). สงวนลิขสิทธิ์ทุกประการ.`,
 };
 
 /**
