@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* LINE Seed Sans TH Font Declarations */
+/* LINE Seed Sans TH Font Declarations (Used for Main Headings & Navbar) */
 @font-face {
   font-family: 'LINE Seed Sans TH';
   src: url('/fonts/lineseed/LINESeedSansTH_W_Th.woff2') format('woff2');
@@ -41,6 +41,47 @@
   font-display: swap;
 }
 
+/* Google Sans & Noto Sans Thai Font Declarations (Used for Body text, content, and secondary elements) */
+@font-face {
+  font-family: 'Google Sans';
+  src: url('/fonts/googlesans/GoogleSansFlex-Latin.woff2') format('woff2'),
+       url('/fonts/googlesans/GoogleSans-Latin.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Google Sans';
+  src: url('/fonts/googlesans/GoogleSans-Thai.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0E00-0E7F;
+}
+
+@font-face {
+  font-family: 'Google Sans Thai';
+  src: url('/fonts/googlesans/GoogleSans-Thai.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Noto Sans Thai';
+  src: url('/fonts/googlesans/NotoSansThai.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-heading: 'LINE Seed Sans TH', system-ui, -apple-system, sans-serif;
+  --font-body: 'Google Sans', 'Google Sans Thai', 'Noto Sans Thai', 'LINE Seed Sans TH', system-ui, -apple-system, sans-serif;
+  --font-thai: 'Google Sans', 'Google Sans Thai', 'Noto Sans Thai', 'LINE Seed Sans TH', system-ui, -apple-system, sans-serif;
+}
+
 @layer base {
   :root {
     /* Sriracha Technology College Theme: White & Royal Blue */
@@ -48,11 +89,13 @@
     --color-primary-dark: 0 45 114;    /* #002D72 - Deep Navy */
     --color-primary-light: 37 99 235;  /* #2563EB - Accent Blue */
     --color-bg-light: 248 250 252;     /* #F8FAFC - Soft Ice White */
-    --font-thai: 'LINE Seed Sans TH', system-ui, -apple-system, sans-serif;
+    --font-heading: 'LINE Seed Sans TH', system-ui, -apple-system, sans-serif;
+    --font-body: 'Google Sans', 'Google Sans Thai', 'Noto Sans Thai', 'LINE Seed Sans TH', system-ui, -apple-system, sans-serif;
+    --font-thai: var(--font-body);
   }
 
   html {
-    font-family: var(--font-thai);
+    font-family: var(--font-body);
     font-size: 16px;
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
@@ -60,7 +103,7 @@
   }
 
   body {
-    font-family: var(--font-thai);
+    font-family: var(--font-body);
     font-size: 0.9375rem; /* 15px */
     line-height: 1.65;
     background-color: #f8fafc;
@@ -68,6 +111,31 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+  }
+
+  /* All secondary text, paragraphs, lists, forms, descriptions default to Google Sans */
+  p, span, li, a, label, input, textarea, select, button, figcaption, blockquote, time, td, th {
+    font-family: var(--font-body);
+  }
+
+  /* Main Headings (หัวข้อหลัก) keep LINE Seed Sans TH */
+  h1, h2, h3, h4, h5, h6,
+  h1 *, h2 *, h3 *, h4 *, h5 *, h6 *,
+  .font-heading,
+  .font-heading * {
+    font-family: var(--font-heading) !important;
+  }
+
+  /* Navbar, Topbar, and Navigation (เมนูนำทาง) keep LINE Seed Sans TH */
+  header,
+  header *,
+  nav,
+  nav *,
+  .site-header,
+  .site-header *,
+  .top-bar-nav,
+  .top-bar-nav * {
+    font-family: var(--font-heading) !important;
   }
 }
 
