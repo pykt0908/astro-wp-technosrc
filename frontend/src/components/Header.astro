@@ -154,11 +154,11 @@ function isItemActive(item: NavItem) {
 
               {hasChildren && (
                 <div class="absolute left-0 top-full pt-1 opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-200 pointer-events-none group-hover/menu:pointer-events-auto z-50">
-                  <div class="w-56 bg-white rounded-xl shadow-xl border border-slate-100 p-2 space-y-1">
+                  <div class="w-60 bg-white rounded-xl shadow-xl border border-slate-100 p-2 space-y-1">
                     {item.children?.map((sub) => (
                       <a
                         href={sub.href}
-                        class="block px-3.5 py-2 text-xs font-medium text-slate-700 hover:text-[#0047BA] hover:bg-blue-50/70 rounded-lg transition-colors"
+                        class="block px-4 py-2.5 text-sm font-semibold text-slate-700 hover:text-[#0047BA] hover:bg-blue-50/80 rounded-lg transition-colors"
                       >
                         {sub.label}
                       </a>
@@ -275,7 +275,7 @@ function isItemActive(item: NavItem) {
               {item.children?.map((sub) => (
                 <a
                   href={sub.href}
-                  class="block px-3 py-1.5 text-xs text-slate-600 hover:text-[#0047BA] rounded-md"
+                  class="block px-3 py-2 text-sm font-medium text-slate-700 hover:text-[#0047BA] hover:bg-blue-50/50 rounded-lg transition-colors"
                 >
                   • {sub.label}
                 </a>
