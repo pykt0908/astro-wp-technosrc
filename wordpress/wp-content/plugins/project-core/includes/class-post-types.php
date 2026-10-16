@@ -99,7 +99,7 @@ class Project_Core_Post_Types {
             'hierarchical'       => false,
             'menu_position'      => 21,
             'menu_icon'          => 'dashicons-calendar-alt',
-            'supports'           => array('title', 'editor', 'thumbnail'),
+            'supports'           => array('title', 'editor', 'excerpt', 'thumbnail'),
             'show_in_rest'       => true,
             'rest_base'          => 'events',
         );

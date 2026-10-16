@@ -881,6 +881,15 @@ class Project_Core_Custom_Fields {
                 update_post_meta($post_id, 'event_attachment_url', $attachment_url);
                 update_post_meta($post_id, 'event_color', $color);
                 update_post_meta($post_id, 'is_featured', $is_featured);
+
+                // If editor content is empty or only whitespace/empty tags, clear post_excerpt too
+                $current_content = get_post_field('post_content', $post_id);
+                $clean_cnt = trim(wp_strip_all_tags($current_content));
+                $clean_cnt = str_replace(array('&nbsp;', "\xc2\xa0"), '', $clean_cnt);
+                if (empty($clean_cnt)) {
+                    global $wpdb;
+                    $wpdb->update($wpdb->posts, array('post_excerpt' => ''), array('ID' => $post_id));
+                }
             }
         }
 

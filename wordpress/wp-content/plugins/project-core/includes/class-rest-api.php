@@ -453,12 +453,20 @@ class Project_Core_REST_API {
                     }
                 }
 
+                $raw_content = get_the_content();
+                $clean_content = trim(wp_strip_all_tags($raw_content));
+                $clean_content = str_replace(array('&nbsp;', "\xc2\xa0"), '', $clean_content);
+                $clean_content = trim($clean_content);
+
+                $final_content = !empty($clean_content) ? apply_filters('the_content', $raw_content) : '';
+                $final_excerpt = !empty($clean_content) ? wp_strip_all_tags(get_the_excerpt()) : '';
+
                 $events[] = array(
                     'id'             => $id,
                     'title'          => html_entity_decode(get_the_title()),
                     'slug'           => get_post_field('post_name', $id),
-                    'content'        => apply_filters('the_content', get_the_content()),
-                    'excerpt'        => wp_strip_all_tags(get_the_excerpt()),
+                    'content'        => $final_content,
+                    'excerpt'        => $final_excerpt,
                     'academic_year'  => $ay,
                     'start_date'     => (string) get_post_meta($id, 'event_start_date', true),
                     'end_date'       => (string) get_post_meta($id, 'event_end_date', true),

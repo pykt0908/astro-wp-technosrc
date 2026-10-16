@@ -666,18 +666,22 @@ export async function getCollegeEvents(category?: string, academicYear?: string)
     }
     const data = await res.json();
     const rawEvents = Array.isArray(data.events) ? data.events : (Array.isArray(data) ? data : []);
-    const result: CollegeEvent[] = rawEvents.map((ev: any) => ({
-      id: ev.id,
-      title: ev.title || '',
-      slug: ev.slug || '',
-      content: ev.content || '',
-      excerpt: ev.excerpt || '',
-      academicYear: String(ev.academic_year || ev.academicYear || '2569'),
-      startDate: ev.start_date || ev.startDate || '',
-      endDate: ev.end_date || ev.endDate || '',
-      time: ev.time || '',
-      location: ev.location || '',
-      note: ev.note || ev.event_note || '',
+    const result: CollegeEvent[] = rawEvents.map((ev: any) => {
+      const cleanContent = (ev.content || '').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+      const rawExcerpt = (ev.excerpt || '').replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+      const finalExcerpt = cleanContent.length === 0 ? '' : rawExcerpt;
+      return {
+        id: ev.id,
+        title: ev.title || '',
+        slug: ev.slug || '',
+        content: cleanContent.length === 0 ? '' : (ev.content || ''),
+        excerpt: finalExcerpt,
+        academicYear: String(ev.academic_year || ev.academicYear || '2569'),
+        startDate: ev.start_date || ev.startDate || '',
+        endDate: ev.end_date || ev.endDate || '',
+        time: ev.time || '',
+        location: ev.location || '',
+        note: ev.note || ev.event_note || '',
       organizer: ev.organizer || '',
       link: ev.link || '',
       attachmentUrl: ev.attachment_url || ev.attachmentUrl || '',
@@ -685,7 +689,8 @@ export async function getCollegeEvents(category?: string, academicYear?: string)
       isFeatured: !!ev.is_featured,
       thumbnail: ev.thumbnail || null,
       categories: Array.isArray(ev.categories) ? ev.categories : [],
-    }));
+    };
+  });
 
     if (result.length > 0) {
       setInCache(cacheKey, result);
