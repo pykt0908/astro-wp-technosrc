@@ -123,12 +123,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 </BaseLayout>
 
 <script>
-  const contactForm = document.getElementById('contact-form') as HTMLFormElement | null;
-  if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      alert('ขอบคุณสำหรับข้อความ เจ้าหน้าที่จะติดต่อกลับโดยเร็วที่สุด');
-      contactForm.reset();
-    });
+  function setupContactForm() {
+    const contactForm = document.getElementById('contact-form') as HTMLFormElement | null;
+    if (contactForm) {
+      contactForm.onsubmit = (e) => {
+        e.preventDefault();
+        alert('ขอบคุณสำหรับข้อความ เจ้าหน้าที่จะติดต่อกลับโดยเร็วที่สุด');
+        contactForm.reset();
+      };
+    }
   }
+
+  setupContactForm();
+  document.addEventListener('astro:page-load', setupContactForm);
 </script>

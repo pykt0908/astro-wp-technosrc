@@ -17,8 +17,24 @@ const WP_API_BASE_URL =
   process.env.WP_API_BASE_URL ||
   'http://localhost:8080/wp-json/wp/v2';
 const PROJECT_CORE_API_URL = WP_API_BASE_URL.replace(/\/wp\/v2\/?$/, '/project-core/v1');
-const FETCH_TIMEOUT_MS = 10000;
+const FETCH_TIMEOUT_MS = 6000;
 const IS_CI = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.CI === 'true') || process.env.CI === 'true';
+
+// In-memory cache to avoid repeated network calls during fast dev navigation
+const apiCache = new Map<string, { data: any; expiresAt: number }>();
+const CACHE_TTL_MS = 20000; // 20s TTL
+
+function getFromCache<T>(key: string): T | null {
+  const item = apiCache.get(key);
+  if (item && item.expiresAt > Date.now()) {
+    return item.data as T;
+  }
+  return null;
+}
+
+function setInCache<T>(key: string, data: T): void {
+  apiCache.set(key, { data, expiresAt: Date.now() + CACHE_TTL_MS });
+}
 
 // Fallback Mock Data for Local Development
 const LOCAL_MOCK_POSTS: Post[] = [
@@ -183,6 +199,10 @@ async function fetchWithTimeout(url: string): Promise<Response> {
  * Get paginated list of published posts
  */
 export async function getPublishedPosts(page = 1, perPage = 9): Promise<PaginatedPosts> {
+  const cacheKey = `posts_p${page}_pp${perPage}`;
+  const cached = getFromCache<PaginatedPosts>(cacheKey);
+  if (cached) return cached;
+
   const url = `${WP_API_BASE_URL.replace(/\/$/, '')}/posts?status=publish&_embed=1&page=${page}&per_page=${perPage}&orderby=date&order=desc`;
 
   try {
@@ -200,12 +220,14 @@ export async function getPublishedPosts(page = 1, perPage = 9): Promise<Paginate
     const rawPosts: WP_RawPost[] = await res.json();
 
     const posts = rawPosts.map(mapRawPostToPost);
-    return {
+    const result: PaginatedPosts = {
       posts,
       totalPosts: totalPosts || posts.length,
       totalPages: totalPages || 1,
       currentPage: page,
     };
+    setInCache(cacheKey, result);
+    return result;
   } catch (error) {
     console.warn(`[WordPress API] Unable to fetch posts at ${WP_API_BASE_URL}:`, error);
 
@@ -300,6 +322,10 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
  * Fetch categories
  */
 export async function getCategories(): Promise<Category[]> {
+  const cacheKey = 'categories_all';
+  const cached = getFromCache<Category[]>(cacheKey);
+  if (cached) return cached;
+
   const url = `${WP_API_BASE_URL.replace(/\/$/, '')}/categories?per_page=100&hide_empty=true`;
 
   try {
@@ -308,12 +334,14 @@ export async function getCategories(): Promise<Category[]> {
       return [];
     }
     const rawCategories: WP_RawCategory[] = await res.json();
-    return rawCategories.map((c) => ({
+    const result = rawCategories.map((c) => ({
       id: c.id,
       name: c.name,
       slug: c.slug,
       count: c.count,
     }));
+    setInCache(cacheKey, result);
+    return result;
   } catch (error) {
     console.warn('[WordPress API] Failed to fetch categories:', error);
     return [
@@ -327,6 +355,10 @@ export async function getCategories(): Promise<Category[]> {
  * Fetch active banners from custom project-core REST API endpoint
  */
 export async function getBanners(position?: string): Promise<Banner[]> {
+  const cacheKey = `banners_${position || 'all'}`;
+  const cached = getFromCache<Banner[]>(cacheKey);
+  if (cached) return cached;
+
   const query = position ? `?position=${encodeURIComponent(position)}` : '';
   const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/banners${query}`;
 
@@ -336,7 +368,9 @@ export async function getBanners(position?: string): Promise<Banner[]> {
       throw new Error(`Custom Banners API returned ${res.status}`);
     }
     const data: Banner[] = await res.json();
-    return Array.isArray(data) ? data : [];
+    const result = Array.isArray(data) ? data : [];
+    setInCache(cacheKey, result);
+    return result;
   } catch (error) {
     console.warn('[WordPress API] Unable to fetch banners:', error);
     return LOCAL_MOCK_BANNERS;
