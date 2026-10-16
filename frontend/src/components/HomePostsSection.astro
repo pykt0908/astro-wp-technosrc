@@ -186,10 +186,10 @@ const bottomPosts = posts.slice(3, 6);
               data-categories={JSON.stringify(post.categoryIds || [])}
             >
               <article class="bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-xs hover:shadow-lg hover:border-blue-200 transition-all duration-300 flex flex-col h-full group">
-                <!-- Thumbnail -->
+                <!-- Thumbnail (Optimized for 900x900 and 4:3) -->
                 <a
                   href={`/news/${post.slug}/`}
-                  class="relative block aspect-[16/9] overflow-hidden bg-slate-100 focus:outline-none"
+                  class="relative block aspect-[4/3] overflow-hidden bg-slate-100 focus:outline-none"
                 >
                   <img
                     src={post.coverUrl || fallbackImage}
@@ -287,10 +287,10 @@ const bottomPosts = posts.slice(3, 6);
               data-categories={JSON.stringify(post.categoryIds || [])}
             >
               <article class="bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-xs hover:shadow-lg hover:border-blue-200 transition-all duration-300 flex flex-col h-full group">
-                <!-- Thumbnail -->
+                <!-- Thumbnail (1:1 aspect-square: 100% full view for 900x900 square images with zero crop) -->
                 <a
                   href={`/news/${post.slug}/`}
-                  class="relative block aspect-[16/9] overflow-hidden bg-slate-100 focus:outline-none"
+                  class="relative block aspect-square overflow-hidden bg-slate-100 focus:outline-none"
                 >
                   <img
                     src={post.coverUrl || fallbackImage}

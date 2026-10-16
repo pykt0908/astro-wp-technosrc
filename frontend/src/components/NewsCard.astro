@@ -21,8 +21,8 @@ const fallbackCover = 'https://images.unsplash.com/photo-1523240795612-9a054b0db
 ---
 
 <article class="bg-white rounded-lg overflow-hidden flex flex-col group border border-blue-100 shadow-sm hover:shadow-xl hover:border-blue-300 transition-all duration-300">
-  <!-- Thumbnail -->
-  <a href={`/news/${post.slug}/`} class="relative block aspect-[16/9] overflow-hidden bg-slate-100 focus:outline-none">
+  <!-- Thumbnail (Optimized for 900x900 square images) -->
+  <a href={`/news/${post.slug}/`} class="relative block aspect-[4/3] sm:aspect-square overflow-hidden bg-slate-100 focus:outline-none">
     <img
       src={post.coverUrl || fallbackCover}
       alt={post.coverAlt || post.titlePlain}

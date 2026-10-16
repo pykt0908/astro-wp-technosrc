@@ -84,13 +84,13 @@ const fallbackCover = 'https://images.unsplash.com/photo-1518770660439-4636190af
       </div>
     </header>
 
-    <!-- Featured Image -->
-    <div class="mb-8 sm:mb-12 rounded-2xl overflow-hidden aspect-[16/9] bg-slate-100 border border-slate-200 shadow-md">
+    <!-- Featured Image (Optimized for 900x900 square and wide formats) -->
+    <div class="mb-8 sm:mb-12 rounded-2xl overflow-hidden bg-slate-50 border border-slate-200 shadow-md flex items-center justify-center max-h-[600px]">
       <img
         src={post.coverUrl || fallbackCover}
         alt={post.coverAlt || post.titlePlain}
         loading="eager"
-        class="w-full h-full object-cover"
+        class="w-full max-h-[600px] object-contain sm:object-cover"
         onerror={`this.onerror=null;this.src='${fallbackCover}';`}
       />
     </div>
