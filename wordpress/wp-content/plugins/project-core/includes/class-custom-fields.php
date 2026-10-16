@@ -30,6 +30,14 @@ class Project_Core_Custom_Fields {
             'auth_callback'     => array($this, 'auth_check'),
         ));
 
+        register_post_meta('banner', 'banner_desktop_image_url', array(
+            'show_in_rest'      => true,
+            'single'            => true,
+            'type'              => 'string',
+            'sanitize_callback' => 'esc_url_raw',
+            'auth_callback'     => array($this, 'auth_check'),
+        ));
+
         register_post_meta('banner', 'banner_mobile_image_url', array(
             'show_in_rest'      => true,
             'single'            => true,
@@ -108,9 +116,10 @@ class Project_Core_Custom_Fields {
     public function render_banner_meta_box($post) {
         wp_nonce_field('project_core_banner_nonce', 'project_core_banner_nonce_field');
 
-        $target_url       = get_post_meta($post->ID, 'banner_target_url', true);
-        $mobile_image_url = get_post_meta($post->ID, 'banner_mobile_image_url', true);
-        $is_active        = get_post_meta($post->ID, 'banner_is_active', true);
+        $target_url        = get_post_meta($post->ID, 'banner_target_url', true);
+        $desktop_image_url = get_post_meta($post->ID, 'banner_desktop_image_url', true);
+        $mobile_image_url  = get_post_meta($post->ID, 'banner_mobile_image_url', true);
+        $is_active         = get_post_meta($post->ID, 'banner_is_active', true);
         if ($is_active === '') {
             $is_active = '1';
         }
@@ -119,15 +128,22 @@ class Project_Core_Custom_Fields {
             <tr>
                 <th><label for="banner_target_url"><?php _e('Target Link URL / ลิงก์ปลายทาง', 'project-core'); ?></label></th>
                 <td>
-                    <input type="url" id="banner_target_url" name="banner_target_url" value="<?php echo esc_attr($target_url); ?>" class="regular-text" placeholder="https://example.com/promo" />
-                    <p class="description"><?php _e('URL to navigate when clicked. Leave empty if banner is not clickable.', 'project-core'); ?></p>
+                    <input type="url" id="banner_target_url" name="banner_target_url" value="<?php echo esc_attr($target_url); ?>" class="large-text" placeholder="https://example.com หรือ /about" />
+                    <p class="description"><?php _e('URL to navigate when clicked. Leave empty if banner is not clickable. (ลิงก์ปลายทางเมื่อคลิกภาพ หรือเว้นว่างหากไม่ต้องการให้คลิก)', 'project-core'); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th><label for="banner_desktop_image_url"><?php _e('Desktop Image URL / URL รูปภาพขนาด 1709x650', 'project-core'); ?></label></th>
+                <td>
+                    <input type="url" id="banner_desktop_image_url" name="banner_desktop_image_url" value="<?php echo esc_attr($desktop_image_url); ?>" class="large-text" placeholder="https://... หรือเลือกผ่าน Featured Image" />
+                    <p class="description"><?php _e('Direct image URL for Desktop (Recommended size: 1709 x 650 px). If left blank, WordPress Featured Image (รูปภาพประจำเรื่อง) will be used.', 'project-core'); ?></p>
                 </td>
             </tr>
             <tr>
                 <th><label for="banner_mobile_image_url"><?php _e('Mobile Image URL / รูปภาพสำหรับมือถือ', 'project-core'); ?></label></th>
                 <td>
-                    <input type="url" id="banner_mobile_image_url" name="banner_mobile_image_url" value="<?php echo esc_attr($mobile_image_url); ?>" class="regular-text" placeholder="https://..." />
-                    <p class="description"><?php _e('Optional mobile crop image URL (Desktop image uses Featured Image).', 'project-core'); ?></p>
+                    <input type="url" id="banner_mobile_image_url" name="banner_mobile_image_url" value="<?php echo esc_attr($mobile_image_url); ?>" class="large-text" placeholder="https://..." />
+                    <p class="description"><?php _e('Optional mobile crop image URL. If left blank, Desktop image will be scaled responsively.', 'project-core'); ?></p>
                 </td>
             </tr>
             <tr>
@@ -135,7 +151,7 @@ class Project_Core_Custom_Fields {
                 <td>
                     <label>
                         <input type="checkbox" id="banner_is_active" name="banner_is_active" value="1" <?php checked($is_active, '1'); ?> />
-                        <?php _e('Enable banner on frontend display', 'project-core'); ?>
+                        <?php _e('Enable banner on frontend display (เปิดแสดงผลแบนเนอร์นี้ในหน้าเว็บ)', 'project-core'); ?>
                     </label>
                 </td>
             </tr>
@@ -191,11 +207,13 @@ class Project_Core_Custom_Fields {
         // Save Banner Meta
         if (isset($_POST['project_core_banner_nonce_field']) && wp_verify_nonce($_POST['project_core_banner_nonce_field'], 'project_core_banner_nonce')) {
             if (current_user_can('edit_post', $post_id)) {
-                $target_url       = isset($_POST['banner_target_url']) ? esc_url_raw($_POST['banner_target_url']) : '';
-                $mobile_image_url = isset($_POST['banner_mobile_image_url']) ? esc_url_raw($_POST['banner_mobile_image_url']) : '';
-                $is_active        = isset($_POST['banner_is_active']) ? '1' : '0';
+                $target_url        = isset($_POST['banner_target_url']) ? esc_url_raw($_POST['banner_target_url']) : '';
+                $desktop_image_url = isset($_POST['banner_desktop_image_url']) ? esc_url_raw($_POST['banner_desktop_image_url']) : '';
+                $mobile_image_url  = isset($_POST['banner_mobile_image_url']) ? esc_url_raw($_POST['banner_mobile_image_url']) : '';
+                $is_active         = isset($_POST['banner_is_active']) ? '1' : '0';
 
                 update_post_meta($post_id, 'banner_target_url', $target_url);
+                update_post_meta($post_id, 'banner_desktop_image_url', $desktop_image_url);
                 update_post_meta($post_id, 'banner_mobile_image_url', $mobile_image_url);
                 update_post_meta($post_id, 'banner_is_active', $is_active);
             }

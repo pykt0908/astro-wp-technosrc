@@ -107,19 +107,27 @@ const LOCAL_MOCK_POSTS: Post[] = [
 const LOCAL_MOCK_BANNERS: Banner[] = [
   {
     id: 101,
-    title: 'Modern Cloud Architecture & Astro Headless CMS',
-    desktopImageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1400&auto=format&fit=crop',
-    mobileImageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800&auto=format&fit=crop',
-    targetUrl: '/services/',
+    title: 'ยินดีต้อนรับสู่วิทยาลัยเทคโนโลยีศรีราชา มุ่งสู่ความเป็นเลิศด้านวิชาชีพและเทคโนโลยี',
+    desktopImageUrl: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=1709&h=650&fit=crop',
+    mobileImageUrl: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=800&h=650&fit=crop',
+    targetUrl: '/about',
     menuOrder: 1,
   },
   {
     id: 102,
-    title: 'Enterprise Software Solutions for Thai Businesses',
-    desktopImageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1400&auto=format&fit=crop',
-    mobileImageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=800&auto=format&fit=crop',
-    targetUrl: '/contact/',
+    title: 'เปิดรับสมัครนักศึกษาใหม่ ประจำปีการศึกษา 2569 - สมัครเรียนออนไลน์ได้แล้ววันนี้',
+    desktopImageUrl: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1709&h=650&fit=crop',
+    mobileImageUrl: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=800&h=650&fit=crop',
+    targetUrl: 'https://admission.technosrc.ac.th',
     menuOrder: 2,
+  },
+  {
+    id: 103,
+    title: 'ศูนย์การเรียนรู้เทคโนโลยีสารสนเทศและนวัตกรรมแห่งอนาคต',
+    desktopImageUrl: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=1709&h=650&fit=crop',
+    mobileImageUrl: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=800&h=650&fit=crop',
+    targetUrl: '/news',
+    menuOrder: 3,
   },
 ];
 
@@ -367,8 +375,15 @@ export async function getBanners(position?: string): Promise<Banner[]> {
     if (!res.ok) {
       throw new Error(`Custom Banners API returned ${res.status}`);
     }
-    const data: Banner[] = await res.json();
-    const result = Array.isArray(data) ? data : [];
+    const rawData = await res.json();
+    const result: Banner[] = (Array.isArray(rawData) ? rawData : []).map((b: any) => ({
+      id: b.id,
+      title: b.title || '',
+      desktopImageUrl: b.desktopImageUrl || b.desktop_image_url || '',
+      mobileImageUrl: b.mobileImageUrl || b.mobile_image_url || b.desktopImageUrl || b.desktop_image_url || '',
+      targetUrl: b.targetUrl || b.target_url || '',
+      menuOrder: b.menuOrder ?? b.menu_order ?? 0,
+    }));
     setInCache(cacheKey, result);
     return result;
   } catch (error) {

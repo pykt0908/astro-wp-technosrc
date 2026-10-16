@@ -1,0 +1,291 @@
+---
+import type { Banner } from '../types/wordpress';
+
+interface Props {
+  banners: Banner[];
+}
+
+const { banners = [] } = Astro.props;
+
+// Filter out banners without any image URL
+const validBanners = banners.filter(
+  (b) => b && (b.desktopImageUrl || b.mobileImageUrl)
+);
+---
+
+{validBanners.length > 0 && (
+  <section class="relative w-full bg-slate-900 overflow-hidden" aria-label="แบนเนอร์ประชาสัมพันธ์">
+    <div
+      id="home-carousel"
+      class="relative w-full max-w-[1709px] mx-auto aspect-[1709/650] overflow-hidden select-none group"
+      data-count={validBanners.length}
+    >
+      <!-- Carousel Slides Container -->
+      <div class="relative w-full h-full">
+        {validBanners.map((banner, index) => {
+          const hasLink = Boolean(banner.targetUrl && banner.targetUrl.trim() !== '');
+          const isExternal = hasLink && banner.targetUrl.startsWith('http');
+          const isFirst = index === 0;
+
+          return (
+            <div
+              class={`carousel-slide absolute inset-0 w-full h-full transition-opacity duration-700 ease-in-out ${
+                isFirst ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
+              }`}
+              data-index={index}
+              aria-hidden={isFirst ? 'false' : 'true'}
+            >
+              {hasLink ? (
+                <a
+                  href={banner.targetUrl}
+                  target={isExternal ? '_blank' : '_self'}
+                  rel={isExternal ? 'noopener noreferrer' : undefined}
+                  class="block w-full h-full relative cursor-pointer focus:outline-none focus:ring-4 focus:ring-blue-500/50"
+                  aria-label={banner.title || `สไลด์ที่ ${index + 1}`}
+                >
+                  <picture class="block w-full h-full">
+                    {banner.mobileImageUrl && banner.mobileImageUrl !== banner.desktopImageUrl && (
+                      <source media="(max-width: 640px)" srcset={banner.mobileImageUrl} />
+                    )}
+                    <img
+                      src={banner.desktopImageUrl || banner.mobileImageUrl}
+                      alt={banner.title || 'แบนเนอร์ประชาสัมพันธ์ วิทยาลัยเทคโนโลยีศรีราชา'}
+                      width="1709"
+                      height="650"
+                      loading={isFirst ? 'eager' : 'lazy'}
+                      fetchpriority={isFirst ? 'high' : 'auto'}
+                      decoding={isFirst ? 'sync' : 'async'}
+                      class="w-full h-full object-cover object-center"
+                    />
+                  </picture>
+                  {banner.title && (
+                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 sm:p-6 lg:p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <p class="text-white text-sm sm:text-base lg:text-lg font-medium drop-shadow-md line-clamp-2">
+                        {banner.title}
+                      </p>
+                    </div>
+                  )}
+                </a>
+              ) : (
+                <div class="w-full h-full relative">
+                  <picture class="block w-full h-full">
+                    {banner.mobileImageUrl && banner.mobileImageUrl !== banner.desktopImageUrl && (
+                      <source media="(max-width: 640px)" srcset={banner.mobileImageUrl} />
+                    )}
+                    <img
+                      src={banner.desktopImageUrl || banner.mobileImageUrl}
+                      alt={banner.title || 'แบนเนอร์ประชาสัมพันธ์ วิทยาลัยเทคโนโลยีศรีราชา'}
+                      width="1709"
+                      height="650"
+                      loading={isFirst ? 'eager' : 'lazy'}
+                      fetchpriority={isFirst ? 'high' : 'auto'}
+                      decoding={isFirst ? 'sync' : 'async'}
+                      class="w-full h-full object-cover object-center"
+                    />
+                  </picture>
+                  {banner.title && (
+                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 sm:p-6 lg:p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <p class="text-white text-sm sm:text-base lg:text-lg font-medium drop-shadow-md line-clamp-2">
+                        {banner.title}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <!-- Navigation Arrows (Only shown when > 1 slide) -->
+      {validBanners.length > 1 && (
+        <>
+          <button
+            type="button"
+            id="carousel-prev-btn"
+            class="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/70 text-white backdrop-blur-xs border border-white/20 shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/60 cursor-pointer"
+            aria-label="ภาพก่อนหน้า"
+          >
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            id="carousel-next-btn"
+            class="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/70 text-white backdrop-blur-xs border border-white/20 shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/60 cursor-pointer"
+            aria-label="ภาพถัดไป"
+          >
+            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+
+          <!-- Pagination Indicator Dots -->
+          <div class="absolute bottom-3 sm:bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 sm:gap-2.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-xs border border-white/20">
+            {validBanners.map((_, dotIdx) => (
+              <button
+                type="button"
+                class={`carousel-dot transition-all duration-300 rounded-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/70 ${
+                  dotIdx === 0
+                    ? 'w-7 sm:w-8 h-2.5 bg-white shadow-sm'
+                    : 'w-2.5 h-2.5 bg-white/50 hover:bg-white/80'
+                }`}
+                data-dot-index={dotIdx}
+                aria-label={`ไปยังภาพที่ ${dotIdx + 1}`}
+                aria-current={dotIdx === 0 ? 'true' : 'false'}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  </section>
+)}
+
+<script>
+  function initHomeCarousel() {
+    const carousel = document.getElementById('home-carousel');
+    if (!carousel) return;
+
+    const count = parseInt(carousel.dataset.count || '0', 10);
+    if (count <= 1) return;
+
+    const slides = carousel.querySelectorAll<HTMLElement>('.carousel-slide');
+    const dots = carousel.querySelectorAll<HTMLButtonElement>('.carousel-dot');
+    const prevBtn = document.getElementById('carousel-prev-btn');
+    const nextBtn = document.getElementById('carousel-next-btn');
+
+    let currentIndex = 0;
+    let autoplayTimer: ReturnType<typeof setInterval> | null = null;
+    const intervalMs = 5000;
+
+    function goToSlide(index: number) {
+      if (index === currentIndex) return;
+      const nextIndex = (index + count) % count;
+
+      slides.forEach((slide, idx) => {
+        if (idx === nextIndex) {
+          slide.classList.remove('opacity-0', 'pointer-events-none', 'z-0');
+          slide.classList.add('opacity-100', 'z-10');
+          slide.setAttribute('aria-hidden', 'false');
+        } else {
+          slide.classList.remove('opacity-100', 'z-10');
+          slide.classList.add('opacity-0', 'pointer-events-none', 'z-0');
+          slide.setAttribute('aria-hidden', 'true');
+        }
+      });
+
+      dots.forEach((dot, idx) => {
+        if (idx === nextIndex) {
+          dot.classList.remove('w-2.5', 'bg-white/50');
+          dot.classList.add('w-7', 'sm:w-8', 'bg-white', 'shadow-sm');
+          dot.setAttribute('aria-current', 'true');
+        } else {
+          dot.classList.remove('w-7', 'sm:w-8', 'bg-white', 'shadow-sm');
+          dot.classList.add('w-2.5', 'bg-white/50');
+          dot.setAttribute('aria-current', 'false');
+        }
+      });
+
+      currentIndex = nextIndex;
+    }
+
+    function nextSlide() {
+      goToSlide(currentIndex + 1);
+    }
+
+    function prevSlide() {
+      goToSlide(currentIndex - 1);
+    }
+
+    function startAutoplay() {
+      stopAutoplay();
+      autoplayTimer = setInterval(nextSlide, intervalMs);
+    }
+
+    function stopAutoplay() {
+      if (autoplayTimer) {
+        clearInterval(autoplayTimer);
+        autoplayTimer = null;
+      }
+    }
+
+    // Prev / Next button listeners
+    prevBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      prevSlide();
+      startAutoplay();
+    });
+
+    nextBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      nextSlide();
+      startAutoplay();
+    });
+
+    // Dot button listeners
+    dots.forEach((dot) => {
+      dot.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetIdx = parseInt(dot.getAttribute('data-dot-index') || '0', 10);
+        goToSlide(targetIdx);
+        startAutoplay();
+      });
+    });
+
+    // Pause on hover
+    carousel.addEventListener('mouseenter', stopAutoplay);
+    carousel.addEventListener('mouseleave', startAutoplay);
+    carousel.addEventListener('focusin', stopAutoplay);
+    carousel.addEventListener('focusout', startAutoplay);
+
+    // Touch Swipe Support
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    carousel.addEventListener(
+      'touchstart',
+      (e: TouchEvent) => {
+        touchStartX = e.changedTouches[0].screenX;
+        stopAutoplay();
+      },
+      { passive: true }
+    );
+
+    carousel.addEventListener(
+      'touchend',
+      (e: TouchEvent) => {
+        touchEndX = e.changedTouches[0].screenX;
+        const diffX = touchEndX - touchStartX;
+        if (Math.abs(diffX) > 40) {
+          if (diffX < 0) {
+            nextSlide();
+          } else {
+            prevSlide();
+          }
+        }
+        startAutoplay();
+      },
+      { passive: true }
+    );
+
+    // Keyboard support (Left / Right arrows when carousel is focused)
+    carousel.setAttribute('tabindex', '0');
+    carousel.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') {
+        prevSlide();
+        startAutoplay();
+      } else if (e.key === 'ArrowRight') {
+        nextSlide();
+        startAutoplay();
+      }
+    });
+
+    startAutoplay();
+  }
+
+  // Initialize on initial page load & Astro view transitions if used
+  initHomeCarousel();
+  document.addEventListener('astro:page-load', initHomeCarousel);
+</script>

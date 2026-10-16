@@ -95,14 +95,19 @@ class Project_Core_REST_API {
         $query_args = array(
             'post_type'      => 'banner',
             'post_status'    => 'publish',
-            'posts_per_page' => 20,
+            'posts_per_page' => 50,
             'orderby'        => 'menu_order',
             'order'          => 'ASC',
             'meta_query'     => array(
+                'relation' => 'OR',
                 array(
                     'key'     => 'banner_is_active',
                     'value'   => '1',
                     'compare' => '=',
+                ),
+                array(
+                    'key'     => 'banner_is_active',
+                    'compare' => 'NOT EXISTS',
                 ),
             ),
         );
@@ -126,18 +131,28 @@ class Project_Core_REST_API {
                 $id = get_the_ID();
 
                 $desktop_image_url = get_the_post_thumbnail_url($id, 'full');
+                if (empty($desktop_image_url)) {
+                    $desktop_image_url = get_post_meta($id, 'banner_desktop_image_url', true);
+                }
                 $mobile_image_url  = get_post_meta($id, 'banner_mobile_image_url', true);
                 if (empty($mobile_image_url)) {
                     $mobile_image_url = $desktop_image_url;
                 }
 
+                $target_url = get_post_meta($id, 'banner_target_url', true) ?: '';
+                $menu_order = (int) get_post_field('menu_order', $id);
+
                 $banners[] = array(
                     'id'                => $id,
                     'title'             => get_the_title(),
                     'desktop_image_url' => $desktop_image_url ?: '',
+                    'desktopImageUrl'   => $desktop_image_url ?: '',
                     'mobile_image_url'  => $mobile_image_url ?: '',
-                    'target_url'        => get_post_meta($id, 'banner_target_url', true) ?: '',
-                    'menu_order'        => (int) get_post_field('menu_order', $id),
+                    'mobileImageUrl'    => $mobile_image_url ?: '',
+                    'target_url'        => $target_url,
+                    'targetUrl'         => $target_url,
+                    'menu_order'        => $menu_order,
+                    'menuOrder'         => $menu_order,
                 );
             }
             wp_reset_postdata();
