@@ -3,16 +3,27 @@
 ---
 
 <section class="relative bg-white py-16 sm:py-20 lg:py-28 overflow-hidden select-none">
-  <!-- Subtle Giant Background Watermark -->
+  <!-- Subtle Giant Background Watermark with Smooth Horizontal Scroll -->
   <div
-    class="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden z-0"
+    class="absolute inset-0 flex items-center pointer-events-none overflow-hidden z-0 select-none"
     aria-hidden="true"
   >
-    <span
-      class="text-[14vw] font-black text-slate-100/90 tracking-widest uppercase whitespace-nowrap leading-none select-none"
-    >
-      TECHNOLOGICAL COLLEGE
-    </span>
+    <div class="marquee-wrapper">
+      <div class="marquee-track">
+        <span class="marquee-text">
+          SRIRACHA TECHNOLOGICAL COLLEGE &bull; THE FUTURE STARTS HERE &bull;
+        </span>
+        <span class="marquee-text">
+          SRIRACHA TECHNOLOGICAL COLLEGE &bull; THE FUTURE STARTS HERE &bull;
+        </span>
+        <span class="marquee-text">
+          SRIRACHA TECHNOLOGICAL COLLEGE &bull; THE FUTURE STARTS HERE &bull;
+        </span>
+        <span class="marquee-text">
+          SRIRACHA TECHNOLOGICAL COLLEGE &bull; THE FUTURE STARTS HERE &bull;
+        </span>
+      </div>
+    </div>
   </div>
 
   <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -110,6 +121,49 @@
     .stroke-text-blue {
       -webkit-text-stroke: 2.5px #38bdf8;
       text-stroke: 2.5px #38bdf8;
+    }
+  }
+
+  /* Horizontal Scrolling Background Watermark */
+  .marquee-wrapper {
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+    animation: marquee-horizontal 38s linear infinite;
+  }
+
+  .marquee-text {
+    font-size: clamp(72px, 12.5vw, 180px);
+    font-weight: 900;
+    color: rgba(241, 245, 249, 0.95);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    line-height: 1;
+    padding-right: 3rem;
+    user-select: none;
+  }
+
+  @keyframes marquee-horizontal {
+    0% {
+      transform: translate3d(0, 0, 0);
+    }
+    100% {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
     }
   }
 </style>
