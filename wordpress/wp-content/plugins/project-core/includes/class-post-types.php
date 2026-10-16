@@ -18,8 +18,8 @@ class Project_Core_Post_Types {
         add_action('manage_banner_posts_custom_column', array($this, 'render_banner_columns'), 10, 2);
         add_action('pre_get_posts', array($this, 'admin_banner_sort_order'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_banner_list_scripts'));
+        add_action('admin_footer', array($this, 'render_banner_reorder_script'));
         add_action('wp_ajax_project_core_reorder_banners', array($this, 'ajax_reorder_banners'));
-        add_action('wp_ajax_project_core_set_single_banner_order', array($this, 'ajax_set_single_banner_order'));
     }
 
     /**
@@ -95,6 +95,9 @@ class Project_Core_Post_Types {
     /**
      * Define custom columns in Banners admin list
      */
+    /**
+     * Define custom columns in Banners admin list
+     */
     public function set_banner_columns($columns) {
         $new_columns = array();
         $new_columns['cb']               = $columns['cb'];
@@ -114,18 +117,12 @@ class Project_Core_Post_Types {
     public function render_banner_columns($column, $post_id) {
         switch ($column) {
             case 'banner_handle':
-                echo '<span class="dashicons dashicons-move banner-drag-handle" style="cursor: grab; color: #787c82; font-size: 20px; line-height: 28px;" title="คลิกค้างแล้วลากเพื่อสลับลำดับ"></span>';
+                echo '<span class="dashicons dashicons-move banner-drag-handle" style="cursor: grab; color: #50575e; font-size: 20px; line-height: 28px;" title="คลิกค้างแล้วลากเพื่อสลับลำดับ"></span>';
                 break;
 
             case 'banner_order':
                 $order = (int) get_post_field('menu_order', $post_id);
-                echo '<div class="banner-order-control" style="display: flex; align-items: center; gap: 4px;">';
-                echo '<input type="number" class="banner-quick-order-input" data-post-id="' . esc_attr($post_id) . '" value="' . esc_attr($order) . '" style="width: 52px; height: 28px; text-align: center; font-weight: bold; padding: 2px;" min="0" title="พิมพ์เปลี่ยนลำดับแล้วกด Enter หรือคลิกข้างนอกเพื่อบันทึกทันที" />';
-                echo '<div style="display: flex; flex-direction: column; gap: 2px;">';
-                echo '<button type="button" class="button banner-move-btn" data-action="up" data-post-id="' . esc_attr($post_id) . '" style="padding: 0 5px; line-height: 12px; height: 13px; font-size: 9px; min-height: 13px;" title="เลื่อนขึ้นด้านบน">▲</button>';
-                echo '<button type="button" class="button banner-move-btn" data-action="down" data-post-id="' . esc_attr($post_id) . '" style="padding: 0 5px; line-height: 12px; height: 13px; font-size: 9px; min-height: 13px;" title="เลื่อนลงด้านล่าง">▼</button>';
-                echo '</div>';
-                echo '</div>';
+                echo '<span class="banner-order-badge" style="display: inline-block; min-width: 32px; text-align: center; padding: 4px 8px; background: #f0f0f1; border: 1px solid #c3c4c7; border-radius: 4px; font-weight: 700; color: #1d2327; font-size: 13px;">#' . esc_html($order) . '</span>';
                 break;
 
             case 'banner_thumbnail':
@@ -167,7 +164,7 @@ class Project_Core_Post_Types {
      */
     public function admin_banner_sort_order($query) {
         if (is_admin() && $query->is_main_query() && $query->get('post_type') === 'banner') {
-            if (!$query->get('orderby')) {
+            if (!isset($_GET['orderby'])) {
                 $query->set('orderby', 'menu_order');
                 $query->set('order', 'ASC');
             }
@@ -175,159 +172,157 @@ class Project_Core_Post_Types {
     }
 
     /**
-     * Enqueue Drag & Drop sorting scripts in Banners list view
+     * Enqueue jQuery UI Sortable in Banners list view
      */
     public function enqueue_banner_list_scripts($hook) {
         if ($hook === 'edit.php') {
             $screen = get_current_screen();
             if ($screen && $screen->post_type === 'banner') {
+                wp_enqueue_script('jquery');
                 wp_enqueue_script('jquery-ui-sortable');
-                wp_enqueue_style('dashicons');
+            }
+        }
+    }
 
-                $nonce = wp_create_nonce('project_core_reorder_nonce');
-                ?>
-                <style>
-                    .wp-list-table tr.ui-sortable-helper {
-                        background: #ffffff !important;
-                        box-shadow: 0 8px 24px rgba(0,0,0,0.18) !important;
-                        display: table !important;
-                    }
-                    .wp-list-table tr.ui-sortable-placeholder {
-                        background: #e7f3ff !important;
-                        visibility: visible !important;
-                        outline: 2px dashed #0047BA !important;
-                    }
-                    .banner-drag-handle:active {
-                        cursor: grabbing !important;
-                    }
-                    .column-banner_handle {
-                        width: 32px !important;
-                        text-align: center;
-                        padding-left: 4px !important;
-                        padding-right: 4px !important;
-                    }
-                    .column-banner_order {
-                        width: 95px !important;
-                    }
-                    .column-banner_thumbnail {
-                        width: 155px !important;
-                    }
-                    #banner-reorder-notice {
-                        display: none;
-                        position: fixed;
-                        top: 45px;
-                        right: 35px;
-                        z-index: 999999;
-                        padding: 12px 22px;
-                        background: #007017;
-                        color: #ffffff;
-                        font-weight: 600;
-                        border-radius: 6px;
-                        box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-                        font-size: 14px;
-                    }
-                </style>
-                <div id="banner-reorder-notice">✓ บันทึกลำดับแบนเนอร์เรียบร้อยแล้ว</div>
-                <script>
-                jQuery(document).ready(function($) {
-                    var $tbody = $('#the-list');
-                    if (!$tbody.length) return;
+    /**
+     * Output inline styles and Drag & Drop sortable script in admin footer
+     */
+    public function render_banner_reorder_script() {
+        $screen = get_current_screen();
+        if (!$screen || $screen->id !== 'edit-banner') {
+            return;
+        }
+        $nonce = wp_create_nonce('project_core_reorder_nonce');
+        ?>
+        <style>
+            .wp-list-table tbody#the-list tr {
+                cursor: grab;
+                transition: background 0.15s ease;
+            }
+            .wp-list-table tbody#the-list tr:hover {
+                background-color: #f0f6fc !important;
+            }
+            .wp-list-table tbody#the-list tr.ui-sortable-helper {
+                background-color: #ffffff !important;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22) !important;
+                display: table !important;
+                cursor: grabbing !important;
+                border: 2px solid #0047BA !important;
+            }
+            .wp-list-table tbody#the-list tr.ui-sortable-placeholder {
+                background-color: #e7f3ff !important;
+                visibility: visible !important;
+                outline: 2px dashed #0047BA !important;
+                height: 55px !important;
+            }
+            .banner-drag-handle {
+                cursor: grab;
+                color: #50575e;
+                font-size: 20px;
+                display: inline-block;
+                vertical-align: middle;
+            }
+            .banner-drag-handle:active,
+            .wp-list-table tbody#the-list tr:active {
+                cursor: grabbing !important;
+            }
+            .column-banner_handle {
+                width: 32px !important;
+                text-align: center;
+                padding-left: 2px !important;
+                padding-right: 2px !important;
+            }
+            .column-banner_order {
+                width: 70px !important;
+                text-align: center;
+            }
+            .column-banner_thumbnail {
+                width: 155px !important;
+            }
+            #banner-reorder-notice {
+                display: none;
+                position: fixed;
+                top: 45px;
+                right: 30px;
+                z-index: 999999;
+                padding: 12px 24px;
+                background: #007017;
+                color: #ffffff;
+                font-weight: 600;
+                border-radius: 6px;
+                box-shadow: 0 6px 22px rgba(0,0,0,0.25);
+                font-size: 14px;
+            }
+        </style>
+        <div id="banner-reorder-notice">✓ บันทึกลำดับแบนเนอร์เรียบร้อยแล้ว</div>
+        <script>
+        jQuery(function($) {
+            var $tbody = $('#the-list');
+            if (!$tbody.length) return;
 
-                    function showNotice(msg) {
-                        var $notice = $('#banner-reorder-notice');
-                        $notice.text(msg || '✓ บันทึกลำดับแบนเนอร์เรียบร้อยแล้ว').stop(true, true).fadeIn(200);
-                        setTimeout(function() {
-                            $notice.fadeOut(400);
-                        }, 2500);
-                    }
+            function showNotice(msg) {
+                var $notice = $('#banner-reorder-notice');
+                $notice.text(msg || '✓ บันทึกลำดับแบนเนอร์เรียบร้อยแล้ว').stop(true, true).fadeIn(200);
+                setTimeout(function() {
+                    $notice.fadeOut(400);
+                }, 2500);
+            }
 
-                    function saveOrder() {
-                        var postIds = [];
-                        $tbody.find('tr').each(function(index) {
-                            var rowId = $(this).attr('id');
-                            if (rowId && rowId.indexOf('post-') === 0) {
-                                var pid = rowId.replace('post-', '');
-                                postIds.push(pid);
-                                $(this).find('.banner-quick-order-input').val(index + 1);
-                            }
-                        });
+            function updateOrderNumbers() {
+                $tbody.find('tr').each(function(index) {
+                    $(this).find('.banner-order-badge').text('#' + (index + 1));
+                });
+            }
 
-                        if (!postIds.length) return;
+            // Initialize jQuery UI sortable on table rows
+            $tbody.sortable({
+                items: 'tr',
+                handle: '.banner-drag-handle, td',
+                cancel: 'a, button, input',
+                axis: 'y',
+                cursor: 'grabbing',
+                opacity: 0.9,
+                placeholder: 'ui-sortable-placeholder',
+                helper: function(e, tr) {
+                    var $originals = tr.children();
+                    var $helper = tr.clone();
+                    $helper.children().each(function(index) {
+                        $(this).width($originals.eq(index).width());
+                    });
+                    return $helper;
+                },
+                update: function() {
+                    updateOrderNumbers();
+                    var postIds = [];
+                    $tbody.find('tr').each(function() {
+                        var rowId = $(this).attr('id');
+                        if (rowId && rowId.indexOf('post-') === 0) {
+                            var pid = rowId.replace('post-', '');
+                            postIds.push(pid);
+                        }
+                    });
 
-                        $.post(ajaxurl, {
+                    if (!postIds.length) return;
+
+                    $.ajax({
+                        url: ajaxurl,
+                        type: 'POST',
+                        data: {
                             action: 'project_core_reorder_banners',
                             nonce: '<?php echo esc_js($nonce); ?>',
                             post_ids: postIds
-                        }, function(res) {
+                        },
+                        success: function(res) {
                             if (res.success) {
                                 showNotice('✓ บันทึกลำดับแบนเนอร์เรียบร้อยแล้ว (' + postIds.length + ' แบนเนอร์)');
                             }
-                        });
-                    }
-
-                    // Drag and Drop sortable
-                    $tbody.sortable({
-                        items: 'tr',
-                        handle: '.banner-drag-handle',
-                        axis: 'y',
-                        cursor: 'grabbing',
-                        opacity: 0.9,
-                        placeholder: 'ui-sortable-placeholder',
-                        helper: function(e, tr) {
-                            var $originals = tr.children();
-                            var $helper = tr.clone();
-                            $helper.children().each(function(index) {
-                                $(this).width($originals.eq(index).width());
-                            });
-                            return $helper;
-                        },
-                        update: function() {
-                            saveOrder();
                         }
                     });
-
-                    // Up / Down arrow buttons
-                    $tbody.on('click', '.banner-move-btn', function(e) {
-                        e.preventDefault();
-                        var $row = $(this).closest('tr');
-                        var action = $(this).data('action');
-
-                        if (action === 'up') {
-                            var $prev = $row.prev('tr');
-                            if ($prev.length) {
-                                $row.insertBefore($prev);
-                                saveOrder();
-                            }
-                        } else if (action === 'down') {
-                            var $next = $row.next('tr');
-                            if ($next.length) {
-                                $row.insertAfter($next);
-                                saveOrder();
-                            }
-                        }
-                    });
-
-                    // Inline input change
-                    $tbody.on('change', '.banner-quick-order-input', function() {
-                        var targetOrder = parseInt($(this).val(), 10);
-                        var postId = $(this).data('post-id');
-                        $.post(ajaxurl, {
-                            action: 'project_core_set_single_banner_order',
-                            nonce: '<?php echo esc_js($nonce); ?>',
-                            post_id: postId,
-                            order: targetOrder
-                        }, function(res) {
-                            if (res.success) {
-                                showNotice('✓ บันทึกลำดับแล้ว กำลังจัดเรียงตารางใหม่...');
-                                setTimeout(function() { location.reload(); }, 600);
-                            }
-                        });
-                    });
-                });
-                </script>
-                <?php
-            }
-        }
+                }
+            });
+        });
+        </script>
+        <?php
     }
 
     /**
@@ -339,40 +334,22 @@ class Project_Core_Post_Types {
             wp_send_json_error('Permission denied');
         }
 
+        global $wpdb;
         $post_ids = isset($_POST['post_ids']) ? (array) $_POST['post_ids'] : array();
         foreach ($post_ids as $order => $post_id) {
             $post_id = absint($post_id);
             if ($post_id > 0) {
-                wp_update_post(array(
-                    'ID'         => $post_id,
-                    'menu_order' => $order + 1,
-                ));
+                $wpdb->update(
+                    $wpdb->posts,
+                    array('menu_order' => $order + 1),
+                    array('ID' => $post_id),
+                    array('%d'),
+                    array('%d')
+                );
+                clean_post_cache($post_id);
             }
         }
 
         wp_send_json_success(array('message' => 'Reordered successfully'));
-    }
-
-    /**
-     * AJAX endpoint: set single banner order
-     */
-    public function ajax_set_single_banner_order() {
-        check_ajax_referer('project_core_reorder_nonce', 'nonce');
-        if (!current_user_can('edit_posts')) {
-            wp_send_json_error('Permission denied');
-        }
-
-        $post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
-        $order   = isset($_POST['order']) ? intval($_POST['order']) : 0;
-
-        if ($post_id > 0) {
-            wp_update_post(array(
-                'ID'         => $post_id,
-                'menu_order' => $order,
-            ));
-            wp_send_json_success(array('message' => 'Order updated'));
-        }
-
-        wp_send_json_error('Invalid post ID');
     }
 }
