@@ -231,20 +231,9 @@ const LOCAL_MOCK_SITE_SETTINGS: SiteSettings = {
   footerCopyright: `© ${new Date().getFullYear()} วิทยาลัยเทคโนโลยีศรีราชา (Sriracha Technological College). สงวนลิขสิทธิ์ทุกประการ.`,
   vtr: {
     enabled: true,
-    badge: 'VTR แนะนำวิทยาลัย',
-    title: 'ก้าวสู่อนาคตวิชาชีพที่มั่นคง กับวิทยาลัยเทคโนโลยีศรีราชา',
-    subtitle: 'Sriracha Technological College Presentation Video',
-    description: 'สัมผัสบรรยากาศการเรียนการสอน หลักสูตรวิชาชีพที่ทันสมัย พร้อมเครื่องมือและนวัตกรรมระดับมาตรฐานสากล ร่วมผลิตกำลังคนคุณภาพสู่ภาคอุตสาหกรรมและสังคมอย่างยั่งยืน',
     youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     youtubeId: 'dQw4w9WgXcQ',
     embedUrl: 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ',
-    ratingScore: '',
-    ratingText: '',
-    primaryBtnText: 'สมัครเรียนออนไลน์',
-    primaryBtnUrl: '/apply',
-    secondaryBtnText: 'ดูหลักสูตรที่เปิดสอน →',
-    secondaryBtnUrl: '/academics',
-    coverImageUrl: '',
   },
 };
 
@@ -570,20 +559,9 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       const ytId = data.vtr.youtube_id || data.vtr.youtubeId || extractYouTubeId(ytUrl);
       data.vtr = {
         enabled: data.vtr.enabled !== false,
-        badge: data.vtr.badge || 'VTR แนะนำวิทยาลัย',
-        title: data.vtr.title || 'ก้าวสู่อนาคตวิชาชีพที่มั่นคง กับวิทยาลัยเทคโนโลยีศรีราชา',
-        subtitle: data.vtr.subtitle || 'Sriracha Technological College Presentation Video',
-        description: data.vtr.description || '',
         youtubeUrl: ytUrl,
         youtubeId: ytId,
         embedUrl: data.vtr.embed_url || data.vtr.embedUrl || (ytId ? `https://www.youtube-nocookie.com/embed/${ytId}` : ''),
-        ratingScore: data.vtr.rating_score || data.vtr.ratingScore || '',
-        ratingText: data.vtr.rating_text || data.vtr.ratingText || '',
-        primaryBtnText: data.vtr.primary_btn_text || data.vtr.primaryBtnText || 'สมัครเรียนออนไลน์',
-        primaryBtnUrl: data.vtr.primary_btn_url || data.vtr.primaryBtnUrl || '/apply',
-        secondaryBtnText: data.vtr.secondary_btn_text || data.vtr.secondaryBtnText || 'ดูหลักสูตรที่เปิดสอน →',
-        secondaryBtnUrl: data.vtr.secondary_btn_url || data.vtr.secondaryBtnUrl || '/academics',
-        coverImageUrl: data.vtr.cover_image_url || data.vtr.coverImageUrl || '',
       };
     }
     return data as SiteSettings;

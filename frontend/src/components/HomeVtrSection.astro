@@ -8,30 +8,26 @@ interface Props {
 
 const { vtr } = Astro.props;
 
-// Settings & Fallbacks
+// Video settings from WordPress (Only YouTube embed URL is configured via WP)
 const isEnabled = vtr ? vtr.enabled !== false : true;
-const title = vtr?.title || 'What Winning Education Looks Like';
-const description =
-  vtr?.description ||
-  'Get an inside look at the campus environment, cutting-edge laboratories, and career-ready curriculum designed to empower the next generation of professional talent.';
-
-const badgeText = vtr?.badge || '';
-const ratingScore = vtr?.ratingScore || '';
-const ratingText = vtr?.ratingText || '';
-
-const primaryBtnText = vtr?.primaryBtnText || 'สมัครเรียนออนไลน์';
-const primaryBtnUrl = vtr?.primaryBtnUrl || '/apply';
-
-const secondaryBtnText = vtr?.secondaryBtnText || 'ดูหลักสูตรที่เปิดสอน →';
-const secondaryBtnUrl = vtr?.secondaryBtnUrl || '/academics';
-
 const youtubeId = vtr?.youtubeId || 'dQw4w9WgXcQ';
 const embedUrl = vtr?.embedUrl || (youtubeId ? `https://www.youtube-nocookie.com/embed/${youtubeId}` : '');
+const coverImageUrl = youtubeId ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg` : '';
 
-// Cover Image URL fallback: custom cover -> YouTube maxresdefault
-const coverImageUrl =
-  vtr?.coverImageUrl ||
-  (youtubeId ? `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg` : '');
+// Hardcoded text content
+const badgeText = 'VTR แนะนำวิทยาลัย';
+const title = 'วิดีทัศน์แนะนำวิทยาลัยเทคโนโลยีศรีราชา';
+const description =
+  'มุ่งมั่นจัดการศึกษาด้านวิชาชีพและเทคโนโลยีที่ทันสมัย ส่งเสริมคุณธรรม จริยธรรม สู่มาตรฐานสากล ผลิตกำลังคนคุณภาพเพื่อพัฒนาภาคอุตสาหกรรมและสังคมอย่างยั่งยืน';
+
+const ratingScore = '4.9/5';
+const ratingText = 'มาตรฐาน สอศ. Based on 1,500+ นักศึกษา';
+
+const primaryBtnText = 'สมัครเรียนออนไลน์';
+const primaryBtnUrl = '/apply';
+
+const secondaryBtnText = 'ดูหลักสูตรที่เปิดสอน →';
+const secondaryBtnUrl = '/academics';
 
 if (!isEnabled) {
   return null;

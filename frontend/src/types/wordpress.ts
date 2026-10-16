@@ -136,20 +136,9 @@ export interface SiteSettings {
   footerCopyright: string;
   vtr?: {
     enabled: boolean;
-    badge?: string;
-    title: string;
-    subtitle: string;
-    description: string;
     youtubeUrl: string;
     youtubeId?: string;
     embedUrl?: string;
-    ratingScore?: string;
-    ratingText?: string;
-    primaryBtnText?: string;
-    primaryBtnUrl?: string;
-    secondaryBtnText?: string;
-    secondaryBtnUrl?: string;
-    coverImageUrl?: string;
   };
 }
 

@@ -55,19 +55,8 @@ class Project_Core_Site_Settings {
             'social_github'     => '',
             'footer_copyright'  => sprintf('© %s Technosrc. สงวนลิขสิทธิ์ทุกประการ.', gmdate('Y')),
             // College VTR Video Section
-            'vtr_enabled'            => 1,
-            'vtr_badge'              => 'VTR แนะนำวิทยาลัย',
-            'vtr_title'              => 'ก้าวสู่อนาคตวิชาชีพที่มั่นคง กับวิทยาลัยเทคโนโลยีศรีราชา',
-            'vtr_subtitle'           => 'Sriracha Technological College Presentation Video',
-            'vtr_description'        => 'สัมผัสบรรยากาศการเรียนการสอน หลักสูตรวิชาชีพที่ทันสมัย พร้อมเครื่องมือและนวัตกรรมระดับมาตรฐานสากล ร่วมผลิตกำลังคนคุณภาพสู่ภาคอุตสาหกรรม',
-            'vtr_youtube_url'        => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-            'vtr_rating_score'       => '',
-            'vtr_rating_text'        => '',
-            'vtr_primary_btn_text'   => 'สมัครเรียนออนไลน์',
-            'vtr_primary_btn_url'    => '/apply',
-            'vtr_secondary_btn_text' => 'ดูหลักสูตรที่เปิดสอน →',
-            'vtr_secondary_btn_url'  => '/academics',
-            'vtr_cover_image_url'    => '',
+            'vtr_enabled'       => 1,
+            'vtr_youtube_url'   => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
             // Webhook Configuration
             'webhook_url'       => '',
             'webhook_secret'    => '',
@@ -96,19 +85,8 @@ class Project_Core_Site_Settings {
         $output['footer_copyright']  = sanitize_text_field($input['footer_copyright'] ?? '');
 
         // College VTR Video
-        $output['vtr_enabled']            = !empty($input['vtr_enabled']) ? 1 : 0;
-        $output['vtr_badge']              = sanitize_text_field($input['vtr_badge'] ?? '');
-        $output['vtr_title']              = sanitize_text_field($input['vtr_title'] ?? '');
-        $output['vtr_subtitle']           = sanitize_text_field($input['vtr_subtitle'] ?? '');
-        $output['vtr_description']        = sanitize_textarea_field($input['vtr_description'] ?? '');
-        $output['vtr_youtube_url']        = esc_url_raw($input['vtr_youtube_url'] ?? '');
-        $output['vtr_rating_score']       = sanitize_text_field($input['vtr_rating_score'] ?? '');
-        $output['vtr_rating_text']        = sanitize_text_field($input['vtr_rating_text'] ?? '');
-        $output['vtr_primary_btn_text']   = sanitize_text_field($input['vtr_primary_btn_text'] ?? '');
-        $output['vtr_primary_btn_url']    = esc_url_raw($input['vtr_primary_btn_url'] ?? '');
-        $output['vtr_secondary_btn_text'] = sanitize_text_field($input['vtr_secondary_btn_text'] ?? '');
-        $output['vtr_secondary_btn_url']  = esc_url_raw($input['vtr_secondary_btn_url'] ?? '');
-        $output['vtr_cover_image_url']    = esc_url_raw($input['vtr_cover_image_url'] ?? '');
+        $output['vtr_enabled']     = !empty($input['vtr_enabled']) ? 1 : 0;
+        $output['vtr_youtube_url'] = esc_url_raw($input['vtr_youtube_url'] ?? '');
 
         // Webhook
         $output['webhook_url']       = esc_url_raw($input['webhook_url'] ?? '');
@@ -218,61 +196,6 @@ class Project_Core_Site_Settings {
                         <td>
                             <input type="text" id="vtr_youtube_url" name="<?php echo self::OPTION_KEY; ?>[vtr_youtube_url]" value="<?php echo esc_attr($settings['vtr_youtube_url']); ?>" class="large-text" placeholder="https://www.youtube.com/watch?v=... หรือ https://youtu.be/..." />
                             <p class="description"><?php _e('รองรับทุกลิงก์ของ YouTube เช่น <code>https://www.youtube.com/watch?v=XXXXX</code> หรือ <code>https://youtu.be/XXXXX</code> หรือ <code>https://www.youtube.com/shorts/XXXXX</code> (ระบบจะดึงรหัสวิดีโอมาแสดงอัตโนมัติ)', 'project-core'); ?></p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><label for="vtr_badge"><?php _e('ป้ายกำกับ (Badge Text)', 'project-core'); ?></label></th>
-                        <td>
-                            <input type="text" id="vtr_badge" name="<?php echo self::OPTION_KEY; ?>[vtr_badge]" value="<?php echo esc_attr($settings['vtr_badge']); ?>" class="regular-text" placeholder="เช่น VTR แนะนำวิทยาลัย" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><label for="vtr_title"><?php _e('หัวข้อหลัก (Title)', 'project-core'); ?></label></th>
-                        <td>
-                            <input type="text" id="vtr_title" name="<?php echo self::OPTION_KEY; ?>[vtr_title]" value="<?php echo esc_attr($settings['vtr_title']); ?>" class="large-text" placeholder="เช่น วีดิทัศน์แนะนำวิทยาลัยเทคโนโลยีศรีราชา" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><label for="vtr_subtitle"><?php _e('หัวข้อย่อย / ภาษาอังกฤษ (Subtitle)', 'project-core'); ?></label></th>
-                        <td>
-                            <input type="text" id="vtr_subtitle" name="<?php echo self::OPTION_KEY; ?>[vtr_subtitle]" value="<?php echo esc_attr($settings['vtr_subtitle']); ?>" class="large-text" placeholder="เช่น Sriracha Technological College Presentation Video" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><label for="vtr_description"><?php _e('คำอธิบาย (Description)', 'project-core'); ?></label></th>
-                        <td>
-                            <textarea id="vtr_description" name="<?php echo self::OPTION_KEY; ?>[vtr_description]" rows="3" class="large-text" placeholder="ข้อความแนะนำวิทยาลัย สั้นๆ กระชับ..."><?php echo esc_textarea($settings['vtr_description']); ?></textarea>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><label for="vtr_rating_score"><?php _e('คะแนนรีวิว / ความน่าเชื่อถือ (Rating Score)', 'project-core'); ?></label></th>
-                        <td>
-                            <input type="text" id="vtr_rating_score" name="<?php echo self::OPTION_KEY; ?>[vtr_rating_score]" value="<?php echo esc_attr($settings['vtr_rating_score']); ?>" class="small-text" placeholder="4.9/5" />
-                            <input type="text" id="vtr_rating_text" name="<?php echo self::OPTION_KEY; ?>[vtr_rating_text]" value="<?php echo esc_attr($settings['vtr_rating_text']); ?>" class="regular-text" placeholder="เช่น มาตรฐาน สอศ. Based on 1,500+ นักศึกษา" style="margin-left: 8px;" />
-                            <p class="description"><?php _e('คะแนนตัวเลข และข้อความแสดงความน่าเชื่อถือ/สถิติใต้หัวข้อ (เช่น ในตัวอย่าง Trustpilot Based on ...)', 'project-core'); ?></p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><label for="vtr_primary_btn_text"><?php _e('ปุ่มหลัก (Primary Button)', 'project-core'); ?></label></th>
-                        <td>
-                            <input type="text" id="vtr_primary_btn_text" name="<?php echo self::OPTION_KEY; ?>[vtr_primary_btn_text]" value="<?php echo esc_attr($settings['vtr_primary_btn_text']); ?>" class="regular-text" placeholder="เช่น สมัครเรียนออนไลน์ (หรือ Reserve Slot)" />
-                            <input type="text" id="vtr_primary_btn_url" name="<?php echo self::OPTION_KEY; ?>[vtr_primary_btn_url]" value="<?php echo esc_attr($settings['vtr_primary_btn_url']); ?>" class="regular-text" placeholder="เช่น /apply หรือ https://..." style="margin-left: 8px;" />
-                            <p class="description"><?php _e('ข้อความบนปุ่มสีทึบ และ ลิงก์ปลายทาง (หากเว้นว่างไว้จะไม่แสดงปุ่ม)', 'project-core'); ?></p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><label for="vtr_secondary_btn_text"><?php _e('ปุ่มรอง (Secondary Button)', 'project-core'); ?></label></th>
-                        <td>
-                            <input type="text" id="vtr_secondary_btn_text" name="<?php echo self::OPTION_KEY; ?>[vtr_secondary_btn_text]" value="<?php echo esc_attr($settings['vtr_secondary_btn_text']); ?>" class="regular-text" placeholder="เช่น ดูหลักสูตรที่เปิดสอน → (หรือ Case Studies →)" />
-                            <input type="text" id="vtr_secondary_btn_url" name="<?php echo self::OPTION_KEY; ?>[vtr_secondary_btn_url]" value="<?php echo esc_attr($settings['vtr_secondary_btn_url']); ?>" class="regular-text" placeholder="เช่น /academics หรือ https://..." style="margin-left: 8px;" />
-                            <p class="description"><?php _e('ข้อความบนปุ่มกรอบโปร่ง และ ลิงก์ปลายทาง', 'project-core'); ?></p>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><label for="vtr_cover_image_url"><?php _e('ภาพหน้าปกวิดีโอ (Custom Cover Image URL)', 'project-core'); ?></label></th>
-                        <td>
-                            <input type="url" id="vtr_cover_image_url" name="<?php echo self::OPTION_KEY; ?>[vtr_cover_image_url]" value="<?php echo esc_attr($settings['vtr_cover_image_url']); ?>" class="large-text" placeholder="https://... หรือปล่อยว่างเพื่อใช้ภาพปกจาก YouTube อัตโนมัติ" />
-                            <p class="description"><?php _e('หากปล่อยว่างไว้ ระบบจะใช้ภาพปก Thumbnail คุณภาพสูงจาก YouTube (maxresdefault) โดยอัตโนมัติ', 'project-core'); ?></p>
                         </td>
                     </tr>
                 </table>
