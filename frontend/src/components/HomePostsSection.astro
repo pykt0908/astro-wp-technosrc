@@ -85,91 +85,93 @@ const bottomPosts = posts.slice(3, 6);
             class="post-item-card lg:col-span-7 xl:col-span-8 flex flex-col"
             data-categories={JSON.stringify(featuredPost.categoryIds || [])}
           >
-            <article class="relative w-full h-full min-h-[420px] sm:min-h-[480px] lg:min-h-[500px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-lg border border-slate-900/10 group flex flex-col justify-end bg-slate-900">
-              <!-- Background Image -->
-              <img
-                src={featuredPost.coverUrl || fallbackImage}
-                alt={featuredPost.coverAlt || featuredPost.titlePlain}
-                class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                loading="eager"
-              />
+            <article class="bg-white rounded-2xl overflow-hidden border border-slate-200/90 shadow-xs hover:shadow-lg hover:border-blue-200 transition-all duration-300 flex flex-col h-full group">
+              <!-- Thumbnail (Clear, bright image with NO overlay) -->
+              <a
+                href={`/news/${featuredPost.slug}/`}
+                class="relative block aspect-[16/10] sm:aspect-[16/9] lg:aspect-[16/10] overflow-hidden bg-slate-100 focus:outline-none shrink-0"
+              >
+                <img
+                  src={featuredPost.coverUrl || fallbackImage}
+                  alt={featuredPost.coverAlt || featuredPost.titlePlain}
+                  class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                  loading="eager"
+                />
 
-              <!-- Dark Gradient Overlays for High Legibility -->
-              <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-transparent"></div>
-              <div class="absolute inset-0 bg-gradient-to-b from-slate-950/30 via-transparent to-transparent"></div>
+                <!-- Category Badge -->
+                {featuredPost.categoryNames && featuredPost.categoryNames.length > 0 && (
+                  <span class="absolute top-4 left-4 px-3 py-1 rounded bg-[#0047BA] text-white text-xs font-semibold shadow-xs">
+                    {featuredPost.categoryNames[0]}
+                  </span>
+                )}
 
-              <!-- Top-right Photo Album Badge (if post has gallery) -->
-              {(featuredPost.galleryCount ?? 0) > 0 && (
-                <div class="absolute top-4 right-4 z-10 px-3 py-1.5 rounded-full bg-black/70 backdrop-blur-md text-white text-xs font-semibold flex items-center gap-1.5 shadow-md border border-white/10">
-                  <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
-                  </svg>
-                  <span>{featuredPost.galleryCount} ภาพ</span>
-                </div>
-              )}
+                <!-- Photo Album Badge (if post has gallery) -->
+                {(featuredPost.galleryCount ?? 0) > 0 && (
+                  <span class="absolute bottom-3 right-3 px-2.5 py-1 rounded bg-black/75 backdrop-blur-xs text-white text-xs font-medium flex items-center gap-1 shadow-xs">
+                    <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
+                    </svg>
+                    <span>{featuredPost.galleryCount} ภาพ</span>
+                  </span>
+                )}
+              </a>
 
-              <!-- Content Overlay -->
-              <div class="relative z-10 p-5 sm:p-7 lg:p-8 flex flex-col justify-end">
-                <!-- Meta tags row -->
-                <div class="flex flex-wrap items-center gap-3 text-xs text-slate-300 mb-3">
-                  {featuredPost.categoryNames && featuredPost.categoryNames.length > 0 && (
-                    <span class="px-2.5 py-1 rounded bg-[#0047BA] text-white text-xs font-semibold shadow-xs">
-                      {featuredPost.categoryNames[0]}
+              <!-- Card Body (Clean white background, clear typography) -->
+              <div class="p-6 sm:p-7 flex-1 flex flex-col justify-between gap-4">
+                <div>
+                  <!-- Meta Date & Views -->
+                  <div class="flex items-center gap-4 text-xs text-slate-400 mb-2.5">
+                    <span class="flex items-center gap-1.5 font-medium text-slate-500">
+                      <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <time>{formatThaiDate(featuredPost.publishedAt)}</time>
                     </span>
-                  )}
-                  <span class="flex items-center gap-1">
-                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <time>{formatThaiDate(featuredPost.publishedAt)}</time>
-                  </span>
-                  <span class="flex items-center gap-1 text-slate-300">
-                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    <span>{featuredPost.views ?? 15}</span>
-                  </span>
+                    <span class="flex items-center gap-1.5 text-slate-400">
+                      <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      <span>{featuredPost.views ?? 15}</span>
+                    </span>
+                  </div>
+
+                  <!-- Title -->
+                  <h3 class="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900 group-hover:text-[#0047BA] transition-colors leading-snug">
+                    <a href={`/news/${featuredPost.slug}/`} class="focus:outline-none">
+                      {featuredPost.titlePlain}
+                    </a>
+                  </h3>
+
+                  <!-- Excerpt -->
+                  <p class="text-sm text-slate-600 line-clamp-3 mt-2.5 leading-relaxed">
+                    {featuredPost.excerptPlain}
+                  </p>
                 </div>
 
-                <!-- Title -->
-                <h3 class="text-xl sm:text-2xl lg:text-3xl font-black text-white leading-snug line-clamp-2 hover:text-sky-300 transition-colors">
-                  <a href={`/news/${featuredPost.slug}/`} class="focus:outline-none">
-                    {featuredPost.titlePlain}
-                  </a>
-                </h3>
-
-                <!-- Excerpt -->
-                <p class="text-xs sm:text-sm text-slate-300 line-clamp-2 mt-2 leading-relaxed max-w-3xl">
-                  {featuredPost.excerptPlain}
-                </p>
-
-                <!-- Bottom Bar: Author info & CTA -->
-                <div class="mt-5 pt-4 border-t border-white/15 flex items-center justify-between gap-4">
+                <!-- Footer: Author + Read More -->
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-between gap-4">
                   <div class="flex items-center gap-2.5">
                     <img
                       src={featuredPost.authorAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120&auto=format&fit=crop'}
                       alt={featuredPost.authorName || 'Admin'}
-                      class="w-9 h-9 rounded-full object-cover border-2 border-white/20"
+                      class="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover"
                       loading="lazy"
                     />
                     <div class="flex flex-col">
-                      <span class="text-xs sm:text-sm font-bold text-white leading-tight">
+                      <span class="text-xs sm:text-sm font-semibold text-slate-800 leading-tight">
                         {featuredPost.authorName || 'Admin'}
-                      </span>
-                      <span class="text-[11px] text-slate-400 leading-tight">
-                        {featuredPost.authorRole || 'ผู้ดูแลระบบ'}
                       </span>
                     </div>
                   </div>
 
                   <a
                     href={`/news/${featuredPost.slug}/`}
-                    class="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white text-slate-900 text-xs sm:text-sm font-bold shadow-md hover:bg-slate-100 hover:scale-105 active:scale-95 transition-all shrink-0 focus:outline-none"
+                    class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#0047BA] hover:text-[#002D72] group-hover:translate-x-1 transition-all"
                   >
                     <span>อ่านรายละเอียด</span>
-                    <svg class="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                   </a>
                 </div>
