@@ -36,6 +36,30 @@ function formatThaiDateFull(startDateStr: string, endDateStr?: string): string {
   return `${sDay} ${THAI_MONTHS_FULL[sMonth]} ${sYear}`;
 }
 
+// Helper to sort academic year / semester terms naturally (e.g. 2/2569 > 1/2569 > 2/2568 > 1/2568 > 2569)
+function compareAcademicTerms(a: string, b: string): number {
+  const parseTerm = (str: string) => {
+    if (str.includes('/')) {
+      const parts = str.split('/');
+      return { sem: parseInt(parts[0], 10) || 0, yr: parseInt(parts[1], 10) || 0 };
+    }
+    return { sem: 0, yr: parseInt(str, 10) || 0 };
+  };
+  const termA = parseTerm(a);
+  const termB = parseTerm(b);
+  if (termB.yr !== termA.yr) return termB.yr - termA.yr;
+  return termB.sem - termA.sem;
+}
+
+// Helper to format academic term display label
+function formatAcademicTermDisplay(term: string): string {
+  if (!term) return '';
+  if (term.includes('/')) {
+    return `ภาคเรียนที่ ${term}`;
+  }
+  return `ปีการศึกษา ${term}`;
+}
+
 const [allEvents, rawAcademicYears] = await Promise.all([
   getCollegeEvents(),
   getCollegeAcademicYears(),
@@ -50,14 +74,26 @@ const autoPrint = url.searchParams.get('auto') === '1' || url.searchParams.get('
 const availableAcademicYears = Array.from(
   new Set([
     ...rawAcademicYears,
-    ...allEvents.map((e) => e.academicYear).filter(Boolean),
-    '2569',
+    ...allEvents.map((e) => e.academicYear).filter((y): y is string => Boolean(y)),
+    '1/2569',
+    '2/2569',
   ])
-).sort((a, b) => b.localeCompare(a));
+).sort(compareAcademicTerms);
+
+const todayDate = new Date();
+const currentMonthNum = todayDate.getMonth() + 1;
+const currentThaiYear = todayDate.getFullYear() + 543;
+const autoDetectedTerm = (currentMonthNum >= 5 && currentMonthNum <= 10)
+  ? `1/${currentThaiYear}`
+  : `2/${currentThaiYear}`;
+
+const defaultYear = availableAcademicYears.includes(autoDetectedTerm)
+  ? autoDetectedTerm
+  : (availableAcademicYears[0] || '1/2569');
 
 const selectedYear = paramYear && availableAcademicYears.includes(paramYear)
   ? paramYear
-  : (availableAcademicYears[0] || '2569');
+  : defaultYear;
 
 // Filter events for the selected academic year and sort chronologically
 const yearEvents = allEvents
@@ -74,7 +110,7 @@ const printDateStr = `${now.getDate()} ${THAI_MONTHS_FULL[now.getMonth()]} ${now
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ปฏิทินการศึกษาและกิจกรรม ประจำปีการศึกษา {selectedYear} - วิทยาลัยเทคโนโลยีศรีราชา</title>
+  <title>ปฏิทินการศึกษาและกิจกรรม ประจำ{formatAcademicTermDisplay(selectedYear)} - วิทยาลัยเทคโนโลยีศรีราชา</title>
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -514,11 +550,11 @@ const printDateStr = `${now.getDate()} ${THAI_MONTHS_FULL[now.getMonth()]} ${now
     <div class="web-control-actions">
       <!-- Academic Year Switcher -->
       <div class="year-select-wrap">
-        <label for="web-year-switcher">ปีการศึกษา:</label>
+        <label for="web-year-switcher">ภาคเรียน / ปีการศึกษา:</label>
         <select id="web-year-switcher" class="year-select">
           {availableAcademicYears.map((yr) => (
             <option value={yr} selected={yr === selectedYear}>
-              พ.ศ. {yr}
+              {formatAcademicTermDisplay(yr)}
             </option>
           ))}
         </select>
@@ -554,7 +590,7 @@ const printDateStr = `${now.getDate()} ${THAI_MONTHS_FULL[now.getMonth()]} ${now
         <h1 class="doc-college-title">วิทยาลัยเทคโนโลยีศรีราชา</h1>
         <div class="doc-college-en">Sriracha Technological College</div>
         <div class="doc-calendar-title">
-          ปฏิทินการศึกษาและกำหนดการกิจกรรม ประจำปีการศึกษา {selectedYear}
+          ปฏิทินการศึกษาและกำหนดการกิจกรรม ประจำ{formatAcademicTermDisplay(selectedYear)}
         </div>
         <div class="doc-sub-ministry">
           สังกัดสำนักงานคณะกรรมการการอาชีวศึกษา (สอศ.) กระทรวงศึกษาธิการ
@@ -564,7 +600,7 @@ const printDateStr = `${now.getDate()} ${THAI_MONTHS_FULL[now.getMonth()]} ${now
 
     <!-- Meta Information Bar -->
     <section class="doc-meta-bar">
-      <div><strong>ปีการศึกษา:</strong> {selectedYear}</div>
+      <div><strong>ภาคเรียน / ปีการศึกษา:</strong> {selectedYear}</div>
       <div><strong>จำนวนกิจกรรมทั้งหมด:</strong> {yearEvents.length} รายการ</div>
       <div><strong>วันที่พิมพ์เอกสาร:</strong> {printDateStr}</div>
       <div><strong>เว็บไซต์:</strong> www.technosrc.ac.th</div>
@@ -608,7 +644,7 @@ const printDateStr = `${now.getDate()} ${THAI_MONTHS_FULL[now.getMonth()]} ${now
       </table>
     ) : (
       <div class="empty-notice">
-        <p>ยังไม่มีข้อมูลกิจกรรมและกำหนดการสำหรับปีการศึกษา {selectedYear}</p>
+        <p>ยังไม่มีข้อมูลกิจกรรมและกำหนดการสำหรับ{formatAcademicTermDisplay(selectedYear)}</p>
         <p style="font-size: 12px; margin-top: 6px; color: #94a3b8;">สามารถเพิ่มกิจกรรมใหม่ได้ผ่านระบบจัดการข้อมูล WordPress Admin</p>
       </div>
     )}

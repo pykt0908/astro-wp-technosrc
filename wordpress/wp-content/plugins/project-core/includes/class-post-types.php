@@ -162,18 +162,18 @@ class Project_Core_Post_Types {
 
         register_taxonomy('event_category', array('college_event'), $event_cat_args);
 
-        // Academic Year Taxonomy (ปีการศึกษา - จัดการ เพิ่ม ลบ แก้ไข ได้)
+        // Academic Year Taxonomy (ภาคเรียน / ปีการศึกษา - เช่น 1/2569, 2/2569)
         $academic_year_labels = array(
-            'name'              => __('ปีการศึกษา', 'project-core'),
-            'singular_name'     => __('ปีการศึกษา', 'project-core'),
-            'search_items'      => __('ค้นหาปีการศึกษา', 'project-core'),
-            'all_items'         => __('ปีการศึกษาทั้งหมด', 'project-core'),
-            'edit_item'         => __('แก้ไขปีการศึกษา', 'project-core'),
-            'update_item'       => __('อัปเดตปีการศึกษา', 'project-core'),
-            'add_new_item'      => __('เพิ่มปีการศึกษาใหม่', 'project-core'),
-            'new_item_name'     => __('ชื่อปีการศึกษาใหม่ (เช่น 2569)', 'project-core'),
-            'menu_name'         => __('ปีการศึกษา', 'project-core'),
-            'back_to_items'     => __('← กลับไปหน้ารายการปีการศึกษา', 'project-core'),
+            'name'              => __('ภาคเรียน / ปีการศึกษา', 'project-core'),
+            'singular_name'     => __('ภาคเรียน / ปีการศึกษา', 'project-core'),
+            'search_items'      => __('ค้นหาภาคเรียน/ปีการศึกษา', 'project-core'),
+            'all_items'         => __('ภาคเรียน/ปีการศึกษาทั้งหมด', 'project-core'),
+            'edit_item'         => __('แก้ไขภาคเรียน/ปีการศึกษา', 'project-core'),
+            'update_item'       => __('อัปเดตภาคเรียน/ปีการศึกษา', 'project-core'),
+            'add_new_item'      => __('เพิ่มภาคเรียน/ปีการศึกษาใหม่', 'project-core'),
+            'new_item_name'     => __('ชื่อภาคเรียน/ปีการศึกษาใหม่ (เช่น 1/2569 หรือ 2/2569)', 'project-core'),
+            'menu_name'         => __('ภาคเรียน / ปีการศึกษา', 'project-core'),
+            'back_to_items'     => __('← กลับไปหน้ารายการภาคเรียน/ปีการศึกษา', 'project-core'),
         );
 
         $academic_year_args = array(
@@ -264,7 +264,7 @@ class Project_Core_Post_Types {
         $new_columns = array();
         $new_columns['cb']                      = $columns['cb'];
         $new_columns['title']                   = __('ชื่องาน / กิจกรรม', 'project-core');
-        $new_columns['academic_year']           = __('ปีการศึกษา', 'project-core');
+        $new_columns['academic_year']           = __('ภาคเรียน / ปีการศึกษา', 'project-core');
         $new_columns['event_date']              = __('วันที่จัดกิจกรรม', 'project-core');
         $new_columns['event_time']              = __('เวลา', 'project-core');
         $new_columns['event_location']          = __('สถานที่', 'project-core');
@@ -291,13 +291,17 @@ class Project_Core_Post_Types {
                             $parts = explode('-', $start);
                             $y = (int) $parts[0];
                             $m = isset($parts[1]) ? (int) $parts[1] : 6;
-                            $ay = (string) ((($m < 5) ? ($y - 1) : $y) + 543);
+                            $ay_calc = ($m < 5) ? ($y - 1) : $y;
+                            $th_year = $ay_calc + 543;
+                            $term_num = ($m >= 5 && $m <= 10) ? '1' : '2';
+                            $ay = "{$term_num}/{$th_year}";
                         } else {
-                            $ay = '2569';
+                            $ay = '1/2569';
                         }
                     }
                 }
-                echo '<span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#e0f2fe;color:#0369a1;font-weight:700;font-size:12px;">' . esc_html($ay) . '</span>';
+                $lbl = strpos($ay, '/') !== false ? 'ภาคเรียน ' . $ay : 'ปี ' . $ay;
+                echo '<span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#e0f2fe;color:#0369a1;font-weight:700;font-size:12px;">' . esc_html($lbl) . '</span>';
                 break;
 
             case 'event_date':
@@ -547,10 +551,11 @@ class Project_Core_Post_Types {
         ));
 
         echo '<select name="filter_academic_year" id="filter_academic_year" style="margin-right: 6px;">';
-        echo '<option value="">' . esc_html__('— ทุกปีการศึกษา —', 'project-core') . '</option>';
+        echo '<option value="">' . esc_html__('— ทุกภาคเรียน / ปีการศึกษา —', 'project-core') . '</option>';
         if (!is_wp_error($year_terms) && !empty($year_terms)) {
             foreach ($year_terms as $yt) {
-                echo '<option value="' . esc_attr($yt->slug) . '" ' . selected($selected_year, $yt->slug, false) . '>ปีการศึกษา ' . esc_html($yt->name) . ' (' . $yt->count . ')</option>';
+                $lbl = strpos($yt->name, '/') !== false ? 'ภาคเรียนที่ ' . $yt->name : 'ปีการศึกษา ' . $yt->name;
+                echo '<option value="' . esc_attr($yt->slug) . '" ' . selected($selected_year, $yt->slug, false) . '>' . esc_html($lbl) . ' (' . $yt->count . ')</option>';
             }
         }
         echo '</select>';

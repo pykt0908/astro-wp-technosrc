@@ -478,8 +478,6 @@ class Project_Core_REST_API {
         $term_years = get_terms(array(
             'taxonomy'   => 'academic_year',
             'hide_empty' => false,
-            'orderby'    => 'name',
-            'order'      => 'DESC',
         ));
         $available_years = array();
         if (!is_wp_error($term_years) && !empty($term_years)) {
@@ -488,17 +486,27 @@ class Project_Core_REST_API {
             }
         }
         if (empty($available_years)) {
-            global $wpdb;
-            $available_years = $wpdb->get_col("SELECT DISTINCT meta_value FROM {$wpdb->postmeta} WHERE meta_key = 'academic_year' AND meta_value != '' ORDER BY meta_value DESC");
-            if (empty($available_years)) {
-                $available_years = array('2569');
-            }
+            $available_years = array('1/2569');
         }
+
+        // Sort descending by year then semester (e.g. 2/2569, 1/2569, 2/2568, 1/2568)
+        usort($available_years, function($a, $b) {
+            $partsA = explode('/', $a);
+            $partsB = explode('/', $b);
+            $yearA = isset($partsA[1]) ? (int)$partsA[1] : (int)$partsA[0];
+            $yearB = isset($partsB[1]) ? (int)$partsB[1] : (int)$partsB[0];
+            if ($yearA !== $yearB) {
+                return $yearB - $yearA;
+            }
+            $termA = isset($partsA[1]) ? (int)$partsA[0] : 0;
+            $termB = isset($partsB[1]) ? (int)$partsB[0] : 0;
+            return $termB - $termA;
+        });
 
         return rest_ensure_response(array(
             'events'         => $events,
             'academicYears'  => $available_years,
-            'currentYear'    => !empty($available_years) ? $available_years[0] : '2569',
+            'currentYear'    => !empty($available_years) ? $available_years[0] : '1/2569',
             'totalEvents'    => (int) $query->found_posts,
             'totalPages'     => (int) $query->max_num_pages,
             'page'           => $page,
@@ -512,8 +520,6 @@ class Project_Core_REST_API {
         $terms = get_terms(array(
             'taxonomy'   => 'academic_year',
             'hide_empty' => false,
-            'orderby'    => 'name',
-            'order'      => 'DESC',
         ));
 
         $result = array();
@@ -530,9 +536,23 @@ class Project_Core_REST_API {
 
         if (empty($result)) {
             $result = array(
-                array('id' => 1, 'name' => '2569', 'slug' => '2569', 'count' => 6),
+                array('id' => 1, 'name' => '1/2569', 'slug' => '1-2569', 'count' => 3),
             );
         }
+
+        // Sort descending by year then semester
+        usort($result, function($a, $b) {
+            $partsA = explode('/', $a['name']);
+            $partsB = explode('/', $b['name']);
+            $yearA = isset($partsA[1]) ? (int)$partsA[1] : (int)$partsA[0];
+            $yearB = isset($partsB[1]) ? (int)$partsB[1] : (int)$partsB[0];
+            if ($yearA !== $yearB) {
+                return $yearB - $yearA;
+            }
+            $termA = isset($partsA[1]) ? (int)$partsA[0] : 0;
+            $termB = isset($partsB[1]) ? (int)$partsB[0] : 0;
+            return $termB - $termA;
+        });
 
         return rest_ensure_response($result);
     }

@@ -10,16 +10,51 @@ interface Props {
 
 const { events = [], categories = [], academicYears = [] } = Astro.props;
 
+// Helper to sort academic year / semester terms naturally (e.g. 2/2569 > 1/2569 > 2/2568 > 1/2568 > 2569)
+function compareAcademicTerms(a: string, b: string): number {
+  const parseTerm = (str: string) => {
+    if (str.includes('/')) {
+      const parts = str.split('/');
+      return { sem: parseInt(parts[0], 10) || 0, yr: parseInt(parts[1], 10) || 0 };
+    }
+    return { sem: 0, yr: parseInt(str, 10) || 0 };
+  };
+  const termA = parseTerm(a);
+  const termB = parseTerm(b);
+  if (termB.yr !== termA.yr) return termB.yr - termA.yr;
+  return termB.sem - termA.sem;
+}
+
+// Helper to format academic term display label
+function formatAcademicTermDisplay(term: string): string {
+  if (!term) return '';
+  if (term.includes('/')) {
+    return `ภาคเรียนที่ ${term}`;
+  }
+  return `ปีการศึกษา ${term}`;
+}
+
 // Compute available academic years
 const availableAcademicYears = Array.from(
   new Set([
     ...academicYears,
-    ...events.map((e) => e.academicYear).filter(Boolean),
-    '2569',
+    ...events.map((e) => e.academicYear).filter((y): y is string => Boolean(y)),
+    '1/2569',
+    '2/2569',
   ])
-).sort((a, b) => b.localeCompare(a));
+).sort(compareAcademicTerms);
 
-const currentAcademicYear = availableAcademicYears[0] || '2569';
+// Default to current term based on month (May-Oct = 1, Nov-Apr = 2) or availableAcademicYears[0]
+const todayDate = new Date();
+const currentMonthNum = todayDate.getMonth() + 1;
+const currentThaiYear = todayDate.getFullYear() + 543;
+const autoDetectedTerm = (currentMonthNum >= 5 && currentMonthNum <= 10)
+  ? `1/${currentThaiYear}`
+  : `2/${currentThaiYear}`;
+
+const currentAcademicYear = availableAcademicYears.includes(autoDetectedTerm)
+  ? autoDetectedTerm
+  : (availableAcademicYears[0] || '1/2569');
 
 // Month names in Thai
 const THAI_MONTHS_FULL = [
@@ -193,7 +228,7 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
       <div class="flex flex-wrap items-center gap-2.5 sm:gap-3 shrink-0">
         <!-- Academic Year Dropdown -->
         <div class="relative flex items-center">
-          <label for="calendar-academic-year-select" class="sr-only">เลือกปีการศึกษา</label>
+          <label for="calendar-academic-year-select" class="sr-only">เลือกภาคเรียน / ปีการศึกษา</label>
           <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-blue-600">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -202,11 +237,11 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
           <select
             id="calendar-academic-year-select"
             class="pl-8 pr-7 py-2 rounded-xl bg-blue-50/80 hover:bg-blue-100/70 text-blue-900 border border-blue-200/90 font-bold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition-colors appearance-none"
-            title="เลือกปีการศึกษาเพื่อดูและดาวน์โหลดปฏิทิน"
+            title="เลือกภาคเรียน / ปีการศึกษาเพื่อดูและดาวน์โหลดปฏิทิน"
           >
-            {availableAcademicYears.map((yr, idx) => (
+            {availableAcademicYears.map((yr) => (
               <option value={yr} selected={yr === currentAcademicYear}>
-                ปีการศึกษา {yr} {idx === 0 ? '(ปัจจุบัน)' : ''}
+                {formatAcademicTermDisplay(yr)}
               </option>
             ))}
           </select>
@@ -739,7 +774,7 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
   const today = new Date();
   let currentYear = today.getFullYear();
   let currentMonth = today.getMonth(); // 0-indexed: 9 = October
-  let selectedAcademicYear = currentAcademicYear || '2569';
+  let selectedAcademicYear = currentAcademicYear || '1/2569';
 
   // If current month has no events but serializedEvents has events, match the first event month of current academic year
   const eventsInCurrentYear = serializedEvents.filter((ev) => ev.academicYear === selectedAcademicYear);

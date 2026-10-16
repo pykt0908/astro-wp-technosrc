@@ -669,24 +669,25 @@ class Project_Core_Custom_Fields {
         ?>
         <table class="form-table" style="max-width: 900px;">
             <tr>
-                <th scope="row"><label for="academic_year"><strong><?php _e('ปีการศึกษา (Academic Year) *', 'project-core'); ?></strong></label></th>
+                <th scope="row"><label for="academic_year"><strong><?php _e('ภาคเรียน / ปีการศึกษา (Academic Term) *', 'project-core'); ?></strong></label></th>
                 <td>
                     <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                        <select id="academic_year" name="academic_year" style="min-width: 170px; font-weight: 700; font-size: 14px; padding: 4px 8px; color: #0047BA;">
+                        <select id="academic_year" name="academic_year" style="min-width: 190px; font-weight: 700; font-size: 14px; padding: 4px 8px; color: #0047BA;">
                             <?php if (!empty($ay_terms) && !is_wp_error($ay_terms)) : ?>
                                 <?php foreach ($ay_terms as $t) : ?>
-                                    <option value="<?php echo esc_attr($t->name); ?>" <?php selected($academic_year, $t->name); ?>>ปีการศึกษา <?php echo esc_html($t->name); ?></option>
+                                    <?php $display_text = strpos($t->name, '/') !== false ? 'ภาคเรียนที่ ' . $t->name : 'ปีการศึกษา ' . $t->name; ?>
+                                    <option value="<?php echo esc_attr($t->name); ?>" <?php selected($academic_year, $t->name); ?>><?php echo esc_html($display_text); ?></option>
                                 <?php endforeach; ?>
                             <?php else : ?>
-                                <option value="2569" <?php selected($academic_year, '2569'); ?>>ปีการศึกษา 2569</option>
-                                <option value="2568" <?php selected($academic_year, '2568'); ?>>ปีการศึกษา 2568</option>
+                                <option value="1/2569" <?php selected($academic_year, '1/2569'); ?>>ภาคเรียนที่ 1/2569</option>
+                                <option value="2/2569" <?php selected($academic_year, '2/2569'); ?>>ภาคเรียนที่ 2/2569</option>
                             <?php endif; ?>
                         </select>
-                        <a href="<?php echo esc_url(admin_url('edit-tags.php?taxonomy=academic_year&post_type=college_event')); ?>" target="_blank" class="button" title="ไปหน้าเพิ่ม ลบ แก้ไข รายการปีการศึกษา">
-                            <span class="dashicons dashicons-category" style="font-size: 16px; line-height: 28px; vertical-align: middle;"></span> <?php _e('จัดการปีการศึกษา (เพิ่ม / ลบ / แก้ไข)', 'project-core'); ?> ↗
+                        <a href="<?php echo esc_url(admin_url('edit-tags.php?taxonomy=academic_year&post_type=college_event')); ?>" target="_blank" class="button" title="ไปหน้าเพิ่ม ลบ แก้ไข รายการภาคเรียนและปีการศึกษา">
+                            <span class="dashicons dashicons-category" style="font-size: 16px; line-height: 28px; vertical-align: middle;"></span> <?php _e('จัดการภาคเรียน / ปีการศึกษา (เพิ่ม / ลบ / แก้ไข)', 'project-core'); ?> ↗
                         </a>
                     </div>
-                    <p class="description" style="margin-top: 5px;"><?php _e('เลือกปีการศึกษาที่จัดกิจกรรมนี้ หรือคลิกปุ่ม "จัดการปีการศึกษา" เพื่อเพิ่มปีการศึกษาใหม่ เช่น 2570 หรือแก้ไข/ลบปีเดิม', 'project-core'); ?></p>
+                    <p class="description" style="margin-top: 5px;"><?php _e('เช่น 1/2569, 2/2569 หรือคลิกปุ่ม "จัดการภาคเรียน / ปีการศึกษา" เพื่อเพิ่มภาคเรียนใหม่ เช่น 1/2570 หรือแก้ไข/ลบภาคเรียนเดิม', 'project-core'); ?></p>
                 </td>
             </tr>
             <tr>
@@ -837,14 +838,17 @@ class Project_Core_Custom_Fields {
                     $y = (int) $parts[0];
                     $m = isset($parts[1]) ? (int) $parts[1] : 6;
                     $ay_calc = ($m < 5) ? ($y - 1) : $y;
-                    $academic_year = (string) ($ay_calc + 543);
+                    $th_year = $ay_calc + 543;
+                    $term_num = ($m >= 5 && $m <= 10) ? '1' : '2';
+                    $academic_year = "{$term_num}/{$th_year}";
                 } elseif (empty($academic_year)) {
-                    $academic_year = '2569';
+                    $academic_year = '1/2569';
                 }
 
                 // Ensure term exists in academic_year taxonomy and set it
                 if (!term_exists($academic_year, 'academic_year')) {
-                    wp_insert_term($academic_year, 'academic_year', array('slug' => $academic_year));
+                    $slug = sanitize_title(str_replace('/', '-', $academic_year));
+                    wp_insert_term($academic_year, 'academic_year', array('slug' => $slug));
                 }
                 wp_set_object_terms($post_id, $academic_year, 'academic_year', false);
 
