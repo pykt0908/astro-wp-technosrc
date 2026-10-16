@@ -95,6 +95,20 @@ export function stripHtml(html: string): string {
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
     .replace(/&#039;/g, "'")
+    .replace(/&#(\d+);/g, (_, code) => {
+      try {
+        return String.fromCodePoint(parseInt(code, 10));
+      } catch {
+        return '';
+      }
+    })
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, code) => {
+      try {
+        return String.fromCodePoint(parseInt(code, 16));
+      } catch {
+        return '';
+      }
+    })
     .replace(/\s+/g, ' ')
     .trim();
 }

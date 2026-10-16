@@ -28,6 +28,31 @@ function formatThaiDate(dateStr: string) {
   return `${day} ${month} ${year}`;
 }
 
+// Decode HTML entities
+function decodeHtmlEntities(str: string) {
+  if (!str) return '';
+  return str
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&#(\d+);/g, (_, code) => {
+      try {
+        return String.fromCodePoint(parseInt(code, 10));
+      } catch {
+        return '';
+      }
+    })
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, code) => {
+      try {
+        return String.fromCodePoint(parseInt(code, 16));
+      } catch {
+        return '';
+      }
+    });
+}
+
 const fallbackImage =
   'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800&auto=format&fit=crop';
 const defaultAvatar =
@@ -36,10 +61,10 @@ const defaultAvatar =
 const serializedPosts = posts.map((p) => ({
   id: p.id,
   slug: p.slug,
-  title: p.titlePlain,
-  excerpt: p.excerptPlain,
+  title: decodeHtmlEntities(p.titlePlain),
+  excerpt: decodeHtmlEntities(p.excerptPlain),
   coverUrl: p.coverUrl || fallbackImage,
-  coverAlt: p.coverAlt || p.titlePlain,
+  coverAlt: p.coverAlt || decodeHtmlEntities(p.titlePlain),
   categoryIds: p.categoryIds || [],
   categoryName: p.categoryNames && p.categoryNames.length > 0 ? p.categoryNames[0] : '',
   publishedAt: formatThaiDate(p.publishedAt),
@@ -161,10 +186,10 @@ const post5 = serializedPosts[5] || null;
             class:list={['bento-slot flex-1 flex flex-col', !post1 ? 'hidden' : '']}
           >
             <article class="bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200/90 shadow-xs hover:shadow-lg hover:border-blue-200 transition-all duration-300 flex flex-col h-full group">
-              <!-- Thumbnail -->
+              <!-- Thumbnail (balanced ~54% height on desktop so detail area is proportionate) -->
               <a
                 href={post1 ? `/news/${post1.slug}/` : '#'}
-                class="bento-link relative block aspect-[16/9] max-h-[140px] sm:max-h-[160px] overflow-hidden bg-slate-100 focus:outline-none"
+                class="bento-link relative block aspect-[16/10] sm:aspect-[16/9] lg:aspect-auto lg:h-[54%] lg:min-h-[175px] overflow-hidden bg-slate-100 focus:outline-none"
               >
                 <img
                   src={post1?.coverUrl || fallbackImage}
@@ -179,7 +204,7 @@ const post5 = serializedPosts[5] || null;
               </a>
 
               <!-- Card Body -->
-              <div class="p-3 sm:p-3.5 flex-1 flex flex-col justify-between gap-2">
+              <div class="p-3 sm:p-3.5 lg:p-3 flex-1 flex flex-col justify-between gap-1.5">
                 <div>
                   <!-- Meta Date & Views -->
                   <div class="flex items-center gap-2.5 text-[11px] text-slate-400 mb-1">
@@ -205,8 +230,8 @@ const post5 = serializedPosts[5] || null;
                     </a>
                   </h4>
 
-                  <!-- Excerpt -->
-                  <p class="bento-excerpt text-[11px] text-slate-500 line-clamp-1 mt-0.5 leading-relaxed">
+                  <!-- Excerpt (2 lines to fill detail area naturally) -->
+                  <p class="bento-excerpt text-[11px] text-slate-500 line-clamp-2 mt-0.5 leading-relaxed">
                     {post1?.excerpt || ''}
                   </p>
                 </div>
@@ -245,10 +270,10 @@ const post5 = serializedPosts[5] || null;
             class:list={['bento-slot flex-1 flex flex-col', !post2 ? 'hidden' : '']}
           >
             <article class="bg-white rounded-xl sm:rounded-2xl overflow-hidden border border-slate-200/90 shadow-xs hover:shadow-lg hover:border-blue-200 transition-all duration-300 flex flex-col h-full group">
-              <!-- Thumbnail -->
+              <!-- Thumbnail (balanced ~54% height on desktop so detail area is proportionate) -->
               <a
                 href={post2 ? `/news/${post2.slug}/` : '#'}
-                class="bento-link relative block aspect-[16/9] max-h-[140px] sm:max-h-[160px] overflow-hidden bg-slate-100 focus:outline-none"
+                class="bento-link relative block aspect-[16/10] sm:aspect-[16/9] lg:aspect-auto lg:h-[54%] lg:min-h-[175px] overflow-hidden bg-slate-100 focus:outline-none"
               >
                 <img
                   src={post2?.coverUrl || fallbackImage}
@@ -263,7 +288,7 @@ const post5 = serializedPosts[5] || null;
               </a>
 
               <!-- Card Body -->
-              <div class="p-3 sm:p-3.5 flex-1 flex flex-col justify-between gap-2">
+              <div class="p-3 sm:p-3.5 lg:p-3 flex-1 flex flex-col justify-between gap-1.5">
                 <div>
                   <!-- Meta Date & Views -->
                   <div class="flex items-center gap-2.5 text-[11px] text-slate-400 mb-1">
@@ -289,8 +314,8 @@ const post5 = serializedPosts[5] || null;
                     </a>
                   </h4>
 
-                  <!-- Excerpt -->
-                  <p class="bento-excerpt text-[11px] text-slate-500 line-clamp-1 mt-0.5 leading-relaxed">
+                  <!-- Excerpt (2 lines to fill detail area naturally) -->
+                  <p class="bento-excerpt text-[11px] text-slate-500 line-clamp-2 mt-0.5 leading-relaxed">
                     {post2?.excerpt || ''}
                   </p>
                 </div>
