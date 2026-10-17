@@ -18,30 +18,61 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     </nav>
 
     <!-- Page Title -->
-    <div class="mb-8 sm:mb-12 pb-6 border-b border-slate-200 dark:border-slate-800">
+    <div class="mb-8 pb-6 border-b border-slate-200 dark:border-slate-800">
       <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
         ปรัชญาและอัตลักษณ์
       </h1>
+      <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-2">
+        วิทยาลัยเทคโนโลยีศรีราชา
+      </p>
+
+      <!-- Minimal Quick Navigation Pills -->
+      <div class="flex flex-wrap gap-2 mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/80">
+        <a href="#philosophy" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-[#0047BA] hover:text-white dark:hover:bg-[#0047BA] transition-colors">
+          ปรัชญา
+        </a>
+        <a href="#culture" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-[#0047BA] hover:text-white dark:hover:bg-[#0047BA] transition-colors">
+          วัฒนธรรมองค์กร
+        </a>
+        <a href="#symbols" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-[#0047BA] hover:text-white dark:hover:bg-[#0047BA] transition-colors">
+          สี & ต้นไม้ประจำวิทยาลัย
+        </a>
+        <a href="#identity" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-[#0047BA] hover:text-white dark:hover:bg-[#0047BA] transition-colors">
+          เอกลักษณ์ & อัตลักษณ์
+        </a>
+        <a href="#vision" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-[#0047BA] hover:text-white dark:hover:bg-[#0047BA] transition-colors">
+          วิสัยทัศน์ & พันธกิจ
+        </a>
+        <a href="#policy-strategy" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-[#0047BA] hover:text-white dark:hover:bg-[#0047BA] transition-colors">
+          นโยบาย & ยุทธศาสตร์
+        </a>
+        <a href="#goals" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-[#0047BA] hover:text-white dark:hover:bg-[#0047BA] transition-colors">
+          เป้าประสงค์
+        </a>
+      </div>
     </div>
 
-    <div class="max-w-4xl mx-auto space-y-12 sm:space-y-16">
+    <div class="max-w-4xl mx-auto space-y-14 sm:space-y-16">
 
       <!-- ================= 1. ปรัชญา ================= -->
-      <section class="space-y-6">
-        <div class="border-b border-slate-200 dark:border-slate-800 pb-3">
-          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+      <section id="philosophy" class="scroll-mt-24 space-y-6">
+        <div class="flex items-center gap-3">
+          <span class="w-1.5 h-6 rounded-full bg-[#0047BA]"></span>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             ปรัชญา
           </h2>
         </div>
 
-        <!-- คำขวัญปรัชญา -->
-        <blockquote class="text-2xl sm:text-3xl font-extrabold text-[#0047BA] dark:text-blue-400 tracking-tight leading-snug sm:leading-tight">
-          “ทักษะเยี่ยม เปี่ยมคุณธรรม ล้ำเลิศวิชา พัฒนาสังคม”
-        </blockquote>
+        <!-- คำขวัญปรัชญา (Minimal Typography Highlight) -->
+        <div class="border-l-4 border-[#0047BA] pl-5 sm:pl-6 py-2">
+          <blockquote class="text-2xl sm:text-3xl font-extrabold text-[#0047BA] dark:text-blue-400 tracking-tight leading-snug sm:leading-tight">
+            “ทักษะเยี่ยม เปี่ยมคุณธรรม ล้ำเลิศวิชา พัฒนาสังคม”
+          </blockquote>
+        </div>
 
-        <!-- ความเชื่อมั่นในปรัชญาการศึกษา -->
-        <div class="text-slate-700 dark:text-slate-300 text-base sm:text-lg leading-relaxed font-normal space-y-4">
-          <p>
+        <!-- ความเชื่อมั่นในปรัชญาการศึกษา (Minimal Surface Card) -->
+        <div class="p-6 sm:p-7 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200/70 dark:border-slate-800">
+          <p class="text-slate-700 dark:text-slate-300 text-base sm:text-lg leading-relaxed font-normal">
             คณะผู้ก่อตั้งวิทยาลัยมีความเชื่อมั่นในปรัชญาการศึกษาว่า 
             <span class="font-semibold text-slate-900 dark:text-white">“รากฐานของตึกคืออิฐ รากฐานของชีวิตคือ การศึกษา”</span> 
             การศึกษาคือความเจริญงอกงามของการให้การศึกษาที่ดีแก่เด็ก เด็กจะสามารถสร้างคุณภาพชีวิตที่ดี 
@@ -50,288 +81,423 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           </p>
         </div>
 
-        <!-- ความหมายของปรัชญา 4 ด้าน -->
-        <div class="pt-2 space-y-3">
+        <!-- ความหมายของปรัชญา 4 ด้าน (Minimal Grid Cards) -->
+        <div class="pt-2 space-y-4">
           <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
             ความหมายของปรัชญา
           </h3>
-          <dl class="space-y-2.5 text-slate-700 dark:text-slate-300 text-base sm:text-lg leading-relaxed font-normal">
-            <div class="flex flex-col sm:flex-row sm:gap-3">
-              <dt class="font-semibold text-slate-900 dark:text-white sm:min-w-[140px]">ทักษะเยี่ยม</dt>
-              <dd class="text-slate-600 dark:text-slate-400">หมายถึง มีความรู้ ความสามารถตรงตามสาขาที่เรียน</dd>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div class="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+              <div class="flex items-center gap-2 mb-1.5">
+                <span class="w-2 h-2 rounded-full bg-[#0047BA] dark:bg-blue-400 shrink-0"></span>
+                <span class="font-bold text-slate-900 dark:text-white text-base">ทักษะเยี่ยม</span>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed pl-4">
+                มีความรู้ ความสามารถตรงตามสาขาที่เรียน
+              </p>
             </div>
-            <div class="flex flex-col sm:flex-row sm:gap-3">
-              <dt class="font-semibold text-slate-900 dark:text-white sm:min-w-[140px]">เปี่ยมคุณธรรม</dt>
-              <dd class="text-slate-600 dark:text-slate-400">หมายถึง มีการประพฤติ และปฏิบัติตนไปในทิศทางที่ถูกต้อง เหมาะสม และมีความยุติธรรม</dd>
+
+            <div class="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+              <div class="flex items-center gap-2 mb-1.5">
+                <span class="w-2 h-2 rounded-full bg-[#0047BA] dark:bg-blue-400 shrink-0"></span>
+                <span class="font-bold text-slate-900 dark:text-white text-base">เปี่ยมคุณธรรม</span>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed pl-4">
+                มีการประพฤติ และปฏิบัติตนไปในทิศทางที่ถูกต้อง เหมาะสม และมีความยุติธรรม
+              </p>
             </div>
-            <div class="flex flex-col sm:flex-row sm:gap-3">
-              <dt class="font-semibold text-slate-900 dark:text-white sm:min-w-[140px]">ล้ำเลิศวิชา</dt>
-              <dd class="text-slate-600 dark:text-slate-400">หมายถึง สามารถนำความรู้ไปใช้ปฏิบัติงานได้จริง และคิดคาดคะเนไปในอนาคตในทางที่ดี และสร้างสรรค์</dd>
+
+            <div class="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+              <div class="flex items-center gap-2 mb-1.5">
+                <span class="w-2 h-2 rounded-full bg-[#0047BA] dark:bg-blue-400 shrink-0"></span>
+                <span class="font-bold text-slate-900 dark:text-white text-base">ล้ำเลิศวิชา</span>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed pl-4">
+                สามารถนำความรู้ไปใช้ปฏิบัติงานได้จริง และคิดคาดคะเนไปในอนาคตในทางที่ดี และสร้างสรรค์
+              </p>
             </div>
-            <div class="flex flex-col sm:flex-row sm:gap-3">
-              <dt class="font-semibold text-slate-900 dark:text-white sm:min-w-[140px]">พัฒนาสังคม</dt>
-              <dd class="text-slate-600 dark:text-slate-400">หมายถึง สร้างความเจริญในชุมชนและสังคม</dd>
+
+            <div class="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+              <div class="flex items-center gap-2 mb-1.5">
+                <span class="w-2 h-2 rounded-full bg-[#0047BA] dark:bg-blue-400 shrink-0"></span>
+                <span class="font-bold text-slate-900 dark:text-white text-base">พัฒนาสังคม</span>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed pl-4">
+                สร้างความเจริญในชุมชนและสังคม
+              </p>
             </div>
-          </dl>
+          </div>
         </div>
       </section>
 
       <!-- ================= 2. วัฒนธรรมองค์กร ================= -->
-      <section class="space-y-4 pt-8 border-t border-slate-200 dark:border-slate-800">
-        <div>
-          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+      <section id="culture" class="scroll-mt-24 space-y-4 pt-10 border-t border-slate-200 dark:border-slate-800">
+        <div class="flex items-center gap-3">
+          <span class="w-1.5 h-6 rounded-full bg-[#0047BA]"></span>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             วัฒนธรรมองค์กร
           </h2>
         </div>
-        <p class="text-xl sm:text-2xl font-extrabold text-[#0047BA] dark:text-blue-400 tracking-tight">
-          “ซื่อสัตย์ มีวินัย ใฝ่ความรู้ สู้งาน เชี่ยวชาญจริง ไม่นิ่งดูดาย”
-        </p>
+        <div class="border-l-4 border-slate-300 dark:border-slate-700 pl-5 sm:pl-6 py-1">
+          <p class="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-200 tracking-tight leading-snug">
+            “ซื่อสัตย์ มีวินัย ใฝ่ความรู้ สู้งาน เชี่ยวชาญจริง ไม่นิ่งดูดาย”
+          </p>
+        </div>
       </section>
 
       <!-- ================= 3. สีและต้นไม้ประจำวิทยาลัย ================= -->
-      <section class="space-y-6 pt-8 border-t border-slate-200 dark:border-slate-800">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <section id="symbols" class="scroll-mt-24 space-y-6 pt-10 border-t border-slate-200 dark:border-slate-800">
+        <div class="flex items-center gap-3">
+          <span class="w-1.5 h-6 rounded-full bg-[#0047BA]"></span>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            สีและต้นไม้ประจำวิทยาลัย
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
           
           <!-- สีประจำวิทยาลัย -->
-          <div class="space-y-4">
-            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-              สีประจำวิทยาลัย
-            </h2>
-            <div class="flex items-center gap-3">
-              <div class="flex h-9 w-24 rounded-lg overflow-hidden border border-slate-300 dark:border-slate-700 shadow-xs">
-                <div class="w-1/2 bg-[#00A3E0]" title="สีฟ้า"></div>
-                <div class="w-1/2 bg-white" title="สีขาว"></div>
+          <div class="p-6 rounded-2xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 space-y-4">
+            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center justify-between">
+              <span>สีประจำวิทยาลัย</span>
+              <span class="text-sm font-semibold text-slate-500 dark:text-slate-400">ฟ้า – ขาว</span>
+            </h3>
+
+            <!-- Color Swatches Bar -->
+            <div class="flex h-10 w-full rounded-xl overflow-hidden border border-slate-300/80 dark:border-slate-700 shadow-xs">
+              <div class="w-1/2 bg-[#00A3E0] flex items-center justify-center text-xs font-bold text-white tracking-wider">
+                ฟ้า
               </div>
-              <p class="text-lg font-bold text-slate-900 dark:text-white">ฟ้า – ขาว</p>
+              <div class="w-1/2 bg-white flex items-center justify-center text-xs font-bold text-slate-700 tracking-wider">
+                ขาว
+              </div>
             </div>
-            <dl class="space-y-2 text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
-              <div>
-                <dt class="font-semibold text-slate-900 dark:text-white">สีฟ้า</dt>
-                <dd class="text-slate-600 dark:text-slate-400">หมายถึง ความบริบูรณ์ หรือความถึงพร้อมด้วยความรู้</dd>
+
+            <div class="space-y-3 pt-2 text-xs sm:text-sm">
+              <div class="flex items-start gap-2.5">
+                <span class="w-3.5 h-3.5 rounded-full bg-[#00A3E0] shrink-0 mt-0.5 border border-black/10"></span>
+                <div>
+                  <strong class="text-slate-900 dark:text-white font-semibold">สีฟ้า</strong>
+                  <p class="text-slate-600 dark:text-slate-400 leading-relaxed mt-0.5">หมายถึง ความบริบูรณ์ หรือความถึงพร้อมด้วยความรู้</p>
+                </div>
               </div>
-              <div>
-                <dt class="font-semibold text-slate-900 dark:text-white">สีขาว</dt>
-                <dd class="text-slate-600 dark:text-slate-400">หมายถึง ความเป็นผู้มีคุณธรรมและจริยธรรมอันดี</dd>
+              <div class="flex items-start gap-2.5">
+                <span class="w-3.5 h-3.5 rounded-full bg-white border border-slate-300 dark:border-slate-600 shrink-0 mt-0.5"></span>
+                <div>
+                  <strong class="text-slate-900 dark:text-white font-semibold">สีขาว</strong>
+                  <p class="text-slate-600 dark:text-slate-400 leading-relaxed mt-0.5">หมายถึง ความเป็นผู้มีคุณธรรมและจริยธรรมอันดี</p>
+                </div>
               </div>
-            </dl>
+            </div>
           </div>
 
           <!-- ต้นไม้ประจำวิทยาลัย -->
-          <div class="space-y-4">
-            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-              ต้นไม้ประจำวิทยาลัย
-            </h2>
-            <div class="flex items-start gap-4">
-              <div class="w-24 h-24 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0 bg-slate-100 dark:bg-slate-800">
-                <img
-                  src="/images/about/tree-ratchaphruek.jpg"
-                  alt="ต้นราชพฤกษ์ ต้นไม้ประจำวิทยาลัยเทคโนโลยีศรีราชา"
-                  class="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-              <div class="space-y-1">
-                <p class="text-lg font-bold text-slate-900 dark:text-white">
-                  ต้นราชพฤกษ์
-                </p>
-                <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
-                  หมายถึง ความเจริญรุ่งเรืองของหมู่คณะ
-                </p>
+          <div class="p-6 rounded-2xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 flex flex-col justify-between space-y-4">
+            <div>
+              <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-3">
+                ต้นไม้ประจำวิทยาลัย
+              </h3>
+              <div class="flex items-center gap-4">
+                <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0 shadow-xs">
+                  <img
+                    src="/images/about/tree-ratchaphruek.jpg"
+                    alt="ต้นราชพฤกษ์ ต้นไม้ประจำวิทยาลัยเทคโนโลยีศรีราชา"
+                    class="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+                <div class="space-y-1">
+                  <p class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+                    ต้นราชพฤกษ์
+                  </p>
+                  <p class="text-slate-600 dark:text-slate-400 text-xs sm:text-sm leading-relaxed">
+                    หมายถึง ความเจริญรุ่งเรืองของหมู่คณะ
+                  </p>
+                </div>
               </div>
             </div>
+            <p class="text-xs text-slate-400 dark:text-slate-500 pt-2 border-t border-slate-200/60 dark:border-slate-800">
+              พรรณไม้มงคลสัญลักษณ์แห่งความเจริญงอกงามและความสามัคคี
+            </p>
           </div>
 
         </div>
       </section>
 
       <!-- ================= 4. เอกลักษณ์ อัตลักษณ์ และคุณธรรมอัตลักษณ์ ================= -->
-      <section class="space-y-8 pt-8 border-t border-slate-200 dark:border-slate-800">
-        <div>
-          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-            เอกลักษณ์ อัตลักษณ์ และคุณธรรมอัตลักษณ์ ของสถานศึกษา
+      <section id="identity" class="scroll-mt-24 space-y-8 pt-10 border-t border-slate-200 dark:border-slate-800">
+        <div class="flex items-center gap-3">
+          <span class="w-1.5 h-6 rounded-full bg-[#0047BA]"></span>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            เอกลักษณ์ อัตลักษณ์ และคุณธรรมอัตลักษณ์
           </h2>
         </div>
 
-        <!-- เอกลักษณ์วิทยาลัย -->
-        <div class="space-y-2">
-          <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+        <!-- 1) เอกลักษณ์วิทยาลัย -->
+        <div class="space-y-3 p-6 rounded-2xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800">
+          <span class="text-xs font-bold text-[#0047BA] dark:text-blue-400 uppercase tracking-wider">
             เอกลักษณ์วิทยาลัย
-          </h3>
-          <blockquote class="text-xl sm:text-2xl font-bold text-[#0047BA] dark:text-blue-400">
+          </span>
+          <blockquote class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
             “เป็นแหล่งเรียนรู้ สู่อาชีพ”
           </blockquote>
-          <p class="text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-normal">
+          <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed font-normal pt-1">
             หมายถึง เป็นสถานศึกษาที่จัดการศึกษา เพื่อพัฒนาผู้เรียนให้มีความรู้ ทักษะและความสามารถให้ปฏิบัติวิชาชีพได้ตามมาตรฐานอาชีพและความต้องการของตลาดแรงงาน สอดคล้องกับเทคโนโลยีและภูมิปัญญาท้องถิ่น
           </p>
         </div>
 
-        <!-- อัตลักษณ์วิทยาลัย -->
-        <div class="space-y-3 pt-4 border-t border-slate-100 dark:border-slate-800/60">
-          <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+        <!-- 2) อัตลักษณ์วิทยาลัย -->
+        <div class="space-y-4 p-6 rounded-2xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800">
+          <span class="text-xs font-bold text-[#0047BA] dark:text-blue-400 uppercase tracking-wider">
             อัตลักษณ์วิทยาลัย
-          </h3>
-          <blockquote class="text-xl sm:text-2xl font-bold text-[#0047BA] dark:text-blue-400">
+          </span>
+          <blockquote class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
             “ทักษะดี มีวินัย ใฝ่คุณธรรม”
           </blockquote>
-          <dl class="space-y-2 text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-normal">
-            <div class="flex flex-col sm:flex-row sm:gap-3">
-              <dt class="font-semibold text-slate-900 dark:text-white sm:min-w-[120px]">ทักษะดี</dt>
-              <dd class="text-slate-600 dark:text-slate-400">หมายถึง มีความรู้ความสามารถทางวิชาการตรงตามสาขาที่เรียน และแก้ไขปัญหาเป็น</dd>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+            <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+              <span class="font-bold text-slate-900 dark:text-white text-sm block mb-1">ทักษะดี</span>
+              <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                มีความรู้ความสามารถทางวิชาการตรงตามสาขาที่เรียน และแก้ไขปัญหาเป็น
+              </p>
             </div>
-            <div class="flex flex-col sm:flex-row sm:gap-3">
-              <dt class="font-semibold text-slate-900 dark:text-white sm:min-w-[120px]">มีวินัย</dt>
-              <dd class="text-slate-600 dark:text-slate-400">หมายถึง มีความรับผิดชอบต่อตนเองและส่วนรวม ตรงต่อเวลา มีคุณลักษณะที่พึงประสงค์</dd>
+            <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+              <span class="font-bold text-slate-900 dark:text-white text-sm block mb-1">มีวินัย</span>
+              <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                มีความรับผิดชอบต่อตนเองและส่วนรวม ตรงต่อเวลา มีคุณลักษณะที่พึงประสงค์
+              </p>
             </div>
-            <div class="flex flex-col sm:flex-row sm:gap-3">
-              <dt class="font-semibold text-slate-900 dark:text-white sm:min-w-[120px]">ใฝ่คุณธรรม</dt>
-              <dd class="text-slate-600 dark:text-slate-400">หมายถึง ดำรงตนอยู่ในศีลธรรม และยึดมั่นในความยุติธรรม</dd>
+            <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+              <span class="font-bold text-slate-900 dark:text-white text-sm block mb-1">ใฝ่คุณธรรม</span>
+              <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                ดำรงตนอยู่ในศีลธรรม และยึดมั่นในความยุติธรรม
+              </p>
             </div>
-          </dl>
+          </div>
         </div>
 
-        <!-- คุณธรรมอัตลักษณ์ ของสถานศึกษา -->
-        <div class="space-y-3 pt-4 border-t border-slate-100 dark:border-slate-800/60">
-          <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+        <!-- 3) คุณธรรมอัตลักษณ์ของสถานศึกษา -->
+        <div class="space-y-4 p-6 rounded-2xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800">
+          <span class="text-xs font-bold text-[#0047BA] dark:text-blue-400 uppercase tracking-wider">
             คุณธรรมอัตลักษณ์ของสถานศึกษา
-          </h3>
-          <blockquote class="text-xl sm:text-2xl font-bold text-[#0047BA] dark:text-blue-400">
+          </span>
+          <blockquote class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
             “มีระเบียบวินัย ใฝ่เรียนรู้ มีจิตสาธารณะ”
           </blockquote>
-          <dl class="space-y-2 text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-normal">
-            <div class="flex flex-col sm:flex-row sm:gap-3">
-              <dt class="font-semibold text-slate-900 dark:text-white sm:min-w-[140px]">มีระเบียบวินัย</dt>
-              <dd class="text-slate-600 dark:text-slate-400">หมายถึง ประพฤติปฏิบัติตามระเบียบแบบแผน ข้อบังคับ ข้อปฏิบัติ รวมทั้งการให้ความเคารพ และยอมรับที่จะปฏิบัติตามระเบียบ กฎเกณฑ์และข้อบังคับของสถานศึกษา</dd>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+            <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+              <span class="font-bold text-slate-900 dark:text-white text-sm block mb-1">มีระเบียบวินัย</span>
+              <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                ประพฤติปฏิบัติตามระเบียบแบบแผน ข้อบังคับ ข้อปฏิบัติ ให้ความเคารพและยอมรับกฎเกณฑ์
+              </p>
             </div>
-            <div class="flex flex-col sm:flex-row sm:gap-3">
-              <dt class="font-semibold text-slate-900 dark:text-white sm:min-w-[140px]">ใฝ่เรียนรู้</dt>
-              <dd class="text-slate-600 dark:text-slate-400">หมายถึง ความเพียรพยายาม ในการแสวงหาความรู้จากแหล่งเรียนรู้ต่างๆ ทั้งภายในและภายนอกวิทยาลัย และสามารถนำไปใช้ในชีวิตประจำวันได้</dd>
+            <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+              <span class="font-bold text-slate-900 dark:text-white text-sm block mb-1">ใฝ่เรียนรู้</span>
+              <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                ความเพียรพยายามแสวงหาความรู้จากแหล่งเรียนรู้ต่างๆ และนำไปใช้ในชีวิตจริง
+              </p>
             </div>
-            <div class="flex flex-col sm:flex-row sm:gap-3">
-              <dt class="font-semibold text-slate-900 dark:text-white sm:min-w-[140px]">มีจิตสาธารณะ</dt>
-              <dd class="text-slate-600 dark:text-slate-400">หมายถึง การช่วยเหลือผู้อื่นด้วยความเสียสละโดยไม่หวังผลตอบแทน และสร้างสิ่งที่ดีงามต่อวิทยาลัย ชุมชน และสังคม</dd>
+            <div class="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+              <span class="font-bold text-slate-900 dark:text-white text-sm block mb-1">มีจิตสาธารณะ</span>
+              <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                ช่วยเหลือผู้อื่นด้วยความเสียสละโดยไม่หวังผลตอบแทน และสร้างสรรค์สิ่งดีงามต่อสังคม
+              </p>
             </div>
-          </dl>
+          </div>
         </div>
       </section>
 
       <!-- ================= 5. วิสัยทัศน์ ================= -->
-      <section class="space-y-4 pt-8 border-t border-slate-200 dark:border-slate-800">
-        <div>
-          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+      <section id="vision" class="scroll-mt-24 space-y-4 pt-10 border-t border-slate-200 dark:border-slate-800">
+        <div class="flex items-center gap-3">
+          <span class="w-1.5 h-6 rounded-full bg-[#0047BA]"></span>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             วิสัยทัศน์
           </h2>
         </div>
-        <p class="text-slate-700 dark:text-slate-300 text-base sm:text-lg leading-relaxed font-normal">
-          วิทยาลัยเทคโนโลยีศรีราชา กำหนดวิสัยทัศน์ของวิทยาลัยเทคโนโลยีศรีราชา ไว้ดังนี้
+        <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
+          วิทยาลัยเทคโนโลยีศรีราชา กำหนดวิสัยทัศน์ของวิทยาลัยไว้ดังนี้
         </p>
-        <blockquote class="text-xl sm:text-2xl font-bold text-[#0047BA] dark:text-blue-400 leading-relaxed">
-          “มุ่งผลิตและพัฒนากำลังคนอาชีวศึกษาที่มีคุณภาพ ควบคู่คุณธรรม สอดคล้องต่อความต้องการตลาดแรงงาน สู่มาตรฐานสากล ภายในปีการศึกษา ๒๕๗๑”
-        </blockquote>
+        <div class="border-l-4 border-[#0047BA] pl-5 sm:pl-6 py-2">
+          <blockquote class="text-xl sm:text-2xl font-bold text-[#0047BA] dark:text-blue-400 leading-relaxed">
+            “มุ่งผลิตและพัฒนากำลังคนอาชีวศึกษาที่มีคุณภาพ ควบคู่คุณธรรม สอดคล้องต่อความต้องการตลาดแรงงาน สู่มาตรฐานสากล ภายในปีการศึกษา ๒๕๗๑”
+          </blockquote>
+        </div>
       </section>
 
       <!-- ================= 6. เป้าหมายหลักในการจัดการศึกษา ================= -->
-      <section class="space-y-4 pt-8 border-t border-slate-200 dark:border-slate-800">
-        <div>
-          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-            เป้าหมายหลักในการจัดการศึกษา
+      <section class="space-y-4 pt-10 border-t border-slate-200 dark:border-slate-800">
+        <div class="flex items-center gap-3">
+          <span class="w-1.5 h-6 rounded-full bg-[#0047BA]"></span>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            เป้าหมายหลักในการจัดการศึกษา ๕ ประการ
           </h2>
         </div>
-        <p class="text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
-          วิทยาลัยมีเป้าหมายหลักในการจัดการศึกษาเพื่อสนองปรัชญาของวิทยาลัยนี้ ๕ ประการ คือ
-        </p>
-        <ol class="space-y-2.5 list-decimal list-outside pl-5 text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-normal">
-          <li>นักศึกษาทุกคนที่เข้ามาศึกษาในวิทยาลัยนี้ ได้พัฒนาศักยภาพของแต่ละคนอย่างเต็มที่โดยกระบวนการเรียนรู้ตลอดชีวิต และให้นักศึกษาเป็นสำคัญ</li>
-          <li>นักศึกษาทุกคนเป็นผู้มีความรู้ ความประพฤติ มีคุณธรรม มีระเบียบวินัยความรับผิดชอบ ซื่อสัตย์ ตรงต่อเวลา และสามารถทำงานร่วมกับผู้อื่นได้อย่างมีความสุข โดยสอดคล้องกับปรัชญาของวิทยาลัยที่ว่า “ทักษะเยี่ยม เปี่ยมคุณธรรม ล้ำเลิศวิชา พัฒนาสังคม”</li>
-          <li>ครูและบุคลากร มีประสิทธิภาพในการทำงานสูง มีความรู้ ความสามารถ พัฒนาตนเองได้ทันกับความก้าวหน้าทางเทคโนโลยี มีคุณธรรม จริยธรรม และจรรยาบรรณในอาชีพ โดยสอดคล้องกับวัฒนธรรมองค์กรที่ว่า “ซื่อสัตย์ มีวินัย ใฝ่ความรู้ สู้งาน เชี่ยวชาญจริง ไม่นิ่งดูดาย”</li>
-          <li>การบริหารและจัดการของวิทยาลัยเป็นระบบ และคล่องตัว</li>
-          <li>วิทยาลัยมีความสัมพันธ์ที่ดีกับชุมชนและให้บริการสังคม</li>
-        </ol>
+        <div class="space-y-2.5">
+          <div class="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50/80 dark:bg-slate-900/50 border border-slate-200/60 dark:border-slate-800 text-sm sm:text-base text-slate-700 dark:text-slate-300">
+            <span class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 border border-blue-200 dark:border-blue-900/50">๑</span>
+            <span class="leading-relaxed">นักศึกษาทุกคนที่เข้ามาศึกษาในวิทยาลัยนี้ ได้พัฒนาศักยภาพของแต่ละคนอย่างเต็มที่โดยกระบวนการเรียนรู้ตลอดชีวิต และให้นักศึกษาเป็นสำคัญ</span>
+          </div>
+          <div class="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50/80 dark:bg-slate-900/50 border border-slate-200/60 dark:border-slate-800 text-sm sm:text-base text-slate-700 dark:text-slate-300">
+            <span class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 border border-blue-200 dark:border-blue-900/50">๒</span>
+            <span class="leading-relaxed">นักศึกษาทุกคนเป็นผู้มีความรู้ ความประพฤติ มีคุณธรรม มีระเบียบวินัยความรับผิดชอบ ซื่อสัตย์ ตรงต่อเวลา และสามารถทำงานร่วมกับผู้อื่นได้อย่างมีความสุข สอดคล้องกับปรัชญาของวิทยาลัย</span>
+          </div>
+          <div class="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50/80 dark:bg-slate-900/50 border border-slate-200/60 dark:border-slate-800 text-sm sm:text-base text-slate-700 dark:text-slate-300">
+            <span class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 border border-blue-200 dark:border-blue-900/50">๓</span>
+            <span class="leading-relaxed">ครูและบุคลากร มีประสิทธิภาพในการทำงานสูง พัฒนาตนเองได้ทันกับความก้าวหน้าทางเทคโนโลยี มีคุณธรรม จริยธรรม และจรรยาบรรณในอาชีพ สอดคล้องกับวัฒนธรรมองค์กร</span>
+          </div>
+          <div class="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50/80 dark:bg-slate-900/50 border border-slate-200/60 dark:border-slate-800 text-sm sm:text-base text-slate-700 dark:text-slate-300">
+            <span class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 border border-blue-200 dark:border-blue-900/50">๔</span>
+            <span class="leading-relaxed">การบริหารและจัดการของวิทยาลัยเป็นระบบ และคล่องตัว</span>
+          </div>
+          <div class="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50/80 dark:bg-slate-900/50 border border-slate-200/60 dark:border-slate-800 text-sm sm:text-base text-slate-700 dark:text-slate-300">
+            <span class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 border border-blue-200 dark:border-blue-900/50">๕</span>
+            <span class="leading-relaxed">วิทยาลัยมีความสัมพันธ์ที่ดีกับชุมชนและให้บริการสังคม</span>
+          </div>
+        </div>
       </section>
 
       <!-- ================= 7. นโยบายของวิทยาลัย ================= -->
-      <section class="space-y-4 pt-8 border-t border-slate-200 dark:border-slate-800">
-        <div>
-          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-            นโยบายของวิทยาลัย
+      <section id="policy-strategy" class="scroll-mt-24 space-y-4 pt-10 border-t border-slate-200 dark:border-slate-800">
+        <div class="flex items-center gap-3">
+          <span class="w-1.5 h-6 rounded-full bg-[#0047BA]"></span>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            นโยบายของวิทยาลัย ๗ ข้อ
           </h2>
         </div>
-        <ol class="space-y-2.5 list-decimal list-outside pl-5 text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-normal">
-          <li>การนำระบบการประกันคุณภาพการศึกษาและการพัฒนาคุณภาพการบริหารจัดการ ระบบสารสนเทศมาใช้ในการพัฒนางานให้เกิดวัฒนธรรมคุณภาพในการปฏิบัติงาน</li>
-          <li>การบริหารงานเน้นการมีส่วนร่วมและยึดหลักธรรมาภิบาล</li>
-          <li>ส่งเสริมที่จะรับใช้สังคมตามแนวทางการปกครองในระบอบประชาธิปไตย อันมีพระมหากษัตริย์เป็นประมุข</li>
-          <li>ส่งเสริมและสนับสนุนให้ผู้เรียนได้รับการปลูกฝังคุณธรรม คุณลักษณะที่พึงประสงค์ ๑๐ ประการให้เกิดมีขึ้นในจิตสำนึกของผู้เรียน เพื่อดำรงตนเป็นพลเมืองที่ดีของสังคม</li>
-          <li>มุ่งเน้นการเรียนการสอนแบบบูรณาการ ส่งเสริมและสนับสนุนให้เกิดการเรียนรู้ที่แท้จริง สร้างผลงานเป็นของตนเอง เพื่อพัฒนาตนเองและสังคมสู่ประชาคมอาเซียน ในศตวรรษที่ ๒๑ คนไทย ๔.๐ / ๕.๐</li>
-          <li>พัฒนาความเชี่ยวชาญของอาจารย์ให้สอดคล้องกับอัตลักษณ์และเอกลักษณ์ของวิทยาลัย และพัฒนาสมรรถนะบุคลากรสายสนับสนุนในการทำงานที่มีคุณภาพ</li>
-          <li>พัฒนาความร่วมมือในการทำงานร่วมกับภาคีเครือข่าย ที่สอดคล้องกับอัตลักษณ์และเอกลักษณ์ของวิทยาลัย เพื่อสร้างเสริมสุขภาพและคุณภาพชีวิตของชุมชนและสังคม</li>
-        </ol>
+        <div class="grid grid-cols-1 gap-2.5">
+          <div class="flex items-start gap-3 p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 text-sm sm:text-base text-slate-700 dark:text-slate-300 shadow-xs">
+            <span class="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</span>
+            <span class="leading-relaxed">การนำระบบการประกันคุณภาพการศึกษาและการพัฒนาคุณภาพการบริหารจัดการ ระบบสารสนเทศมาใช้ในการพัฒนางานให้เกิดวัฒนธรรมคุณภาพในการปฏิบัติงาน</span>
+          </div>
+          <div class="flex items-start gap-3 p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 text-sm sm:text-base text-slate-700 dark:text-slate-300 shadow-xs">
+            <span class="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</span>
+            <span class="leading-relaxed">การบริหารงานเน้นการมีส่วนร่วมและยึดหลักธรรมาภิบาล</span>
+          </div>
+          <div class="flex items-start gap-3 p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 text-sm sm:text-base text-slate-700 dark:text-slate-300 shadow-xs">
+            <span class="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</span>
+            <span class="leading-relaxed">ส่งเสริมที่จะรับใช้สังคมตามแนวทางการปกครองในระบอบประชาธิปไตย อันมีพระมหากษัตริย์เป็นประมุข</span>
+          </div>
+          <div class="flex items-start gap-3 p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 text-sm sm:text-base text-slate-700 dark:text-slate-300 shadow-xs">
+            <span class="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">4</span>
+            <span class="leading-relaxed">ส่งเสริมและสนับสนุนให้ผู้เรียนได้รับการปลูกฝังคุณธรรม คุณลักษณะที่พึงประสงค์ ๑๐ ประการให้เกิดมีขึ้นในจิตสำนึก เพื่อดำรงตนเป็นพลเมืองที่ดีของสังคม</span>
+          </div>
+          <div class="flex items-start gap-3 p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 text-sm sm:text-base text-slate-700 dark:text-slate-300 shadow-xs">
+            <span class="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">5</span>
+            <span class="leading-relaxed">มุ่งเน้นการเรียนการสอนแบบบูรณาการ ส่งเสริมและสนับสนุนให้เกิดการเรียนรู้ที่แท้จริง สร้างผลงานเป็นของตนเอง เพื่อพัฒนาตนเองและสังคมสู่ประชาคมอาเซียน ในศตวรรษที่ ๒๑ คนไทย ๔.๐ / ๕.๐</span>
+          </div>
+          <div class="flex items-start gap-3 p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 text-sm sm:text-base text-slate-700 dark:text-slate-300 shadow-xs">
+            <span class="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">6</span>
+            <span class="leading-relaxed">พัฒนาความเชี่ยวชาญของอาจารย์ให้สอดคล้องกับอัตลักษณ์และเอกลักษณ์ของวิทยาลัย และพัฒนาสมรรถนะบุคลากรสายสนับสนุนในการทำงานที่มีคุณภาพ</span>
+          </div>
+          <div class="flex items-start gap-3 p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 text-sm sm:text-base text-slate-700 dark:text-slate-300 shadow-xs">
+            <span class="w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">7</span>
+            <span class="leading-relaxed">พัฒนาความร่วมมือในการทำงานร่วมกับภาคีเครือข่าย ที่สอดคล้องกับอัตลักษณ์และเอกลักษณ์ของวิทยาลัย เพื่อสร้างเสริมสุขภาพและคุณภาพชีวิตของชุมชนและสังคม</span>
+          </div>
+        </div>
       </section>
 
       <!-- ================= 8. พันธกิจ ================= -->
-      <section class="space-y-6 pt-8 border-t border-slate-200 dark:border-slate-800">
+      <section class="space-y-6 pt-10 border-t border-slate-200 dark:border-slate-800">
         <div>
-          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-            พันธกิจ
-          </h2>
-          <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed mt-1">
-            ภารกิจที่สถานศึกษาจะต้องทำเพื่อให้ความคาดหวังที่กำหนดไว้ประสบความสำเร็จ โดยวิทยาลัยกำหนดไว้ ๕ พันธกิจ ดังนี้
+          <div class="flex items-center gap-3">
+            <span class="w-1.5 h-6 rounded-full bg-[#0047BA]"></span>
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+              พันธกิจ ๕ ประการ
+            </h2>
+          </div>
+          <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed mt-2">
+            ภารกิจที่สถานศึกษาจะต้องทำเพื่อให้ความคาดหวังที่กำหนดไว้ประสบความสำเร็จ
           </p>
         </div>
 
-        <div class="space-y-6 text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
+        <div class="space-y-4">
           
-          <div class="space-y-2">
-            <h3 class="font-bold text-slate-900 dark:text-white text-base sm:text-lg">
-              พันธกิจที่ ๑ : ผลิตผู้สำเร็จการศึกษาให้มีคุณธรรม จริยธรรม มีสมรรถนะวิชาชีพ
-            </h3>
-            <ul class="space-y-1.5 list-disc list-outside pl-5 text-slate-600 dark:text-slate-400">
-              <li>กลยุทธ์ที่ ๑ : พัฒนาผู้เรียนให้เป็นผู้สำเร็จการศึกษาที่มีคุณลักษณะที่พึงประสงค์ ด้วยการสำรวจความพึงพอใจของสถานประกอบการต่อผู้เรียนและผู้สำเร็จการศึกษา</li>
-              <li>กลยุทธ์ที่ ๒ : ส่งเสริมให้ผู้เรียนและผู้สำเร็จการศึกษาเข้ารับการทดสอบมาตรฐานฝีมือแรงงาน และ/หรือมาตรฐานคุณวุฒิอาชีวศึกษา</li>
-              <li>กลยุทธ์ที่ ๓ : ส่งเสริมการจัดการเรียนการสอนให้ผู้เรียนและผู้สำเร็จการศึกษามีทักษะการใช้ภาษาอังกฤษในการสื่อสารและดิจิทัล</li>
-              <li>กลยุทธ์ที่ ๔ : ปลูกฝังจิตสำนึกด้านการรักชาติ เทิดทูนพระมหากษัตริย์ การปกครองระบบประชาธิปไตย ทะนุบำรุงศาสนา ศิลปะ วัฒนธรรม</li>
-              <li>กลยุทธ์ที่ ๕ : ส่งเสริมการเข้าร่วมกิจกรรมด้านสุขภาพ การกีฬา และนันทนาการ</li>
-              <li>กลยุทธ์ที่ ๖ : ปลูกฝังจิตสำนึกด้านอนุรักษ์สิ่งแวดล้อม</li>
-              <li>กลยุทธ์ที่ ๗ : ส่งเสริม สนับสนุน ดูแล ติดตามผู้เรียนและผู้สำเร็จการศึกษาเพื่อให้มีคุณภาพและมีความสุข</li>
+          <!-- พันธกิจที่ ๑ -->
+          <div class="p-5 sm:p-6 rounded-2xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 space-y-3">
+            <div class="flex items-start gap-3">
+              <span class="px-2.5 py-1 rounded-md bg-[#0047BA] text-white text-xs font-bold shrink-0 mt-0.5">
+                พันธกิจที่ ๑
+              </span>
+              <h3 class="font-bold text-slate-900 dark:text-white text-base sm:text-lg leading-snug">
+                ผลิตผู้สำเร็จการศึกษาให้มีคุณธรรม จริยธรรม มีสมรรถนะวิชาชีพ
+              </h3>
+            </div>
+            <ul class="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400 pl-4 sm:pl-6 border-l-2 border-slate-200 dark:border-slate-800">
+              <li><strong class="text-slate-700 dark:text-slate-300">กลยุทธ์ที่ ๑ :</strong> พัฒนาผู้เรียนให้เป็นผู้สำเร็จการศึกษาที่มีคุณลักษณะที่พึงประสงค์ สำรวจความพึงพอใจของสถานประกอบการ</li>
+              <li><strong class="text-slate-700 dark:text-slate-300">กลยุทธ์ที่ ๒ :</strong> ส่งเสริมการเข้ารับการทดสอบมาตรฐานฝีมือแรงงาน และ/หรือมาตรฐานคุณวุฒิอาชีวศึกษา</li>
+              <li><strong class="text-slate-700 dark:text-slate-300">กลยุทธ์ที่ ๓ :</strong> ส่งเสริมให้มีทักษะการใช้ภาษาอังกฤษในการสื่อสารและดิจิทัล</li>
+              <li><strong class="text-slate-700 dark:text-slate-300">กลยุทธ์ที่ ๔ :</strong> ปลูกฝังจิตสำนึกด้านการรักชาติ เทิดทูนพระมหากษัตริย์ ประชาธิปไตย และศิลปวัฒนธรรม</li>
+              <li><strong class="text-slate-700 dark:text-slate-300">กลยุทธ์ที่ ๕ :</strong> ส่งเสริมการเข้าร่วมกิจกรรมด้านสุขภาพ กีฬา และนันทนาการ</li>
+              <li><strong class="text-slate-700 dark:text-slate-300">กลยุทธ์ที่ ๖ :</strong> ปลูกฝังจิตสำนึกด้านการอนุรักษ์สิ่งแวดล้อม</li>
+              <li><strong class="text-slate-700 dark:text-slate-300">กลยุทธ์ที่ ๗ :</strong> ส่งเสริม สนับสนุน ดูแล ติดตามผู้เรียนและผู้สำเร็จการศึกษาเพื่อให้มีคุณภาพและมีความสุข</li>
             </ul>
           </div>
 
-          <div class="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800/60">
-            <h3 class="font-bold text-slate-900 dark:text-white text-base sm:text-lg">
-              พันธกิจที่ ๒ : พัฒนาระบบการจัดการสถานศึกษา พัฒนาศักยภาพและคุณภาพชีวิตบุคลากรโดยหลักธรรมาภิบาล อาศัยเครือข่ายความร่วมมือจากทุกภาคส่วน
-            </h3>
-            <ul class="space-y-1.5 list-disc list-outside pl-5 text-slate-600 dark:text-slate-400">
-              <li>กลยุทธ์ที่ ๑ : ใช้ระบบการบริหารจัดการด้วยระบบเทคโนโลยีเพื่อให้มีประสิทธิภาพมากขึ้น จัดสรรงบประมาณตามแผนปฏิบัติการประจำปีการศึกษา</li>
-              <li>กลยุทธ์ที่ ๒ : ส่งเสริม สนับสนุน ครูและบุคลากรทางการศึกษาศึกษาต่อ การฝึกอบรมและการดูงาน สร้างขวัญและกำลังใจให้ครูและบุคลากรทางการศึกษา</li>
-              <li>กลยุทธ์ที่ ๓ : สร้างบรรยากาศภายในและภายนอกวิทยาลัยที่เอื้อต่อการเรียนรู้ ประชาสัมพันธ์ แนะแนว เผยแพร่ข่าวสาร จัดซื้อวัสดุ ครุภัณฑ์เพื่อใช้ในการเรียนการสอน</li>
+          <!-- พันธกิจที่ ๒ -->
+          <div class="p-5 sm:p-6 rounded-2xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 space-y-3">
+            <div class="flex items-start gap-3">
+              <span class="px-2.5 py-1 rounded-md bg-[#0047BA] text-white text-xs font-bold shrink-0 mt-0.5">
+                พันธกิจที่ ๒
+              </span>
+              <h3 class="font-bold text-slate-900 dark:text-white text-base sm:text-lg leading-snug">
+                พัฒนาระบบการจัดการสถานศึกษา พัฒนาศักยภาพและคุณภาพชีวิตบุคลากรโดยหลักธรรมาภิบาล
+              </h3>
+            </div>
+            <ul class="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400 pl-4 sm:pl-6 border-l-2 border-slate-200 dark:border-slate-800">
+              <li><strong class="text-slate-700 dark:text-slate-300">กลยุทธ์ที่ ๑ :</strong> ใช้ระบบการบริหารจัดการด้วยเทคโนโลยีเพื่อเพิ่มประสิทธิภาพ และจัดสรรงบประมาณตามแผนปฏิบัติการ</li>
+              <li><strong class="text-slate-700 dark:text-slate-300">กลยุทธ์ที่ ๒ :</strong> ส่งเสริม สนับสนุน ครูและบุคลากรทางการศึกษาศึกษาต่อ ฝึกอบรม ดูงาน และสร้างขวัญกำลังใจ</li>
+              <li><strong class="text-slate-700 dark:text-slate-300">กลยุทธ์ที่ ๓ :</strong> สร้างบรรยากาศที่เอื้อต่อการเรียนรู้ ประชาสัมพันธ์ ข่าวสาร จัดซื้อวัสดุ ครุภัณฑ์สำหรับการเรียนการสอน</li>
             </ul>
           </div>
 
-          <div class="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800/60">
-            <h3 class="font-bold text-slate-900 dark:text-white text-base sm:text-lg">
-              พันธกิจที่ ๓ : สนับสนุนและส่งเสริมให้มีการพัฒนาการเรียนการสอนที่มีประสิทธิภาพด้วยเทคโนโลยีสมัยใหม่ และตอบรับนโยบายหน่วยงานต้นสังกัด
-            </h3>
-            <ul class="space-y-1.5 list-disc list-outside pl-5 text-slate-600 dark:text-slate-400">
-              <li>กลยุทธ์ที่ ๑ : พัฒนาหลักสูตรและส่งเสริมให้จัดทำหลักสูตรร่วมกับสถานประกอบการ จัดระบบการเรียนรู้โดยใช้เทคโนโลยีที่ทันสมัย ปฏิบัติตามนโยบายหน่วยงานต้นสังกัด</li>
-              <li>กลยุทธ์ที่ ๒ : ส่งเสริมให้มีการนำระบบการเรียนรู้ด้านอิเล็กทรอนิกส์มาใช้อย่างมีประสิทธิภาพ</li>
+          <!-- พันธกิจที่ ๓ -->
+          <div class="p-5 sm:p-6 rounded-2xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 space-y-3">
+            <div class="flex items-start gap-3">
+              <span class="px-2.5 py-1 rounded-md bg-[#0047BA] text-white text-xs font-bold shrink-0 mt-0.5">
+                พันธกิจที่ ๓
+              </span>
+              <h3 class="font-bold text-slate-900 dark:text-white text-base sm:text-lg leading-snug">
+                สนับสนุนและส่งเสริมให้มีการพัฒนาการเรียนการสอนที่มีประสิทธิภาพด้วยเทคโนโลยีสมัยใหม่
+              </h3>
+            </div>
+            <ul class="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400 pl-4 sm:pl-6 border-l-2 border-slate-200 dark:border-slate-800">
+              <li><strong class="text-slate-700 dark:text-slate-300">กลยุทธ์ที่ ๑ :</strong> พัฒนาหลักสูตรร่วมกับสถานประกอบการ และจัดระบบการเรียนรู้โดยใช้เทคโนโลยีที่ทันสมัย</li>
+              <li><strong class="text-slate-700 dark:text-slate-300">กลยุทธ์ที่ ๒ :</strong> ส่งเสริมการนำระบบการเรียนรู้ด้านอิเล็กทรอนิกส์มาใช้อย่างมีประสิทธิภาพ</li>
             </ul>
           </div>
 
-          <div class="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800/60">
-            <h3 class="font-bold text-slate-900 dark:text-white text-base sm:text-lg">
-              พันธกิจที่ ๔ : ส่งเสริมและพัฒนางานวิจัย นวัตกรรม สิ่งประดิษฐ์ และเทคโนโลยีสารสนเทศ
-            </h3>
-            <ul class="space-y-1.5 list-disc list-outside pl-5 text-slate-600 dark:text-slate-400">
-              <li>กลยุทธ์ที่ ๑ : ส่งเสริมและพัฒนาสร้างเครือข่ายการทำวิจัย นวัตกรรม สิ่งประดิษฐ์และเทคโนโลยีสารสนเทศ พร้อมจัดสรรงบประมาณในการจัดทำผลงานวิจัย เผยแพร่งานวิจัย นวัตกรรม สิ่งประดิษฐ์และเทคโนโลยีสารสนเทศ</li>
-              <li>กลยุทธ์ที่ ๒ : ส่งเสริมและพัฒนาระบบเครือข่ายให้มีประสิทธิภาพมากยิ่งขึ้น พร้อมทั้งสำรวจความพึงพอใจในการรับบริการด้านเทคโนโลยีสารสนเทศ</li>
+          <!-- พันธกิจที่ ๔ -->
+          <div class="p-5 sm:p-6 rounded-2xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 space-y-3">
+            <div class="flex items-start gap-3">
+              <span class="px-2.5 py-1 rounded-md bg-[#0047BA] text-white text-xs font-bold shrink-0 mt-0.5">
+                พันธกิจที่ ๔
+              </span>
+              <h3 class="font-bold text-slate-900 dark:text-white text-base sm:text-lg leading-snug">
+                ส่งเสริมและพัฒนางานวิจัย นวัตกรรม สิ่งประดิษฐ์ และเทคโนโลยีสารสนเทศ
+              </h3>
+            </div>
+            <ul class="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400 pl-4 sm:pl-6 border-l-2 border-slate-200 dark:border-slate-800">
+              <li><strong class="text-slate-700 dark:text-slate-300">กลยุทธ์ที่ ๑ :</strong> ส่งเสริมเครือข่ายวิจัย นวัตกรรม สิ่งประดิษฐ์ พร้อมจัดสรรงบประมาณและเผยแพร่ผลงาน</li>
+              <li><strong class="text-slate-700 dark:text-slate-300">กลยุทธ์ที่ ๒ :</strong> ส่งเสริมและพัฒนาระบบเครือข่ายให้มีประสิทธิภาพ พร้อมสำรวจความพึงพอใจการให้บริการ</li>
             </ul>
           </div>
 
-          <div class="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800/60">
-            <h3 class="font-bold text-slate-900 dark:text-white text-base sm:text-lg">
-              พันธกิจที่ ๕ : สนับสนุนและส่งเสริมให้มีการพัฒนาด้วยการระดมเครือข่ายความร่วมมือระหว่างสถานศึกษากับสถานประกอบการ และบุคคลที่มีความรู้ความสามารถตามสาขาที่จัดการเรียนการสอน
-            </h3>
-            <ul class="space-y-1.5 list-disc list-outside pl-5 text-slate-600 dark:text-slate-400">
-              <li>กลยุทธ์ที่ ๑ : ลงนามความร่วมมือระหว่างสถานศึกษากับสถานประกอบการ ร่วมมือกับชุมชน สมาคม ชมรม สถานประกอบการในการจัดการศึกษาด้านฝึกประสบการณ์ทักษะวิชาชีพ หรือด้านการศึกษาดูงานของผู้เรียน</li>
-              <li>กลยุทธ์ที่ ๒ : ประสานความร่วมมือกับบุคคล ชุมชน องค์กรต่างๆ เพื่อสร้างสังคมแห่งการเรียนรู้และเป็นที่ยอมรับ</li>
+          <!-- พันธกิจที่ ๕ -->
+          <div class="p-5 sm:p-6 rounded-2xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 space-y-3">
+            <div class="flex items-start gap-3">
+              <span class="px-2.5 py-1 rounded-md bg-[#0047BA] text-white text-xs font-bold shrink-0 mt-0.5">
+                พันธกิจที่ ๕
+              </span>
+              <h3 class="font-bold text-slate-900 dark:text-white text-base sm:text-lg leading-snug">
+                ระดมเครือข่ายความร่วมมือระหว่างสถานศึกษากับสถานประกอบการ และชุมชน
+              </h3>
+            </div>
+            <ul class="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400 pl-4 sm:pl-6 border-l-2 border-slate-200 dark:border-slate-800">
+              <li><strong class="text-slate-700 dark:text-slate-300">กลยุทธ์ที่ ๑ :</strong> ลงนามความร่วมมือ (MOU) จัดการศึกษาฝึกประสบการณ์ทักษะวิชาชีพและการศึกษาดูงาน</li>
+              <li><strong class="text-slate-700 dark:text-slate-300">กลยุทธ์ที่ ๒ :</strong> ประสานความร่วมมือกับบุคคล ชุมชน และองค์กร เพื่อสร้างสังคมแห่งการเรียนรู้ที่ยั่งยืน</li>
             </ul>
           </div>
 
@@ -339,44 +505,132 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       </section>
 
       <!-- ================= 9. ยุทธศาสตร์ ================= -->
-      <section class="space-y-4 pt-8 border-t border-slate-200 dark:border-slate-800">
-        <div>
-          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-            ยุทธศาสตร์
+      <section class="space-y-4 pt-10 border-t border-slate-200 dark:border-slate-800">
+        <div class="flex items-center gap-3">
+          <span class="w-1.5 h-6 rounded-full bg-[#0047BA]"></span>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            ยุทธศาสตร์ ๓ ประการ
           </h2>
         </div>
-        <ol class="space-y-2.5 list-decimal list-outside pl-5 text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-normal">
-          <li><strong>ยุทธศาสตร์ที่ ๑</strong> : ส่งเสริมให้ผู้เรียนและผู้สำเร็จการศึกษามีคุณภาพเป็นไปตามมาตรฐานคุณวุฒิอาชีวศึกษา มีคุณธรรม จริยธรรม และคุณลักษณะที่พึงประสงค์ตามและเป็นไปตามความต้องการของสถานประกอบการ</li>
-          <li><strong>ยุทธศาสตร์ที่ ๒</strong> : เพิ่มประสิทธิภาพบริหารจัดการให้มีมาตรฐานและคุณภาพโดยใช้หลักธรรมาภิบาล และการมีส่วนร่วมกับทุกภาคส่วนตามนโยบายสำคัญที่หน่วยงานต้นสังกัดมอบหมาย</li>
-          <li><strong>ยุทธศาสตร์ที่ ๓</strong> : ส่งเสริมให้ครู บุคลากร และผู้เรียนสร้างและพัฒนางานวิจัย สิ่งประดิษฐ์ นวัตกรรม เทคโนโลยี และองค์ความรู้เพื่อการจัดการอาชีวศึกษาและพัฒนาวิชาชีพ</li>
-        </ol>
+        <div class="space-y-3">
+          <div class="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-start gap-3.5">
+            <span class="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 border border-blue-200 dark:border-blue-900/50">๑</span>
+            <p class="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
+              <strong class="font-bold text-slate-900 dark:text-white">ยุทธศาสตร์ที่ ๑ :</strong> ส่งเสริมให้ผู้เรียนและผู้สำเร็จการศึกษามีคุณภาพเป็นไปตามมาตรฐานคุณวุฒิอาชีวศึกษา มีคุณธรรม จริยธรรม และคุณลักษณะที่พึงประสงค์ตามความต้องการของสถานประกอบการ
+            </p>
+          </div>
+          <div class="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-start gap-3.5">
+            <span class="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 border border-blue-200 dark:border-blue-900/50">๒</span>
+            <p class="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
+              <strong class="font-bold text-slate-900 dark:text-white">ยุทธศาสตร์ที่ ๒ :</strong> เพิ่มประสิทธิภาพบริหารจัดการให้มีมาตรฐานและคุณภาพโดยใช้หลักธรรมาภิบาล และการมีส่วนร่วมกับทุกภาคส่วนตามนโยบายสำคัญที่หน่วยงานต้นสังกัดมอบหมาย
+            </p>
+          </div>
+          <div class="p-4 sm:p-5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-start gap-3.5">
+            <span class="w-7 h-7 rounded-lg bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5 border border-blue-200 dark:border-blue-900/50">๓</span>
+            <p class="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
+              <strong class="font-bold text-slate-900 dark:text-white">ยุทธศาสตร์ที่ ๓ :</strong> ส่งเสริมให้ครู บุคลากร และผู้เรียนสร้างและพัฒนางานวิจัย สิ่งประดิษฐ์ นวัตกรรม เทคโนโลยี และองค์ความรู้เพื่อการจัดการอาชีวศึกษาและพัฒนาวิชาชีพ
+            </p>
+          </div>
+        </div>
       </section>
 
-      <!-- ================= 10. เป้าประสงค์ ================= -->
-      <section class="space-y-4 pt-8 border-t border-slate-200 dark:border-slate-800">
+      <!-- ================= 10. เป้าประสงค์ ๑๖ ข้อ ================= -->
+      <section id="goals" class="scroll-mt-24 space-y-5 pt-10 border-t border-slate-200 dark:border-slate-800">
         <div>
-          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
-            เป้าประสงค์
-          </h2>
+          <div class="flex items-center gap-3">
+            <span class="w-1.5 h-6 rounded-full bg-[#0047BA]"></span>
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+              เป้าประสงค์ ๑๖ ประการ
+            </h2>
+          </div>
+          <p class="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed mt-2">
+            เป้าหมายสัมฤทธิผลของการจัดการศึกษาเพื่อบรรลุวิสัยทัศน์และพันธกิจ
+          </p>
         </div>
-        <ol class="space-y-2 list-decimal list-outside pl-5 text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed font-normal">
-          <li>ผู้เรียนและผู้สำเร็จการศึกษามีคุณลักษณะอันพึงประสงค์</li>
-          <li>ผู้เรียนและผู้สำเร็จการศึกษาผ่านเกณฑ์การทดสอบมาตรฐานฝีมือแรงงานแห่งชาติ และ/หรือมาตรฐานคุณวุฒิอาชีวศึกษา</li>
-          <li>ผู้เรียนและผู้สำเร็จการศึกษามีทักษะภาษาอังกฤษ และการใช้ดิจิทัล</li>
-          <li>ผู้เรียน ครู และบุคลากรทางการศึกษามีจิตสำนึกด้านการรักชาติ เทิดทูนพระมหากษัตริย์ การปกครองระบบประชาธิปไตย ทะนุบำรุงศาสนา ศิลปะ วัฒนธรรม</li>
-          <li>ผู้เรียน ครู และบุคลากรทางการศึกษาได้รับการส่งเสริมด้านสุขภาพ การกีฬา และนันทนาการ</li>
-          <li>ผู้เรียน ครู และบุคลากรทางการศึกษามีจิตสำนึกด้านอนุรักษ์สิ่งแวดล้อม</li>
-          <li>ผู้เรียนและผู้สำเร็จการศึกษามีคุณภาพและมีความสุข</li>
-          <li>วิทยาลัยนำหลักธรรมาภิบาลใช้ในการบริหารจัดการศึกษาแบบมีส่วนร่วม โปร่งใส ตรวจสอบได้ และมีประสิทธิภาพ</li>
-          <li>ครูและบุคลากรทางการศึกษามีสมรรถนะที่สูงขึ้น มีความรู้ความสามารถและมีทักษะ คุณธรรม จริยธรรมตามสาขาวิชาชีพ และศักยภาพพร้อมรับการเปลี่ยนแปลง มีคุณภาพชีวิต ความผูกพันต่อองค์กร และมีทัศนคติที่ดีต่อองค์กร</li>
-          <li>วิทยาลัยปรับปรุงอาคารสถานที่ สภาพแวดล้อมบรรยากาศเอื้ออำนวยต่อการเรียนรู้ มีการประชาสัมพันธ์ แนะแนว ข้อมูลข่าวสารทุกช่องทางการสื่อสาร มีการจัดซื้อ จัดหาวัสดุ ครุภัณฑ์ที่ใช้ในการจัดการเรียนการสอนทุกสาขาวิชา</li>
-          <li>มีหลักสูตรที่สอดคล้องกับความต้องการของตลาดแรงงานและสถานประกอบการ มีสื่อและเทคโนโลยีที่ทันสมัยเหมาะสมเพียงพอในการจัดการเรียนการสอน มีการสนองรับนโยบายหน่วยงานต้นสังกัด</li>
-          <li>ครูนำเทคโนโลยีและนวัตกรรมมาใช้ในการจัดการเรียนการสอนอย่างมีประสิทธิภาพ</li>
-          <li>ผู้เรียน ครู และบุคลากรทางการศึกษามีความรู้ ความสามารถในการสร้างเครือข่ายการทำวิจัย นวัตกรรม สิ่งประดิษฐ์และเทคโนโลยีสารสนเทศ ทำให้เกิดผลงานของครู บุคลากร และผู้เรียน</li>
-          <li>พัฒนาเทคโนโลยีและสารสนเทศทางด้านวิชาการและวิชาชีพ</li>
-          <li>มีความร่วมมือในการจัดการศึกษาวิชาชีพกับหน่วยงาน องค์กร สถาบัน ภาครัฐและเอกชน</li>
-          <li>สร้างสังคมแห่งการเรียนรู้ให้กับผู้เรียนและผู้สำเร็จการศึกษา</li>
-        </ol>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          
+          <div class="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">๑</span>
+            <span class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">ผู้เรียนและผู้สำเร็จการศึกษามีคุณลักษณะอันพึงประสงค์</span>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">๒</span>
+            <span class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">ผู้เรียนและผู้สำเร็จการศึกษาผ่านเกณฑ์การทดสอบมาตรฐานฝีมือแรงงานแห่งชาติ และ/หรือมาตรฐานคุณวุฒิอาชีวศึกษา</span>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">๓</span>
+            <span class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">ผู้เรียนและผู้สำเร็จการศึกษามีทักษะภาษาอังกฤษ และการใช้ดิจิทัล</span>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">๔</span>
+            <span class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">ผู้เรียน ครู และบุคลากรทางการศึกษามีจิตสำนึกด้านการรักชาติ เทิดทูนพระมหากษัตริย์ ประชาธิปไตย ทะนุบำรุงศาสนา ศิลปวัฒนธรรม</span>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">๕</span>
+            <span class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">ผู้เรียน ครู และบุคลากรทางการศึกษาได้รับการส่งเสริมด้านสุขภาพ การกีฬา และนันทนาการ</span>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">๖</span>
+            <span class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">ผู้เรียน ครู และบุคลากรทางการศึกษามีจิตสำนึกด้านการอนุรักษ์สิ่งแวดล้อม</span>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">๗</span>
+            <span class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">ผู้เรียนและผู้สำเร็จการศึกษามีคุณภาพและมีความสุข</span>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">๘</span>
+            <span class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">วิทยาลัยนำหลักธรรมาภิบาลใช้ในการบริหารจัดการศึกษาแบบมีส่วนร่วม โปร่งใส ตรวจสอบได้</span>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">๙</span>
+            <span class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">ครูและบุคลากรทางการศึกษามีสมรรถนะสูงขึ้น มีความรู้ความสามารถ คุณธรรม จริยธรรม และทัศนคติที่ดี</span>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">๑๐</span>
+            <span class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">ปรับปรุงอาคารสถานที่ สภาพแวดล้อมบรรยากาศเอื้อต่อการเรียนรู้ และจัดหาวัสดุครุภัณฑ์ที่ทันสมัย</span>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">๑๑</span>
+            <span class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">มีหลักสูตรที่สอดคล้องกับความต้องการของตลาดแรงงาน และสื่อเทคโนโลยีที่เหมาะสม</span>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">๑๒</span>
+            <span class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">ครูนำเทคโนโลยีและนวัตกรรมมาใช้ในการจัดการเรียนการสอนอย่างมีประสิทธิภาพ</span>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">๑๓</span>
+            <span class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">สร้างเครือข่ายงานวิจัย นวัตกรรม สิ่งประดิษฐ์ และเทคโนโลยีสารสนเทศที่เกิดประโยชน์จริง</span>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">๑๔</span>
+            <span class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">พัฒนาเทคโนโลยีและสารสนเทศทางด้านวิชาการและวิชาชีพ</span>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">๑๕</span>
+            <span class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">มีความร่วมมือในการจัดการศึกษาวิชาชีพกับหน่วยงานภาครัฐและเอกชน</span>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-50/70 dark:bg-slate-900/50 border border-slate-200/70 dark:border-slate-800 flex items-start gap-3">
+            <span class="w-6 h-6 rounded-md bg-blue-50 dark:bg-blue-950 text-[#0047BA] dark:text-blue-400 text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">๑๖</span>
+            <span class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">สร้างสังคมแห่งการเรียนรู้ให้กับผู้เรียนและผู้สำเร็จการศึกษาอย่างยั่งยืน</span>
+          </div>
+
+        </div>
       </section>
 
     </div>
