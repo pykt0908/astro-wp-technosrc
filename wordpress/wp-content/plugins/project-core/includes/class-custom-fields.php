@@ -969,6 +969,22 @@ class Project_Core_Custom_Fields {
         // Save Curriculum Meta
         if (isset($_POST['project_core_curriculum_nonce_field']) && wp_verify_nonce($_POST['project_core_curriculum_nonce_field'], 'project_core_curriculum_nonce')) {
             if (current_user_can('edit_post', $post_id)) {
+                // Update slug if custom slug provided
+                if (isset($_POST['curriculum_custom_slug'])) {
+                    $new_slug = trim((string) $_POST['curriculum_custom_slug']);
+                    if (!empty($new_slug)) {
+                        $target_slug = sanitize_title(urldecode($new_slug));
+                        if ($target_slug !== $post->post_name) {
+                            remove_action('save_post', array($this, 'save_meta_boxes'), 10);
+                            wp_update_post(array(
+                                'ID'        => $post_id,
+                                'post_name' => $target_slug,
+                            ));
+                            add_action('save_post', array($this, 'save_meta_boxes'), 10, 2);
+                        }
+                    }
+                }
+
                 $keys = array(
                     'curriculum_degree_th'       => 'sanitize_text_field',
                     'curriculum_degree_en'       => 'sanitize_text_field',
@@ -996,6 +1012,7 @@ class Project_Core_Custom_Fields {
     public function render_curriculum_meta_box($post) {
         wp_nonce_field('project_core_curriculum_nonce', 'project_core_curriculum_nonce_field');
 
+        $current_slug    = urldecode($post->post_name);
         $degree_th       = get_post_meta($post->ID, 'curriculum_degree_th', true) ?: '';
         $degree_en       = get_post_meta($post->ID, 'curriculum_degree_en', true) ?: '';
         $duration        = get_post_meta($post->ID, 'curriculum_duration', true) ?: '';
@@ -1007,6 +1024,17 @@ class Project_Core_Custom_Fields {
         $study_plan_url  = get_post_meta($post->ID, 'curriculum_study_plan_url', true) ?: '';
         ?>
         <table class="form-table" style="margin-top: 0;">
+            <tr>
+                <th scope="row"><label for="curriculum_custom_slug"><?php _e('สลัก URL (URL Slug / ลิงก์สาขา)', 'project-core'); ?></label></th>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <span style="color: #64748b; font-family: monospace; font-size: 13px;">/curriculum/</span>
+                        <input type="text" id="curriculum_custom_slug" name="curriculum_custom_slug" value="<?php echo esc_attr($current_slug); ?>" style="width: 320px; font-family: monospace;" placeholder="เช่น marketing-vocational" />
+                        <span style="color: #64748b; font-family: monospace; font-size: 13px;">/</span>
+                    </div>
+                    <p class="description"><?php _e('กำหนดชื่อ URL Slug ภาษาอังกฤษหรือภาษาไทยได้ตามต้องการ (เช่น <code>marketing-vocational</code> หรือ <code>การตลาด-ปวช</code>) หากเว้นว่างไว้ WordPress จะตั้งให้อัตโนมัติ', 'project-core'); ?></p>
+                </td>
+            </tr>
             <tr>
                 <th scope="row"><label for="curriculum_degree_th"><?php _e('วุฒิการศึกษาที่ได้รับ (ภาษาไทย)', 'project-core'); ?></label></th>
                 <td>

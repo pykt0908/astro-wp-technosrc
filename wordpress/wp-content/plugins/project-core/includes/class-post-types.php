@@ -131,18 +131,18 @@ class Project_Core_Post_Types {
 
         $curriculum_args = array(
             'labels'             => $curriculum_labels,
-            'public'             => false,
-            'publicly_queryable' => false,
+            'public'             => true,
+            'publicly_queryable' => true,
             'show_ui'            => true,
             'show_in_menu'       => true,
-            'query_var'          => false,
-            'rewrite'            => false,
+            'query_var'          => true,
+            'rewrite'            => array('slug' => 'curriculum', 'with_front' => false),
             'capability_type'    => 'post',
             'has_archive'        => false,
             'hierarchical'       => false,
             'menu_position'      => 22,
             'menu_icon'          => 'dashicons-welcome-learn-more',
-            'supports'           => array('title', 'editor', 'excerpt', 'thumbnail', 'page-attributes'),
+            'supports'           => array('title', 'editor', 'excerpt', 'thumbnail', 'page-attributes', 'slug'),
             'show_in_rest'       => true,
             'rest_base'          => 'curriculums',
         );
