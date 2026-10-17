@@ -687,3 +687,448 @@ export async function getCollegeEventCategories(): Promise<CollegeEventCategory[
   return [];
 }
 
+/**
+ * ============================================================================
+ * CURRICULUMS & PROGRAMS (หลักสูตร ปวช. / ปวส. และสาขาวิชา)
+ * ============================================================================
+ */
+
+export interface CurriculumTaxonomyItem {
+  id: number;
+  name: string;
+  slug: string;
+  count?: number;
+}
+
+export interface CurriculumMeta {
+  degreeTh: string;
+  degreeEn: string;
+  duration: string;
+  requirements: string;
+  badge: string;
+  tuitionFee: string;
+  studyPlanUrl: string;
+  highlights: string[];
+  careers: string[];
+}
+
+export interface CurriculumItem {
+  id: number;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string;
+  menuOrder: number;
+  featuredImage: string | null;
+  level: CurriculumTaxonomyItem | null;
+  department: CurriculumTaxonomyItem | null;
+  meta: CurriculumMeta;
+}
+
+const LOCAL_MOCK_CURRICULUM_LEVELS: CurriculumTaxonomyItem[] = [
+  { id: 1, name: 'ระดับประกาศนียบัตรวิชาชีพ (ปวช.)', slug: 'vocational' },
+  { id: 2, name: 'ระดับประกาศนียบัตรวิชาชีพชั้นสูง (ปวส.)', slug: 'high-vocational' },
+];
+
+const LOCAL_MOCK_CURRICULUM_DEPARTMENTS: CurriculumTaxonomyItem[] = [
+  { id: 1, name: 'ช่างอุตสาหกรรม', slug: 'industrial' },
+  { id: 2, name: 'บริหารธุรกิจและพาณิชยกรรม', slug: 'business' },
+  { id: 3, name: 'เทคโนโลยีสารสนเทศและการสื่อสาร', slug: 'information-technology' },
+];
+
+const LOCAL_MOCK_CURRICULUMS: CurriculumItem[] = [
+  {
+    id: 101,
+    title: 'สาขาวิชาช่างยนต์',
+    slug: 'automotive-vocational',
+    menuOrder: 1,
+    featuredImage: '/logo/LOGO_SERIRACHA_COLOR_FULL.png',
+    excerpt: 'มุ่งเน้นสร้างช่างเทคนิคยานยนต์ที่มีทักษะชำนาญการ ซ่อมบำรุง วินิจฉัยระบบเครื่องยนต์ ระบบส่งกำลัง ระบบไฟฟ้า และปูพื้นฐานสู่อุตสาหกรรมยานยนต์สมัยใหม่',
+    content: `<p>หลักสูตรประกาศนียบัตรวิชาชีพ (ปวช.) สาขาวิชาช่างยนต์ มุ่งพัฒนาผู้เรียนให้มีความรู้ความเข้าใจ ทักษะวิชาชีพ และจรรยาบรรณในวิชาชีพช่างยนต์ โดยเน้นการฝึกปฏิบัติจริงกับเครื่องยนต์สันดาปภายใน ระบบส่งกำลัง ระบบรองรับน้ำหนักและบังคับเลี้ยว ระบบเบรก ระบบไฟฟ้าอิเล็กทรอนิกส์ยานยนต์ และการวิเคราะห์ปัญหายานยนต์ยุคใหม่</p>
+<h3>โครงสร้างหลักสูตรและจุดเด่น</h3>
+<ul>
+  <li>เรียนรู้ผ่านห้องปฏิบัติการที่ได้มาตรฐาน พร้อมเครื่องมือและชุดฝึกทันสมัย</li>
+  <li>โครงการฝึกงานระบบทวิภาคีร่วมกับศูนย์บริการยานยนต์มาตรฐานชั้นนำ</li>
+  <li>การอบรมเสริมทักษะความปลอดภัยในการทำงาน และใบรับรองทักษะฝีมือแรงงาน</li>
+</ul>`,
+    level: { id: 1, name: 'ระดับ ปวช.', slug: 'vocational' },
+    department: { id: 1, name: 'ช่างอุตสาหกรรม', slug: 'industrial' },
+    meta: {
+      degreeTh: 'ประกาศนียบัตรวิชาชีพ (ปวช.) สาขาวิชาช่างยนต์',
+      degreeEn: 'Vocational Certificate in Automotive Technology',
+      duration: '3 ปี',
+      requirements: 'สำเร็จการศึกษาระดับมัธยมศึกษาปีที่ 3 (ม.3) หรือเทียบเท่า',
+      badge: 'ยอดนิยม',
+      tuitionFee: 'ตามระเบียบกระทรวงศึกษาธิการ / มีกองทุน กยศ.',
+      studyPlanUrl: '',
+      highlights: [
+        'เรียนรู้ระบบเครื่องยนต์สันดาปภายในและระบบส่งกำลังสมัยใหม่',
+        'ฝึกปฏิบัติงานจริงกับเครื่องมือและแท่นทดสอบมาตรฐานอุตสาหกรรม',
+        'ปูพื้นฐานสู่เทคโนโลยียานยนต์ไฟฟ้า (EV) และระบบไฮบริด',
+        'มีโครงการฝึกงานทวิภาคีร่วมกับศูนย์บริการรถยนต์ชั้นนำ มีรายได้ระหว่างเรียน',
+      ],
+      careers: [
+        'ช่างเทคนิคซ่อมบำรุงรถยนต์ประจำศูนย์บริการมาตรฐาน',
+        'เจ้าหน้าที่ตรวจสอบและประเมินสภาพรถยนต์',
+        'ผู้ช่วยวิศวกรยานยนต์ในโรงงานประกอบรถยนต์',
+        'ผู้ประกอบการธุรกิจอู่ซ่อมบำรุงและศูนย์ดูแลรักษารถยนต์',
+      ],
+    },
+  },
+  {
+    id: 102,
+    title: 'สาขาวิชาช่างไฟฟ้ากำลัง',
+    slug: 'electrical-power-vocational',
+    menuOrder: 2,
+    featuredImage: '/logo/LOGO_SERIRACHA_COLOR_FULL.png',
+    excerpt: 'ผลิตช่างเทคนิคไฟฟ้ากำลังที่มีความชำนาญการติดตั้งระบบไฟฟ้าอาคาร ระบบควบคุมมอเตอร์ และพลังงานสะอาดโซลาร์เซลล์',
+    content: `<p>สาขาวิชาช่างไฟฟ้ากำลัง จัดการเรียนการสอนครอบคลุมการออกแบบ วางผัง และติดตั้งระบบไฟฟ้าในอาคารที่พักอาศัยและโรงงานอุตสาหกรรม การบำรุงรักษาระบบส่งจ่ายกำลังไฟฟ้า การควบคุมมอเตอร์ไฟฟ้าและหม้อแปลง ตลอดจนระบบพลังงานทดแทน เช่น พลังงานแสงอาทิตย์</p>`,
+    level: { id: 1, name: 'ระดับ ปวช.', slug: 'vocational' },
+    department: { id: 1, name: 'ช่างอุตสาหกรรม', slug: 'industrial' },
+    meta: {
+      degreeTh: 'ประกาศนียบัตรวิชาชีพ (ปวช.) สาขาวิชาช่างไฟฟ้ากำลัง',
+      degreeEn: 'Vocational Certificate in Electrical Power',
+      duration: '3 ปี',
+      requirements: 'สำเร็จการศึกษาระดับมัธยมศึกษาปีที่ 3 (ม.3) หรือเทียบเท่า',
+      badge: 'ตลาดต้องการสูง',
+      tuitionFee: 'ตามระเบียบกระทรวงศึกษาธิการ / มีกองทุน กยศ.',
+      studyPlanUrl: '',
+      highlights: [
+        'เชี่ยวชาญการติดตั้งระบบไฟฟ้าอาคาร โรงงาน และระบบโซลาร์เซลล์',
+        'เรียนรู้การควบคุมมอเตอร์และอุปกรณ์ป้องกันทางไฟฟ้า',
+        'เตรียมความพร้อมสอบใบอนุญาตประกอบวิชาชีพช่างไฟฟ้า (หนังสือรับรองความรู้ความสามารถ)',
+        'ฝึกปฏิบัติงานจริงด้านระบบควบคุมอัตโนมัติเบื้องต้น',
+      ],
+      careers: [
+        'ช่างไฟฟ้าประจำอาคาร โรงงานอุตสาหกรรม และโรงแรม',
+        'ช่างเทคนิคติดตั้งและบำรุงรักษาระบบพลังงานแสงอาทิตย์ (Solar Rooftop)',
+        'พนักงานรัฐวิสาหกิจการไฟฟ้าส่วนภูมิภาค / นครหลวง',
+        'ผู้รับเหมาติดตั้งระบบไฟฟ้าและสื่อสาร',
+      ],
+    },
+  },
+  {
+    id: 103,
+    title: 'สาขาวิชาเทคโนโลยีสารสนเทศ (IT)',
+    slug: 'information-technology-vocational',
+    menuOrder: 3,
+    featuredImage: '/logo/LOGO_SERIRACHA_COLOR_FULL.png',
+    excerpt: 'สร้างผู้เชี่ยวชาญสายไอทีรอบด้าน ทั้งการพัฒนาเว็บและแอปพลิเคชัน การดูแลเครือข่ายคอมพิวเตอร์ และความมั่นคงปลอดภัยไซเบอร์',
+    content: `<p>สาขาวิชาเทคโนโลยีสารสนเทศ มุ่งเน้นการสร้างพื้นฐานทักษะดิจิทัลที่เข้มแข็ง ตั้งแต่หลักการเขียนโปรแกรม การพัฒนาเว็บไซต์และแอปพลิเคชัน การติดตั้งระบบเครือข่ายคอมพิวเตอร์และคลาวด์ การจัดการฐานข้อมูล ตลอดจนการประยุกต์ใช้ปัญญาประดิษฐ์ (AI Tools) ในการทำงานยุคใหม่</p>`,
+    level: { id: 1, name: 'ระดับ ปวช.', slug: 'vocational' },
+    department: { id: 3, name: 'เทคโนโลยีสารสนเทศและการสื่อสาร', slug: 'information-technology' },
+    meta: {
+      degreeTh: 'ประกาศนียบัตรวิชาชีพ (ปวช.) สาขาวิชาเทคโนโลยีสารสนเทศ',
+      degreeEn: 'Vocational Certificate in Information Technology',
+      duration: '3 ปี',
+      requirements: 'สำเร็จการศึกษาระดับมัธยมศึกษาปีที่ 3 (ม.3) หรือเทียบเท่า',
+      badge: 'ทักษะยุคดิจิทัล',
+      tuitionFee: 'ตามระเบียบกระทรวงศึกษาธิการ / มีกองทุน กยศ.',
+      studyPlanUrl: '',
+      highlights: [
+        'พัฒนาทักษะการเขียนโปรแกรม เว็บแอปพลิเคชัน และระบบฐานข้อมูล',
+        'การประกอบ ติดตั้ง และดูแลรักษาเครือข่ายคอมพิวเตอร์ (Network & Cloud)',
+        'ทักษะความมั่นคงปลอดภัยไซเบอร์เบื้องต้น (Cybersecurity Fundamentals)',
+        'ห้องแล็บคอมพิวเตอร์สเปกสูงพร้อมอินเทอร์เน็ตความเร็วสูง',
+      ],
+      careers: [
+        'เจ้าหน้าที่สนับสนุนด้านไอที (IT Support / Helpdesk)',
+        'ผู้ดูแลระบบเครือข่ายคอมพิวเตอร์ระดับต้น (Junior Network Administrator)',
+        'นักพัฒนาเว็บไซต์และคอนเทนต์ดิจิทัล (Web Developer)',
+        'ผู้ดูแลระบบฐานข้อมูลและการจัดการข้อมูลองค์กร',
+      ],
+    },
+  },
+  {
+    id: 104,
+    title: 'สาขาวิชาการบัญชี',
+    slug: 'accounting-vocational',
+    menuOrder: 4,
+    featuredImage: '/logo/LOGO_SERIRACHA_COLOR_FULL.png',
+    excerpt: 'ปูพื้นฐานระบบบัญชีธุรกิจ การเงิน ภาษีอากร และการใช้โปรแกรมบัญชีสำเร็จรูปร่วมกับเทคโนโลยีดิจิทัล',
+    content: `<p>สาขาวิชาการบัญชี เน้นการฝึกอบรมทักษะการจัดทำบัญชีธุรกิจ บัญชีต้นทุน บัญชีภาษีอากร การควบคุมภายใน และการวิเคราะห์งบการเงิน ฝึกปฏิบัติงานกับโปรแกรมบัญชีสำเร็จรูปชั้นนำที่ใช้จริงในภาคธุรกิจ</p>`,
+    level: { id: 1, name: 'ระดับ ปวช.', slug: 'vocational' },
+    department: { id: 2, name: 'บริหารธุรกิจและพาณิชยกรรม', slug: 'business' },
+    meta: {
+      degreeTh: 'ประกาศนียบัตรวิชาชีพ (ปวช.) สาขาวิชาการบัญชี',
+      degreeEn: 'Vocational Certificate in Accounting',
+      duration: '3 ปี',
+      requirements: 'สำเร็จการศึกษาระดับมัธยมศึกษาปีที่ 3 (ม.3) หรือเทียบเท่า',
+      badge: 'มีงานรองรับ 100%',
+      tuitionFee: 'ตามระเบียบกระทรวงศึกษาธิการ / มีกองทุน กยศ.',
+      studyPlanUrl: '',
+      highlights: [
+        'การจัดทำบัญชีธุรกิจ บัญชีภาษีอากร และการเงินตามมาตรฐานสากล',
+        'การใช้โปรแกรมบัญชีสำเร็จรูปและเทคโนโลยีดิจิทัลทางการเงิน (FinTech)',
+        'ฝึกปฏิบัติงานจริงในสำนักงานบัญชีและสถานประกอบการชั้นนำ',
+        'พัฒนาทักษะการคำนวณ ความละเอียดรอบคอบ และจรรยาบรรณวิชาชีพ',
+      ],
+      careers: [
+        'พนักงานบัญชีและการเงินในองค์กรธุรกิจและสถาบันการเงิน',
+        'ผู้ช่วยผู้สอบบัญชีในสำนักงานบัญชี',
+        'เจ้าหน้าที่จัดซื้อ ตรวจสอบเอกสาร และบริหารคลังสินค้า',
+        'ประกอบธุรกิจบริการรับทำบัญชีอิสระ',
+      ],
+    },
+  },
+  {
+    id: 201,
+    title: 'สาขาวิชาเทคนิคยานยนต์และยานยนต์ไฟฟ้า (EV)',
+    slug: 'ev-automotive-diploma',
+    menuOrder: 5,
+    featuredImage: '/logo/LOGO_SERIRACHA_COLOR_FULL.png',
+    excerpt: 'หลักสูตร ปวส. ยกระดับความเชี่ยวชาญด้านยานยนต์สมัยใหม่ ระบบส่งกำลังไฟฟ้า แบตเตอรี่ และระบบควบคุมอิเล็กทรอนิกส์ชั้นสูงเพื่อรองรับเขตพัฒนาพิเศษภาคตะวันออก (EEC)',
+    content: `<p>สาขาวิชาเทคนิคยานยนต์และยานยนต์ไฟฟ้า (EV) ระดับ ปวส. ตอบสนองยุทธศาสตร์ยานยนต์แห่งอนาคต มุ่งผลิตช่างเทคนิคชั้นสูงที่เชี่ยวชาญระบบขับเคลื่อนยานยนต์ไฟฟ้า แบตเตอรี่แรงดันสูง ระบบชาร์จ มอเตอร์ขับเคลื่อน อินเวอร์เตอร์ ตลอดจนการวินิจฉัยข้อบกพร่องด้วยคอมพิวเตอร์ขั้นสูง</p>`,
+    level: { id: 2, name: 'ระดับ ปวส.', slug: 'high-vocational' },
+    department: { id: 1, name: 'ช่างอุตสาหกรรม', slug: 'industrial' },
+    meta: {
+      degreeTh: 'ประกาศนียบัตรวิชาชีพชั้นสูง (ปวส.) สาขาวิชาเทคนิคยานยนต์',
+      degreeEn: 'High Vocational Certificate in Automotive & EV Technology',
+      duration: '2 ปี',
+      requirements: 'สำเร็จการศึกษาระดับ ปวช. สาขาวิชาช่างยนต์ หรือ ม.6/เทียบเท่า',
+      badge: 'EEC ยานยนต์ไฟฟ้า',
+      tuitionFee: 'ตามระเบียบวิทยาลัย / ผ่อนชำระได้ / กยศ.',
+      studyPlanUrl: '',
+      highlights: [
+        'ความเชี่ยวชาญด้านระบบขับเคลื่อนยานยนต์ไฟฟ้า (EV) แบตเตอรี่ และมอเตอร์แรงดันสูง',
+        'การตรวจวิเคราะห์ปัญหาด้วยระบบคอมพิวเตอร์ OBD-II และซอฟต์แวร์วิเคราะห์ขั้นสูง',
+        'ความร่วมมือกับค่ายรถยนต์ชั้นนำในพื้นที่ EEC และนิคมแหลมฉบัง',
+        'เน้นทักษะความปลอดภัยในการทำงานกับระบบไฟฟ้าแรงดันสูงตามมาตรฐานสากล',
+      ],
+      careers: [
+        'ช่างเทคนิคผู้เชี่ยวชาญระบบยานยนต์ไฟฟ้า (EV Specialist)',
+        'หัวหน้างานซ่อมบำรุงและวินิจฉัยปัญหาทางเทคนิคในศูนย์บริการ',
+        'เจ้าหน้าที่ทดสอบและควบคุมคุณภาพในโรงงานผลิตยานยนต์และชิ้นส่วน',
+        'ที่ปรึกษาด้านเทคนิคการบริการลูกค้าและยานพาหนะไฟฟ้า',
+      ],
+    },
+  },
+  {
+    id: 202,
+    title: 'สาขาวิชาเทคโนโลยีระบบอัตโนมัติและหุ่นยนต์',
+    slug: 'industrial-automation-diploma',
+    menuOrder: 6,
+    featuredImage: '/logo/LOGO_SERIRACHA_COLOR_FULL.png',
+    excerpt: 'สร้างวิศวกรระบบอัตโนมัติระดับช่างเทคนิคชั้นสูง เชี่ยวชาญการเขียนโปรแกรม PLC ระบบแขนกลหุ่นยนต์อุตสาหกรรม และ IoT สำหรับโรงงาน Smart Factory',
+    content: `<p>หลักสูตร ปวส. สาขาวิชาเทคโนโลยีระบบอัตโนมัติและหุ่นยนต์ ตอบโจทย์อุตสาหกรรม 4.0 อย่างเต็มรูปแบบ ผู้เรียนจะได้ฝึกเขียนโปรแกรมควบคุม PLC, ระบบ HMI, SCADA, ระบบแขนกลหุ่นยนต์อุตสาหกรรม และการเชื่อมต่อเซนเซอร์ในสายการผลิต</p>`,
+    level: { id: 2, name: 'ระดับ ปวส.', slug: 'high-vocational' },
+    department: { id: 1, name: 'ช่างอุตสาหกรรม', slug: 'industrial' },
+    meta: {
+      degreeTh: 'ประกาศนียบัตรวิชาชีพชั้นสูง (ปวส.) สาขาวิชาระบบอัตโนมัติและหุ่นยนต์',
+      degreeEn: 'High Vocational Certificate in Industrial Automation & Robotics',
+      duration: '2 ปี',
+      requirements: 'สำเร็จการศึกษาระดับ ปวช. สาขาวิชาช่างไฟฟ้า/อิเล็กทรอนิกส์/เมคคาทรอนิกส์ หรือ ม.6',
+      badge: 'อุตสาหกรรม 4.0',
+      tuitionFee: 'ตามระเบียบวิทยาลัย / ผ่อนชำระได้ / กยศ.',
+      studyPlanUrl: '',
+      highlights: [
+        'การเขียนโปรแกรมควบคุม PLC, SCADA และระบบแขนกลหุ่นยนต์อุตสาหกรรม',
+        'การประยุกต์ใช้ IoT เซนเซอร์อัจฉริยะในสายการผลิตโรงงานอุตสาหกรรม',
+        'ปฏิบัติงานร่วมกับเครื่องจักรอัตโนมัติในศูนย์เรียนรู้มาตรฐานสากล',
+        'ฝึกงานทวิภาคีในโรงงานชั้นนำในนิคมอุตสาหกรรมภาคตะวันออก',
+      ],
+      careers: [
+        'วิศวกรระบบอัตโนมัติ / ผู้ควบคุมระบบหุ่นยนต์ (Robotics Technician)',
+        'ผู้เชี่ยวชาญการเขียนโปรแกรม PLC และบำรุงรักษาสายการผลิต',
+        'ช่างเทคนิคซ่อมบำรุงระบบเครื่องจักรอัจฉริยะและระบบนิวแมติกส์ไฮดรอลิกส์',
+        'ผู้จัดการโครงการติดตั้งระบบอัตโนมัติในโรงงาน',
+      ],
+    },
+  },
+  {
+    id: 203,
+    title: 'สาขาวิชาคอมพิวเตอร์กราฟิกและสื่อดิจิทัล',
+    slug: 'digital-media-diploma',
+    menuOrder: 7,
+    featuredImage: '/logo/LOGO_SERIRACHA_COLOR_FULL.png',
+    excerpt: 'สร้างนักออกแบบกราฟิก คอนเทนต์ครีเอเตอร์ ผู้ผลิตสื่อโมชันวิดีโอ 3D แอนิเมชัน และ UX/UI Design ตอบโจทย์ธุรกิจยุคดิจิทัล',
+    content: `<p>สาขาวิชาคอมพิวเตอร์กราฟิกและสื่อดิจิทัล มุ่งเน้นการผสมผสานความคิดสร้างสรรค์เข้ากับเทคโนโลยีดิจิทัลสมัยใหม่ เรียนรู้การออกแบบกราฟิก 2D/3D การสร้างโมเดล การตัดต่อและผลิตภาพยนตร์สั้น การทำโมชันกราฟิก และการออกแบบส่วนติดต่อผู้ใช้ (UX/UI)</p>`,
+    level: { id: 2, name: 'ระดับ ปวส.', slug: 'high-vocational' },
+    department: { id: 3, name: 'เทคโนโลยีสารสนเทศและการสื่อสาร', slug: 'information-technology' },
+    meta: {
+      degreeTh: 'ประกาศนียบัตรวิชาชีพชั้นสูง (ปวส.) สาขาวิชาคอมพิวเตอร์กราฟิกและมัลติมีเดีย',
+      degreeEn: 'High Vocational Certificate in Digital Media & Computer Graphics',
+      duration: '2 ปี',
+      requirements: 'สำเร็จการศึกษาระดับ ปวช. ทุกสาขา หรือ ม.6/เทียบเท่า',
+      badge: 'เศรษฐกิจสร้างสรรค์',
+      tuitionFee: 'ตามระเบียบวิทยาลัย / ผ่อนชำระได้ / กยศ.',
+      studyPlanUrl: '',
+      highlights: [
+        'การออกแบบกราฟิก 2D/3D โมเดลลิ่ง และแอนิเมชัน',
+        'การตัดต่อวิดีโอ โมชันกราฟิก และการผลิตสื่อโฆษณาออนไลน์',
+        'การออกแบบประสบการณ์ผู้ใช้ (UX/UI Design) สำหรับเว็บไซต์และแอปพลิเคชัน',
+        'การสร้างแบรนด์และการทำการตลาดดิจิทัลคอนเทนต์ (Digital Content Marketing)',
+      ],
+      careers: [
+        'นักออกแบบกราฟิกและสื่อดิจิทัล (Digital Content Creator / Graphic Designer)',
+        'ผู้ตัดต่อวิดีโอและโมชันกราฟิก (Video Editor & Motion Designer)',
+        'นักออกแบบสื่อโฆษณาและการตลาดดิจิทัล',
+        'UX/UI Designer หรือฟรีแลนซ์สายงานสร้างสรรค์สื่อดิจิทัล',
+      ],
+    },
+  },
+  {
+    id: 204,
+    title: 'สาขาวิชาการจัดการโลจิสติกส์และซัพพลายเชน',
+    slug: 'logistics-management-diploma',
+    menuOrder: 8,
+    featuredImage: '/logo/LOGO_SERIRACHA_COLOR_FULL.png',
+    excerpt: 'เรียนรู้ระบบบริหารจัดการคลังสินค้า การขนส่งต่อเนื่องหลายรูปแบบ และพิธีการศุลกากร ใกล้ท่าเรือแหลมฉบัง ศูนย์กลางโลจิสติกส์อาเซียน',
+    content: `<p>สาขาวิชาการจัดการโลจิสติกส์และซัพพลายเชน มุ่งเน้นการสร้างบุคลากรที่มีความรู้และทักษะรอบด้านในการจัดการห่วงโซ่อุปทาน การวางแผนขนส่งสินค้าในและระหว่างประเทศ การบริหารคลังสินค้า การดำเนินพิธีการศุลกากร และการประยุกต์ใช้ซอฟต์แวร์โลจิสติกส์</p>`,
+    level: { id: 2, name: 'ระดับ ปวส.', slug: 'high-vocational' },
+    department: { id: 2, name: 'บริหารธุรกิจและพาณิชยกรรม', slug: 'business' },
+    meta: {
+      degreeTh: 'ประกาศนียบัตรวิชาชีพชั้นสูง (ปวส.) สาขาวิชาการจัดการโลจิสติกส์',
+      degreeEn: 'High Vocational Certificate in Logistics and Supply Chain Management',
+      duration: '2 ปี',
+      requirements: 'สำเร็จการศึกษาระดับ ปวช. ทุกสาขา หรือ ม.6/เทียบเท่า',
+      badge: 'ใกล้ท่าเรือแหลมฉบัง',
+      tuitionFee: 'ตามระเบียบวิทยาลัย / ผ่อนชำระได้ / กยศ.',
+      studyPlanUrl: '',
+      highlights: [
+        'การบริหารคลังสินค้า การขนส่งต่อเนื่องหลายรูปแบบ และพิธีการศุลกากร',
+        'ทำเลที่ตั้งใกล้ท่าเรือแหลมฉบัง ศูนย์กลางโลจิสติกส์ระดับภูมิภาค',
+        'การใช้ระบบเทคโนโลยีสารสนเทศโลจิสติกส์ (WMS / TMS / ERP)',
+        'ฝึกงานจริงกับบริษัทโลจิสติกส์และตัวแทนขนส่งสินค้าระหว่างประเทศ (Freight Forwarder)',
+      ],
+      careers: [
+        'เจ้าหน้าที่ประสานงานนำเข้า-ส่งออก (Import-Export Coordinator)',
+        'ผู้บริหารจัดการคลังสินค้าและการกระจายสินค้า (Warehouse Supervisor)',
+        'เจ้าหน้าที่ปฏิบัติการขนส่งสินค้าระหว่างประเทศและพิธีการศุลกากร',
+        'นักวิเคราะห์ซัพพลายเชนและวางแผนการจัดซื้อ',
+      ],
+    },
+  },
+];
+
+/**
+ * Fetch curriculums from WordPress or fallback to mock data
+ */
+export async function getCurriculums(options: {
+  level?: string;
+  department?: string;
+  perPage?: number;
+} = {}): Promise<CurriculumItem[]> {
+  const cacheKey = `curriculums_${options.level || 'all'}_${options.department || 'all'}_${options.perPage || 'all'}`;
+  const cached = getFromCache<CurriculumItem[]>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const params = new URLSearchParams();
+    if (options.level && options.level !== 'all') params.append('level', options.level);
+    if (options.department && options.department !== 'all') params.append('department', options.department);
+    if (options.perPage) params.append('per_page', String(options.perPage));
+
+    const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/curriculums?${params.toString()}`;
+    const res = await fetchWithTimeout(url);
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data && Array.isArray(data.curriculums) && data.curriculums.length > 0) {
+        setInCache(cacheKey, data.curriculums);
+        return data.curriculums;
+      }
+    }
+  } catch (err) {
+    // Fall back to local mock
+  }
+
+  // Filter local mock data
+  let results = [...LOCAL_MOCK_CURRICULUMS];
+  if (options.level && options.level !== 'all') {
+    results = results.filter((c) => c.level?.slug === options.level);
+  }
+  if (options.department && options.department !== 'all') {
+    results = results.filter((c) => c.department?.slug === options.department);
+  }
+  if (options.perPage && options.perPage > 0) {
+    results = results.slice(0, options.perPage);
+  }
+
+  setInCache(cacheKey, results);
+  return results;
+}
+
+/**
+ * Fetch single curriculum by slug
+ */
+export async function getCurriculumBySlug(slug: string): Promise<CurriculumItem | null> {
+  const cacheKey = `curriculum_single_${slug}`;
+  const cached = getFromCache<CurriculumItem>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/curriculums/${slug}`;
+    const res = await fetchWithTimeout(url);
+
+    if (res.ok) {
+      const item = await res.json();
+      if (item && item.id) {
+        setInCache(cacheKey, item);
+        return item;
+      }
+    }
+  } catch (err) {
+    // Fallback to local mock
+  }
+
+  const found = LOCAL_MOCK_CURRICULUMS.find((c) => c.slug === slug);
+  if (found) {
+    setInCache(cacheKey, found);
+    return found;
+  }
+
+  return null;
+}
+
+/**
+ * Fetch curriculum levels (ปวช., ปวส.)
+ */
+export async function getCurriculumLevels(): Promise<CurriculumTaxonomyItem[]> {
+  const cacheKey = 'curriculum_levels';
+  const cached = getFromCache<CurriculumTaxonomyItem[]>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/curriculum-levels`;
+    const res = await fetchWithTimeout(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setInCache(cacheKey, data);
+        return data;
+      }
+    }
+  } catch (err) {
+    // Fallback
+  }
+
+  return LOCAL_MOCK_CURRICULUM_LEVELS;
+}
+
+/**
+ * Fetch curriculum departments (กลุ่มสาขาวิชา)
+ */
+export async function getCurriculumDepartments(): Promise<CurriculumTaxonomyItem[]> {
+  const cacheKey = 'curriculum_departments';
+  const cached = getFromCache<CurriculumTaxonomyItem[]>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/curriculum-departments`;
+    const res = await fetchWithTimeout(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setInCache(cacheKey, data);
+        return data;
+      }
+    }
+  } catch (err) {
+    // Fallback
+  }
+
+  return LOCAL_MOCK_CURRICULUM_DEPARTMENTS;
+}
+
+

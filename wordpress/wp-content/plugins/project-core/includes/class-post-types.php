@@ -26,6 +26,12 @@ class Project_Core_Post_Types {
         // College Events Admin Filters
         add_action('restrict_manage_posts', array($this, 'filter_events_by_category'), 10, 2);
         add_action('pre_get_posts', array($this, 'admin_event_filter_query'));
+
+        // Curriculum Admin Columns & Filters
+        add_filter('manage_curriculum_posts_columns', array($this, 'set_curriculum_columns'));
+        add_action('manage_curriculum_posts_custom_column', array($this, 'render_curriculum_columns'), 10, 2);
+        add_action('restrict_manage_posts', array($this, 'filter_curriculums'), 10, 2);
+        add_action('pre_get_posts', array($this, 'admin_curriculum_filter_query'));
     }
 
     /**
@@ -105,6 +111,43 @@ class Project_Core_Post_Types {
         );
 
         register_post_type('college_event', $event_args);
+
+        // Curriculum CPT (หลักสูตรที่เปิดสอน)
+        $curriculum_labels = array(
+            'name'                  => __('หลักสูตรการศึกษา', 'project-core'),
+            'singular_name'         => __('หลักสูตร', 'project-core'),
+            'menu_name'             => __('หลักสูตร / สาขาวิชา', 'project-core'),
+            'name_admin_bar'        => __('หลักสูตร', 'project-core'),
+            'add_new'               => __('เพิ่มหลักสูตรใหม่', 'project-core'),
+            'add_new_item'          => __('เพิ่มหลักสูตรใหม่', 'project-core'),
+            'new_item'              => __('หลักสูตรใหม่', 'project-core'),
+            'edit_item'             => __('แก้ไขหลักสูตร', 'project-core'),
+            'view_item'             => __('ดูหลักสูตร', 'project-core'),
+            'all_items'             => __('หลักสูตรทั้งหมด', 'project-core'),
+            'search_items'          => __('ค้นหาหลักสูตร', 'project-core'),
+            'not_found'             => __('ไม่พบหลักสูตรที่ค้นหา', 'project-core'),
+            'not_found_in_trash'    => __('ไม่พบหลักสูตรในถังขยะ', 'project-core'),
+        );
+
+        $curriculum_args = array(
+            'labels'             => $curriculum_labels,
+            'public'             => false,
+            'publicly_queryable' => false,
+            'show_ui'            => true,
+            'show_in_menu'       => true,
+            'query_var'          => false,
+            'rewrite'            => false,
+            'capability_type'    => 'post',
+            'has_archive'        => false,
+            'hierarchical'       => false,
+            'menu_position'      => 22,
+            'menu_icon'          => 'dashicons-welcome-learn-more',
+            'supports'           => array('title', 'editor', 'excerpt', 'thumbnail', 'page-attributes'),
+            'show_in_rest'       => true,
+            'rest_base'          => 'curriculums',
+        );
+
+        register_post_type('curriculum', $curriculum_args);
     }
 
     /**
@@ -188,6 +231,61 @@ class Project_Core_Post_Types {
         );
 
         register_taxonomy('academic_year', array('college_event'), $academic_year_args);
+
+        // Curriculum Level Taxonomy (ระดับการศึกษา เช่น ปวช., ปวส.)
+        $level_labels = array(
+            'name'              => __('ระดับการศึกษา (ปวช./ปวส.)', 'project-core'),
+            'singular_name'     => __('ระดับการศึกษา', 'project-core'),
+            'search_items'      => __('ค้นหาระดับการศึกษา', 'project-core'),
+            'all_items'         => __('ระดับการศึกษาทั้งหมด', 'project-core'),
+            'edit_item'         => __('แก้ไขระดับการศึกษา', 'project-core'),
+            'update_item'       => __('อัปเดตระดับการศึกษา', 'project-core'),
+            'add_new_item'      => __('เพิ่มระดับการศึกษาใหม่', 'project-core'),
+            'new_item_name'     => __('ชื่อระดับการศึกษาใหม่', 'project-core'),
+            'menu_name'         => __('ระดับการศึกษา', 'project-core'),
+        );
+
+        $level_args = array(
+            'hierarchical'      => true,
+            'labels'            => $level_labels,
+            'show_ui'           => true,
+            'show_admin_column' => true,
+            'query_var'         => true,
+            'rewrite'           => false,
+            'show_in_rest'      => true,
+            'rest_base'         => 'curriculum-levels',
+        );
+
+        register_taxonomy('curriculum_level', array('curriculum'), $level_args);
+
+        // Curriculum Department Taxonomy (กลุ่มสาขาวิชา / ประเภทวิชา เช่น ช่างอุตสาหกรรม, บริหารธุรกิจ, เทคโนโลยีสารสนเทศ)
+        $dept_labels = array(
+            'name'              => __('กลุ่มสาขาวิชา / ประเภทวิชา', 'project-core'),
+            'singular_name'     => __('กลุ่มสาขาวิชา', 'project-core'),
+            'search_items'      => __('ค้นหากลุ่มสาขาวิชา', 'project-core'),
+            'all_items'         => __('กลุ่มสาขาวิชาทั้งหมด', 'project-core'),
+            'edit_item'         => __('แก้ไขกลุ่มสาขาวิชา', 'project-core'),
+            'update_item'       => __('อัปเดตกลุ่มสาขาวิชา', 'project-core'),
+            'add_new_item'      => __('เพิ่มกลุ่มสาขาวิชาใหม่', 'project-core'),
+            'new_item_name'     => __('ชื่อกลุ่มสาขาวิชาใหม่', 'project-core'),
+            'menu_name'         => __('กลุ่มสาขาวิชา', 'project-core'),
+        );
+
+        $dept_args = array(
+            'hierarchical'      => true,
+            'labels'            => $dept_labels,
+            'show_ui'           => true,
+            'show_admin_column' => true,
+            'query_var'         => true,
+            'rewrite'           => false,
+            'show_in_rest'      => true,
+            'rest_base'         => 'curriculum-departments',
+        );
+
+        register_taxonomy('curriculum_department', array('curriculum'), $dept_args);
+
+        // Seed default terms if empty
+        $this->seed_default_curriculum_terms();
     }
 
     /**
@@ -610,4 +708,178 @@ class Project_Core_Post_Types {
             }
         }
     }
+
+    /**
+     * Seed initial default levels and departments if not exist
+     */
+    public function seed_default_curriculum_terms() {
+        if (!taxonomy_exists('curriculum_level') || !taxonomy_exists('curriculum_department')) {
+            return;
+        }
+
+        // Default levels: ปวช. and ปวส.
+        $levels = array(
+            'vocational'      => 'ระดับประกาศนียบัตรวิชาชีพ (ปวช.)',
+            'high-vocational' => 'ระดับประกาศนียบัตรวิชาชีพชั้นสูง (ปวส.)',
+        );
+
+        foreach ($levels as $slug => $name) {
+            if (!term_exists($slug, 'curriculum_level')) {
+                wp_insert_term($name, 'curriculum_level', array('slug' => $slug));
+            }
+        }
+
+        // Default departments
+        $departments = array(
+            'industrial'             => 'ช่างอุตสาหกรรม',
+            'business'               => 'บริหารธุรกิจและพาณิชยกรรม',
+            'information-technology' => 'เทคโนโลยีสารสนเทศและการสื่อสาร',
+        );
+
+        foreach ($departments as $slug => $name) {
+            if (!term_exists($slug, 'curriculum_department')) {
+                wp_insert_term($name, 'curriculum_department', array('slug' => $slug));
+            }
+        }
+    }
+
+    /**
+     * Custom columns for Curriculum admin list
+     */
+    public function set_curriculum_columns($columns) {
+        $new_columns = array();
+        $new_columns['cb']                    = $columns['cb'];
+        $new_columns['curriculum_thumb']      = __('รูปภาพ', 'project-core');
+        $new_columns['title']                 = __('ชื่อหลักสูตร / สาขาวิชา', 'project-core');
+        $new_columns['curriculum_level']      = __('ระดับการศึกษา', 'project-core');
+        $new_columns['curriculum_department'] = __('กลุ่มสาขาวิชา', 'project-core');
+        $new_columns['curriculum_duration']   = __('ระยะเวลา', 'project-core');
+        $new_columns['curriculum_order']      = __('ลำดับ', 'project-core');
+        $new_columns['date']                  = $columns['date'];
+        return $new_columns;
+    }
+
+    /**
+     * Render custom column contents for Curriculum
+     */
+    public function render_curriculum_columns($column, $post_id) {
+        switch ($column) {
+            case 'curriculum_thumb':
+                if (has_post_thumbnail($post_id)) {
+                    echo get_the_post_thumbnail($post_id, array(50, 50), array('style' => 'width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid #ccd0d4;'));
+                } else {
+                    echo '<div style="width: 50px; height: 50px; background: #f0f0f1; border-radius: 6px; border: 1px dashed #ccd0d4; display: flex; align-items: center; justify-content: center; color: #a7aaad;"><span class="dashicons dashicons-welcome-learn-more" style="font-size: 20px; line-height: 20px;"></span></div>';
+                }
+                break;
+
+            case 'curriculum_level':
+                $terms = get_the_terms($post_id, 'curriculum_level');
+                if (!empty($terms) && !is_wp_error($terms)) {
+                    $out = array();
+                    foreach ($terms as $t) {
+                        $badge_color = ($t->slug === 'high-vocational') ? '#ea580c' : '#0047ba';
+                        $out[] = '<span style="display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; color: #fff; background: ' . esc_attr($badge_color) . ';">' . esc_html($t->name) . '</span>';
+                    }
+                    echo implode(' ', $out);
+                } else {
+                    echo '<span style="color: #999;">—</span>';
+                }
+                break;
+
+            case 'curriculum_department':
+                $terms = get_the_terms($post_id, 'curriculum_department');
+                if (!empty($terms) && !is_wp_error($terms)) {
+                    $out = array();
+                    foreach ($terms as $t) {
+                        $out[] = esc_html($t->name);
+                    }
+                    echo implode(', ', $out);
+                } else {
+                    echo '<span style="color: #999;">—</span>';
+                }
+                break;
+
+            case 'curriculum_duration':
+                $duration = get_post_meta($post_id, 'curriculum_duration', true);
+                echo !empty($duration) ? esc_html($duration) : '<span style="color: #999;">—</span>';
+                break;
+
+            case 'curriculum_order':
+                $post = get_post($post_id);
+                echo esc_html($post->menu_order);
+                break;
+        }
+    }
+
+    /**
+     * Admin filters for Curriculum list
+     */
+    public function filter_curriculums($post_type, $which) {
+        if ($post_type !== 'curriculum') {
+            return;
+        }
+
+        // 1. Level Filter
+        $selected_level = isset($_GET['curriculum_level']) ? sanitize_text_field($_GET['curriculum_level']) : '';
+        wp_dropdown_categories(array(
+            'show_option_all' => __('— เลือกระดับการศึกษา (ทั้งหมด) —', 'project-core'),
+            'taxonomy'        => 'curriculum_level',
+            'name'            => 'curriculum_level',
+            'orderby'         => 'name',
+            'selected'        => $selected_level,
+            'hierarchical'    => true,
+            'depth'           => 2,
+            'show_count'      => true,
+            'hide_empty'      => false,
+            'value_field'     => 'slug',
+        ));
+
+        // 2. Department Filter
+        $selected_dept = isset($_GET['curriculum_department']) ? sanitize_text_field($_GET['curriculum_department']) : '';
+        wp_dropdown_categories(array(
+            'show_option_all' => __('— เลือกกลุ่มสาขาวิชา (ทั้งหมด) —', 'project-core'),
+            'taxonomy'        => 'curriculum_department',
+            'name'            => 'curriculum_department',
+            'orderby'         => 'name',
+            'selected'        => $selected_dept,
+            'hierarchical'    => true,
+            'depth'           => 2,
+            'show_count'      => true,
+            'hide_empty'      => false,
+            'value_field'     => 'slug',
+        ));
+    }
+
+    /**
+     * Filter Curriculum admin query by level and department
+     */
+    public function admin_curriculum_filter_query($query) {
+        global $pagenow;
+        if (is_admin() && $pagenow === 'edit.php' && $query->is_main_query() && $query->get('post_type') === 'curriculum') {
+            $tax_query = $query->get('tax_query') ?: array();
+
+            if (isset($_GET['curriculum_level']) && !empty($_GET['curriculum_level']) && $_GET['curriculum_level'] !== '0') {
+                $slug = sanitize_text_field($_GET['curriculum_level']);
+                $tax_query[] = array(
+                    'taxonomy' => 'curriculum_level',
+                    'field'    => 'slug',
+                    'terms'    => $slug,
+                );
+            }
+
+            if (isset($_GET['curriculum_department']) && !empty($_GET['curriculum_department']) && $_GET['curriculum_department'] !== '0') {
+                $slug = sanitize_text_field($_GET['curriculum_department']);
+                $tax_query[] = array(
+                    'taxonomy' => 'curriculum_department',
+                    'field'    => 'slug',
+                    'terms'    => $slug,
+                );
+            }
+
+            if (!empty($tax_query)) {
+                $query->set('tax_query', $tax_query);
+            }
+        }
+    }
 }
+

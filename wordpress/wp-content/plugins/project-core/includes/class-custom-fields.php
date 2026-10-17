@@ -33,7 +33,7 @@ class Project_Core_Custom_Fields {
     public function enqueue_admin_scripts($hook) {
         global $post;
         if ($hook === 'post-new.php' || $hook === 'post.php') {
-            if (isset($post) && in_array($post->post_type, array('banner', 'post', 'college_event'), true)) {
+            if (isset($post) && in_array($post->post_type, array('banner', 'post', 'college_event', 'curriculum'), true)) {
                 wp_enqueue_media();
             }
         }
@@ -57,6 +57,28 @@ class Project_Core_Custom_Fields {
      * Register meta fields for REST API access
      */
     public function register_meta_fields() {
+        // Curriculum Meta Fields
+        $curriculum_fields = array(
+            'curriculum_degree_th'       => 'string',
+            'curriculum_degree_en'       => 'string',
+            'curriculum_duration'        => 'string',
+            'curriculum_requirements'    => 'string',
+            'curriculum_badge'           => 'string',
+            'curriculum_tuition_fee'     => 'string',
+            'curriculum_highlights'      => 'string',
+            'curriculum_careers'         => 'string',
+            'curriculum_study_plan_url'  => 'string',
+        );
+
+        foreach ($curriculum_fields as $meta_key => $type) {
+            register_post_meta('curriculum', $meta_key, array(
+                'show_in_rest'  => true,
+                'single'        => true,
+                'type'          => $type,
+                'auth_callback' => array($this, 'auth_check'),
+            ));
+        }
+
         // Banner Meta Fields
         register_post_meta('banner', 'banner_target_url', array(
             'show_in_rest'      => true,
@@ -290,6 +312,16 @@ class Project_Core_Custom_Fields {
             'post',
             'normal',
             'default'
+        );
+
+        // Curriculum details box
+        add_meta_box(
+            'project_core_curriculum_details',
+            __('ข้อมูลและจุดเด่นหลักสูตร / Curriculum Details', 'project-core'),
+            array($this, 'render_curriculum_meta_box'),
+            'curriculum',
+            'normal',
+            'high'
         );
     }
 
@@ -933,6 +965,134 @@ class Project_Core_Custom_Fields {
                 update_post_meta($post_id, 'post_views_count', $views);
             }
         }
+
+        // Save Curriculum Meta
+        if (isset($_POST['project_core_curriculum_nonce_field']) && wp_verify_nonce($_POST['project_core_curriculum_nonce_field'], 'project_core_curriculum_nonce')) {
+            if (current_user_can('edit_post', $post_id)) {
+                $keys = array(
+                    'curriculum_degree_th'       => 'sanitize_text_field',
+                    'curriculum_degree_en'       => 'sanitize_text_field',
+                    'curriculum_duration'        => 'sanitize_text_field',
+                    'curriculum_requirements'    => 'sanitize_text_field',
+                    'curriculum_badge'           => 'sanitize_text_field',
+                    'curriculum_tuition_fee'     => 'sanitize_text_field',
+                    'curriculum_highlights'      => 'sanitize_textarea_field',
+                    'curriculum_careers'         => 'sanitize_textarea_field',
+                    'curriculum_study_plan_url'  => 'esc_url_raw',
+                );
+
+                foreach ($keys as $key => $sanitizer) {
+                    if (isset($_POST[$key])) {
+                        update_post_meta($post_id, $key, call_user_func($sanitizer, $_POST[$key]));
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Render Curriculum Meta Box
+     */
+    public function render_curriculum_meta_box($post) {
+        wp_nonce_field('project_core_curriculum_nonce', 'project_core_curriculum_nonce_field');
+
+        $degree_th       = get_post_meta($post->ID, 'curriculum_degree_th', true) ?: '';
+        $degree_en       = get_post_meta($post->ID, 'curriculum_degree_en', true) ?: '';
+        $duration        = get_post_meta($post->ID, 'curriculum_duration', true) ?: '';
+        $requirements    = get_post_meta($post->ID, 'curriculum_requirements', true) ?: '';
+        $badge           = get_post_meta($post->ID, 'curriculum_badge', true) ?: '';
+        $tuition_fee     = get_post_meta($post->ID, 'curriculum_tuition_fee', true) ?: '';
+        $highlights      = get_post_meta($post->ID, 'curriculum_highlights', true) ?: '';
+        $careers         = get_post_meta($post->ID, 'curriculum_careers', true) ?: '';
+        $study_plan_url  = get_post_meta($post->ID, 'curriculum_study_plan_url', true) ?: '';
+        ?>
+        <table class="form-table" style="margin-top: 0;">
+            <tr>
+                <th scope="row"><label for="curriculum_degree_th"><?php _e('วุฒิการศึกษาที่ได้รับ (ภาษาไทย)', 'project-core'); ?></label></th>
+                <td>
+                    <input type="text" id="curriculum_degree_th" name="curriculum_degree_th" value="<?php echo esc_attr($degree_th); ?>" class="large-text" placeholder="เช่น ประกาศนียบัตรวิชาชีพ (ปวช.) สาขาวิชาช่างยนต์" />
+                    <p class="description"><?php _e('ระบุชื่อวุฒิการศึกษาเต็ม เช่น ประกาศนียบัตรวิชาชีพ (ปวช.) / ประกาศนียบัตรวิชาชีพชั้นสูง (ปวส.)', 'project-core'); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="curriculum_degree_en"><?php _e('วุฒิการศึกษา (ภาษาอังกฤษ)', 'project-core'); ?></label></th>
+                <td>
+                    <input type="text" id="curriculum_degree_en" name="curriculum_degree_en" value="<?php echo esc_attr($degree_en); ?>" class="large-text" placeholder="เช่น Vocational Certificate in Automotive Technology" />
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="curriculum_duration"><?php _e('ระยะเวลาการศึกษา', 'project-core'); ?></label></th>
+                <td>
+                    <input type="text" id="curriculum_duration" name="curriculum_duration" value="<?php echo esc_attr($duration); ?>" style="width: 200px;" placeholder="เช่น 3 ปี / 2 ปี" />
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="curriculum_requirements"><?php _e('คุณสมบัติผู้สมัคร', 'project-core'); ?></label></th>
+                <td>
+                    <input type="text" id="curriculum_requirements" name="curriculum_requirements" value="<?php echo esc_attr($requirements); ?>" class="large-text" placeholder="เช่น สำเร็จการศึกษาระดับ ม.3 หรือเทียบเท่า / สำเร็จการศึกษา ปวช. หรือ ม.6" />
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="curriculum_badge"><?php _e('ป้ายกำกับพิเศษ (Badge)', 'project-core'); ?></label></th>
+                <td>
+                    <input type="text" id="curriculum_badge" name="curriculum_badge" value="<?php echo esc_attr($badge); ?>" style="width: 250px;" placeholder="เช่น ยอดนิยม, EEC, ทวิภาคี 100%" />
+                    <p class="description"><?php _e('ข้อความป้ายกำกับขนาดเล็กแสดงบนการ์ดหลักสูตร (เว้นว่างได้)', 'project-core'); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="curriculum_tuition_fee"><?php _e('ค่าธรรมเนียม / ค่าเทอมเริ่มต้น', 'project-core'); ?></label></th>
+                <td>
+                    <input type="text" id="curriculum_tuition_fee" name="curriculum_tuition_fee" value="<?php echo esc_attr($tuition_fee); ?>" style="width: 250px;" placeholder="เช่น ตามระเบียบวิทยาลัย / ผ่อนชำระได้" />
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="curriculum_highlights"><?php _e('จุดเด่นและทักษะที่จะได้รับ', 'project-core'); ?></label></th>
+                <td>
+                    <textarea id="curriculum_highlights" name="curriculum_highlights" rows="4" class="large-text" placeholder="ระบุจุดเด่นหรือทักษะ (บรรทัดละ 1 ข้อ)&#10;เช่น เรียนรู้ระบบยานยนต์สมัยใหม่และยานยนต์ไฟฟ้า&#10;ฝึกงานจริงในศูนย์บริการมาตรฐาน&#10;ได้รับใบประกาศนียบัตรวิชาชีพ"><?php echo esc_textarea($highlights); ?></textarea>
+                    <p class="description"><?php _e('พิมพ์จุดเด่นแยกแต่ละบรรทัด ระบบจะนำไปสร้างเป็นรายการ bullet points สวยงาม', 'project-core'); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="curriculum_careers"><?php _e('แนวทางการประกอบอาชีพ', 'project-core'); ?></label></th>
+                <td>
+                    <textarea id="curriculum_careers" name="curriculum_careers" rows="4" class="large-text" placeholder="ระบุสายงานและอาชีพหลังสำเร็จการศึกษา (บรรทัดละ 1 ข้อ)&#10;เช่น ช่างเทคนิคยานยนต์ประจำศูนย์บริการ&#10;เจ้าของธุรกิจอู่ซ่อมบำรุงยานยนต์&#10;ผู้ตรวจสอบคุณภาพในโรงงานประกอบรถยนต์"><?php echo esc_textarea($careers); ?></textarea>
+                    <p class="description"><?php _e('พิมพ์อาชีพแยกแต่ละบรรทัด', 'project-core'); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="curriculum_study_plan_url"><?php _e('ไฟล์แผนการเรียน (PDF)', 'project-core'); ?></label></th>
+                <td>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="text" id="curriculum_study_plan_url" name="curriculum_study_plan_url" value="<?php echo esc_attr($study_plan_url); ?>" class="large-text" placeholder="https://... ลิงก์ดาวน์โหลดแผนการเรียน PDF" />
+                        <button type="button" class="button" id="btn_upload_curriculum_pdf"><?php _e('เลือกไฟล์สื่อ', 'project-core'); ?></button>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <script>
+        jQuery(document).ready(function($) {
+            var currPdfFrame;
+            $('#btn_upload_curriculum_pdf').on('click', function(e) {
+                e.preventDefault();
+                if (currPdfFrame) {
+                    currPdfFrame.open();
+                    return;
+                }
+                currPdfFrame = wp.media({
+                    title: '<?php echo esc_js(__('เลือกหรืออัปโหลดเอกสารแผนการเรียน PDF', 'project-core')); ?>',
+                    button: { text: '<?php echo esc_js(__('ใช้ไฟล์นี้', 'project-core')); ?>' },
+                    multiple: false
+                });
+                currPdfFrame.on('select', function() {
+                    var attachment = currPdfFrame.state().get('selection').first().toJSON();
+                    $('#curriculum_study_plan_url').val(attachment.url);
+                });
+                currPdfFrame.open();
+            });
+        });
+        </script>
+        <?php
     }
 
     /**

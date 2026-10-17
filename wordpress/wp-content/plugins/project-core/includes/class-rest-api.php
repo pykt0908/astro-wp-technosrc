@@ -76,6 +76,34 @@ class Project_Core_REST_API {
             'callback'            => array($this, 'get_academic_years'),
             'permission_callback' => '__return_true',
         ));
+
+        // Curriculums endpoint
+        register_rest_route(self::NAMESPACE, '/curriculums', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_curriculums'),
+            'permission_callback' => '__return_true',
+        ));
+
+        // Single curriculum by slug
+        register_rest_route(self::NAMESPACE, '/curriculums/(?P<slug>[a-zA-Z0-9-]+)', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_curriculum_by_slug'),
+            'permission_callback' => '__return_true',
+        ));
+
+        // Curriculum levels taxonomy endpoint
+        register_rest_route(self::NAMESPACE, '/curriculum-levels', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_curriculum_levels'),
+            'permission_callback' => '__return_true',
+        ));
+
+        // Curriculum departments taxonomy endpoint
+        register_rest_route(self::NAMESPACE, '/curriculum-departments', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_curriculum_departments'),
+            'permission_callback' => '__return_true',
+        ));
     }
 
     /**
@@ -645,4 +673,202 @@ class Project_Core_REST_API {
         }
         return '#0047BA';
     }
+
+    /**
+     * Get list of curriculums with filtering
+     */
+    public function get_curriculums(WP_REST_Request $request) {
+        $level      = sanitize_text_field($request->get_param('level'));
+        $department = sanitize_text_field($request->get_param('department'));
+        $search     = sanitize_text_field($request->get_param('search'));
+        $per_page   = (int) ($request->get_param('per_page') ?: -1);
+
+        $args = array(
+            'post_type'      => 'curriculum',
+            'post_status'    => 'publish',
+            'posts_per_page' => $per_page,
+            'orderby'        => array('menu_order' => 'ASC', 'title' => 'ASC'),
+        );
+
+        if (!empty($search)) {
+            $args['s'] = $search;
+        }
+
+        $tax_query = array();
+        if (!empty($level)) {
+            $tax_query[] = array(
+                'taxonomy' => 'curriculum_level',
+                'field'    => 'slug',
+                'terms'    => $level,
+            );
+        }
+
+        if (!empty($department)) {
+            $tax_query[] = array(
+                'taxonomy' => 'curriculum_department',
+                'field'    => 'slug',
+                'terms'    => $department,
+            );
+        }
+
+        if (!empty($tax_query)) {
+            $args['tax_query'] = $tax_query;
+        }
+
+        $query = new WP_Query($args);
+        $curriculums = array();
+
+        if ($query->have_posts()) {
+            while ($query->have_posts()) {
+                $query->the_post();
+                $id = get_the_ID();
+                $curriculums[] = $this->format_curriculum_item($id);
+            }
+            wp_reset_postdata();
+        }
+
+        return rest_ensure_response(array(
+            'curriculums' => $curriculums,
+            'total'       => (int) $query->found_posts,
+        ));
+    }
+
+    /**
+     * Get single curriculum by slug
+     */
+    public function get_curriculum_by_slug(WP_REST_Request $request) {
+        $slug = sanitize_text_field($request->get_param('slug'));
+
+        $query = new WP_Query(array(
+            'post_type'      => 'curriculum',
+            'name'           => $slug,
+            'post_status'    => 'publish',
+            'posts_per_page' => 1,
+        ));
+
+        if (!$query->have_posts()) {
+            return new WP_Error('not_found', 'Curriculum not found', array('status' => 404));
+        }
+
+        $query->the_post();
+        $item = $this->format_curriculum_item(get_the_ID());
+        wp_reset_postdata();
+
+        return rest_ensure_response($item);
+    }
+
+    /**
+     * Format a single curriculum post object
+     */
+    private function format_curriculum_item($id) {
+        $post = get_post($id);
+
+        // Featured Image
+        $thumb_id   = get_post_thumbnail_id($id);
+        $thumb_full = $thumb_id ? wp_get_attachment_image_url($thumb_id, 'full') : '';
+        $thumb_med  = $thumb_id ? wp_get_attachment_image_url($thumb_id, 'large') : '';
+
+        // Levels (ปวช. / ปวส.)
+        $level_terms = get_the_terms($id, 'curriculum_level');
+        $level_data = null;
+        if (!empty($level_terms) && !is_wp_error($level_terms)) {
+            $first_lvl = reset($level_terms);
+            $level_data = array(
+                'id'   => $first_lvl->term_id,
+                'name' => $first_lvl->name,
+                'slug' => $first_lvl->slug,
+            );
+        }
+
+        // Department
+        $dept_terms = get_the_terms($id, 'curriculum_department');
+        $dept_data = null;
+        if (!empty($dept_terms) && !is_wp_error($dept_terms)) {
+            $first_dept = reset($dept_terms);
+            $dept_data = array(
+                'id'   => $first_dept->term_id,
+                'name' => $first_dept->name,
+                'slug' => $first_dept->slug,
+            );
+        }
+
+        // Highlights & Careers
+        $raw_highlights = (string) get_post_meta($id, 'curriculum_highlights', true);
+        $highlights = array_filter(array_map('trim', explode("\n", $raw_highlights)));
+
+        $raw_careers = (string) get_post_meta($id, 'curriculum_careers', true);
+        $careers = array_filter(array_map('trim', explode("\n", $raw_careers)));
+
+        return array(
+            'id'            => $id,
+            'title'         => html_entity_decode(get_the_title($id), ENT_QUOTES, 'UTF-8'),
+            'slug'          => $post->post_name,
+            'content'       => apply_filters('the_content', $post->post_content),
+            'excerpt'       => wp_strip_all_tags(get_the_excerpt($id)),
+            'menuOrder'     => (int) $post->menu_order,
+            'featuredImage' => $thumb_full ?: $thumb_med,
+            'level'         => $level_data,
+            'department'    => $dept_data,
+            'meta'          => array(
+                'degreeTh'     => (string) get_post_meta($id, 'curriculum_degree_th', true),
+                'degreeEn'     => (string) get_post_meta($id, 'curriculum_degree_en', true),
+                'duration'     => (string) get_post_meta($id, 'curriculum_duration', true) ?: '3 ปี',
+                'requirements' => (string) get_post_meta($id, 'curriculum_requirements', true),
+                'badge'        => (string) get_post_meta($id, 'curriculum_badge', true),
+                'tuitionFee'   => (string) get_post_meta($id, 'curriculum_tuition_fee', true),
+                'studyPlanUrl' => (string) get_post_meta($id, 'curriculum_study_plan_url', true),
+                'highlights'   => array_values($highlights),
+                'careers'      => array_values($careers),
+            ),
+        );
+    }
+
+    /**
+     * Get curriculum levels
+     */
+    public function get_curriculum_levels(WP_REST_Request $request) {
+        $terms = get_terms(array(
+            'taxonomy'   => 'curriculum_level',
+            'hide_empty' => false,
+        ));
+
+        $result = array();
+        if (!is_wp_error($terms) && !empty($terms)) {
+            foreach ($terms as $t) {
+                $result[] = array(
+                    'id'    => $t->term_id,
+                    'name'  => $t->name,
+                    'slug'  => $t->slug,
+                    'count' => $t->count,
+                );
+            }
+        }
+
+        return rest_ensure_response($result);
+    }
+
+    /**
+     * Get curriculum departments
+     */
+    public function get_curriculum_departments(WP_REST_Request $request) {
+        $terms = get_terms(array(
+            'taxonomy'   => 'curriculum_department',
+            'hide_empty' => false,
+        ));
+
+        $result = array();
+        if (!is_wp_error($terms) && !empty($terms)) {
+            foreach ($terms as $t) {
+                $result[] = array(
+                    'id'    => $t->term_id,
+                    'name'  => $t->name,
+                    'slug'  => $t->slug,
+                    'count' => $t->count,
+                );
+            }
+        }
+
+        return rest_ensure_response($result);
+    }
 }
+
