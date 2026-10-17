@@ -6,9 +6,17 @@ interface Props {
   events?: CollegeEvent[];
   categories?: CollegeEventCategory[];
   academicYears?: string[];
+  borderTop?: boolean;
+  isPage?: boolean;
 }
 
-const { events = [], categories = [], academicYears = [] } = Astro.props;
+const {
+  events = [],
+  categories = [],
+  academicYears = [],
+  borderTop = true,
+  isPage = false,
+} = Astro.props;
 
 // Helper to sort academic year / semester terms naturally (e.g. 2/2569 > 1/2569 > 2/2568 > 1/2568 > 2569)
 function compareAcademicTerms(a: string, b: string): number {
@@ -228,68 +236,141 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
 }
 ---
 
-<section id="college-calendar-section" class="py-12 sm:py-16 bg-white border-t border-slate-200/80 select-none">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<section id="college-calendar-section" class={`${isPage ? 'py-8 sm:py-12 lg:py-16' : 'py-12 sm:py-16'} bg-white select-none ${borderTop && !isPage ? 'border-t border-slate-200/80' : ''}`}>
+  <div class={`${isPage ? 'max-w-[1440px]' : 'max-w-7xl'} mx-auto px-4 sm:px-6 lg:px-8`}>
     
-    <!-- Section Header with badge and title -->
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 sm:mb-10">
-      <div>
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
-          ปฏิทินกิจกรรมวิทยาลัย
-        </h2>
-        <p class="text-slate-500 text-sm sm:text-base mt-1.5 max-w-2xl leading-relaxed">
-          ติดตามกำหนดการสำคัญ วันเปิด-ปิดภาคเรียน การสอบวัดผล และกิจกรรมส่งเสริมการเรียนรู้ของวิทยาลัยเทคโนโลยีศรีราชา
-        </p>
-      </div>
+    {isPage && (
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">หน้าแรก</a>
+        <span>/</span>
+        <span class="text-slate-500 dark:text-slate-400">นักศึกษา</span>
+        <span>/</span>
+        <span class="text-slate-800 dark:text-slate-200 font-semibold" aria-current="page">ปฏิทินการศึกษา</span>
+      </nav>
+    )}
 
-      <!-- Action: Academic Year Dropdown & PDF Download Button -->
-      <div class="flex flex-wrap items-center gap-2.5 sm:gap-3 shrink-0">
-        <!-- Academic Year Dropdown -->
-        <div class="relative flex items-center">
-          <label for="calendar-academic-year-select" class="sr-only">เลือกภาคเรียน / ปีการศึกษา</label>
-          <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-blue-600">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <select
-            id="calendar-academic-year-select"
-            class="pl-8 pr-7 py-2 rounded-xl bg-blue-50/80 hover:bg-blue-100/70 text-blue-900 border border-blue-200/90 font-bold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition-colors appearance-none"
-            title="เลือกภาคเรียน / ปีการศึกษาเพื่อดูและดาวน์โหลดปฏิทิน"
-          >
-            {availableAcademicYears.length > 0 ? (
-              availableAcademicYears.map((yr) => (
-                <option value={yr} selected={yr === currentAcademicYear}>
-                  {formatAcademicTermDisplay(yr)}
-                </option>
-              ))
-            ) : (
-              <option value="">ยังไม่มีข้อมูลปีการศึกษา</option>
-            )}
-          </select>
-          <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none text-blue-500">
-            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
+    {isPage ? (
+      <!-- Standalone Page Header (matching curriculum, contact, about) -->
+      <div class="mb-8 sm:mb-10 pb-6 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div>
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            ปฏิทินการศึกษา
+          </h1>
+          <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-2 max-w-2xl">
+            กำหนดการสำคัญ วันเปิด-ปิดภาคเรียน การสอบวัดผล และกิจกรรมส่งเสริมการเรียนรู้ วิทยาลัยเทคโนโลยีศรีราชา
+          </p>
         </div>
 
-        <!-- Action: PDF Download Button -->
-        <a
-          id="calendar-download-pdf-btn"
-          href={`/calendar/print?year=${currentAcademicYear}&auto=1`}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-blue-600 text-white text-xs sm:text-sm font-semibold shadow-xs hover:shadow-md transition-all duration-200 group"
-          title="ดาวน์โหลดหรือสั่งพิมพ์ปฏิทินการศึกษาทางการแบบ PDF"
-        >
-          <svg class="w-4 h-4 text-blue-300 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          <span id="calendar-download-pdf-text">ดาวน์โหลดปฏิทิน (PDF)</span>
-        </a>
+        <!-- Action: Academic Year Dropdown & PDF Download Button -->
+        <div class="flex flex-wrap items-center gap-2.5 sm:gap-3 shrink-0">
+          <!-- Academic Year Dropdown -->
+          <div class="relative flex items-center">
+            <label for="calendar-academic-year-select" class="sr-only">เลือกภาคเรียน / ปีการศึกษา</label>
+            <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-blue-600">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <select
+              id="calendar-academic-year-select"
+              class="pl-8 pr-7 py-2 rounded-xl bg-blue-50/80 hover:bg-blue-100/70 text-blue-900 border border-blue-200/90 font-bold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition-colors appearance-none"
+              title="เลือกภาคเรียน / ปีการศึกษาเพื่อดูและดาวน์โหลดปฏิทิน"
+            >
+              {availableAcademicYears.length > 0 ? (
+                availableAcademicYears.map((yr) => (
+                  <option value={yr} selected={yr === currentAcademicYear}>
+                    {formatAcademicTermDisplay(yr)}
+                  </option>
+                ))
+              ) : (
+                <option value="">ยังไม่มีข้อมูลปีการศึกษา</option>
+              )}
+            </select>
+            <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none text-blue-500">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Action: PDF Download Button -->
+          <a
+            id="calendar-download-pdf-btn"
+            href={`/calendar/print?year=${currentAcademicYear}&auto=1`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-blue-600 text-white text-xs sm:text-sm font-semibold shadow-xs hover:shadow-md transition-all duration-200 group"
+            title="ดาวน์โหลดหรือสั่งพิมพ์ปฏิทินการศึกษาทางการแบบ PDF"
+          >
+            <svg class="w-4 h-4 text-blue-300 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span id="calendar-download-pdf-text">ดาวน์โหลดปฏิทิน (PDF)</span>
+          </a>
+        </div>
       </div>
-    </div>
+    ) : (
+      <!-- Section Header with badge and title (Homepage mode) -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 sm:mb-10">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
+            ปฏิทินกิจกรรมวิทยาลัย
+          </h2>
+          <p class="text-slate-500 text-sm sm:text-base mt-1.5 max-w-2xl leading-relaxed">
+            ติดตามกำหนดการสำคัญ วันเปิด-ปิดภาคเรียน การสอบวัดผล และกิจกรรมส่งเสริมการเรียนรู้ของวิทยาลัยเทคโนโลยีศรีราชา
+          </p>
+        </div>
+
+        <!-- Action: Academic Year Dropdown & PDF Download Button -->
+        <div class="flex flex-wrap items-center gap-2.5 sm:gap-3 shrink-0">
+          <!-- Academic Year Dropdown -->
+          <div class="relative flex items-center">
+            <label for="calendar-academic-year-select" class="sr-only">เลือกภาคเรียน / ปีการศึกษา</label>
+            <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-blue-600">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <select
+              id="calendar-academic-year-select"
+              class="pl-8 pr-7 py-2 rounded-xl bg-blue-50/80 hover:bg-blue-100/70 text-blue-900 border border-blue-200/90 font-bold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition-colors appearance-none"
+              title="เลือกภาคเรียน / ปีการศึกษาเพื่อดูและดาวน์โหลดปฏิทิน"
+            >
+              {availableAcademicYears.length > 0 ? (
+                availableAcademicYears.map((yr) => (
+                  <option value={yr} selected={yr === currentAcademicYear}>
+                    {formatAcademicTermDisplay(yr)}
+                  </option>
+                ))
+              ) : (
+                <option value="">ยังไม่มีข้อมูลปีการศึกษา</option>
+              )}
+            </select>
+            <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none text-blue-500">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Action: PDF Download Button -->
+          <a
+            id="calendar-download-pdf-btn"
+            href={`/calendar/print?year=${currentAcademicYear}&auto=1`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-blue-600 text-white text-xs sm:text-sm font-semibold shadow-xs hover:shadow-md transition-all duration-200 group"
+            title="ดาวน์โหลดหรือสั่งพิมพ์ปฏิทินการศึกษาทางการแบบ PDF"
+          >
+            <svg class="w-4 h-4 text-blue-300 group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span id="calendar-download-pdf-text">ดาวน์โหลดปฏิทิน (PDF)</span>
+          </a>
+        </div>
+      </div>
+    )}
 
     <!-- Filter and Search Bar -->
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 mb-8">
@@ -516,21 +597,18 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
                   <div>
                     <!-- Top Category & Featured Tag -->
                     <div class="flex flex-wrap items-center gap-2 mb-2">
-                      {ev.categories.length > 0 && (
+                      {/* {ev.categories.length > 0 && (
                         <span
                           class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold"
                           style={`background-color: ${softBg}; color: ${hex}; border: 1px solid ${borderHex};`}
                         >
                           {ev.categories[0].name}
                         </span>
-                      )}
+                      )} */}
 
                       {ev.isFeatured && (
                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200/80">
-                          <svg class="w-3 h-3 text-amber-500 fill-amber-500" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                          </svg>
-                          กำหนดการสำคัญ
+                          สำคัญ
                         </span>
                       )}
                     </div>

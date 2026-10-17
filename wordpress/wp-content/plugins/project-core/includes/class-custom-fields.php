@@ -25,6 +25,14 @@ class Project_Core_Custom_Fields {
         add_action('edited_event_category', array($this, 'save_event_category_color_field'));
         add_filter('manage_edit-event_category_columns', array($this, 'add_event_category_color_column'));
         add_filter('manage_event_category_custom_column', array($this, 'render_event_category_color_column'), 10, 3);
+
+        // Personnel Category Taxonomy Order Fields
+        add_action('personnel_category_add_form_fields', array($this, 'add_personnel_category_order_field'));
+        add_action('personnel_category_edit_form_fields', array($this, 'edit_personnel_category_order_field'), 10, 2);
+        add_action('created_personnel_category', array($this, 'save_personnel_category_order_field'));
+        add_action('edited_personnel_category', array($this, 'save_personnel_category_order_field'));
+        add_filter('manage_edit-personnel_category_columns', array($this, 'add_personnel_category_order_column'));
+        add_filter('manage_personnel_category_custom_column', array($this, 'render_personnel_category_order_column'), 10, 3);
     }
 
     /**
@@ -33,7 +41,7 @@ class Project_Core_Custom_Fields {
     public function enqueue_admin_scripts($hook) {
         global $post;
         if ($hook === 'post-new.php' || $hook === 'post.php') {
-            if (isset($post) && in_array($post->post_type, array('banner', 'post', 'college_event', 'curriculum'), true)) {
+            if (isset($post) && in_array($post->post_type, array('banner', 'post', 'college_event', 'curriculum', 'sar_report'), true)) {
                 wp_enqueue_media();
             }
         }
@@ -60,18 +68,64 @@ class Project_Core_Custom_Fields {
         // Curriculum Meta Fields
         $curriculum_fields = array(
             'curriculum_degree_th'       => 'string',
-            'curriculum_degree_en'       => 'string',
-            'curriculum_duration'        => 'string',
-            'curriculum_requirements'    => 'string',
             'curriculum_badge'           => 'string',
             'curriculum_tuition_fee'     => 'string',
             'curriculum_highlights'      => 'string',
             'curriculum_careers'         => 'string',
-            'curriculum_study_plan_url'  => 'string',
+            'curriculum_study_plan_url'     => 'string',
+            'curriculum_document_cover_url' => 'string',
         );
 
         foreach ($curriculum_fields as $meta_key => $type) {
             register_post_meta('curriculum', $meta_key, array(
+                'show_in_rest'  => true,
+                'single'        => true,
+                'type'          => $type,
+                'auth_callback' => array($this, 'auth_check'),
+            ));
+        }
+
+        // Personnel Meta Fields
+        $personnel_text_fields = array(
+            'personnel_position'   => 'sanitize_text_field',
+            'personnel_nickname'   => 'sanitize_text_field',
+            'personnel_department' => 'sanitize_text_field',
+            'personnel_education'  => 'sanitize_text_field',
+            'personnel_email'       => 'sanitize_email',
+            'personnel_phone'       => 'sanitize_text_field',
+        );
+
+        foreach ($personnel_text_fields as $field_key => $sanitize_cb) {
+            register_post_meta('personnel', $field_key, array(
+                'show_in_rest'      => true,
+                'single'            => true,
+                'type'              => 'string',
+                'sanitize_callback' => $sanitize_cb,
+                'auth_callback'     => array($this, 'auth_check'),
+            ));
+        }
+
+        // Personnel Category Order Term Meta
+        register_term_meta('personnel_category', 'category_order', array(
+            'show_in_rest'      => true,
+            'single'            => true,
+            'type'              => 'integer',
+            'default'           => 0,
+            'sanitize_callback' => 'absint',
+            'auth_callback'     => array($this, 'auth_check'),
+        ));
+
+        // SAR Report Meta Fields
+        $sar_fields = array(
+            'sar_file_url'     => 'string',
+            'sar_file_id'      => 'integer',
+            'sar_external_url' => 'string',
+            'sar_report_no'    => 'string',
+            'sar_description'  => 'string',
+        );
+
+        foreach ($sar_fields as $meta_key => $type) {
+            register_post_meta('sar_report', $meta_key, array(
                 'show_in_rest'  => true,
                 'single'        => true,
                 'type'          => $type,
@@ -284,15 +338,17 @@ class Project_Core_Custom_Fields {
             'high'
         );
 
-        // Post Photo Gallery Box (มีที่ให้ใส่ album ภาพเพิ่มเติม)
-        add_meta_box(
-            'project_core_post_gallery',
-            __('อัลบั้มภาพกิจกรรม / Photo Album Gallery', 'project-core'),
-            array($this, 'render_post_gallery_meta_box'),
-            'post',
-            'normal',
-            'high'
-        );
+        // Post & Curriculum Photo Gallery Box (มีที่ให้ใส่ album ภาพเพิ่มเติม)
+        foreach (array('post', 'curriculum') as $pt) {
+            add_meta_box(
+                'project_core_post_gallery',
+                __('อัลบั้มรูปภาพ / Photo Album Gallery', 'project-core'),
+                array($this, 'render_post_gallery_meta_box'),
+                $pt,
+                'normal',
+                'high'
+            );
+        }
 
         // College Event details box
         add_meta_box(
@@ -320,6 +376,26 @@ class Project_Core_Custom_Fields {
             __('ข้อมูลและจุดเด่นหลักสูตร / Curriculum Details', 'project-core'),
             array($this, 'render_curriculum_meta_box'),
             'curriculum',
+            'normal',
+            'high'
+        );
+
+        // Personnel details box
+        add_meta_box(
+            'project_core_personnel_details',
+            __('ข้อมูลตำแหน่งและฝ่ายงาน / Personnel Details', 'project-core'),
+            array($this, 'render_personnel_meta_box'),
+            'personnel',
+            'normal',
+            'high'
+        );
+
+        // SAR Report details box
+        add_meta_box(
+            'project_core_sar_details',
+            __('ข้อมูลรายงานผลการประเมินตนเอง (SAR) และการแนบไฟล์', 'project-core'),
+            array($this, 'render_sar_meta_box'),
+            'sar_report',
             'normal',
             'high'
         );
@@ -366,13 +442,23 @@ class Project_Core_Custom_Fields {
                     <input type="hidden" id="banner_desktop_image_url" name="banner_desktop_image_url" value="<?php echo esc_attr($desktop_image_url); ?>" />
                     <input type="hidden" id="banner_desktop_image_id" name="banner_desktop_image_id" value="<?php echo esc_attr($desktop_image_id); ?>" />
 
-                    <button type="button" class="button button-primary button-large" id="btn_upload_desktop_banner" style="display: inline-flex; align-items: center; gap: 4px;">
-                        <span class="dashicons dashicons-upload" style="margin-top: -1px;"></span>
+                    <button type="button" class="button button-primary button-large" id="btn_upload_desktop_banner" style="display: inline-flex; align-items: center; gap: 6px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" x2="12" y1="3" y2="15"/>
+                        </svg>
                         <?php _e('อัปโหลดภาพแบนเนอร์ (1709x650)', 'project-core'); ?>
                     </button>
 
-                    <button type="button" class="button button-secondary button-large" id="btn_remove_desktop_banner" style="<?php echo empty($desktop_image_url) ? 'display: none;' : 'display: inline-flex;'; ?> align-items: center; gap: 4px; color: #b32d2e;">
-                        <span class="dashicons dashicons-trash" style="margin-top: -1px;"></span>
+                    <button type="button" class="button button-secondary button-large" id="btn_remove_desktop_banner" style="<?php echo empty($desktop_image_url) ? 'display: none;' : 'display: inline-flex;'; ?> align-items: center; gap: 6px; color: #b32d2e;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; color: #b32d2e;">
+                            <path d="M3 6h18"/>
+                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                            <line x1="10" x2="10" y1="11" y2="17"/>
+                            <line x1="14" x2="14" y1="11" y2="17"/>
+                        </svg>
                         <?php _e('ลบรูปภาพ', 'project-core'); ?>
                     </button>
                 </div>
@@ -409,13 +495,23 @@ class Project_Core_Custom_Fields {
                 <div style="margin-top: 10px; display: flex; gap: 10px; align-items: center;">
                     <input type="hidden" id="banner_mobile_image_url" name="banner_mobile_image_url" value="<?php echo esc_attr($mobile_image_url); ?>" />
 
-                    <button type="button" class="button button-secondary" id="btn_upload_mobile_banner" style="display: inline-flex; align-items: center; gap: 4px;">
-                        <span class="dashicons dashicons-upload" style="margin-top: -1px;"></span>
+                    <button type="button" class="button button-secondary" id="btn_upload_mobile_banner" style="display: inline-flex; align-items: center; gap: 6px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" x2="12" y1="3" y2="15"/>
+                        </svg>
                         <?php _e('อัปโหลดภาพเฉพาะมือถือ', 'project-core'); ?>
                     </button>
 
-                    <button type="button" class="button button-secondary" id="btn_remove_mobile_banner" style="<?php echo empty($mobile_image_url) ? 'display: none;' : 'display: inline-flex;'; ?> align-items: center; gap: 4px; color: #b32d2e;">
-                        <span class="dashicons dashicons-trash" style="margin-top: -1px;"></span>
+                    <button type="button" class="button button-secondary" id="btn_remove_mobile_banner" style="<?php echo empty($mobile_image_url) ? 'display: none;' : 'display: inline-flex;'; ?> align-items: center; gap: 6px; color: #b32d2e;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; color: #b32d2e;">
+                            <path d="M3 6h18"/>
+                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                            <line x1="10" x2="10" y1="11" y2="17"/>
+                            <line x1="14" x2="14" y1="11" y2="17"/>
+                        </svg>
                         <?php _e('ลบภาพมือถือ', 'project-core'); ?>
                     </button>
                 </div>
@@ -526,13 +622,24 @@ class Project_Core_Custom_Fields {
 
             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap;">
                 <input type="hidden" id="post_gallery_ids" name="post_gallery_ids" value="<?php echo esc_attr(implode(',', $gallery_ids)); ?>" />
-                <button type="button" class="button button-primary button-large" id="btn_upload_gallery_images" style="display: inline-flex; align-items: center; gap: 6px;">
-                    <span class="dashicons dashicons-images-alt2" style="margin-top: -1px;"></span>
-                    <?php _e('เพิ่มรูปภาพเข้าอัลบั้ม (เลือกหลายรูปได้)', 'project-core'); ?>
+                <button type="button" class="button button-primary button-large" id="btn_upload_gallery_images" style="display: inline-flex; align-items: center; gap: 7px; padding: 0 14px; height: 38px; line-height: 1;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; display: block;">
+                        <path d="M18 22H4a2 2 0 0 1-2-2V6"/>
+                        <path d="m22 13-1.296-1.296a2.41 2.41 0 0 0-3.408 0L11 18"/>
+                        <circle cx="12" cy="8" r="2"/>
+                        <rect width="16" height="16" x="6" y="2" rx="2"/>
+                    </svg>
+                    <span><?php _e('เพิ่มรูปภาพเข้าอัลบั้ม (เลือกหลายรูปได้)', 'project-core'); ?></span>
                 </button>
-                <button type="button" class="button button-secondary" id="btn_clear_gallery" style="<?php echo empty($gallery_ids) ? 'display: none;' : 'display: inline-flex;'; ?> align-items: center; gap: 4px; color: #b32d2e;">
-                    <span class="dashicons dashicons-trash" style="margin-top: -1px;"></span>
-                    <?php _e('ล้างอัลบั้มทั้งหมด', 'project-core'); ?>
+                <button type="button" class="button button-secondary" id="btn_clear_gallery" style="<?php echo empty($gallery_ids) ? 'display: none;' : 'display: inline-flex;'; ?> align-items: center; gap: 6px; color: #b32d2e; border-color: #b32d2e; padding: 0 12px; height: 38px; line-height: 1;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; display: block; color: #b32d2e;">
+                        <path d="M3 6h18"/>
+                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                        <line x1="10" x2="10" y1="11" y2="17"/>
+                        <line x1="14" x2="14" y1="11" y2="17"/>
+                    </svg>
+                    <span><?php _e('ล้างอัลบั้มทั้งหมด', 'project-core'); ?></span>
                 </button>
                 <span id="gallery_count_label" style="font-size: 13px; color: #50575e; font-weight: 600;">
                     <?php echo sprintf(__('รูปภาพในอัลบั้ม: %d รูป', 'project-core'), count($gallery_ids)); ?>
@@ -987,17 +1094,54 @@ class Project_Core_Custom_Fields {
 
                 $keys = array(
                     'curriculum_degree_th'       => 'sanitize_text_field',
-                    'curriculum_degree_en'       => 'sanitize_text_field',
-                    'curriculum_duration'        => 'sanitize_text_field',
-                    'curriculum_requirements'    => 'sanitize_text_field',
                     'curriculum_badge'           => 'sanitize_text_field',
                     'curriculum_tuition_fee'     => 'sanitize_text_field',
                     'curriculum_highlights'      => 'sanitize_textarea_field',
                     'curriculum_careers'         => 'sanitize_textarea_field',
-                    'curriculum_study_plan_url'  => 'esc_url_raw',
+                    'curriculum_study_plan_url'     => 'esc_url_raw',
+                    'curriculum_document_cover_url' => 'esc_url_raw',
                 );
 
                 foreach ($keys as $key => $sanitizer) {
+                    if (isset($_POST[$key])) {
+                        update_post_meta($post_id, $key, call_user_func($sanitizer, $_POST[$key]));
+                    }
+                }
+            }
+        }
+
+        // Save Personnel Meta
+        if (isset($_POST['project_core_personnel_nonce_field']) && wp_verify_nonce($_POST['project_core_personnel_nonce_field'], 'project_core_personnel_nonce')) {
+            if (current_user_can('edit_post', $post_id)) {
+                $personnel_keys = array(
+                    'personnel_position'   => 'sanitize_text_field',
+                    'personnel_nickname'   => 'sanitize_text_field',
+                    'personnel_department' => 'sanitize_text_field',
+                    'personnel_education'  => 'sanitize_text_field',
+                    'personnel_email'       => 'sanitize_email',
+                    'personnel_phone'       => 'sanitize_text_field',
+                );
+
+                foreach ($personnel_keys as $key => $sanitizer) {
+                    if (isset($_POST[$key])) {
+                        update_post_meta($post_id, $key, call_user_func($sanitizer, $_POST[$key]));
+                    }
+                }
+            }
+        }
+
+        // Save SAR Report Meta
+        if (isset($_POST['project_core_sar_nonce_field']) && wp_verify_nonce($_POST['project_core_sar_nonce_field'], 'project_core_sar_nonce')) {
+            if (current_user_can('edit_post', $post_id)) {
+                $sar_keys = array(
+                    'sar_file_url'     => 'esc_url_raw',
+                    'sar_file_id'      => 'absint',
+                    'sar_external_url' => 'esc_url_raw',
+                    'sar_report_no'    => 'sanitize_text_field',
+                    'sar_description'  => 'sanitize_textarea_field',
+                );
+
+                foreach ($sar_keys as $key => $sanitizer) {
                     if (isset($_POST[$key])) {
                         update_post_meta($post_id, $key, call_user_func($sanitizer, $_POST[$key]));
                     }
@@ -1014,14 +1158,12 @@ class Project_Core_Custom_Fields {
 
         $current_slug    = urldecode($post->post_name);
         $degree_th       = get_post_meta($post->ID, 'curriculum_degree_th', true) ?: '';
-        $degree_en       = get_post_meta($post->ID, 'curriculum_degree_en', true) ?: '';
-        $duration        = get_post_meta($post->ID, 'curriculum_duration', true) ?: '';
-        $requirements    = get_post_meta($post->ID, 'curriculum_requirements', true) ?: '';
         $badge           = get_post_meta($post->ID, 'curriculum_badge', true) ?: '';
         $tuition_fee     = get_post_meta($post->ID, 'curriculum_tuition_fee', true) ?: '';
         $highlights      = get_post_meta($post->ID, 'curriculum_highlights', true) ?: '';
         $careers         = get_post_meta($post->ID, 'curriculum_careers', true) ?: '';
-        $study_plan_url  = get_post_meta($post->ID, 'curriculum_study_plan_url', true) ?: '';
+        $study_plan_url      = get_post_meta($post->ID, 'curriculum_study_plan_url', true) ?: '';
+        $document_cover_url  = get_post_meta($post->ID, 'curriculum_document_cover_url', true) ?: '';
         ?>
         <table class="form-table" style="margin-top: 0;">
             <tr>
@@ -1040,24 +1182,6 @@ class Project_Core_Custom_Fields {
                 <td>
                     <input type="text" id="curriculum_degree_th" name="curriculum_degree_th" value="<?php echo esc_attr($degree_th); ?>" class="large-text" placeholder="เช่น ประกาศนียบัตรวิชาชีพ (ปวช.) สาขาวิชาช่างยนต์" />
                     <p class="description"><?php _e('ระบุชื่อวุฒิการศึกษาเต็ม เช่น ประกาศนียบัตรวิชาชีพ (ปวช.) / ประกาศนียบัตรวิชาชีพชั้นสูง (ปวส.)', 'project-core'); ?></p>
-                </td>
-            </tr>
-            <tr>
-                <th scope="row"><label for="curriculum_degree_en"><?php _e('วุฒิการศึกษา (ภาษาอังกฤษ)', 'project-core'); ?></label></th>
-                <td>
-                    <input type="text" id="curriculum_degree_en" name="curriculum_degree_en" value="<?php echo esc_attr($degree_en); ?>" class="large-text" placeholder="เช่น Vocational Certificate in Automotive Technology" />
-                </td>
-            </tr>
-            <tr>
-                <th scope="row"><label for="curriculum_duration"><?php _e('ระยะเวลาการศึกษา', 'project-core'); ?></label></th>
-                <td>
-                    <input type="text" id="curriculum_duration" name="curriculum_duration" value="<?php echo esc_attr($duration); ?>" style="width: 200px;" placeholder="เช่น 3 ปี / 2 ปี" />
-                </td>
-            </tr>
-            <tr>
-                <th scope="row"><label for="curriculum_requirements"><?php _e('คุณสมบัติผู้สมัคร', 'project-core'); ?></label></th>
-                <td>
-                    <input type="text" id="curriculum_requirements" name="curriculum_requirements" value="<?php echo esc_attr($requirements); ?>" class="large-text" placeholder="เช่น สำเร็จการศึกษาระดับ ม.3 หรือเทียบเท่า / สำเร็จการศึกษา ปวช. หรือ ม.6" />
                 </td>
             </tr>
             <tr>
@@ -1088,12 +1212,23 @@ class Project_Core_Custom_Fields {
                 </td>
             </tr>
             <tr>
-                <th scope="row"><label for="curriculum_study_plan_url"><?php _e('ไฟล์แผนการเรียน (PDF)', 'project-core'); ?></label></th>
+                <th scope="row"><label for="curriculum_study_plan_url"><?php _e('ไฟล์เอกสารหลักสูตรฉบับสมบูรณ์ (PDF)', 'project-core'); ?></label></th>
                 <td>
                     <div style="display: flex; gap: 8px; align-items: center;">
-                        <input type="text" id="curriculum_study_plan_url" name="curriculum_study_plan_url" value="<?php echo esc_attr($study_plan_url); ?>" class="large-text" placeholder="https://... ลิงก์ดาวน์โหลดแผนการเรียน PDF" />
-                        <button type="button" class="button" id="btn_upload_curriculum_pdf"><?php _e('เลือกไฟล์สื่อ', 'project-core'); ?></button>
+                        <input type="text" id="curriculum_study_plan_url" name="curriculum_study_plan_url" value="<?php echo esc_attr($study_plan_url); ?>" class="large-text" placeholder="https://... ลิงก์ดาวน์โหลดเอกสารหลักสูตรฉบับสมบูรณ์ PDF" />
+                        <button type="button" class="button" id="btn_upload_curriculum_pdf"><?php _e('เลือกไฟล์ PDF', 'project-core'); ?></button>
                     </div>
+                    <p class="description"><?php _e('อัปโหลดไฟล์ PDF ฉบับเต็ม ระบบหน้าเว็บจะนำหน้าแรกของ PDF มาแสดงเป็นภาพตัวอย่างให้อัตโนมัติ', 'project-core'); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="curriculum_document_cover_url"><?php _e('ภาพหน้าแรก / หน้าปกเอกสาร (ทางเลือก)', 'project-core'); ?></label></th>
+                <td>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="text" id="curriculum_document_cover_url" name="curriculum_document_cover_url" value="<?php echo esc_attr($document_cover_url); ?>" class="large-text" placeholder="https://... ลิงก์รูปภาพหน้าแรกของเอกสารหลักสูตร" />
+                        <button type="button" class="button" id="btn_upload_curriculum_cover"><?php _e('เลือกรูปภาพ', 'project-core'); ?></button>
+                    </div>
+                    <p class="description"><?php _e('หากต้องการกำหนดรูปภาพหน้าแรกของเอกสารเฉพาะ สามารถระบุได้ที่นี่ (หากเว้นว่างไว้ ระบบจะเรนเดอร์หน้าแรกจากไฟล์ PDF หรือสร้างหน้าแรกมาตรฐานให้อัตโนมัติ)', 'project-core'); ?></p>
                 </td>
             </tr>
         </table>
@@ -1118,8 +1253,89 @@ class Project_Core_Custom_Fields {
                 });
                 currPdfFrame.open();
             });
+
+            var currCoverFrame;
+            $('#btn_upload_curriculum_cover').on('click', function(e) {
+                e.preventDefault();
+                if (currCoverFrame) {
+                    currCoverFrame.open();
+                    return;
+                }
+                currCoverFrame = wp.media({
+                    title: '<?php echo esc_js(__('เลือกรูปภาพหน้าแรก / หน้าปกเอกสารหลักสูตร', 'project-core')); ?>',
+                    button: { text: '<?php echo esc_js(__('ใช้รูปนี้', 'project-core')); ?>' },
+                    library: { type: 'image' },
+                    multiple: false
+                });
+                currCoverFrame.on('select', function() {
+                    var attachment = currCoverFrame.state().get('selection').first().toJSON();
+                    $('#curriculum_document_cover_url').val(attachment.url);
+                });
+                currCoverFrame.open();
+            });
         });
         </script>
+        <?php
+    }
+
+    /**
+     * Render Personnel Meta Box
+     */
+    public function render_personnel_meta_box($post) {
+        wp_nonce_field('project_core_personnel_nonce', 'project_core_personnel_nonce_field');
+
+        $position   = get_post_meta($post->ID, 'personnel_position', true);
+        $nickname   = get_post_meta($post->ID, 'personnel_nickname', true);
+        $department = get_post_meta($post->ID, 'personnel_department', true);
+        $education  = get_post_meta($post->ID, 'personnel_education', true);
+        $email      = get_post_meta($post->ID, 'personnel_email', true);
+        $phone      = get_post_meta($post->ID, 'personnel_phone', true);
+        ?>
+        <table class="form-table" style="margin-top: 0;">
+            <tr>
+                <th scope="row"><label for="personnel_position"><?php _e('ตำแหน่ง / หน้าที่รับผิดชอบ', 'project-core'); ?> <span style="color:#d63638;">*</span></label></th>
+                <td>
+                    <input type="text" id="personnel_position" name="personnel_position" value="<?php echo esc_attr($position); ?>" class="large-text" style="max-width: 450px;" placeholder="เช่น ผู้รับใบอนุญาตฯ, ที่ปรึกษาวิทยาลัยฯ, ผู้อำนวยการ" />
+                    <p class="description"><?php _e('ระบุชื่อตำแหน่งหลักของบุคลากร (จะแสดงในการ์ดแบบป้ายสีเข้ม)', 'project-core'); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="personnel_nickname"><?php _e('ชื่อเรียก / ฉายา (เช่น อาจารย์หนึ่ง)', 'project-core'); ?></label></th>
+                <td>
+                    <input type="text" id="personnel_nickname" name="personnel_nickname" value="<?php echo esc_attr($nickname); ?>" class="regular-text" placeholder="เช่น อาจารย์หนึ่ง หรือ อาจารย์แม่ (เว้นว่างได้)" />
+                    <p class="description"><?php _e('จะแสดงเป็นวงเล็บสีเทาใต้ชื่อ เช่น (อาจารย์หนึ่ง)', 'project-core'); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="personnel_department"><?php _e('ฝ่ายงาน / แผนกวิชา', 'project-core'); ?></label></th>
+                <td>
+                    <input type="text" id="personnel_department" name="personnel_department" value="<?php echo esc_attr($department); ?>" class="large-text" style="max-width: 450px;" placeholder="เช่น ที่ปรึกษาสถานศึกษา, ผู้บริหารสถานศึกษา, สาขาวิชาการบัญชี" />
+                    <p class="description"><?php _e('สังกัดฝ่ายงานหรือแผนกสาขาวิชา', 'project-core'); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="personnel_education"><?php _e('วุฒิการศึกษา', 'project-core'); ?></label></th>
+                <td>
+                    <input type="text" id="personnel_education" name="personnel_education" value="<?php echo esc_attr($education); ?>" class="large-text" style="max-width: 450px;" placeholder="เช่น ปริญญาโท บริหารการศึกษา, ค.อ.บ. วิศวกรรมเครื่องกล" />
+                    <p class="description"><?php _e('วุฒิการศึกษาสูงสุด หรือสาขาวิชาที่สำเร็จการศึกษา', 'project-core'); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="personnel_email"><?php _e('อีเมลติดต่อ', 'project-core'); ?></label></th>
+                <td>
+                    <input type="email" id="personnel_email" name="personnel_email" value="<?php echo esc_attr($email); ?>" class="regular-text" placeholder="example@technosriracha.ac.th" />
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="personnel_phone"><?php _e('เบอร์โทรศัพท์ / เบอร์ภายใน', 'project-core'); ?></label></th>
+                <td>
+                    <input type="text" id="personnel_phone" name="personnel_phone" value="<?php echo esc_attr($phone); ?>" class="regular-text" placeholder="038-352440 ต่อ 101" />
+                </td>
+            </tr>
+        </table>
+        <p style="background: #f0f7ff; border-left: 4px solid #0047BA; padding: 10px 14px; margin-top: 15px; border-radius: 2px;">
+            <strong>💡 คำแนะนำรูปถ่าย:</strong> กำหนดรูปถ่ายของบุคลากรที่ช่อง <strong>"รูปประจำเรื่อง" (Featured Image)</strong> ทางขวามือ (แนะนำอัตราส่วนรูปแนวตั้ง 3:4 หรือ 4:5 เพื่อความสวยงาม) และกำหนด <strong>"ลำดับ" (Menu Order)</strong> ได้ที่กล่องคุณลักษณะของหน้า หรือลากสลับลำดับในหน้ารายการบุคลากรทั้งหมด
+        </p>
         <?php
     }
 
@@ -1294,5 +1510,181 @@ class Project_Core_Custom_Fields {
             );
         }
         return $content;
+    }
+
+    /**
+     * Add order field to Add Personnel Category form
+     */
+    public function add_personnel_category_order_field() {
+        ?>
+        <div class="form-field term-order-wrap">
+            <label for="category_order"><?php _e('ลำดับการแสดงผล (Category Order)', 'project-core'); ?></label>
+            <input type="number" name="category_order" id="category_order" value="0" min="0" step="1" style="width: 120px;" />
+            <p class="description"><?php _e('ระบุตัวเลขลำดับการแสดงผลของกลุ่ม (เช่น 1, 2, 3...) เลขน้อยกว่าจะแสดงก่อนบนหน้าเว็บ', 'project-core'); ?></p>
+        </div>
+        <?php
+    }
+
+    /**
+     * Edit order field on Edit Personnel Category form
+     */
+    public function edit_personnel_category_order_field($term) {
+        $order = (int) get_term_meta($term->term_id, 'category_order', true);
+        ?>
+        <tr class="form-field term-order-wrap">
+            <th scope="row"><label for="category_order"><?php _e('ลำดับการแสดงผล (Category Order)', 'project-core'); ?></label></th>
+            <td>
+                <input type="number" name="category_order" id="category_order" value="<?php echo esc_attr($order); ?>" min="0" step="1" style="width: 120px;" />
+                <p class="description"><?php _e('ระบุตัวเลขลำดับการแสดงผลของกลุ่ม (เช่น 1, 2, 3...) เลขน้อยกว่าจะแสดงก่อนบนหน้าเว็บ', 'project-core'); ?></p>
+            </td>
+        </tr>
+        <?php
+    }
+
+    /**
+     * Save category order field
+     */
+    public function save_personnel_category_order_field($term_id) {
+        if (isset($_POST['category_order'])) {
+            $val = absint($_POST['category_order']);
+            update_term_meta($term_id, 'category_order', $val);
+        }
+    }
+
+    /**
+     * Add column header to personnel_category admin table
+     */
+    public function add_personnel_category_order_column($columns) {
+        $new_columns = array();
+        foreach ($columns as $key => $title) {
+            $new_columns[$key] = $title;
+            if ($key === 'cb') {
+                $new_columns['category_handle'] = '<span class="dashicons dashicons-move" title="' . esc_attr__('ลากเพื่อสลับลำดับ', 'project-core') . '"></span>';
+                $new_columns['category_order']  = __('ลำดับ', 'project-core');
+            }
+        }
+        return $new_columns;
+    }
+
+    /**
+     * Render column content in personnel_category admin table
+     */
+    public function render_personnel_category_order_column($content, $column_name, $term_id) {
+        if ($column_name === 'category_handle') {
+            return '<span class="dashicons dashicons-move category-drag-handle" style="cursor: grab; color: #50575e; font-size: 20px; line-height: 28px;" title="คลิกค้างแล้วลากเพื่อสลับลำดับกลุ่ม"></span>';
+        }
+        if ($column_name === 'category_order') {
+            $order = (int) get_term_meta($term_id, 'category_order', true);
+            return '<span class="category-order-badge" style="display: inline-block; min-width: 32px; text-align: center; padding: 3px 8px; background: #e0f2fe; color: #0284c7; border-radius: 6px; font-weight: 700; font-size: 12px;">#' . esc_html($order) . '</span>';
+        }
+        return $content;
+    }
+
+    /**
+     * Render SAR Report Meta Box
+     */
+    public function render_sar_meta_box($post) {
+        wp_nonce_field('project_core_sar_nonce', 'project_core_sar_nonce_field');
+
+        $file_url     = get_post_meta($post->ID, 'sar_file_url', true) ?: '';
+        $file_id      = get_post_meta($post->ID, 'sar_file_id', true) ?: '';
+        $external_url = get_post_meta($post->ID, 'sar_external_url', true) ?: '';
+        $report_no    = get_post_meta($post->ID, 'sar_report_no', true) ?: '';
+        $description  = get_post_meta($post->ID, 'sar_description', true) ?: '';
+        ?>
+        <table class="form-table" style="margin-top: 0;">
+            <tr>
+                <th scope="row"><label for="sar_report_no"><?php _e('รหัสเอกสาร / ฉบับที่', 'project-core'); ?></label></th>
+                <td>
+                    <input type="text" id="sar_report_no" name="sar_report_no" value="<?php echo esc_attr($report_no); ?>" class="regular-text" placeholder="เช่น SAR-2568, ฉบับสมบูรณ์" />
+                    <p class="description"><?php _e('รหัสอ้างอิงเอกสารรายงาน (ถ้ามี)', 'project-core'); ?></p>
+                </td>
+            </tr>
+
+            <tr>
+                <th scope="row"><label for="sar_file_url"><?php _e('ไฟล์แนบรายงาน (PDF / เอกสาร)', 'project-core'); ?> <span style="color:#d63638;">*</span></label></th>
+                <td>
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; max-width: 650px;">
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+                            <input type="text" id="sar_file_url" name="sar_file_url" value="<?php echo esc_attr($file_url); ?>" class="large-text" placeholder="https://... ลิงก์ไฟล์ PDF" style="font-family: monospace; font-size: 13px;" />
+                            <input type="hidden" id="sar_file_id" name="sar_file_id" value="<?php echo esc_attr($file_id); ?>" />
+                            <button type="button" class="button button-primary" id="btn_upload_sar_file" style="white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
+                                <span class="dashicons dashicons-upload" style="font-size: 16px; width: 16px; height: 16px; line-height: 16px;"></span>
+                                <?php _e('เลือก / อัปโหลดไฟล์', 'project-core'); ?>
+                            </button>
+                            <button type="button" class="button" id="btn_clear_sar_file" style="<?php echo empty($file_url) ? 'display: none;' : ''; ?> color: #b91c1c;">
+                                <?php _e('ลบไฟล์', 'project-core'); ?>
+                            </button>
+                        </div>
+
+                        <div id="sar_file_preview" style="<?php echo empty($file_url) ? 'display: none;' : ''; ?>">
+                            <a href="<?php echo esc_url($file_url); ?>" target="_blank" class="button button-small" style="display: inline-flex; align-items: center; gap: 4px; color: #0047BA;">
+                                <span class="dashicons dashicons-external" style="font-size: 14px; width: 14px; height: 14px; line-height: 14px;"></span>
+                                <?php _e('ทดลองเปิดดูไฟล์', 'project-core'); ?>
+                            </a>
+                        </div>
+                    </div>
+                    <p class="description"><?php _e('กดปุ่ม "เลือก / อัปโหลดไฟล์" เพื่อเลือกไฟล์ PDF จากเครื่องหรือคลังสื่อ', 'project-core'); ?></p>
+                </td>
+            </tr>
+
+            <tr>
+                <th scope="row"><label for="sar_external_url"><?php _e('ลิงก์เปิดอ่านออนไลน์ (AnyFlip / E-Book)', 'project-core'); ?></label></th>
+                <td>
+                    <input type="url" id="sar_external_url" name="sar_external_url" value="<?php echo esc_attr($external_url); ?>" class="large-text" placeholder="https://anyflip.com/... หรือ Google Drive" />
+                    <p class="description"><?php _e('หากมีลิงก์ E-Book / Flipbook สามารถใส่เพื่อให้นักเรียนหรือบุคคลทั่วไปกดอ่านแบบออนไลน์ได้โดยตรง', 'project-core'); ?></p>
+                </td>
+            </tr>
+
+            <tr>
+                <th scope="row"><label for="sar_description"><?php _e('สรุปผลการประเมินโดยย่อ', 'project-core'); ?></label></th>
+                <td>
+                    <textarea id="sar_description" name="sar_description" rows="4" class="large-text" placeholder="ระบุสาระสำคัญ ผลการประเมินตามมาตรฐาน หรือจุดเด่นของรายงานฉบับนี้..."><?php echo esc_textarea($description); ?></textarea>
+                    <p class="description"><?php _e('คำอธิบายสรุปสั้นๆ จะแสดงใต้ชื่อรายงานในหน้าเว็บ', 'project-core'); ?></p>
+                </td>
+            </tr>
+        </table>
+
+        <div style="background: #eff6ff; border-left: 4px solid #0047BA; padding: 12px 16px; margin-top: 15px; border-radius: 0 6px 6px 0;">
+            <p style="margin: 0; font-size: 13px; color: #1e3a8a;">
+                <strong>💡 คำแนะนำ:</strong> กรุณาเลือก <strong>"ปีการศึกษา"</strong> ที่กล่องด้านขวามือ เพื่อจัดกลุ่มรายงาน SAR ให้อยู่ในปีการศึกษาที่ถูกต้อง และสามารถกำหนด <strong>"ภาพหน้าปก"</strong> ที่กล่อง Featured Image ทางขวามือได้
+            </p>
+        </div>
+
+        <script>
+        jQuery(document).ready(function($) {
+            var sarFileFrame;
+            $('#btn_upload_sar_file').on('click', function(e) {
+                e.preventDefault();
+                if (sarFileFrame) {
+                    sarFileFrame.open();
+                    return;
+                }
+                sarFileFrame = wp.media({
+                    title: '<?php echo esc_js(__('เลือกหรืออัปโหลดไฟล์รายงาน SAR (PDF)', 'project-core')); ?>',
+                    button: { text: '<?php echo esc_js(__('ใช้ไฟล์นี้', 'project-core')); ?>' },
+                    multiple: false
+                });
+                sarFileFrame.on('select', function() {
+                    var attachment = sarFileFrame.state().get('selection').first().toJSON();
+                    $('#sar_file_url').val(attachment.url);
+                    $('#sar_file_id').val(attachment.id);
+
+                    $('#sar_file_preview').show().find('a').attr('href', attachment.url);
+                    $('#btn_clear_sar_file').show();
+                });
+                sarFileFrame.open();
+            });
+
+            $('#btn_clear_sar_file').on('click', function(e) {
+                e.preventDefault();
+                $('#sar_file_url').val('');
+                $('#sar_file_id').val('');
+                $('#sar_file_preview').hide();
+                $(this).hide();
+            });
+        });
+        </script>
+        <?php
     }
 }

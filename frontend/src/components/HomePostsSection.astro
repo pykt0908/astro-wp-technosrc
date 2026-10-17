@@ -11,7 +11,7 @@ const { posts = [], categories = [] } = Astro.props;
 
 // Filter out Uncategorized
 const cleanCategories = categories.filter(
-  (c) => c && c.slug !== "uncategorized" && c.name !== "Uncategorized",
+  (c) => c && c.slug !== "uncategorized" && c.name !== "Uncategorized" && c.name !== "ไม่มีหมวดหมู่",
 );
 
 // Format Thai Date e.g. "24 ก.ย. 2569"

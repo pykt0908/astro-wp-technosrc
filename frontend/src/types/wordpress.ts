@@ -170,3 +170,58 @@ export interface CollegeEvent {
   thumbnail?: string | null;
   categories: CollegeEventCategory[];
 }
+
+export interface PersonnelCategory {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  count?: number;
+  order?: number;
+}
+
+export interface Personnel {
+  id: number;
+  name: string;
+  slug: string;
+  order: number;
+  nickname?: string;
+  position: string;
+  department: string;
+  education?: string;
+  email?: string;
+  phone?: string;
+  bio?: string;
+  image?: {
+    url: string;
+    alt?: string;
+    width?: number;
+    height?: number;
+  } | null;
+  categories: PersonnelCategory[];
+}
+
+export interface SarYear {
+  id: number;
+  name: string;
+  slug: string;
+  count?: number;
+}
+
+export interface SarReport {
+  id: number;
+  title: string;
+  slug: string;
+  reportNo?: string;
+  description: string;
+  content?: string;
+  year: SarYear | null;
+  fileUrl: string;
+  fileSize?: string;
+  fileType?: string;
+  externalUrl?: string;
+  coverUrl?: string;
+  order: number;
+  publishedAt: string;
+  modifiedAt?: string;
+}

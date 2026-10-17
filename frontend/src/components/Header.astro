@@ -8,6 +8,7 @@ const { currentPath = Astro.url.pathname } = Astro.props;
 interface SubItem {
   label: string;
   href: string;
+  target?: string;
 }
 
 interface MegaColumn {
@@ -44,7 +45,7 @@ const navItems: NavItem[] = [
         items: [
           { label: "ข้อมูลพื้นฐานสถานศึกษา", href: "/about/" },
           { label: "สารสนเทศทางการศึกษา", href: "/about/" },
-          { label: "รายงานประเมินตนเอง (SAR)", href: "/downloads/" },
+          { label: "รายงานประเมินตนเอง (SAR)", href: "/sar/" },
           { label: "กฎระเบียบและข้อบังคับ", href: "/downloads/" },
         ],
       },
@@ -66,20 +67,15 @@ const navItems: NavItem[] = [
   },
   {
     label: "บุคลากร",
-    href: "/about/#staff",
-    children: [
-      { label: "คณะผู้บริหาร", href: "/about/#executive" },
-      { label: "คณาจารย์ประจำสาขา", href: "/about/#teachers" },
-      { label: "บุคลากรฝ่ายสนับสนุน", href: "/about/#officers" },
-    ],
+    href: "/personnel/",
   },
   {
     label: "นักศึกษา",
-    href: "/students/",
+    href: "/calendar/",
     children: [
-      { label: "ปฏิทินการศึกษา", href: "/calendar/" },
-      { label: "กิจกรรมนักศึกษา", href: "/news/" },
       { label: "คู่มือนักศึกษา & ระเบียบการ", href: "/downloads/" },
+      { label: "ปฏิทินการศึกษา", href: "/calendar/" },
+      { label: "ระบบสอบออนไลน์", href: "https://exam.technosriracha.ac.th", target: "_blank" },
     ],
   },
   {
@@ -309,17 +305,25 @@ function isItemActive(item: NavItem): boolean {
                     <div class="w-60 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 p-2 space-y-1">
                       {item.children.map((sub) => {
                         const isSubActive = isSubItemActive(sub);
+                        const isExternal = sub.target === "_blank" || sub.href.startsWith("http");
                         return (
                           <a
                             href={sub.href}
+                            target={sub.target || (isExternal ? "_blank" : undefined)}
+                            rel={isExternal ? "noopener noreferrer" : undefined}
                             aria-current={isSubActive ? "page" : undefined}
-                            class={`block px-4 py-2.5 text-sm font-semibold rounded-lg transition-colors ${
+                            class={`flex items-center justify-between px-4 py-2.5 text-sm font-semibold rounded-lg transition-colors ${
                               isSubActive
                                 ? "text-[#0047BA] dark:text-blue-400 bg-blue-50/80 dark:bg-blue-950/50 font-bold"
                                 : "text-slate-700 dark:text-slate-200 hover:text-[#0047BA] dark:hover:text-blue-400 hover:bg-blue-50/80 dark:hover:bg-slate-800"
                             }`}
                           >
-                            {sub.label}
+                            <span>{sub.label}</span>
+                            {isExternal && (
+                              <svg class="w-3.5 h-3.5 opacity-60 ml-1.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                              </svg>
+                            )}
                           </a>
                         );
                       })}
@@ -348,25 +352,35 @@ function isItemActive(item: NavItem): boolean {
                             <ul class="space-y-1">
                               {col.items.map((sub) => {
                                 const isSubActive = isSubItemActive(sub);
+                                const isExternal = sub.target === "_blank" || sub.href.startsWith("http");
                                 return (
                                   <li>
                                     <a
                                       href={sub.href}
+                                      target={sub.target || (isExternal ? "_blank" : undefined)}
+                                      rel={isExternal ? "noopener noreferrer" : undefined}
                                       aria-current={isSubActive ? "page" : undefined}
-                                      class={`group/item flex items-center gap-2.5 py-2 px-2.5 rounded-lg text-sm font-semibold transition-colors ${
+                                      class={`group/item flex items-center justify-between py-2 px-2.5 rounded-lg text-sm font-semibold transition-colors ${
                                         isSubActive
                                           ? "text-[#0047BA] dark:text-blue-400 bg-blue-50/80 dark:bg-blue-950/50 font-bold"
                                           : "text-slate-700 dark:text-slate-200 hover:text-[#0047BA] dark:hover:text-blue-400 hover:bg-blue-50/80 dark:hover:bg-slate-800"
                                       }`}
                                     >
-                                      <span
-                                        class={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                                          isSubActive
-                                            ? "bg-[#0047BA] dark:bg-blue-400"
-                                            : "bg-slate-300 dark:bg-slate-600 group-hover/item:bg-[#0047BA] dark:group-hover/item:bg-blue-400 transition-colors"
-                                        }`}
-                                      />
-                                      <span class="truncate">{sub.label}</span>
+                                      <div class="flex items-center gap-2.5 min-w-0">
+                                        <span
+                                          class={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                                            isSubActive
+                                              ? "bg-[#0047BA] dark:bg-blue-400"
+                                              : "bg-slate-300 dark:bg-slate-600 group-hover/item:bg-[#0047BA] dark:group-hover/item:bg-blue-400 transition-colors"
+                                          }`}
+                                        />
+                                        <span class="truncate">{sub.label}</span>
+                                      </div>
+                                      {isExternal && (
+                                        <svg class="w-3.5 h-3.5 opacity-60 ml-1.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                      )}
                                     </a>
                                   </li>
                                 );
@@ -629,18 +643,28 @@ function isItemActive(item: NavItem): boolean {
                         <div class="pl-4 space-y-1">
                           {col.items.map((sub) => {
                             const isSubActive = isSubItemActive(sub);
+                            const isExternal = sub.target === "_blank" || sub.href.startsWith("http");
                             return (
                               <a
                                 href={sub.href}
+                                target={sub.target || (isExternal ? "_blank" : undefined)}
+                                rel={isExternal ? "noopener noreferrer" : undefined}
                                 aria-current={isSubActive ? "page" : undefined}
-                                class={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors ${
+                                class={`flex items-center justify-between px-3 py-1.5 text-sm rounded-md transition-colors ${
                                   isSubActive
                                     ? "text-[#0047BA] dark:text-blue-400 bg-blue-50/90 dark:bg-blue-950/60 font-bold"
                                     : "text-slate-700 dark:text-slate-300 font-medium hover:text-[#0047BA] dark:hover:text-blue-400 hover:bg-blue-50/80 dark:hover:bg-slate-700/80"
                                 }`}
                               >
-                                <span class={`w-1.5 h-1.5 rounded-full shrink-0 ${isSubActive ? "bg-[#0047BA] dark:bg-blue-400" : "bg-slate-300 dark:bg-slate-600"}`}></span>
-                                <span>{sub.label}</span>
+                                <div class="flex items-center gap-2 min-w-0">
+                                  <span class={`w-1.5 h-1.5 rounded-full shrink-0 ${isSubActive ? "bg-[#0047BA] dark:bg-blue-400" : "bg-slate-300 dark:bg-slate-600"}`}></span>
+                                  <span>{sub.label}</span>
+                                </div>
+                                {isExternal && (
+                                  <svg class="w-3.5 h-3.5 opacity-60 ml-1.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                  </svg>
+                                )}
                               </a>
                             );
                           })}
@@ -652,18 +676,28 @@ function isItemActive(item: NavItem): boolean {
                   <div class="pl-4 pr-2 py-1.5 space-y-1 bg-slate-50/60 dark:bg-slate-800/60 rounded-b-md border-t border-slate-100 dark:border-slate-700">
                     {item.children?.map((sub) => {
                       const isSubActive = isSubItemActive(sub);
+                      const isExternal = sub.target === "_blank" || sub.href.startsWith("http");
                       return (
                         <a
                           href={sub.href}
+                          target={sub.target || (isExternal ? "_blank" : undefined)}
+                          rel={isExternal ? "noopener noreferrer" : undefined}
                           aria-current={isSubActive ? "page" : undefined}
-                          class={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors ${
+                          class={`flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors ${
                             isSubActive
                               ? "text-[#0047BA] dark:text-blue-400 bg-blue-50/90 dark:bg-blue-950/60 font-bold"
                               : "text-slate-700 dark:text-slate-300 font-medium hover:text-[#0047BA] dark:hover:text-blue-400 hover:bg-blue-50/80 dark:hover:bg-slate-700/80"
                           }`}
                         >
-                          <span class={`w-1.5 h-1.5 rounded-full shrink-0 ${isSubActive ? "bg-[#0047BA] dark:bg-blue-400" : "bg-slate-300 dark:bg-slate-600"}`}></span>
-                          <span>{sub.label}</span>
+                          <div class="flex items-center gap-2 min-w-0">
+                            <span class={`w-1.5 h-1.5 rounded-full shrink-0 ${isSubActive ? "bg-[#0047BA] dark:bg-blue-400" : "bg-slate-300 dark:bg-slate-600"}`}></span>
+                            <span>{sub.label}</span>
+                          </div>
+                          {isExternal && (
+                            <svg class="w-3.5 h-3.5 opacity-60 ml-1.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                          )}
                         </a>
                       );
                     })}

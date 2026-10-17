@@ -104,6 +104,34 @@ class Project_Core_REST_API {
             'callback'            => array($this, 'get_curriculum_departments'),
             'permission_callback' => '__return_true',
         ));
+
+        // Personnel list endpoint
+        register_rest_route(self::NAMESPACE, '/personnel', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_personnel'),
+            'permission_callback' => '__return_true',
+        ));
+
+        // Personnel categories taxonomy endpoint
+        register_rest_route(self::NAMESPACE, '/personnel-categories', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_personnel_categories'),
+            'permission_callback' => '__return_true',
+        ));
+
+        // SAR reports list endpoint
+        register_rest_route(self::NAMESPACE, '/sar-reports', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_sar_reports'),
+            'permission_callback' => '__return_true',
+        ));
+
+        // SAR years taxonomy endpoint
+        register_rest_route(self::NAMESPACE, '/sar-years', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_sar_years'),
+            'permission_callback' => '__return_true',
+        ));
     }
 
     /**
@@ -267,11 +295,18 @@ class Project_Core_REST_API {
             'order'          => 'DESC',
         );
 
+        $uncat = get_category_by_slug('uncategorized');
+        $uncat_id = $uncat ? $uncat->term_id : 1;
+
         if (!empty($category) && $category !== 'all') {
             if (is_numeric($category)) {
                 $query_args['cat'] = (int) $category;
             } else {
                 $query_args['category_name'] = $category;
+            }
+        } else {
+            if ($uncat_id) {
+                $query_args['category__not_in'] = array($uncat_id);
             }
         }
 
@@ -337,6 +372,9 @@ class Project_Core_REST_API {
                 $category_ids    = array();
                 if (!empty($cat_terms) && !is_wp_error($cat_terms)) {
                     foreach ($cat_terms as $ct) {
+                        if ($ct->slug === 'uncategorized' || $ct->name === 'Uncategorized' || $ct->name === 'ไม่มีหมวดหมู่') {
+                            continue;
+                        }
                         $categories_list[] = array(
                             'id'   => $ct->term_id,
                             'name' => $ct->name,
@@ -398,8 +436,8 @@ class Project_Core_REST_API {
         $result = array();
         if (!empty($categories) && !is_wp_error($categories)) {
             foreach ($categories as $cat) {
-                // Skip default Uncategorized if empty
-                if ($cat->slug === 'uncategorized' && $cat->count === 0) {
+                // Always skip default Uncategorized
+                if ($cat->slug === 'uncategorized') {
                     continue;
                 }
                 $result[] = array(
@@ -819,6 +857,32 @@ class Project_Core_REST_API {
         $raw_careers = (string) get_post_meta($id, 'curriculum_careers', true);
         $careers = array_filter(array_map('trim', explode("\n", $raw_careers)));
 
+        // Gallery
+        $gallery_data = get_post_meta($id, 'post_gallery_data', true);
+        if (!is_array($gallery_data) || empty($gallery_data)) {
+            $gallery_ids_str = get_post_meta($id, 'post_gallery_ids', true);
+            $gallery_data = array();
+            if (!empty($gallery_ids_str)) {
+                $ids = array_filter(array_map('absint', explode(',', $gallery_ids_str)));
+                foreach ($ids as $img_id) {
+                    $full  = wp_get_attachment_image_url($img_id, 'full');
+                    $thumb = wp_get_attachment_image_url($img_id, 'medium');
+                    if ($full) {
+                        $gallery_data[] = array(
+                            'id'       => $img_id,
+                            'url'      => $full,
+                            'thumbUrl' => $thumb ?: $full,
+                            'alt'      => get_post_meta($img_id, '_wp_attachment_image_alt', true) ?: '',
+                        );
+                    }
+                }
+            }
+        }
+        $gallery_count = (int) get_post_meta($id, 'post_gallery_count', true);
+        if ($gallery_count <= 0) {
+            $gallery_count = count($gallery_data);
+        }
+
         return array(
             'id'            => $id,
             'title'         => html_entity_decode(get_the_title($id), ENT_QUOTES, 'UTF-8'),
@@ -827,17 +891,17 @@ class Project_Core_REST_API {
             'excerpt'       => wp_strip_all_tags(get_the_excerpt($id)),
             'menuOrder'     => (int) $post->menu_order,
             'featuredImage' => $thumb_full ?: $thumb_med,
+            'gallery'       => $gallery_data,
+            'galleryCount'  => $gallery_count,
             'level'         => $level_data,
             'department'    => $dept_data,
             'meta'          => array(
-                'degreeTh'     => (string) get_post_meta($id, 'curriculum_degree_th', true),
-                'degreeEn'     => (string) get_post_meta($id, 'curriculum_degree_en', true),
-                'duration'     => (string) get_post_meta($id, 'curriculum_duration', true) ?: '3 ปี',
-                'requirements' => (string) get_post_meta($id, 'curriculum_requirements', true),
-                'badge'        => (string) get_post_meta($id, 'curriculum_badge', true),
-                'tuitionFee'   => (string) get_post_meta($id, 'curriculum_tuition_fee', true),
-                'studyPlanUrl' => (string) get_post_meta($id, 'curriculum_study_plan_url', true),
-                'highlights'   => array_values($highlights),
+                'degreeTh'         => (string) get_post_meta($id, 'curriculum_degree_th', true),
+                'badge'            => (string) get_post_meta($id, 'curriculum_badge', true),
+                'tuitionFee'       => (string) get_post_meta($id, 'curriculum_tuition_fee', true),
+                'studyPlanUrl'     => (string) get_post_meta($id, 'curriculum_study_plan_url', true),
+                'documentCoverUrl' => (string) get_post_meta($id, 'curriculum_document_cover_url', true),
+                'highlights'       => array_values($highlights),
                 'careers'      => array_values($careers),
             ),
         );
@@ -886,6 +950,243 @@ class Project_Core_REST_API {
                     'count' => $t->count,
                 );
             }
+        }
+
+        return rest_ensure_response($result);
+    }
+
+    /**
+     * Get personnel list with category filtering and ordering
+     */
+    public function get_personnel(WP_REST_Request $request) {
+        $category_slug = $request->get_param('category');
+        $search = $request->get_param('search');
+
+        $args = array(
+            'post_type'      => 'personnel',
+            'post_status'    => 'publish',
+            'posts_per_page' => 150,
+            'orderby'        => 'menu_order',
+            'order'          => 'ASC',
+        );
+
+        if (!empty($search)) {
+            $args['s'] = sanitize_text_field($search);
+        }
+
+        if (!empty($category_slug) && $category_slug !== 'all') {
+            $args['tax_query'] = array(
+                array(
+                    'taxonomy' => 'personnel_category',
+                    'field'    => 'slug',
+                    'terms'    => sanitize_text_field($category_slug),
+                ),
+            );
+        }
+
+        $query = new WP_Query($args);
+        $posts = $query->posts;
+
+        $result = array();
+        foreach ($posts as $post) {
+            $post_id = $post->ID;
+
+            // Categories
+            $cats = array();
+            $terms = get_the_terms($post_id, 'personnel_category');
+            if ($terms && !is_wp_error($terms)) {
+                foreach ($terms as $t) {
+                    $cats[] = array(
+                        'id'          => $t->term_id,
+                        'name'        => $t->name,
+                        'slug'        => $t->slug,
+                        'description' => $t->description,
+                        'order'       => (int) (get_term_meta($t->term_id, 'category_order', true) ?: 99),
+                    );
+                }
+            }
+
+            // Thumbnail / Image
+            $image = null;
+            if (has_post_thumbnail($post_id)) {
+                $thumb_id = get_post_thumbnail_id($post_id);
+                $thumb_url = get_the_post_thumbnail_url($post_id, 'large');
+                $alt = get_post_meta($thumb_id, '_wp_attachment_image_alt', true) ?: $post->post_title;
+                $meta = wp_get_attachment_metadata($thumb_id);
+                $image = array(
+                    'url'    => $thumb_url,
+                    'alt'    => $alt,
+                    'width'  => isset($meta['width']) ? (int)$meta['width'] : 600,
+                    'height' => isset($meta['height']) ? (int)$meta['height'] : 800,
+                );
+            }
+
+            $result[] = array(
+                'id'         => $post_id,
+                'name'       => $post->post_title,
+                'slug'       => $post->post_name,
+                'order'      => (int) $post->menu_order,
+                'nickname'   => get_post_meta($post_id, 'personnel_nickname', true) ?: '',
+                'position'   => get_post_meta($post_id, 'personnel_position', true) ?: '',
+                'department' => get_post_meta($post_id, 'personnel_department', true) ?: '',
+                'education'  => get_post_meta($post_id, 'personnel_education', true) ?: '',
+                'email'      => get_post_meta($post_id, 'personnel_email', true) ?: '',
+                'phone'      => get_post_meta($post_id, 'personnel_phone', true) ?: '',
+                'bio'        => $post->post_content,
+                'image'      => $image,
+                'categories' => $cats,
+            );
+        }
+
+        return rest_ensure_response($result);
+    }
+
+    /**
+     * Get personnel categories
+     */
+    public function get_personnel_categories(WP_REST_Request $request) {
+        $terms = get_terms(array(
+            'taxonomy'   => 'personnel_category',
+            'hide_empty' => false,
+        ));
+
+        $result = array();
+        if (!is_wp_error($terms) && !empty($terms)) {
+            foreach ($terms as $t) {
+                $custom_order = get_term_meta($t->term_id, 'category_order', true);
+                $sort_val = ($custom_order !== '' && is_numeric($custom_order)) ? (int) $custom_order : 99;
+                $result[] = array(
+                    'id'          => $t->term_id,
+                    'name'        => $t->name,
+                    'slug'        => $t->slug,
+                    'description' => $t->description,
+                    'count'       => (int) $t->count,
+                    'order'       => $sort_val,
+                );
+            }
+
+            usort($result, function($a, $b) {
+                if ($a['order'] === $b['order']) {
+                    return $a['id'] - $b['id'];
+                }
+                return $a['order'] - $b['order'];
+            });
+        }
+
+        return rest_ensure_response($result);
+    }
+
+    /**
+     * Get SAR reports formatted for frontend
+     */
+    public function get_sar_reports(WP_REST_Request $request) {
+        $year_slug = sanitize_text_field($request->get_param('year'));
+        $search    = sanitize_text_field($request->get_param('search'));
+        $per_page  = absint($request->get_param('per_page')) ?: 50;
+        $page      = absint($request->get_param('page')) ?: 1;
+
+        $args = array(
+            'post_type'      => 'sar_report',
+            'post_status'    => 'publish',
+            'posts_per_page' => $per_page,
+            'paged'          => $page,
+            'orderby'        => array('menu_order' => 'ASC', 'date' => 'DESC'),
+        );
+
+        if (!empty($search)) {
+            $args['s'] = $search;
+        }
+
+        if (!empty($year_slug) && $year_slug !== 'all') {
+            $args['tax_query'] = array(
+                array(
+                    'taxonomy' => 'sar_year',
+                    'field'    => 'slug',
+                    'terms'    => $year_slug,
+                ),
+            );
+        }
+
+        $query = new WP_Query($args);
+        $posts = $query->posts;
+
+        $result = array();
+        foreach ($posts as $post) {
+            $post_id = $post->ID;
+
+            // Year
+            $year_data = null;
+            $terms = get_the_terms($post_id, 'sar_year');
+            if ($terms && !is_wp_error($terms)) {
+                $t = $terms[0];
+                $year_data = array(
+                    'id'   => $t->term_id,
+                    'name' => $t->name,
+                    'slug' => $t->slug,
+                );
+            }
+
+            // Cover Image
+            $cover_url = get_the_post_thumbnail_url($post_id, 'large') ?: '';
+
+            // File Attachment
+            $file_url  = get_post_meta($post_id, 'sar_file_url', true) ?: '';
+            $file_type = 'pdf';
+            if (!empty($file_url)) {
+                $ext = strtolower(pathinfo(parse_url($file_url, PHP_URL_PATH), PATHINFO_EXTENSION));
+                if (!empty($ext)) $file_type = $ext;
+            }
+
+            $result[] = array(
+                'id'          => $post_id,
+                'title'       => $post->post_title,
+                'slug'        => $post->post_name,
+                'reportNo'    => get_post_meta($post_id, 'sar_report_no', true) ?: '',
+                'description' => get_post_meta($post_id, 'sar_description', true) ?: wp_strip_all_tags($post->post_content),
+                'content'     => apply_filters('the_content', $post->post_content),
+                'year'        => $year_data,
+                'fileUrl'     => $file_url,
+                'fileSize'    => '',
+                'fileType'    => $file_type,
+                'externalUrl' => get_post_meta($post_id, 'sar_external_url', true) ?: '',
+                'coverUrl'    => $cover_url,
+                'order'       => (int) $post->menu_order,
+                'publishedAt' => get_the_date('c', $post_id),
+                'modifiedAt'  => get_the_modified_date('c', $post_id),
+            );
+        }
+
+        return rest_ensure_response(array(
+            'reports'    => $result,
+            'total'      => (int) $query->found_posts,
+            'totalPages' => (int) $query->max_num_pages,
+            'page'       => $page,
+        ));
+    }
+
+    /**
+     * Get SAR years list
+     */
+    public function get_sar_years(WP_REST_Request $request) {
+        $terms = get_terms(array(
+            'taxonomy'   => 'sar_year',
+            'hide_empty' => false,
+        ));
+
+        $result = array();
+        if (!is_wp_error($terms) && !empty($terms)) {
+            foreach ($terms as $t) {
+                $result[] = array(
+                    'id'    => $t->term_id,
+                    'name'  => $t->name,
+                    'slug'  => $t->slug,
+                    'count' => (int) $t->count,
+                );
+            }
+
+            usort($result, function($a, $b) {
+                return strcmp($b['name'], $a['name']);
+            });
         }
 
         return rest_ensure_response($result);

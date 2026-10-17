@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HomeCalendarSection from '../../components/HomeCalendarSection.astro';
+import {
+  getCollegeEvents,
+  getCollegeEventCategories,
+  getCollegeAcademicYears,
+} from '../../lib/wordpress';
+
+const [collegeEvents, eventCategories, academicYears] = await Promise.all([
+  getCollegeEvents(),
+  getCollegeEventCategories(),
+  getCollegeAcademicYears(),
+]);
+---
+
+<BaseLayout
+  title="ปฏิทินการศึกษา - วิทยาลัยเทคโนโลยีศรีราชา"
+  description="ปฏิทินการศึกษา กำหนดการเปิด-ปิดภาคเรียน ตารางสอบ และกิจกรรมนักศึกษา วิทยาลัยเทคโนโลยีศรีราชา ตำบลทุ่งสุขลา อำเภอศรีราชา จังหวัดชลบุรี"
+>
+  <HomeCalendarSection
+    events={collegeEvents}
+    categories={eventCategories}
+    academicYears={academicYears}
+    borderTop={false}
+    isPage={true}
+  />
+</BaseLayout>

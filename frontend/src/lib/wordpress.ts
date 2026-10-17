@@ -8,7 +8,12 @@ import type {
   SiteSettings,
   CollegeEvent,
   CollegeEventCategory,
+  Personnel,
+  PersonnelCategory,
+  SarReport,
+  SarYear,
 } from '../types/wordpress';
+export type { Personnel, PersonnelCategory, SarReport, SarYear };
 import { sanitizeWordPressHtml, stripHtml } from './sanitize';
 
 // Base API endpoints
@@ -258,6 +263,64 @@ export function extractYouTubeId(url?: string): string {
 }
 
 /**
+ * Helper to identify posts that are uncategorized (e.g. default 'uncategorized' slug/name or 'hello-world')
+ */
+export function isPostUncategorized(rawOrPost: any): boolean {
+  if (!rawOrPost) return true;
+  if (rawOrPost.slug === 'hello-world') return true;
+
+  const catNames: string[] =
+    rawOrPost.categoryNames ||
+    rawOrPost._embedded?.['wp:term']?.[0]?.map((t: any) => t.name) ||
+    [];
+
+  const catSlugs: string[] =
+    rawOrPost.category_slugs ||
+    rawOrPost._embedded?.['wp:term']?.[0]?.map((t: any) => t.slug) ||
+    [];
+
+  const validNames = catNames.filter((n) => {
+    if (typeof n !== 'string') return false;
+    const lower = n.trim().toLowerCase();
+    return lower !== 'uncategorized' && lower !== 'ไม่มีหมวดหมู่';
+  });
+
+  const validSlugs = catSlugs.filter((s) => {
+    if (typeof s !== 'string') return false;
+    const lower = s.trim().toLowerCase();
+    return lower !== 'uncategorized';
+  });
+
+  if (catSlugs.length > 0 && validSlugs.length === 0) {
+    return true;
+  }
+
+  if (catNames.length > 0 && validNames.length === 0) {
+    return true;
+  }
+
+  // If raw has categories (array of term objects with slug/name)
+  if (Array.isArray(rawOrPost.categories) && rawOrPost.categories.length > 0) {
+    const hasValidTerm = rawOrPost.categories.some((c: any) => {
+      if (typeof c === 'object' && c !== null) {
+        const slug = (c.slug || '').toLowerCase();
+        const name = (c.name || '').toLowerCase();
+        return slug !== 'uncategorized' && name !== 'uncategorized' && name !== 'ไม่มีหมวดหมู่';
+      }
+      return true;
+    });
+    if (!hasValidTerm) return true;
+  }
+
+  // If no category names or slugs exist at all
+  if (catNames.length === 0 && catSlugs.length === 0 && (!rawOrPost.categories || rawOrPost.categories.length === 0)) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
  * Transforms raw WordPress REST API post item into clean Post domain model
  */
 function mapRawPostToPost(raw: any): Post {
@@ -265,8 +328,17 @@ function mapRawPostToPost(raw: any): Post {
   const coverUrl = raw.coverUrl || media?.source_url || raw.meta?.seo_og_image_url;
   const coverAlt = raw.coverAlt || media?.alt_text || stripHtml(raw.title?.rendered || raw.title || '');
 
-  const termCategories = raw._embedded?.['wp:term']?.[0] || [];
-  const categoryNames = raw.categoryNames || termCategories.map((term: any) => term.name);
+  const termCategories = (raw._embedded?.['wp:term']?.[0] || []).filter((term: any) => {
+    const slug = (term.slug || '').toLowerCase();
+    const name = (term.name || '').toLowerCase();
+    return slug !== 'uncategorized' && name !== 'uncategorized' && name !== 'ไม่มีหมวดหมู่';
+  });
+  const rawCatNames = raw.categoryNames || termCategories.map((term: any) => term.name);
+  const categoryNames = (Array.isArray(rawCatNames) ? rawCatNames : []).filter((name: string) => {
+    if (typeof name !== 'string') return false;
+    const lower = name.toLowerCase().trim();
+    return lower !== 'uncategorized' && lower !== 'ไม่มีหมวดหมู่';
+  });
 
   return {
     id: raw.id,
@@ -334,11 +406,11 @@ export async function getPublishedPosts(page = 1, perPage = 20, category = 'all'
     if (res.ok) {
       const data = await res.json();
       if (data && Array.isArray(data.posts) && data.posts.length > 0) {
-        const posts = data.posts.map(mapRawPostToPost);
+        const posts = data.posts.filter((p: any) => !isPostUncategorized(p)).map(mapRawPostToPost);
         const result: PaginatedPosts = {
           posts,
           totalPosts: data.totalPosts || posts.length,
-          totalPages: data.totalPages || 1,
+          totalPages: data.totalPages || Math.max(1, Math.ceil(posts.length / perPage)),
           currentPage: page,
         };
         setInCache(cacheKey, result);
@@ -366,7 +438,7 @@ export async function getPublishedPosts(page = 1, perPage = 20, category = 'all'
     const totalPages = parseInt(res.headers.get('x-wp-totalpages') || '1', 10);
     const rawPosts: WP_RawPost[] = await res.json();
 
-    const posts = rawPosts.map(mapRawPostToPost);
+    const posts = rawPosts.filter((p: any) => !isPostUncategorized(p)).map(mapRawPostToPost);
     const result: PaginatedPosts = {
       posts,
       totalPosts: totalPosts || posts.length,
@@ -382,13 +454,14 @@ export async function getPublishedPosts(page = 1, perPage = 20, category = 'all'
       throw new Error(`[WordPress CI Error] Build failed because CMS API is unreachable: ${error}`);
     }
 
+    const filteredMocks = LOCAL_MOCK_POSTS.filter((p) => !isPostUncategorized(p));
     const startIndex = (page - 1) * perPage;
-    const paginated = LOCAL_MOCK_POSTS.slice(startIndex, startIndex + perPage);
-    const totalPages = Math.max(1, Math.ceil(LOCAL_MOCK_POSTS.length / perPage));
+    const paginated = filteredMocks.slice(startIndex, startIndex + perPage);
+    const totalPages = Math.max(1, Math.ceil(filteredMocks.length / perPage));
 
     return {
       posts: paginated,
-      totalPosts: LOCAL_MOCK_POSTS.length,
+      totalPosts: filteredMocks.length,
       totalPages,
       currentPage: page,
     };
@@ -423,7 +496,7 @@ export async function getAllPublishedPosts(): Promise<Post[]> {
       }
     }
 
-    return allRawPosts.map(mapRawPostToPost);
+    return allRawPosts.filter((p: any) => !isPostUncategorized(p)).map(mapRawPostToPost);
   } catch (error) {
     console.warn(`[WordPress API] Unable to fetch all posts at ${WP_API_BASE_URL}:`, error);
 
@@ -431,7 +504,7 @@ export async function getAllPublishedPosts(): Promise<Post[]> {
       throw new Error(`[WordPress CI Error] CMS outage during build: ${error}`);
     }
 
-    return LOCAL_MOCK_POSTS;
+    return LOCAL_MOCK_POSTS.filter((p) => !isPostUncategorized(p));
   }
 }
 
@@ -449,7 +522,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
     }
 
     const posts: WP_RawPost[] = await res.json();
-    if (posts && posts.length > 0) {
+    if (posts && posts.length > 0 && !isPostUncategorized(posts[0])) {
       return mapRawPostToPost(posts[0]);
     }
     return null;
@@ -460,7 +533,7 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
       throw new Error(`[WordPress CI Error] CMS outage during build: ${error}`);
     }
 
-    const mock = LOCAL_MOCK_POSTS.find((p) => p.slug === slug);
+    const mock = LOCAL_MOCK_POSTS.find((p) => p.slug === slug && !isPostUncategorized(p));
     return mock || null;
   }
 }
@@ -709,14 +782,22 @@ export interface CurriculumTaxonomyItem {
 
 export interface CurriculumMeta {
   degreeTh: string;
-  degreeEn: string;
-  duration: string;
-  requirements: string;
+  degreeEn?: string;
+  duration?: string;
+  requirements?: string;
   badge: string;
   tuitionFee: string;
   studyPlanUrl: string;
+  documentCoverUrl?: string;
   highlights: string[];
   careers: string[];
+}
+
+export interface CurriculumGalleryImage {
+  id: number;
+  url: string;
+  thumbUrl: string;
+  alt?: string;
 }
 
 export interface CurriculumItem {
@@ -727,10 +808,13 @@ export interface CurriculumItem {
   excerpt: string;
   menuOrder: number;
   featuredImage: string | null;
+  gallery?: CurriculumGalleryImage[];
+  galleryCount?: number;
   level: CurriculumTaxonomyItem | null;
   department: CurriculumTaxonomyItem | null;
   meta: CurriculumMeta;
 }
+
 
 /**
  * Fetch curriculums from WordPress REST API
@@ -756,8 +840,18 @@ export async function getCurriculums(options: {
     if (res.ok) {
       const data = await res.json();
       if (data && Array.isArray(data.curriculums)) {
-        setInCache(cacheKey, data.curriculums);
-        return data.curriculums;
+        let results = data.curriculums;
+        if (options.level && options.level !== 'all') {
+          results = results.filter((c: CurriculumItem) => c.level?.slug === options.level);
+        }
+        if (options.department && options.department !== 'all') {
+          results = results.filter((c: CurriculumItem) => c.department?.slug === options.department);
+        }
+        if (options.perPage) {
+          results = results.slice(0, options.perPage);
+        }
+        setInCache(cacheKey, results);
+        return results;
       }
     }
   } catch (err) {
@@ -806,7 +900,7 @@ export async function getCurriculumLevels(): Promise<CurriculumTaxonomyItem[]> {
     const res = await fetchWithTimeout(url);
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data)) {
+      if (Array.isArray(data) && data.length > 0) {
         setInCache(cacheKey, data);
         return data;
       }
@@ -831,7 +925,7 @@ export async function getCurriculumDepartments(): Promise<CurriculumTaxonomyItem
     const res = await fetchWithTimeout(url);
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data)) {
+      if (Array.isArray(data) && data.length > 0) {
         setInCache(cacheKey, data);
         return data;
       }
@@ -842,3 +936,182 @@ export async function getCurriculumDepartments(): Promise<CurriculumTaxonomyItem
 
   return [];
 }
+
+/**
+ * Fetch all personnel from WordPress REST API (ordered by menu_order)
+ */
+export async function getPersonnel(categorySlug?: string): Promise<Personnel[]> {
+  const cacheKey = `personnel_${categorySlug || 'all'}`;
+  const cached = getFromCache<Personnel[]>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const params = new URLSearchParams();
+    if (categorySlug && categorySlug !== 'all') {
+      params.append('category', categorySlug);
+    }
+    const queryString = params.toString() ? `?${params.toString()}` : '';
+    const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/personnel${queryString}`;
+    const res = await fetchWithTimeout(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setInCache(cacheKey, data);
+        return data;
+      }
+    }
+  } catch (err) {
+    console.warn('[WordPress API] Unable to fetch personnel:', err);
+  }
+
+  return [];
+}
+
+/**
+ * Fetch personnel categories from WordPress REST API
+ */
+export async function getPersonnelCategories(): Promise<PersonnelCategory[]> {
+  const cacheKey = 'personnel_categories';
+  const cached = getFromCache<PersonnelCategory[]>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/personnel-categories`;
+    const res = await fetchWithTimeout(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setInCache(cacheKey, data);
+        return data;
+      }
+    }
+  } catch (err) {
+    console.warn('[WordPress API] Unable to fetch personnel categories:', err);
+  }
+
+  return [];
+}
+
+const LOCAL_MOCK_SAR_YEARS: SarYear[] = [
+  { id: 40, name: 'ปีการศึกษา 2568', slug: '2568', count: 1 },
+  { id: 41, name: 'ปีการศึกษา 2567', slug: '2567', count: 1 },
+  { id: 42, name: 'ปีการศึกษา 2566', slug: '2566', count: 1 },
+  { id: 43, name: 'ปีการศึกษา 2565', slug: '2565', count: 0 },
+];
+
+const LOCAL_MOCK_SAR_REPORTS: SarReport[] = [
+  {
+    id: 70,
+    title: 'รายงานการประเมินตนเองของสถานศึกษา (SAR) ประจำปีการศึกษา 2568',
+    slug: 'sar-report-2568',
+    reportNo: 'SAR-2568-01',
+    description: 'รายงานผลการประเมินตนเองของวิทยาลัยเทคโนโลยีศรีราชา ประจำปีการศึกษา 2568 ตามมาตรฐานการอาชีวศึกษา ประกอบด้วยผลการดำเนินงาน 3 มาตรฐาน 9 ประเด็นการประเมิน',
+    content: '<p>รายงานผลการประเมินตนเองของวิทยาลัยเทคโนโลยีศรีราชา ประจำปีการศึกษา 2568 ตามมาตรฐานการอาชีวศึกษา ประกอบด้วยผลการดำเนินงาน 3 มาตรฐาน 9 ประเด็นการประเมิน</p>',
+    year: { id: 40, name: 'ปีการศึกษา 2568', slug: '2568' },
+    fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    fileType: 'pdf',
+    externalUrl: '',
+    coverUrl: '',
+    order: 1,
+    publishedAt: '2026-10-17T09:00:00+07:00',
+  },
+  {
+    id: 71,
+    title: 'รายงานการประเมินตนเองของสถานศึกษา (SAR) ประจำปีการศึกษา 2567',
+    slug: 'sar-report-2567',
+    reportNo: 'SAR-2567-01',
+    description: 'รายงานผลการประเมินตนเองของวิทยาลัยเทคโนโลยีศรีราชา ประจำปีการศึกษา 2567 มุ่งเน้นการยกระดับคุณภาพการจัดการศึกษาสู่มาตรฐานสากลและความร่วมมือกับสถานประกอบการ',
+    content: '<p>รายงานผลการประเมินตนเองของวิทยาลัยเทคโนโลยีศรีราชา ประจำปีการศึกษา 2567 มุ่งเน้นการยกระดับคุณภาพการจัดการศึกษาสู่มาตรฐานสากลและความร่วมมือกับสถานประกอบการ</p>',
+    year: { id: 41, name: 'ปีการศึกษา 2567', slug: '2567' },
+    fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    fileType: 'pdf',
+    externalUrl: '',
+    coverUrl: '',
+    order: 1,
+    publishedAt: '2026-10-17T09:00:00+07:00',
+  },
+  {
+    id: 72,
+    title: 'รายงานการประเมินตนเองของสถานศึกษา (SAR) ประจำปีการศึกษา 2566',
+    slug: 'sar-report-2566',
+    reportNo: 'SAR-2566-01',
+    description: 'รายงานผลการประเมินตนเองของวิทยาลัยเทคโนโลยีศรีราชา ประจำปีการศึกษา 2566 สรุปผลสัมฤทธิ์ทางการเรียนและการพัฒนาทักษะวิชาชีพของนักเรียนนักศึกษา',
+    content: '<p>รายงานผลการประเมินตนเองของวิทยาลัยเทคโนโลยีศรีราชา ประจำปีการศึกษา 2566 สรุปผลสัมฤทธิ์ทางการเรียนและการพัฒนาทักษะวิชาชีพของนักเรียนนักศึกษา</p>',
+    year: { id: 42, name: 'ปีการศึกษา 2566', slug: '2566' },
+    fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    fileType: 'pdf',
+    externalUrl: '',
+    coverUrl: '',
+    order: 1,
+    publishedAt: '2026-10-17T09:00:00+07:00',
+  },
+];
+
+/**
+ * Fetch SAR reports with optional filtering by year
+ */
+export async function getSarReports(options?: { year?: string; search?: string }): Promise<SarReport[]> {
+  const yearParam = options?.year && options.year !== 'all' ? options.year : '';
+  const searchParam = options?.search || '';
+  const cacheKey = `sar_reports_${yearParam || 'all'}_${searchParam}`;
+  const cached = getFromCache<SarReport[]>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const params = new URLSearchParams();
+    if (yearParam) params.set('year', yearParam);
+    if (searchParam) params.set('search', searchParam);
+    params.set('per_page', '100');
+
+    const queryString = params.toString() ? `?${params.toString()}` : '';
+    const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/sar-reports${queryString}`;
+    const res = await fetchWithTimeout(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && Array.isArray(data.reports)) {
+        setInCache(cacheKey, data.reports);
+        return data.reports;
+      }
+    }
+  } catch (err) {
+    console.warn('[WordPress API] Unable to fetch SAR reports:', err);
+  }
+
+  // Fallback to local mock
+  let results = [...LOCAL_MOCK_SAR_REPORTS];
+  if (yearParam) {
+    results = results.filter((r) => r.year?.slug === yearParam || r.year?.name === yearParam);
+  }
+  if (searchParam) {
+    const s = searchParam.toLowerCase();
+    results = results.filter((r) => r.title.toLowerCase().includes(s) || r.description.toLowerCase().includes(s));
+  }
+  return results;
+}
+
+/**
+ * Fetch SAR years list
+ */
+export async function getSarYears(): Promise<SarYear[]> {
+  const cacheKey = 'sar_years';
+  const cached = getFromCache<SarYear[]>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/sar-years`;
+    const res = await fetchWithTimeout(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setInCache(cacheKey, data);
+        return data;
+      }
+    }
+  } catch (err) {
+    console.warn('[WordPress API] Unable to fetch SAR years:', err);
+  }
+
+  return LOCAL_MOCK_SAR_YEARS;
+}
+
+

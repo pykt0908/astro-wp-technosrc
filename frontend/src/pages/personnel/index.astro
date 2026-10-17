@@ -1,0 +1,310 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPersonnel, getPersonnelCategories } from '../../lib/wordpress';
+import type { Personnel, PersonnelCategory } from '../../lib/wordpress';
+
+const [personnelList, rawCategories] = await Promise.all([
+  getPersonnel(),
+  getPersonnelCategories(),
+]);
+
+// Sort categories by order ASC, fallback to id ASC
+const sortedCategories = [...rawCategories].sort((a, b) => {
+  const orderA = typeof a.order === 'number' ? a.order : 99;
+  const orderB = typeof b.order === 'number' ? b.order : 99;
+  if (orderA === orderB) {
+    return a.id - b.id;
+  }
+  return orderA - orderB;
+});
+
+// Calculate counts per category
+const categoriesWithCounts = sortedCategories.map((cat) => {
+  const staff = personnelList.filter((p) =>
+    p.categories.some((c) => c.slug === cat.slug)
+  );
+  return {
+    ...cat,
+    count: staff.length,
+    personnel: staff.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
+  };
+});
+---
+
+<BaseLayout
+  title="บุคลากรวิทยาลัย - วิทยาลัยเทคโนโลยีศรีราชา"
+  description="ทำเนียบที่ปรึกษา คณะผู้บริหาร คณาจารย์ประจำสาขาวิชา และบุคลากรทางการศึกษา วิทยาลัยเทคโนโลยีศรีราชา (Sriracha Technological College)"
+>
+  <div class="py-8 sm:py-12 lg:py-16 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">หน้าแรก</a>
+      <span>/</span>
+      <span class="text-slate-800 dark:text-slate-200 font-semibold" aria-current="page">บุคลากร</span>
+    </nav>
+
+    <!-- Top Bar: Title -->
+    <div class="mb-10 sm:mb-12 pb-6 border-b border-slate-200 dark:border-slate-800">
+      <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+        บุคลากรวิทยาลัย
+      </h1>
+      <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-2 max-w-2xl">
+        ทำเนียบที่ปรึกษา คณะผู้บริหาร คณาจารย์ประจำสาขาวิชา และบุคลากรสายสนับสนุน
+      </p>
+    </div>
+
+    <!-- Main Layout: 2 Columns (Sidebar & Content) -->
+    <div class="flex flex-col lg:flex-row items-start gap-8 lg:gap-12">
+
+      <!-- LEFT SIDEBAR: แผนกและฝ่าย (Hidden on mobile, visible on desktop lg:) -->
+      <aside class="hidden lg:block lg:w-64 xl:w-72 shrink-0 lg:sticky lg:top-28 self-start">
+        <div class="p-5 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800">
+          
+          <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 mb-3">
+            <h2 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <svg class="w-4 h-4 text-[#0047BA] dark:text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
+              </svg>
+              แผนกและฝ่าย
+            </h2>
+          </div>
+
+          <nav class="space-y-1" id="personnel-category-nav" aria-label="หมวดหมู่บุคลากร">
+            <!-- All Button -->
+            <button
+              type="button"
+              data-category-slug="all"
+              class="cat-nav-btn active flex items-center justify-between px-3 py-2 rounded-lg text-xs sm:text-sm text-[#0047BA] dark:text-blue-400 font-semibold bg-blue-50/80 dark:bg-blue-950/50 border-l-2 border-[#0047BA] pl-2.5 cursor-pointer w-full text-left"
+            >
+              <span class="truncate">ทั้งหมด</span>
+              <span class="cat-nav-badge text-[11px] font-mono px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-900/50 text-[#0047BA] dark:text-blue-300 font-semibold ml-2">
+                {personnelList.length}
+              </span>
+            </button>
+
+            <!-- Dynamic Ordered Categories -->
+            {categoriesWithCounts.map((cat) => (
+              <button
+                type="button"
+                data-category-slug={cat.slug}
+                class="cat-nav-btn flex items-center justify-between px-3 py-2 rounded-lg text-xs sm:text-sm text-slate-600 dark:text-slate-400 hover:text-[#0047BA] dark:hover:text-blue-400 hover:bg-white dark:hover:bg-slate-800 font-normal cursor-pointer w-full text-left"
+              >
+                <span class="truncate pr-2">{cat.name}</span>
+                <span class="cat-nav-badge text-[11px] font-mono px-2 py-0.5 rounded-md bg-slate-200/60 dark:bg-slate-800 text-slate-500 dark:text-slate-400 ml-2">
+                  {cat.count}
+                </span>
+              </button>
+            ))}
+          </nav>
+        </div>
+      </aside>
+
+      <!-- RIGHT CONTENT: Grouped Sections & Cards (Without hover animation) -->
+      <main class="flex-1 min-w-0 w-full min-h-[550px] transition-opacity duration-200 ease-out" id="personnel-content-area">
+
+        {categoriesWithCounts.map((cat) => (
+          <section
+            id={`section-${cat.slug}`}
+            data-section-slug={cat.slug}
+            class="personnel-category-section mb-10 sm:mb-16 scroll-mt-28"
+          >
+            <!-- Section Header: Vertical Blue Bar + Title -->
+            <div class="flex items-center gap-2.5 sm:gap-3 mb-4 sm:mb-6">
+              <span class="w-1.5 h-5 sm:h-6 rounded-full bg-[#0047BA] inline-block shrink-0"></span>
+              <h2 class="text-lg sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                {cat.name}
+              </h2>
+            </div>
+
+            <!-- Cards Grid: 2 columns on mobile, 2 on lg, 3 on xl -->
+            {cat.personnel.length > 0 ? (
+              <div class="grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6 lg:gap-7">
+                {cat.personnel.map((person) => {
+                  return (
+                    <article
+                      class="personnel-card group bg-white dark:bg-slate-900 rounded-xl sm:rounded-2xl p-2.5 sm:p-5 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col items-center relative overflow-hidden"
+                      data-cat-slug={cat.slug}
+                    >
+                      <!-- Photo Frame (Polaroid portrait without hover zoom) -->
+                      <div class="w-full aspect-[3/4] rounded-lg sm:rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 relative flex items-center justify-center">
+                        {person.image?.url ? (
+                          <img
+                            src={person.image.url}
+                            alt={person.image.alt || person.name}
+                            class="w-full h-full object-cover object-top"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div class="w-full h-full flex flex-col items-center justify-center p-3 sm:p-6 text-slate-300 dark:text-slate-600 bg-gradient-to-b from-blue-50/50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
+                            <div class="w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-white dark:bg-slate-800/80 flex items-center justify-center mb-2 sm:mb-3 shadow-xs border border-blue-100 dark:border-slate-700/60 text-[#0047BA] dark:text-blue-400">
+                              <svg class="w-6 h-6 sm:w-10 sm:h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                              </svg>
+                            </div>
+                            <span class="text-[9px] sm:text-[11px] font-semibold text-slate-400 dark:text-slate-500 text-center leading-tight">
+                              วิทยาลัยเทคโนโลยีศรีราชา
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      <!-- Details below photo -->
+                      <div class="w-full pt-2.5 sm:pt-4 pb-1 flex flex-col items-center text-center">
+                        <!-- Full Name -->
+                        <h3 class="text-xs sm:text-base lg:text-lg font-bold text-slate-900 dark:text-white leading-snug line-clamp-1">
+                          {person.name}
+                        </h3>
+
+                        <!-- Nickname in parentheses -->
+                        {person.nickname ? (
+                          <p class="text-[11px] sm:text-xs font-medium text-slate-400 dark:text-slate-500 mt-0.5">
+                            ({person.nickname.replace(/[()]/g, '')})
+                          </p>
+                        ) : (
+                          <p class="text-[11px] sm:text-xs font-medium text-transparent mt-0.5 select-none" aria-hidden="true">
+                            &nbsp;
+                          </p>
+                        )}
+
+                        <!-- Position Pill Badge: Deep Navy #002D72 (Static, no bounce) -->
+                        <div class="w-full mt-2 sm:mt-3">
+                          <span class="block w-full py-1 sm:py-2 px-1.5 sm:px-3 rounded-md sm:rounded-lg bg-[#002D72] text-white text-[10px] sm:text-xs font-semibold text-center tracking-wide line-clamp-1 shadow-xs">
+                            {person.position || 'บุคลากร'}
+                          </span>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              <div class="py-8 px-6 bg-slate-50/60 dark:bg-slate-800/40 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700/60 text-center">
+                <p class="text-xs sm:text-sm text-slate-400 dark:text-slate-500">
+                  อยู่ระหว่างการปรับปรุงข้อมูลบุคลากรในส่วนนี้
+                </p>
+              </div>
+            )}
+          </section>
+        ))}
+
+      </main>
+    </div>
+
+  </div>
+</BaseLayout>
+
+<script>
+  function initPersonnelInteractions() {
+    const navButtons = document.querySelectorAll<HTMLButtonElement>('.cat-nav-btn');
+    const sections = document.querySelectorAll<HTMLElement>('.personnel-category-section');
+    const contentArea = document.getElementById('personnel-content-area');
+
+    let activeSlug = 'all';
+    let isClickScrolling = false;
+
+    // Helper: update active button visual state (matching philosophy & identity page)
+    function setActiveCategory(slug: string) {
+      activeSlug = slug;
+      navButtons.forEach((btn) => {
+        const btnSlug = btn.getAttribute('data-category-slug');
+        const badge = btn.querySelector('.cat-nav-badge');
+
+        if (btnSlug === slug) {
+          btn.classList.add('active', 'text-[#0047BA]', 'dark:text-blue-400', 'font-semibold', 'bg-blue-50/80', 'dark:bg-blue-950/50', 'border-l-2', 'border-[#0047BA]', 'pl-2.5');
+          btn.classList.remove('text-slate-600', 'dark:text-slate-400', 'font-normal');
+          if (badge) {
+            badge.classList.add('bg-blue-100', 'dark:bg-blue-900/50', 'text-[#0047BA]', 'dark:text-blue-300', 'font-semibold');
+            badge.classList.remove('bg-slate-200/60', 'dark:bg-slate-800', 'text-slate-500', 'dark:text-slate-400');
+          }
+        } else {
+          btn.classList.remove('active', 'text-[#0047BA]', 'dark:text-blue-400', 'font-semibold', 'bg-blue-50/80', 'dark:bg-blue-950/50', 'border-l-2', 'border-[#0047BA]', 'pl-2.5');
+          btn.classList.add('text-slate-600', 'dark:text-slate-400', 'font-normal');
+          if (badge) {
+            badge.classList.remove('bg-blue-100', 'dark:bg-blue-900/50', 'text-[#0047BA]', 'dark:text-blue-300', 'font-semibold');
+            badge.classList.add('bg-slate-200/60', 'dark:bg-slate-800', 'text-slate-500', 'dark:text-slate-400');
+          }
+        }
+      });
+    }
+
+    // Filter sections by selected category
+    function applyFilter() {
+      sections.forEach((sec) => {
+        const secSlug = sec.getAttribute('data-section-slug') || '';
+        if (activeSlug !== 'all' && activeSlug !== secSlug) {
+          sec.classList.add('hidden');
+        } else {
+          sec.classList.remove('hidden');
+        }
+      });
+    }
+
+    // Handle Category Click with smooth feather crossfade & smooth scroll
+    navButtons.forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const slug = btn.getAttribute('data-category-slug') || 'all';
+
+        if (slug === activeSlug) {
+          if (slug === 'all') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+          return;
+        }
+
+        setActiveCategory(slug);
+
+        if (contentArea) {
+          contentArea.style.opacity = '0.3';
+
+          setTimeout(() => {
+            applyFilter();
+            contentArea.style.opacity = '1';
+
+            if (slug === 'all') {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+              const yOffset = -110;
+              const y = contentArea.getBoundingClientRect().top + window.pageYOffset + yOffset;
+              window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+            }
+          }, 60);
+        } else {
+          applyFilter();
+          if (slug === 'all') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        }
+      });
+    });
+
+    // Scrollspy for active category when in "all" mode
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (isClickScrolling || activeSlug !== 'all') return;
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const secSlug = entry.target.getAttribute('data-section-slug');
+              if (secSlug && activeSlug === 'all') {
+                setActiveCategory(secSlug);
+              }
+            }
+          });
+        },
+        { rootMargin: '-20% 0px -70% 0px' }
+      );
+
+      sections.forEach((sec) => observer.observe(sec));
+    }
+  }
+
+  // Run on page load and view transitions
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPersonnelInteractions);
+  } else {
+    initPersonnelInteractions();
+  }
+  document.addEventListener('astro:page-load', initPersonnelInteractions);
+</script>

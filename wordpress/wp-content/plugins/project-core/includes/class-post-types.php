@@ -32,6 +32,23 @@ class Project_Core_Post_Types {
         add_action('manage_curriculum_posts_custom_column', array($this, 'render_curriculum_columns'), 10, 2);
         add_action('restrict_manage_posts', array($this, 'filter_curriculums'), 10, 2);
         add_action('pre_get_posts', array($this, 'admin_curriculum_filter_query'));
+
+        // Personnel Admin Columns, Reorder & Filters
+        add_filter('manage_personnel_posts_columns', array($this, 'set_personnel_columns'));
+        add_action('manage_personnel_posts_custom_column', array($this, 'render_personnel_columns'), 10, 2);
+        add_action('pre_get_posts', array($this, 'admin_personnel_sort_order'));
+        add_action('restrict_manage_posts', array($this, 'filter_personnel_by_category'), 10, 2);
+        add_action('pre_get_posts', array($this, 'admin_personnel_filter_query'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_personnel_list_scripts'));
+        add_action('admin_footer', array($this, 'render_personnel_reorder_script'));
+        add_action('wp_ajax_project_core_reorder_personnel', array($this, 'ajax_reorder_personnel'));
+        add_action('wp_ajax_project_core_reorder_personnel_categories', array($this, 'ajax_reorder_personnel_categories'));
+
+        // SAR Reports Admin Columns & Filters
+        add_filter('manage_sar_report_posts_columns', array($this, 'set_sar_report_columns'));
+        add_action('manage_sar_report_posts_custom_column', array($this, 'render_sar_report_columns'), 10, 2);
+        add_action('restrict_manage_posts', array($this, 'filter_sar_reports_by_year'), 10, 2);
+        add_action('pre_get_posts', array($this, 'admin_sar_report_filter_query'));
     }
 
     /**
@@ -148,6 +165,80 @@ class Project_Core_Post_Types {
         );
 
         register_post_type('curriculum', $curriculum_args);
+
+        // Personnel CPT (บุคลากรวิทยาลัย)
+        $personnel_labels = array(
+            'name'                  => __('บุคลากร', 'project-core'),
+            'singular_name'         => __('บุคลากร', 'project-core'),
+            'menu_name'             => __('บุคลากร', 'project-core'),
+            'name_admin_bar'        => __('บุคลากร', 'project-core'),
+            'add_new'               => __('เพิ่มบุคลากรใหม่', 'project-core'),
+            'add_new_item'          => __('เพิ่มบุคลากรใหม่', 'project-core'),
+            'new_item'              => __('บุคลากรใหม่', 'project-core'),
+            'edit_item'             => __('แก้ไขข้อมูลบุคลากร', 'project-core'),
+            'view_item'             => __('ดูข้อมูลบุคลากร', 'project-core'),
+            'all_items'             => __('บุคลากรทั้งหมด', 'project-core'),
+            'search_items'          => __('ค้นหาบุคลากร', 'project-core'),
+            'not_found'             => __('ไม่พบข้อมูลบุคลากร', 'project-core'),
+            'not_found_in_trash'    => __('ไม่พบข้อมูลบุคลากรในถังขยะ', 'project-core'),
+        );
+
+        $personnel_args = array(
+            'labels'             => $personnel_labels,
+            'public'             => true,
+            'publicly_queryable' => true,
+            'show_ui'            => true,
+            'show_in_menu'       => true,
+            'query_var'          => true,
+            'rewrite'            => array('slug' => 'personnel', 'with_front' => false),
+            'capability_type'    => 'post',
+            'has_archive'        => false,
+            'hierarchical'       => false,
+            'menu_position'      => 23,
+            'menu_icon'          => 'dashicons-groups',
+            'supports'           => array('title', 'editor', 'thumbnail', 'page-attributes'),
+            'show_in_rest'       => true,
+            'rest_base'          => 'personnel',
+        );
+
+        register_post_type('personnel', $personnel_args);
+
+        // SAR Report CPT (รายงานผลการประเมินตนเอง)
+        $sar_labels = array(
+            'name'                  => __('รายงาน SAR', 'project-core'),
+            'singular_name'         => __('รายงาน SAR', 'project-core'),
+            'menu_name'             => __('รายงาน SAR', 'project-core'),
+            'name_admin_bar'        => __('รายงาน SAR', 'project-core'),
+            'add_new'               => __('เพิ่มรายงาน SAR', 'project-core'),
+            'add_new_item'          => __('เพิ่มรายงาน SAR ใหม่', 'project-core'),
+            'new_item'              => __('รายงาน SAR ใหม่', 'project-core'),
+            'edit_item'             => __('แก้ไขรายงาน SAR', 'project-core'),
+            'view_item'             => __('ดูรายงาน SAR', 'project-core'),
+            'all_items'             => __('รายงาน SAR ทั้งหมด', 'project-core'),
+            'search_items'          => __('ค้นหารายงาน SAR', 'project-core'),
+            'not_found'             => __('ไม่พบรายงาน SAR', 'project-core'),
+            'not_found_in_trash'    => __('ไม่พบรายงาน SAR ในถังขยะ', 'project-core'),
+        );
+
+        $sar_args = array(
+            'labels'             => $sar_labels,
+            'public'             => false,
+            'publicly_queryable' => false,
+            'show_ui'            => true,
+            'show_in_menu'       => true,
+            'query_var'          => false,
+            'rewrite'            => false,
+            'capability_type'    => 'post',
+            'has_archive'        => false,
+            'hierarchical'       => false,
+            'menu_position'      => 24,
+            'menu_icon'          => 'dashicons-media-document',
+            'supports'           => array('title', 'editor', 'thumbnail', 'page-attributes'),
+            'show_in_rest'       => true,
+            'rest_base'          => 'sar-reports',
+        );
+
+        register_post_type('sar_report', $sar_args);
     }
 
     /**
@@ -284,8 +375,62 @@ class Project_Core_Post_Types {
 
         register_taxonomy('curriculum_department', array('curriculum'), $dept_args);
 
+        // Personnel Category Taxonomy (กลุ่มบุคลากร เช่น ผู้บริหาร, คณาจารย์, ฝ่ายสนับสนุน)
+        $personnel_cat_labels = array(
+            'name'              => __('กลุ่มบุคลากร', 'project-core'),
+            'singular_name'     => __('กลุ่มบุคลากร', 'project-core'),
+            'search_items'      => __('ค้นหากลุ่มบุคลากร', 'project-core'),
+            'all_items'         => __('กลุ่มบุคลากรทั้งหมด', 'project-core'),
+            'edit_item'         => __('แก้ไขกลุ่มบุคลากร', 'project-core'),
+            'update_item'       => __('อัปเดตกลุ่มบุคลากร', 'project-core'),
+            'add_new_item'      => __('เพิ่มกลุ่มบุคลากรใหม่', 'project-core'),
+            'new_item_name'     => __('ชื่อกลุ่มบุคลากรใหม่', 'project-core'),
+            'menu_name'         => __('กลุ่มบุคลากร', 'project-core'),
+        );
+
+        $personnel_cat_args = array(
+            'hierarchical'      => true,
+            'labels'            => $personnel_cat_labels,
+            'show_ui'           => true,
+            'show_admin_column' => true,
+            'query_var'         => true,
+            'rewrite'           => false,
+            'show_in_rest'      => true,
+            'rest_base'         => 'personnel-categories',
+        );
+
+        register_taxonomy('personnel_category', array('personnel'), $personnel_cat_args);
+
+        // SAR Year Taxonomy (ปีการศึกษา)
+        $sar_year_labels = array(
+            'name'              => __('ปีการศึกษา SAR', 'project-core'),
+            'singular_name'     => __('ปีการศึกษา SAR', 'project-core'),
+            'search_items'      => __('ค้นหาปีการศึกษา', 'project-core'),
+            'all_items'         => __('ปีการศึกษาทั้งหมด', 'project-core'),
+            'edit_item'         => __('แก้ไขปีการศึกษา', 'project-core'),
+            'update_item'       => __('อัปเดตปีการศึกษา', 'project-core'),
+            'add_new_item'      => __('เพิ่มปีการศึกษาใหม่', 'project-core'),
+            'new_item_name'     => __('ชื่อปีการศึกษาใหม่ (เช่น 2568)', 'project-core'),
+            'menu_name'         => __('ปีการศึกษา', 'project-core'),
+        );
+
+        $sar_year_args = array(
+            'hierarchical'      => true,
+            'labels'            => $sar_year_labels,
+            'show_ui'           => true,
+            'show_admin_column' => true,
+            'query_var'         => true,
+            'rewrite'           => false,
+            'show_in_rest'      => true,
+            'rest_base'         => 'sar-years',
+        );
+
+        register_taxonomy('sar_year', array('sar_report'), $sar_year_args);
+
         // Seed default terms if empty
         $this->seed_default_curriculum_terms();
+        $this->seed_default_personnel_data();
+        $this->seed_default_sar_data();
     }
 
     /**
@@ -753,7 +898,6 @@ class Project_Core_Post_Types {
         $new_columns['title']                 = __('ชื่อหลักสูตร / สาขาวิชา', 'project-core');
         $new_columns['curriculum_level']      = __('ระดับการศึกษา', 'project-core');
         $new_columns['curriculum_department'] = __('กลุ่มสาขาวิชา', 'project-core');
-        $new_columns['curriculum_duration']   = __('ระยะเวลา', 'project-core');
         $new_columns['curriculum_order']      = __('ลำดับ', 'project-core');
         $new_columns['date']                  = $columns['date'];
         return $new_columns;
@@ -797,11 +941,6 @@ class Project_Core_Post_Types {
                 } else {
                     echo '<span style="color: #999;">—</span>';
                 }
-                break;
-
-            case 'curriculum_duration':
-                $duration = get_post_meta($post_id, 'curriculum_duration', true);
-                echo !empty($duration) ? esc_html($duration) : '<span style="color: #999;">—</span>';
                 break;
 
             case 'curriculum_order':
@@ -878,6 +1017,665 @@ class Project_Core_Post_Types {
 
             if (!empty($tax_query)) {
                 $query->set('tax_query', $tax_query);
+            }
+        }
+    }
+
+    /**
+     * Seed default personnel terms and sample data
+     */
+    public function seed_default_personnel_data() {
+        if (!taxonomy_exists('personnel_category')) {
+            return;
+        }
+
+        // 11 College Categories matching organizational structure
+        $categories = array(
+            'advisory'         => array('name' => 'ที่ปรึกษาสถานศึกษา', 'desc' => 'คณะที่ปรึกษาและผู้รับใบอนุญาตวิทยาลัย', 'order' => 1),
+            'executive'        => array('name' => 'ผู้บริหารสถานศึกษา', 'desc' => 'คณะผู้บริหารและผู้อำนวยการวิทยาลัย', 'order' => 2),
+            'general'          => array('name' => 'สาขาวิชาสามัญ', 'desc' => 'คณาจารย์หมวดวิชาสามัญสัมพันธ์และภาษา', 'order' => 3),
+            'accounting'       => array('name' => 'สาขาวิชาการบัญชี', 'desc' => 'คณาจารย์สาขาวิชาการบัญชี', 'order' => 4),
+            'digital-business' => array('name' => 'สาขาเทคโนโลยีธุรกิจดิจิทัล', 'desc' => 'คณาจารย์สาขาเทคโนโลยีธุรกิจดิจิทัลและคอมพิวเตอร์', 'order' => 5),
+            'marketing'        => array('name' => 'สาขาวิชาการตลาด', 'desc' => 'คณาจารย์สาขาวิชาการตลาดดิจิทัล', 'order' => 6),
+            'logistics'        => array('name' => 'สาขาวิชาโลจิสติกส์และซัพพลายเชน', 'desc' => 'คณาจารย์สาขาวิชาการจัดการโลจิสติกส์', 'order' => 7),
+            'electrical'       => array('name' => 'สาขาอุตสาหกรรมไฟฟ้า', 'desc' => 'คณาจารย์สาขาวิชาช่างไฟฟ้ากำลัง', 'order' => 8),
+            'mechanical'       => array('name' => 'สาขาอุตสาหกรรมเทคนิคเครื่องกล', 'desc' => 'คณาจารย์สาขาวิชาช่างยนต์และเทคนิคเครื่องกล', 'order' => 9),
+            'mechatronics'     => array('name' => 'สาขาเมคาทรอนิกส์และหุ่นยนต์', 'desc' => 'คณาจารย์สาขาวิชาเมคาทรอนิกส์และระบบอัตโนมัติ', 'order' => 10),
+            'support'          => array('name' => 'บุคลากรสายสนับสนุน', 'desc' => 'บุคลากรฝ่ายสนับสนุน เจ้าหน้าที่ธุรการ ทะเบียน และการเงิน', 'order' => 11),
+        );
+
+        foreach ($categories as $slug => $data) {
+            $term = get_term_by('slug', $slug, 'personnel_category');
+            if (!$term) {
+                $inserted = wp_insert_term($data['name'], 'personnel_category', array(
+                    'slug'        => $slug,
+                    'description' => $data['desc'],
+                ));
+                if (!is_wp_error($inserted) && isset($inserted['term_id'])) {
+                    update_term_meta($inserted['term_id'], 'category_order', $data['order']);
+                }
+            } else {
+                update_term_meta($term->term_id, 'category_order', $data['order']);
+            }
+        }
+
+        // Seed or update sample staff
+        $count = wp_count_posts('personnel');
+        if (isset($count->publish) && (int)$count->publish <= 11) {
+            // Ensure advisory staff exist
+            $sample_data = array(
+                array(
+                    'title'      => 'นางหนึ่งฤทัย อินทเศียร',
+                    'nickname'   => 'อาจารย์หนึ่ง',
+                    'category'   => 'advisory',
+                    'order'      => 1,
+                    'position'   => 'ผู้รับใบอนุญาตฯ',
+                    'department' => 'ที่ปรึกษาสถานศึกษา',
+                    'education'  => 'ปริญญาโท บริหารการศึกษา',
+                    'email'      => 'nuengruthai@technosriracha.ac.th',
+                    'phone'      => '038-352440 ต่อ 100',
+                ),
+                array(
+                    'title'      => 'นางปฤษณา บุญจิตสิทธิ์ศักดิ์',
+                    'nickname'   => 'อาจารย์แม่',
+                    'category'   => 'advisory',
+                    'order'      => 2,
+                    'position'   => 'ที่ปรึกษาวิทยาลัยฯ',
+                    'department' => 'ที่ปรึกษาสถานศึกษา',
+                    'education'  => 'ปริญญาโท',
+                    'email'      => 'advisor@technosriracha.ac.th',
+                    'phone'      => '038-352440',
+                ),
+                array(
+                    'title'      => 'นางบุญนภัส รินทร์คำ',
+                    'nickname'   => '',
+                    'category'   => 'executive',
+                    'order'      => 3,
+                    'position'   => 'ผู้อำนวยการวิทยาลัยเทคโนโลยีศรีราชา',
+                    'department' => 'ผู้บริหารสถานศึกษา',
+                    'education'  => 'ปริญญาโท บริหารการศึกษา',
+                    'email'      => 'director@technosriracha.ac.th',
+                    'phone'      => '038-352440',
+                ),
+                array(
+                    'title'      => 'นายเขมวิทย์ บุญจิตสิทธิ์ศักดิ์',
+                    'nickname'   => '',
+                    'category'   => 'executive',
+                    'order'      => 4,
+                    'position'   => 'ผู้จัดการวิทยาลัยเทคโนโลยีศรีราชา',
+                    'department' => 'ผู้บริหารสถานศึกษา',
+                    'education'  => 'ปริญญาโท บริหารธุรกิจ',
+                    'email'      => 'manager@technosriracha.ac.th',
+                    'phone'      => '038-352440 ต่อ 101',
+                ),
+                array(
+                    'title'      => 'นายอานนท์ สุขสวัสดิ์',
+                    'nickname'   => '',
+                    'category'   => 'executive',
+                    'order'      => 5,
+                    'position'   => 'รองผู้อำนวยการฝ่ายวิชาการ',
+                    'department' => 'ผู้บริหารสถานศึกษา',
+                    'education'  => 'ปริญญาโท ครุศาสตร์อุตสาหกรรมมหาบัณฑิต',
+                    'email'      => 'academic.vp@technosriracha.ac.th',
+                    'phone'      => '038-352440 ต่อ 103',
+                ),
+            );
+
+            foreach ($sample_data as $data) {
+                $existing = get_page_by_title($data['title'], OBJECT, 'personnel');
+                if ($existing) {
+                    wp_set_object_terms($existing->ID, $data['category'], 'personnel_category');
+                    update_post_meta($existing->ID, 'personnel_position', $data['position']);
+                    update_post_meta($existing->ID, 'personnel_nickname', $data['nickname']);
+                    update_post_meta($existing->ID, 'personnel_department', $data['department']);
+                    update_post_meta($existing->ID, 'personnel_education', $data['education']);
+                    update_post_meta($existing->ID, 'personnel_email', $data['email']);
+                    update_post_meta($existing->ID, 'personnel_phone', $data['phone']);
+                    wp_update_post(array('ID' => $existing->ID, 'menu_order' => $data['order']));
+                } else {
+                    $pid = wp_insert_post(array(
+                        'post_title'   => $data['title'],
+                        'post_type'    => 'personnel',
+                        'post_status'  => 'publish',
+                        'menu_order'   => $data['order'],
+                    ));
+                    if ($pid && !is_wp_error($pid)) {
+                        wp_set_object_terms($pid, $data['category'], 'personnel_category');
+                        update_post_meta($pid, 'personnel_position', $data['position']);
+                        update_post_meta($pid, 'personnel_nickname', $data['nickname']);
+                        update_post_meta($pid, 'personnel_department', $data['department']);
+                        update_post_meta($pid, 'personnel_education', $data['education']);
+                        update_post_meta($pid, 'personnel_email', $data['email']);
+                        update_post_meta($pid, 'personnel_phone', $data['phone']);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Columns for Personnel admin list
+     */
+    public function set_personnel_columns($columns) {
+        $new_columns = array();
+        $new_columns['cb']               = $columns['cb'];
+        $new_columns['personnel_handle'] = '<span class="dashicons dashicons-move" title="' . esc_attr__('ลากเพื่อสลับลำดับ', 'project-core') . '"></span>';
+        $new_columns['personnel_order']  = __('ลำดับ', 'project-core');
+        $new_columns['personnel_photo']  = __('รูปถ่าย', 'project-core');
+        $new_columns['title']            = __('ชื่อ - สกุล', 'project-core');
+        $new_columns['personnel_pos']    = __('ตำแหน่ง', 'project-core');
+        $new_columns['personnel_dept']   = __('ฝ่าย / แผนกวิชา', 'project-core');
+        $new_columns['taxonomy-personnel_category'] = __('กลุ่มบุคลากร', 'project-core');
+        $new_columns['date']             = $columns['date'];
+        return $new_columns;
+    }
+
+    /**
+     * Render custom column contents for Personnel
+     */
+    public function render_personnel_columns($column, $post_id) {
+        switch ($column) {
+            case 'personnel_handle':
+                echo '<span class="dashicons dashicons-move personnel-drag-handle" style="cursor: grab; color: #50575e; font-size: 20px; line-height: 28px;" title="คลิกค้างแล้วลากเพื่อสลับลำดับ"></span>';
+                break;
+
+            case 'personnel_order':
+                $order = (int) get_post_field('menu_order', $post_id);
+                echo '<span class="personnel-order-badge" style="display: inline-block; min-width: 32px; text-align: center; padding: 4px 8px; background: #f0f0f1; border: 1px solid #c3c4c7; border-radius: 4px; font-weight: 700; color: #1d2327; font-size: 13px;">#' . esc_html($order) . '</span>';
+                break;
+
+            case 'personnel_photo':
+                $img = get_the_post_thumbnail_url($post_id, 'thumbnail');
+                if (!empty($img)) {
+                    echo '<div style="width: 44px; height: 54px; overflow: hidden; border-radius: 6px; border: 1px solid #c3c4c7; background: #f0f0f1;">';
+                    echo '<img src="' . esc_url($img) . '" style="width: 100%; height: 100%; object-fit: cover;" alt="" />';
+                    echo '</div>';
+                } else {
+                    echo '<div style="width: 44px; height: 54px; border-radius: 6px; border: 1px dashed #c3c4c7; background: #f8fafc; display: flex; align-items: center; justify-content: center; color: #94a3b8;"><span class="dashicons dashicons-admin-users" style="font-size: 24px; width: 24px; height: 24px;"></span></div>';
+                }
+                break;
+
+            case 'personnel_pos':
+                $pos = get_post_meta($post_id, 'personnel_position', true);
+                if (!empty($pos)) {
+                    echo '<strong style="color: #0047BA;">' . esc_html($pos) . '</strong>';
+                } else {
+                    echo '<span style="color: #a7aaad;">—</span>';
+                }
+                break;
+
+            case 'personnel_dept':
+                $dept = get_post_meta($post_id, 'personnel_department', true);
+                echo !empty($dept) ? esc_html($dept) : '<span style="color: #a7aaad;">—</span>';
+                break;
+        }
+    }
+
+    /**
+     * Default sort order by menu_order ASC in Personnel table
+     */
+    public function admin_personnel_sort_order($query) {
+        if (is_admin() && $query->is_main_query() && $query->get('post_type') === 'personnel') {
+            if (!isset($_GET['orderby'])) {
+                $query->set('orderby', 'menu_order');
+                $query->set('order', 'ASC');
+            }
+        }
+    }
+
+    /**
+     * Filter Personnel by category in admin table
+     */
+    public function filter_personnel_by_category($post_type, $which) {
+        if ($post_type !== 'personnel') {
+            return;
+        }
+
+        $selected = isset($_GET['personnel_category']) ? sanitize_text_field($_GET['personnel_category']) : '';
+        wp_dropdown_categories(array(
+            'show_option_all' => '— กลุ่มบุคลากรทั้งหมด —',
+            'taxonomy'        => 'personnel_category',
+            'name'            => 'personnel_category',
+            'orderby'         => 'name',
+            'selected'        => $selected,
+            'hierarchical'    => true,
+            'depth'           => 2,
+            'show_count'      => true,
+            'hide_empty'      => false,
+            'value_field'     => 'slug',
+        ));
+    }
+
+    /**
+     * Filter Personnel query by category in admin
+     */
+    public function admin_personnel_filter_query($query) {
+        global $pagenow;
+        if (is_admin() && $pagenow === 'edit.php' && $query->is_main_query() && $query->get('post_type') === 'personnel') {
+            if (isset($_GET['personnel_category']) && !empty($_GET['personnel_category']) && $_GET['personnel_category'] !== '0') {
+                $tax_query = $query->get('tax_query') ?: array();
+                $tax_query[] = array(
+                    'taxonomy' => 'personnel_category',
+                    'field'    => 'slug',
+                    'terms'    => sanitize_text_field($_GET['personnel_category']),
+                );
+                $query->set('tax_query', $tax_query);
+            }
+        }
+    }
+
+    /**
+     * Enqueue jQuery UI Sortable in Personnel list and Personnel Category taxonomy view
+     */
+    public function enqueue_personnel_list_scripts($hook) {
+        if ($hook === 'edit.php') {
+            $screen = get_current_screen();
+            if ($screen && $screen->post_type === 'personnel') {
+                wp_enqueue_script('jquery');
+                wp_enqueue_script('jquery-ui-sortable');
+            }
+        } elseif ($hook === 'edit-tags.php') {
+            $screen = get_current_screen();
+            if ($screen && $screen->taxonomy === 'personnel_category') {
+                wp_enqueue_script('jquery');
+                wp_enqueue_script('jquery-ui-sortable');
+            }
+        }
+    }
+
+    /**
+     * Render inline styles and drag & drop reorder script for Personnel & Categories
+     */
+    public function render_personnel_reorder_script() {
+        $screen = get_current_screen();
+        if (!$screen) return;
+
+        // 1. Reordering Personnel posts
+        if ($screen->id === 'edit-personnel') {
+            $nonce = wp_create_nonce('project_core_personnel_reorder_nonce');
+            ?>
+            <style>
+                .wp-list-table tbody#the-list tr { cursor: grab; transition: background 0.15s ease; }
+                .wp-list-table tbody#the-list tr:hover { background-color: #f0f6fc !important; }
+                .wp-list-table tbody#the-list tr.ui-sortable-helper {
+                    background-color: #ffffff !important;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22) !important;
+                    display: table !important; cursor: grabbing !important;
+                    border: 2px solid #0047BA !important;
+                }
+                .wp-list-table tbody#the-list tr.ui-sortable-placeholder {
+                    background-color: #e7f3ff !important; visibility: visible !important;
+                    outline: 2px dashed #0047BA !important; height: 55px !important;
+                }
+                .personnel-drag-handle { cursor: grab; color: #50575e; font-size: 20px; display: inline-block; vertical-align: middle; }
+                .column-personnel_handle { width: 32px !important; text-align: center; }
+                .column-personnel_order { width: 70px !important; text-align: center; }
+                .column-personnel_photo { width: 60px !important; text-align: center; }
+                #personnel-reorder-notice {
+                    display: none; position: fixed; top: 45px; right: 30px; z-index: 999999;
+                    padding: 12px 24px; background: #007017; color: #ffffff; font-weight: 600;
+                    border-radius: 6px; box-shadow: 0 6px 22px rgba(0,0,0,0.25); font-size: 14px;
+                }
+            </style>
+            <div id="personnel-reorder-notice">✓ บันทึกลำดับบุคลากรเรียบร้อยแล้ว</div>
+            <script>
+            jQuery(function($) {
+                var $tbody = $('#the-list');
+                if (!$tbody.length) return;
+                function showNotice(msg) {
+                    $('#personnel-reorder-notice').text(msg || '✓ บันทึกลำดับบุคลากรเรียบร้อยแล้ว').stop(true, true).fadeIn(200);
+                    setTimeout(function() { $('#personnel-reorder-notice').fadeOut(400); }, 2500);
+                }
+                function updateOrderNumbers() {
+                    $tbody.find('tr').each(function(index) {
+                        $(this).find('.personnel-order-badge').text('#' + (index + 1));
+                    });
+                }
+                $tbody.sortable({
+                    items: 'tr',
+                    handle: '.personnel-drag-handle, td',
+                    cancel: 'a, button, input',
+                    axis: 'y',
+                    cursor: 'grabbing',
+                    opacity: 0.9,
+                    placeholder: 'ui-sortable-placeholder',
+                    helper: function(e, tr) {
+                        var $originals = tr.children();
+                        var $helper = tr.clone();
+                        $helper.children().each(function(index) { $(this).width($originals.eq(index).width()); });
+                        return $helper;
+                    },
+                    update: function() {
+                        updateOrderNumbers();
+                        var postIds = [];
+                        $tbody.find('tr').each(function() {
+                            var rowId = $(this).attr('id');
+                            if (rowId && rowId.indexOf('post-') === 0) postIds.push(rowId.replace('post-', ''));
+                        });
+                        if (!postIds.length) return;
+                        $.ajax({
+                            url: ajaxurl,
+                            type: 'POST',
+                            data: {
+                                action: 'project_core_reorder_personnel',
+                                nonce: '<?php echo esc_js($nonce); ?>',
+                                post_ids: postIds
+                            },
+                            success: function(res) {
+                                if (res.success) showNotice('✓ บันทึกลำดับบุคลากรเรียบร้อยแล้ว (' + postIds.length + ' ท่าน)');
+                            }
+                        });
+                    }
+                });
+            });
+            </script>
+            <?php
+        }
+
+        // 2. Reordering Personnel Categories
+        if ($screen->taxonomy === 'personnel_category') {
+            $cat_nonce = wp_create_nonce('project_core_personnel_cat_nonce');
+            ?>
+            <style>
+                .wp-list-table tbody#the-list tr { cursor: grab; transition: background 0.15s ease; }
+                .wp-list-table tbody#the-list tr:hover { background-color: #f0f6fc !important; }
+                .wp-list-table tbody#the-list tr.ui-sortable-helper {
+                    background-color: #ffffff !important; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22) !important;
+                    display: table !important; cursor: grabbing !important; border: 2px solid #0284c7 !important;
+                }
+                .wp-list-table tbody#the-list tr.ui-sortable-placeholder {
+                    background-color: #e0f2fe !important; visibility: visible !important;
+                    outline: 2px dashed #0284c7 !important; height: 45px !important;
+                }
+                .category-drag-handle { cursor: grab; color: #50575e; font-size: 20px; display: inline-block; vertical-align: middle; }
+                .column-category_handle { width: 32px !important; text-align: center; }
+                .column-category_order { width: 65px !important; text-align: center; }
+                #personnel-cat-reorder-notice {
+                    display: none; position: fixed; top: 45px; right: 30px; z-index: 999999;
+                    padding: 12px 24px; background: #0284c7; color: #ffffff; font-weight: 600;
+                    border-radius: 6px; box-shadow: 0 6px 22px rgba(0,0,0,0.25); font-size: 14px;
+                }
+            </style>
+            <div id="personnel-cat-reorder-notice">✓ บันทึกลำดับกลุ่มบุคลากรเรียบร้อยแล้ว</div>
+            <script>
+            jQuery(function($) {
+                var $tbody = $('#the-list');
+                if (!$tbody.length) return;
+                function showNotice(msg) {
+                    $('#personnel-cat-reorder-notice').text(msg || '✓ บันทึกลำดับกลุ่มบุคลากรเรียบร้อยแล้ว').stop(true, true).fadeIn(200);
+                    setTimeout(function() { $('#personnel-cat-reorder-notice').fadeOut(400); }, 2500);
+                }
+                function updateCatOrderNumbers() {
+                    $tbody.find('tr').each(function(index) {
+                        $(this).find('.category-order-badge').text('#' + (index + 1));
+                    });
+                }
+                $tbody.sortable({
+                    items: 'tr',
+                    handle: '.category-drag-handle, td',
+                    cancel: 'a, button, input',
+                    axis: 'y',
+                    cursor: 'grabbing',
+                    opacity: 0.9,
+                    placeholder: 'ui-sortable-placeholder',
+                    helper: function(e, tr) {
+                        var $originals = tr.children();
+                        var $helper = tr.clone();
+                        $helper.children().each(function(index) { $(this).width($originals.eq(index).width()); });
+                        return $helper;
+                    },
+                    update: function() {
+                        updateCatOrderNumbers();
+                        var termIds = [];
+                        $tbody.find('tr').each(function() {
+                            var rowId = $(this).attr('id');
+                            if (rowId && rowId.indexOf('tag-') === 0) termIds.push(rowId.replace('tag-', ''));
+                        });
+                        if (!termIds.length) return;
+                        $.ajax({
+                            url: ajaxurl,
+                            type: 'POST',
+                            data: {
+                                action: 'project_core_reorder_personnel_categories',
+                                nonce: '<?php echo esc_js($cat_nonce); ?>',
+                                term_ids: termIds
+                            },
+                            success: function(res) {
+                                if (res.success) showNotice('✓ บันทึกลำดับกลุ่มเรียบร้อยแล้ว (' + termIds.length + ' กลุ่ม)');
+                            }
+                        });
+                    }
+                });
+            });
+            </script>
+            <?php
+        }
+    }
+
+    /**
+     * AJAX handler to save personnel menu_order
+     */
+    public function ajax_reorder_personnel() {
+        check_ajax_referer('project_core_personnel_reorder_nonce', 'nonce');
+
+        if (!current_user_can('edit_others_posts')) {
+            wp_send_json_error(array('message' => 'Permission denied.'));
+        }
+
+        $post_ids = isset($_POST['post_ids']) ? array_map('intval', (array) $_POST['post_ids']) : array();
+        if (empty($post_ids)) {
+            wp_send_json_error(array('message' => 'No post IDs received.'));
+        }
+
+        global $wpdb;
+        foreach ($post_ids as $order_index => $post_id) {
+            $menu_order = $order_index + 1;
+            $wpdb->update(
+                $wpdb->posts,
+                array('menu_order' => $menu_order),
+                array('ID' => $post_id),
+                array('%d'),
+                array('%d')
+            );
+            clean_post_cache($post_id);
+        }
+
+        wp_send_json_success(array('updated' => count($post_ids)));
+    }
+
+    /**
+     * AJAX handler to save personnel category order
+     */
+    public function ajax_reorder_personnel_categories() {
+        check_ajax_referer('project_core_personnel_cat_nonce', 'nonce');
+
+        if (!current_user_can('manage_categories')) {
+            wp_send_json_error(array('message' => 'Permission denied.'));
+        }
+
+        $term_ids = isset($_POST['term_ids']) ? array_map('intval', (array) $_POST['term_ids']) : array();
+        if (empty($term_ids)) {
+            wp_send_json_error(array('message' => 'No term IDs received.'));
+        }
+
+        foreach ($term_ids as $order_index => $term_id) {
+            $order = $order_index + 1;
+            update_term_meta($term_id, 'category_order', $order);
+            clean_term_cache($term_id, 'personnel_category');
+        }
+
+        wp_send_json_success(array('updated' => count($term_ids)));
+    }
+
+    /**
+     * Define custom columns for SAR reports admin list
+     */
+    public function set_sar_report_columns($columns) {
+        $new_columns = array();
+        $new_columns['cb']          = $columns['cb'];
+        $new_columns['sar_cover']   = __('หน้าปก / ภาพตัวอย่าง', 'project-core');
+        $new_columns['title']       = __('ชื่อรายงาน SAR', 'project-core');
+        $new_columns['taxonomy-sar_year'] = __('ปีการศึกษา', 'project-core');
+        $new_columns['sar_file']    = __('ไฟล์แนบ (PDF)', 'project-core');
+        $new_columns['sar_order']   = __('ลำดับ', 'project-core');
+        $new_columns['date']        = $columns['date'];
+        return $new_columns;
+    }
+
+    /**
+     * Render custom column contents for SAR reports
+     */
+    public function render_sar_report_columns($column, $post_id) {
+        switch ($column) {
+            case 'sar_cover':
+                $img = get_the_post_thumbnail_url($post_id, 'thumbnail');
+                if ($img) {
+                    echo '<img src="' . esc_url($img) . '" style="width: 50px; height: 65px; object-fit: cover; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.15); border: 1px solid #dcdcde;" />';
+                } else {
+                    echo '<div style="width: 50px; height: 65px; background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 4px; display: flex; align-items: center; justify-content: center;"><span class="dashicons dashicons-media-document" style="color: #0284c7; font-size: 26px; width: 26px; height: 26px;"></span></div>';
+                }
+                break;
+
+            case 'sar_file':
+                $file_url = get_post_meta($post_id, 'sar_file_url', true);
+                if (!empty($file_url)) {
+                    $ext = strtoupper(pathinfo(parse_url($file_url, PHP_URL_PATH), PATHINFO_EXTENSION)) ?: 'PDF';
+                    echo '<a href="' . esc_url($file_url) . '" target="_blank" class="button button-small" style="display: inline-flex; align-items: center; gap: 4px; color: #0047BA; font-weight: 600;">';
+                    echo '<span class="dashicons dashicons-pdf" style="font-size: 16px; width: 16px; height: 16px; line-height: 16px;"></span> ' . esc_html($ext);
+                    echo '</a>';
+                } else {
+                    echo '<span style="color: #94a3b8; font-style: italic;">ไม่มีไฟล์แนบ</span>';
+                }
+                break;
+
+            case 'sar_order':
+                $order = (int) get_post_field('menu_order', $post_id);
+                echo '<span style="display: inline-block; min-width: 24px; text-align: center; padding: 2px 6px; background: #f1f5f9; border-radius: 4px; font-weight: 600; font-size: 12px;">' . esc_html($order) . '</span>';
+                break;
+        }
+    }
+
+    /**
+     * Filter SAR reports by year dropdown in admin
+     */
+    public function filter_sar_reports_by_year($post_type, $which) {
+        if ($post_type === 'sar_report') {
+            $selected = isset($_GET['sar_year']) ? sanitize_text_field($_GET['sar_year']) : '';
+            wp_dropdown_categories(array(
+                'show_option_all' => __('— ทุกปีการศึกษา —', 'project-core'),
+                'taxonomy'        => 'sar_year',
+                'name'            => 'sar_year',
+                'orderby'         => 'name',
+                'order'           => 'DESC',
+                'selected'        => $selected,
+                'hierarchical'    => true,
+                'value_field'     => 'slug',
+                'hide_empty'      => false,
+            ));
+        }
+    }
+
+    /**
+     * Admin query filter for SAR reports
+     */
+    public function admin_sar_report_filter_query($query) {
+        global $pagenow;
+        if (is_admin() && $pagenow === 'edit.php' && isset($_GET['post_type']) && $_GET['post_type'] === 'sar_report') {
+            if (!empty($_GET['sar_year'])) {
+                $query->query_vars['tax_query'] = array(
+                    array(
+                        'taxonomy' => 'sar_year',
+                        'field'    => 'slug',
+                        'terms'    => sanitize_text_field($_GET['sar_year']),
+                    ),
+                );
+            }
+            if (!isset($_GET['orderby'])) {
+                $query->set('orderby', array('menu_order' => 'ASC', 'date' => 'DESC'));
+            }
+        }
+    }
+
+    /**
+     * Seed default SAR years and sample reports
+     */
+    public function seed_default_sar_data() {
+        if (!taxonomy_exists('sar_year') || !post_type_exists('sar_report')) {
+            return;
+        }
+
+        // Default SAR years: 2568, 2567, 2566, 2565
+        $years = array(
+            '2568' => 'ปีการศึกษา 2568',
+            '2567' => 'ปีการศึกษา 2567',
+            '2566' => 'ปีการศึกษา 2566',
+            '2565' => 'ปีการศึกษา 2565',
+        );
+
+        foreach ($years as $slug => $name) {
+            if (!term_exists($slug, 'sar_year')) {
+                wp_insert_term($name, 'sar_year', array('slug' => $slug));
+            }
+        }
+
+        // Seed 3 realistic sample SAR reports if no reports exist yet
+        $existing = get_posts(array(
+            'post_type'      => 'sar_report',
+            'post_status'    => 'any',
+            'posts_per_page' => 1,
+        ));
+
+        if (empty($existing)) {
+            $samples = array(
+                array(
+                    'title'       => 'รายงานการประเมินตนเองของสถานศึกษา (SAR) ประจำปีการศึกษา 2568',
+                    'slug'        => 'sar-report-2568',
+                    'year'        => '2568',
+                    'report_no'   => 'SAR-2568-01',
+                    'description' => 'รายงานผลการประเมินตนเองของวิทยาลัยเทคโนโลยีศรีราชา ประจำปีการศึกษา 2568 ตามมาตรฐานการอาชีวศึกษา ประกอบด้วยผลการดำเนินงาน 3 มาตรฐาน 9 ประเด็นการประเมิน',
+                    'file_url'    => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+                    'external_url'=> '',
+                    'menu_order'  => 1,
+                ),
+                array(
+                    'title'       => 'รายงานการประเมินตนเองของสถานศึกษา (SAR) ประจำปีการศึกษา 2567',
+                    'slug'        => 'sar-report-2567',
+                    'year'        => '2567',
+                    'report_no'   => 'SAR-2567-01',
+                    'description' => 'รายงานผลการประเมินตนเองของวิทยาลัยเทคโนโลยีศรีราชา ประจำปีการศึกษา 2567 มุ่งเน้นการยกระดับคุณภาพการจัดการศึกษาสู่มาตรฐานสากลและความร่วมมือกับสถานประกอบการ',
+                    'file_url'    => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+                    'external_url'=> '',
+                    'menu_order'  => 1,
+                ),
+                array(
+                    'title'       => 'รายงานการประเมินตนเองของสถานศึกษา (SAR) ประจำปีการศึกษา 2566',
+                    'slug'        => 'sar-report-2566',
+                    'year'        => '2566',
+                    'report_no'   => 'SAR-2566-01',
+                    'description' => 'รายงานผลการประเมินตนเองของวิทยาลัยเทคโนโลยีศรีราชา ประจำปีการศึกษา 2566 สรุปผลสัมฤทธิ์ทางการเรียนและการพัฒนาทักษะวิชาชีพของนักเรียนนักศึกษา',
+                    'file_url'    => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+                    'external_url'=> '',
+                    'menu_order'  => 1,
+                ),
+            );
+
+            foreach ($samples as $sample) {
+                $post_id = wp_insert_post(array(
+                    'post_title'   => $sample['title'],
+                    'post_name'    => $sample['slug'],
+                    'post_status'  => 'publish',
+                    'post_type'    => 'sar_report',
+                    'post_content' => $sample['description'],
+                    'menu_order'   => $sample['menu_order'],
+                ));
+
+                if ($post_id && !is_wp_error($post_id)) {
+                    wp_set_object_terms($post_id, $sample['year'], 'sar_year');
+                    update_post_meta($post_id, 'sar_file_url', $sample['file_url']);
+                    update_post_meta($post_id, 'sar_report_no', $sample['report_no']);
+                    update_post_meta($post_id, 'sar_description', $sample['description']);
+                    update_post_meta($post_id, 'sar_external_url', $sample['external_url']);
+                }
             }
         }
     }

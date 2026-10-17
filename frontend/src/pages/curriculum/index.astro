@@ -1,16 +1,10 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getCurriculums, getCurriculumLevels, getCurriculumDepartments } from '../../lib/wordpress';
+import { getCurriculums, getCurriculumLevels } from '../../lib/wordpress';
 
 const curriculums = await getCurriculums();
 const rawLevels = await getCurriculumLevels();
-const departments = await getCurriculumDepartments();
-
-const defaultLevels = [
-  { id: 1, name: 'ระดับประกาศนียบัตรวิชาชีพ (ปวช.)', slug: 'vocational' },
-  { id: 2, name: 'ระดับประกาศนียบัตรวิชาชีพชั้นสูง (ปวส.)', slug: 'high-vocational' },
-];
-const levels = rawLevels && rawLevels.length > 0 ? rawLevels : defaultLevels;
+const levels = rawLevels || [];
 ---
 
 <BaseLayout
@@ -37,24 +31,26 @@ const levels = rawLevels && rawLevels.length > 0 ? rawLevels : defaultLevels;
         </p>
       </div>
 
-      <!-- Level Selector Tabs (Replaces Admission Button, No Count, No 'ทั้งหมด') -->
-      <div class="flex items-center">
-        <div class="flex items-center gap-1.5 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 shadow-xs">
-          {levels.map((lvl, idx) => (
-            <button
-              type="button"
-              data-level-filter={lvl.slug}
-              class={`curr-level-btn px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm transition-all duration-200 ${
-                idx === 0
-                  ? 'bg-white dark:bg-slate-900 text-[#0047BA] dark:text-blue-400 font-bold shadow-xs'
-                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white font-semibold'
-              }`}
-            >
-              {lvl.name}
-            </button>
-          ))}
+      <!-- Level Selector Tabs -->
+      {levels.length > 0 && (
+        <div class="flex items-center">
+          <div class="flex items-center gap-1.5 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 shadow-xs">
+            {levels.map((lvl, idx) => (
+              <button
+                type="button"
+                data-level-filter={lvl.slug}
+                class={`curr-level-btn px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm transition-all duration-200 ${
+                  idx === 0
+                    ? 'bg-white dark:bg-slate-900 text-[#0047BA] dark:text-blue-400 font-bold shadow-xs'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white font-semibold'
+                }`}
+              >
+                {lvl.name}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
 
     {curriculums.length === 0 ? (
@@ -69,133 +65,91 @@ const levels = rawLevels && rawLevels.length > 0 ? rawLevels : defaultLevels;
       </div>
     ) : (
       <>
-        <!-- Department Filter Pills -->
-        {departments.length > 0 && (
-          <div class="mb-8 flex flex-wrap items-center gap-2 text-xs sm:text-sm">
-            <span class="text-slate-400 dark:text-slate-500 font-semibold mr-1">กลุ่มสาขา:</span>
-            <button
-              type="button"
-              data-dept-filter="all"
-              class="curr-dept-btn px-3 py-1.5 rounded-lg text-xs font-bold transition-colors bg-[#0047BA] text-white"
-            >
-              ทุกสาขา
-            </button>
-            {departments.map((dept) => (
-              <button
-                type="button"
-                data-dept-filter={dept.slug}
-                class="curr-dept-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-colors bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600"
-              >
-                {dept.name}
-              </button>
-            ))}
-          </div>
-        )}
 
-        <!-- Curriculums Cards Grid -->
-        <div id="curriculums-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <!-- Curriculums Cards Grid (4 Columns on Desktop) -->
+        <div id="curriculums-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 lg:gap-6">
       {curriculums.map((item) => {
-        const isVoc = item.level?.slug === 'vocational';
+        const isHighVoc = item.level?.slug === 'high-vocational' || item.title.includes('ปวส');
+        const levelSlug = item.level?.slug || (isHighVoc ? 'high-vocational' : 'vocational');
         return (
           <article
             data-level={item.level?.slug || ''}
             data-department={item.department?.slug || ''}
-            class="curr-card group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-6 sm:p-7 shadow-xs hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-lg transition-all duration-300 flex flex-col justify-between"
+            class="curr-card group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden"
           >
-            <div class="space-y-4">
-              <!-- Top Badges -->
-              <div class="flex items-center justify-between gap-2 flex-wrap">
-                <div class="flex items-center gap-2 flex-wrap">
-                  <!-- Level Badge -->
-                  <span
-                    class={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold ${
-                      isVoc
-                        ? 'bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 border border-blue-200 dark:border-blue-900/50'
-                        : 'bg-orange-50 dark:bg-orange-950/80 text-[#EA580C] dark:text-orange-400 border border-orange-200 dark:border-orange-900/50'
-                    }`}
-                  >
-                    {item.level?.name || 'หลักสูตร'}
-                  </span>
+            <div>
+              <!-- Featured Image Header -->
+              <a
+                href={`/curriculum/${levelSlug}/${item.slug}/`}
+                class="relative block aspect-[16/9] w-full overflow-hidden bg-slate-100 dark:bg-slate-800 focus:outline-none"
+              >
+                {item.featuredImage ? (
+                  <img
+                    src={item.featuredImage}
+                    alt={item.title}
+                    loading="lazy"
+                    decoding="async"
+                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-slate-50 to-indigo-50 dark:from-slate-800 dark:via-slate-850 dark:to-slate-900 text-[#0047BA] dark:text-blue-400 group-hover:scale-105 transition-transform duration-500">
+                    <svg class="w-12 h-12 opacity-35 dark:opacity-45" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                    </svg>
+                  </div>
+                )}
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-slate-950/15 to-transparent opacity-60 group-hover:opacity-40 transition-opacity"></div>
 
-                  <!-- Department Badge -->
-                  {item.department && (
-                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                      {item.department.name}
+                <!-- Floating Badges on Top of Image -->
+                <div class="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-1.5 pointer-events-none">
+                  {item.meta?.badge && (
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-400 text-amber-950 shadow-xs">
+                      {item.meta.badge}
                     </span>
                   )}
                 </div>
+              </a>
 
-                <!-- Special Badge if any -->
-                {item.meta?.badge && (
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-900/50">
-                    ★ {item.meta.badge}
-                  </span>
+              <!-- Card Content Body -->
+              <div class="p-5 space-y-3">
+                <!-- Title -->
+                <div>
+                  <h2 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white group-hover:text-[#0047BA] dark:group-hover:text-blue-400 transition-colors line-clamp-2">
+                    <a href={`/curriculum/${levelSlug}/${item.slug}/`}>
+                      {item.title}
+                    </a>
+                  </h2>
+                </div>
+
+                <!-- Highlights snippet (first 2) -->
+                {item.meta?.highlights && item.meta.highlights.length > 0 && (
+                  <ul class="space-y-1 pt-0.5 text-[11px] text-slate-600 dark:text-slate-400">
+                    {item.meta.highlights.slice(0, 2).map((hl) => (
+                      <li class="flex items-start gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#0047BA] dark:bg-blue-400 shrink-0 mt-1"></span>
+                        <span class="line-clamp-1">{hl}</span>
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </div>
-
-              <!-- Title -->
-              <div>
-                <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white group-hover:text-[#0047BA] dark:group-hover:text-blue-400 transition-colors">
-                  <a href={`/curriculum/${item.slug}/`}>
-                    {item.title}
-                  </a>
-                </h2>
-                {item.meta?.degreeEn && (
-                  <p class="text-xs text-slate-400 dark:text-slate-500 mt-1 line-clamp-1 font-mono">
-                    {item.meta.degreeEn}
-                  </p>
-                )}
-              </div>
-
-              <!-- Excerpt -->
-              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed">
-                {item.excerpt}
-              </p>
-
-              <!-- Meta Features -->
-              <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 grid grid-cols-2 gap-2 text-xs text-slate-500 dark:text-slate-400">
-                <div class="flex items-center gap-1.5">
-                  <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span>ระยะเวลา: <strong>{item.meta?.duration || '3 ปี'}</strong></span>
-                </div>
-                <div class="flex items-center gap-1.5">
-                  <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <span class="truncate" title={item.meta?.requirements}>{isVoc ? 'รับ ม.3' : 'รับ ปวช./ม.6'}</span>
-                </div>
-              </div>
-
-              <!-- Highlights snippet (first 2) -->
-              {item.meta?.highlights && item.meta.highlights.length > 0 && (
-                <ul class="space-y-1.5 pt-1 text-xs text-slate-600 dark:text-slate-400">
-                  {item.meta.highlights.slice(0, 2).map((hl) => (
-                    <li class="flex items-start gap-2">
-                      <span class="w-1.5 h-1.5 rounded-full bg-[#0047BA] dark:bg-blue-400 shrink-0 mt-1.5"></span>
-                      <span class="line-clamp-1">{hl}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
             </div>
 
             <!-- Footer Action Button -->
-            <div class="pt-5 mt-5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+            <div class="px-5 pb-5 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
               <a
-                href={`/curriculum/${item.slug}/`}
-                class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#0047BA] dark:text-blue-400 hover:underline"
+                href={`/curriculum/${levelSlug}/${item.slug}/`}
+                class="inline-flex items-center gap-1 text-xs font-bold text-[#0047BA] dark:text-blue-400 hover:underline"
               >
-                <span>รายละเอียดหลักสูตร</span>
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <span>รายละเอียด</span>
+                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                 </svg>
               </a>
 
               <a
                 href="/contact/"
-                class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-[#0047BA] hover:text-white dark:hover:bg-[#0047BA] dark:hover:text-white transition-colors"
+                class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-[#0047BA] hover:text-white dark:hover:bg-[#0047BA] dark:hover:text-white transition-colors"
               >
                 สมัครเรียน
               </a>
@@ -253,27 +207,37 @@ const levels = rawLevels && rawLevels.length > 0 ? rawLevels : defaultLevels;
 <script>
   function setupCurriculumFilters() {
     const levelBtns = document.querySelectorAll<HTMLButtonElement>('.curr-level-btn');
-    const deptBtns = document.querySelectorAll<HTMLButtonElement>('.curr-dept-btn');
     const cards = document.querySelectorAll<HTMLElement>('.curr-card');
     const emptyState = document.getElementById('curr-empty-state');
     const resetBtn = document.getElementById('btn-reset-curr-filters');
 
     const firstLevelBtn = document.querySelector<HTMLButtonElement>('.curr-level-btn');
     const defaultLevel = firstLevelBtn ? firstLevelBtn.getAttribute('data-level-filter') || 'vocational' : 'vocational';
-    let currentLevel = defaultLevel;
-    let currentDept = 'all';
+    
+    // Check if level is specified in URL query (?level=vocational or ?level=high-vocational)
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramLevel = urlParams.get('level');
+    const isValidParam = paramLevel && Array.from(levelBtns).some((b) => b.getAttribute('data-level-filter') === paramLevel);
+    let currentLevel = isValidParam ? (paramLevel as string) : defaultLevel;
+
+    // Synchronize initial level buttons style with currentLevel
+    levelBtns.forEach((b) => {
+      const lvl = b.getAttribute('data-level-filter');
+      if (lvl === currentLevel) {
+        b.className = 'curr-level-btn px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 bg-white dark:bg-slate-900 text-[#0047BA] dark:text-blue-400 shadow-xs';
+      } else {
+        b.className = 'curr-level-btn px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white';
+      }
+    });
 
     function applyFilter() {
       let visibleCount = 0;
 
       cards.forEach((card) => {
         const cardLevel = card.getAttribute('data-level') || '';
-        const cardDept = card.getAttribute('data-department') || '';
+        const matchLevel = !currentLevel || cardLevel === currentLevel;
 
-        const matchLevel = cardLevel === currentLevel;
-        const matchDept = currentDept === 'all' || cardDept === currentDept;
-
-        if (matchLevel && matchDept) {
+        if (matchLevel) {
           card.style.display = 'flex';
           visibleCount++;
         } else {
@@ -301,38 +265,15 @@ const levels = rawLevels && rawLevels.length > 0 ? rawLevels : defaultLevels;
       };
     });
 
-    deptBtns.forEach((btn) => {
-      btn.onclick = () => {
-        const dept = btn.getAttribute('data-dept-filter') || 'all';
-        currentDept = dept;
-
-        deptBtns.forEach((b) => {
-          b.className = 'curr-dept-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-colors bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600';
-        });
-        btn.className = 'curr-dept-btn px-3 py-1.5 rounded-lg text-xs font-bold transition-colors bg-[#0047BA] text-white';
-
-        applyFilter();
-      };
-    });
-
     if (resetBtn) {
       resetBtn.onclick = () => {
         currentLevel = defaultLevel;
-        currentDept = 'all';
 
         levelBtns.forEach((b, idx) => {
           if (idx === 0) {
             b.className = 'curr-level-btn px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 bg-white dark:bg-slate-900 text-[#0047BA] dark:text-blue-400 shadow-xs';
           } else {
             b.className = 'curr-level-btn px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white';
-          }
-        });
-
-        deptBtns.forEach((b, idx) => {
-          if (idx === 0) {
-            b.className = 'curr-dept-btn px-3 py-1.5 rounded-lg text-xs font-bold transition-colors bg-[#0047BA] text-white';
-          } else {
-            b.className = 'curr-dept-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-colors bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600';
           }
         });
 

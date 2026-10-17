@@ -1,0 +1,490 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getSarReports } from '../../lib/wordpress';
+import type { SarReport } from '../../lib/wordpress';
+
+const reports = await getSarReports();
+
+// Format Thai Date
+function formatThaiDate(dateStr?: string) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString('th-TH', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+---
+
+<BaseLayout
+  title="รายงานการประเมินตนเอง (SAR) - วิทยาลัยเทคโนโลยีศรีราชา"
+  description="รายงานผลการประเมินตนเองของสถานศึกษา (Self-Assessment Report : SAR) วิทยาลัยเทคโนโลยีศรีราชา รูปแบบตารางรายการแยกตามปีการศึกษา ดาวน์โหลดเอกสารและเปิดอ่านออนไลน์"
+>
+  <div class="py-8 sm:py-12 lg:py-16 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">หน้าแรก</a>
+      <span>/</span>
+      <a href="/about/" class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">เกี่ยวกับเรา</a>
+      <span>/</span>
+      <span class="text-slate-800 dark:text-slate-200 font-semibold" aria-current="page">รายงานการประเมินตนเอง (SAR)</span>
+    </nav>
+
+    <!-- Top Bar: Title & Overview -->
+    <div class="mb-8 sm:mb-10 pb-6 border-b border-slate-200 dark:border-slate-800">
+      <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+        รายงานการประเมินตนเอง (SAR)
+      </h1>
+      <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-2 max-w-2xl leading-relaxed">
+        Self-Assessment Report เอกสารสรุปผลการดำเนินงานและผลการประเมินตนเองตามมาตรฐานการศึกษาของวิทยาลัยเทคโนโลยีศรีราชา เพื่อการพัฒนาคุณภาพอย่างต่อเนื่อง
+      </p>
+    </div>
+
+    <!-- Action & Search Bar -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6">
+      <div class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+        รายการเอกสารรายงานการประเมินตนเองทั้งหมด ({reports.length} รายการ)
+      </div>
+
+      <!-- Quick Search Bar -->
+      <div class="relative w-full sm:w-72">
+        <input
+          type="text"
+          id="sar-search-input"
+          placeholder="ค้นหาชื่อรายงาน / ปีการศึกษา..."
+          class="w-full pl-9 pr-4 py-2 rounded-xl text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0047BA] focus:border-transparent transition-all shadow-xs"
+        />
+        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </div>
+    </div>
+
+    <!-- SAR Reports Table Format -->
+    {reports.length > 0 ? (
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden" id="sar-table-card">
+        
+        <!-- Table container with horizontal scrolling support -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse" id="sar-main-table">
+            <thead>
+              <tr class="bg-slate-50/80 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-600 dark:text-slate-300 tracking-wider">
+                <th scope="col" class="py-4 px-4 sm:px-6 w-16 text-center">
+                  ลำดับ
+                </th>
+                <th scope="col" class="py-4 px-4 w-36 whitespace-nowrap">
+                  ปีการศึกษา
+                </th>
+                <th scope="col" class="py-4 px-4 min-w-[280px]">
+                  ชื่อรายงาน / รายละเอียดเอกสาร
+                </th>
+                <th scope="col" class="py-4 px-4 w-36 text-center whitespace-nowrap hidden sm:table-cell">
+                  วันที่เผยแพร่
+                </th>
+                <th scope="col" class="py-4 px-4 sm:px-6 w-52 text-center whitespace-nowrap">
+                  การจัดการเอกสาร
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-xs sm:text-sm" id="sar-table-body">
+              {reports.map((report, index) => (
+                <tr
+                  class="sar-row group hover:bg-blue-50/40 dark:hover:bg-slate-800/50 transition-colors"
+                  data-year={(report.year?.name || '').toLowerCase()}
+                  data-title={report.title.toLowerCase()}
+                  data-report-no={(report.reportNo || '').toLowerCase()}
+                >
+                  <!-- No. Column -->
+                  <td class="py-4 px-4 sm:px-6 text-center font-mono font-medium text-slate-400 group-hover:text-[#0047BA] dark:group-hover:text-blue-400 transition-colors">
+                    {String(index + 1).padStart(2, '0')}
+                  </td>
+
+                  <!-- Academic Year Column: Clean Text -->
+                  <td class="py-4 px-4 whitespace-nowrap font-medium text-slate-700 dark:text-slate-300">
+                    {report.year?.name || '—'}
+                  </td>
+
+                  <!-- Title & Description Column -->
+                  <td class="py-4 px-4">
+                    <div class="space-y-1">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="font-semibold text-slate-900 dark:text-white group-hover:text-[#0047BA] dark:group-hover:text-blue-400 transition-colors">
+                          {report.title}
+                        </span>
+                        {report.reportNo && (
+                          <span class="text-xs font-mono text-slate-400 dark:text-slate-500">
+                            ({report.reportNo})
+                          </span>
+                        )}
+                      </div>
+
+                      {report.description && (
+                        <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                          {report.description}
+                        </p>
+                      )}
+
+                      {report.externalUrl && (
+                        <div class="pt-1">
+                          <a
+                            href={report.externalUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="inline-flex items-center gap-1 text-xs text-[#0047BA] dark:text-blue-400 hover:underline font-medium"
+                          >
+                            <span>📖 เปิดอ่านแบบ E-Book (Flipbook)</span>
+                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                              <polyline points="15 3 21 3 21 9"></polyline>
+                              <line x1="10" y1="14" x2="21" y2="3"></line>
+                            </svg>
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </td>
+
+                  <!-- Published Date Column -->
+                  <td class="py-4 px-4 text-center text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap hidden sm:table-cell">
+                    {formatThaiDate(report.publishedAt) || '—'}
+                  </td>
+
+                  <!-- Action Buttons Column -->
+                  <td class="py-4 px-4 sm:px-6 whitespace-nowrap">
+                    <div class="flex items-center justify-center gap-2">
+                      <!-- Preview Button -->
+                      <button
+                        type="button"
+                        class="btn-open-preview inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-blue-100 text-slate-700 hover:text-[#0047BA] dark:bg-slate-800 dark:hover:bg-blue-950/70 dark:text-slate-300 dark:hover:text-blue-300 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+                        data-file-url={report.fileUrl}
+                        data-external-url={report.externalUrl || ''}
+                        data-title={report.title}
+                        data-year={report.year?.name || ''}
+                        title="เปิดอ่านเอกสารบนหน้าเว็บ"
+                      >
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <span>เปิดอ่าน</span>
+                      </button>
+
+                      <!-- Download Button -->
+                      {report.fileUrl ? (
+                        <a
+                          href={report.fileUrl}
+                          target="_blank"
+                          download
+                          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-[#0047BA] hover:bg-[#003893] text-white shadow-xs hover:shadow-md transition-all"
+                          title="ดาวน์โหลดไฟล์ PDF"
+                        >
+                          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                          </svg>
+                          <span>ดาวน์โหลด</span>
+                        </a>
+                      ) : (
+                        <span class="inline-flex items-center px-2.5 py-1.5 rounded-xl text-xs text-slate-400 bg-slate-50 dark:bg-slate-800/50 cursor-not-allowed">
+                          ไม่มีไฟล์
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table Footer / Row counter -->
+        <div class="py-3 px-4 sm:px-6 bg-slate-50/60 dark:bg-slate-800/40 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+          <span>
+            แสดง <strong class="text-slate-800 dark:text-slate-200 font-semibold" id="visible-row-count">{reports.length}</strong> รายการ
+          </span>
+          <span class="text-[11px] text-slate-400">
+            วิทยาลัยเทคโนโลยีศรีราชา • ฝ่ายประกันคุณภาพการศึกษา
+          </span>
+        </div>
+      </div>
+    ) : (
+      <div class="text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs">
+        <div class="w-16 h-16 mx-auto rounded-full bg-blue-50 dark:bg-blue-950/50 flex items-center justify-center text-[#0047BA] dark:text-blue-400 mb-4">
+          <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+        </div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200">ยังไม่มีรายงาน SAR เผยแพร่</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">สามารถเพิ่มรายงาน SAR และแนบไฟล์เอกสารผ่านระบบจัดการ WordPress ได้ทันที</p>
+      </div>
+    )}
+
+    <!-- Empty Filter Notice (Hidden by default, shown by JS when no search/filter matches) -->
+    <div id="no-filter-match-notice" class="hidden text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs mt-6">
+      <div class="w-12 h-12 mx-auto rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-3">
+        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </div>
+      <h3 class="text-sm sm:text-base font-semibold text-slate-700 dark:text-slate-300">ไม่พบรายงาน SAR ที่ตรงกับเงื่อนไขการค้นหา</h3>
+      <p class="text-xs sm:text-sm text-slate-400 mt-1">กรุณาลองเปลี่ยนคำค้นหาใหม่</p>
+      <button
+        type="button"
+        id="btn-reset-filter"
+        class="mt-4 px-4 py-2 rounded-xl text-xs font-semibold bg-[#0047BA] text-white hover:bg-[#003893] transition-colors cursor-pointer"
+      >
+        ล้างคำค้นหา
+      </button>
+    </div>
+
+
+
+  </div>
+
+  <!-- PDF / Document Preview Modal -->
+  <div
+    id="sar-preview-modal"
+    class="fixed inset-0 z-50 hidden bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-doc-title"
+  >
+    <div class="bg-white dark:bg-slate-900 w-full max-w-5xl h-[92vh] rounded-2xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Modal Header -->
+      <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-800/50">
+        <div class="flex items-center gap-3 overflow-hidden">
+          <div class="w-9 h-9 rounded-xl bg-[#0047BA] text-white flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+          </div>
+          <div class="overflow-hidden">
+            <h3 id="modal-doc-title" class="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate">
+              รายงานการประเมินตนเอง (SAR)
+            </h3>
+            <span id="modal-doc-year" class="text-xs text-slate-500 dark:text-slate-400 block truncate">
+              ปีการศึกษา
+            </span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <a
+            id="modal-download-btn"
+            href="#"
+            target="_blank"
+            download
+            class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-[#0047BA] hover:bg-[#003893] text-white transition-colors"
+          >
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>ดาวน์โหลด</span>
+          </a>
+
+          <a
+            id="modal-newtab-btn"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-700/60 transition-colors"
+            title="เปิดในหน้าต่างใหม่"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+          </a>
+
+          <button
+            type="button"
+            id="modal-close-btn"
+            class="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-700/60 transition-colors cursor-pointer"
+            aria-label="ปิดหน้าต่าง"
+          >
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Content: Embedded PDF Viewer -->
+      <div class="flex-1 bg-slate-100 dark:bg-slate-950 relative overflow-hidden">
+        <iframe
+          id="modal-iframe"
+          src=""
+          class="w-full h-full border-none"
+          title="PDF Document Viewer"
+          loading="lazy"
+        ></iframe>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  function initSarPage() {
+    const searchInput = document.getElementById('sar-search-input') as HTMLInputElement | null;
+    const rows = document.querySelectorAll<HTMLElement>('.sar-row');
+    const tableCard = document.getElementById('sar-table-card');
+    const noMatchNotice = document.getElementById('no-filter-match-notice');
+    const resetBtn = document.getElementById('btn-reset-filter');
+    const visibleCountBadge = document.getElementById('visible-row-count');
+
+    let searchQuery = '';
+
+    function filterRows() {
+      let visibleCount = 0;
+
+      rows.forEach((row) => {
+        const rowYear = row.getAttribute('data-year') || '';
+        const rowTitle = row.getAttribute('data-title') || '';
+        const rowReportNo = row.getAttribute('data-report-no') || '';
+
+        const matchesSearch =
+          !searchQuery ||
+          rowTitle.includes(searchQuery) ||
+          rowYear.includes(searchQuery) ||
+          rowReportNo.includes(searchQuery);
+
+        if (matchesSearch) {
+          row.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          row.classList.add('hidden');
+        }
+      });
+
+      if (visibleCountBadge) {
+        visibleCountBadge.textContent = String(visibleCount);
+      }
+
+      if (tableCard && noMatchNotice) {
+        if (visibleCount === 0 && rows.length > 0) {
+          tableCard.classList.add('hidden');
+          noMatchNotice.classList.remove('hidden');
+        } else {
+          tableCard.classList.remove('hidden');
+          noMatchNotice.classList.add('hidden');
+        }
+      }
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = (e.target as HTMLInputElement).value.toLowerCase().trim();
+        filterRows();
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        searchQuery = '';
+        if (searchInput) searchInput.value = '';
+        filterRows();
+      });
+    }
+
+    // Modal logic
+    const modal = document.getElementById('sar-preview-modal');
+    const modalTitle = document.getElementById('modal-doc-title');
+    const modalYear = document.getElementById('modal-doc-year');
+    const modalIframe = document.getElementById('modal-iframe') as HTMLIFrameElement | null;
+    const modalDownloadBtn = document.getElementById('modal-download-btn') as HTMLAnchorElement | null;
+    const modalNewtabBtn = document.getElementById('modal-newtab-btn') as HTMLAnchorElement | null;
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+
+    function openModal(fileUrl: string, externalUrl: string, title: string, year: string) {
+      if (!modal) return;
+      const targetUrl = fileUrl || externalUrl;
+      if (!targetUrl) return;
+
+      if (modalTitle) modalTitle.textContent = title;
+      if (modalYear) modalYear.textContent = year ? `${year}` : 'รายงานการประเมินตนเอง';
+
+      if (modalIframe) {
+        modalIframe.src = targetUrl;
+      }
+
+      if (modalDownloadBtn) {
+        modalDownloadBtn.href = fileUrl || targetUrl;
+        if (!fileUrl) {
+          modalDownloadBtn.classList.add('hidden');
+        } else {
+          modalDownloadBtn.classList.remove('hidden');
+        }
+      }
+
+      if (modalNewtabBtn) {
+        modalNewtabBtn.href = targetUrl;
+      }
+
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      if (!modal) return;
+      modal.classList.add('hidden');
+      if (modalIframe) modalIframe.src = '';
+      document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('.btn-open-preview').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = e.currentTarget as HTMLElement;
+        const fileUrl = target.getAttribute('data-file-url') || '';
+        const externalUrl = target.getAttribute('data-external-url') || '';
+        const title = target.getAttribute('data-title') || '';
+        const year = target.getAttribute('data-year') || '';
+
+        if (!fileUrl && externalUrl) {
+          window.open(externalUrl, '_blank', 'noopener,noreferrer');
+          return;
+        }
+
+        openModal(fileUrl, externalUrl, title, year);
+      });
+    });
+
+    if (modalCloseBtn) {
+      modalCloseBtn.addEventListener('click', closeModal);
+    }
+
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          closeModal();
+        }
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+        closeModal();
+      }
+    });
+  }
+
+  // Support Astro view transitions / initial load
+  document.addEventListener('DOMContentLoaded', initSarPage);
+  document.addEventListener('astro:page-load', initSarPage);
+</script>

@@ -1,0 +1,729 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getCurriculums, getCurriculumBySlug, type CurriculumItem } from '../../../lib/wordpress';
+
+export async function getStaticPaths() {
+  const allCurriculums = await getCurriculums();
+  return allCurriculums.map((item) => {
+    const isHighVoc = item.level?.slug === 'high-vocational' || item.title.includes('ปวส');
+    const levelSlug = item.level?.slug || (isHighVoc ? 'high-vocational' : 'vocational');
+    return {
+      params: { level: levelSlug, slug: item.slug },
+      props: { curriculum: item },
+    };
+  });
+}
+
+interface Props {
+  curriculum: CurriculumItem;
+}
+
+const { level, slug } = Astro.params;
+const { curriculum: propCurriculum } = Astro.props;
+
+// If accessed directly or during dynamic render
+const curriculum = propCurriculum || (await getCurriculumBySlug(slug as string));
+
+if (!curriculum) {
+  return Astro.redirect('/curriculum/');
+}
+
+const allCurriculums = await getCurriculums();
+const relatedCurriculums = allCurriculums
+  .filter((c) => c.id !== curriculum.id && (c.level?.slug === curriculum.level?.slug || c.department?.slug === curriculum.department?.slug))
+  .slice(0, 3);
+
+// Prepare images for Hero 4-Photo Panoramic Strip
+const rawGallery = curriculum.gallery || [];
+const allPhotos: Array<{ url: string; alt: string }> = [];
+
+if (curriculum.featuredImage) {
+  allPhotos.push({
+    url: curriculum.featuredImage,
+    alt: `${curriculum.title} - ภาพหลักสูตร`,
+  });
+}
+
+rawGallery.forEach((img, i) => {
+  if (img.url && img.url !== curriculum.featuredImage) {
+    allPhotos.push({
+      url: img.url,
+      alt: img.alt || `${curriculum.title} - ภาพกิจกรรม ${i + 1}`,
+    });
+  }
+});
+
+
+// Education level full name for breadcrumb separation
+const isHighVoc = curriculum.level?.slug === 'high-vocational' || curriculum.title.includes('ปวส');
+const levelSlug = curriculum.level?.slug || (isHighVoc ? 'high-vocational' : 'vocational');
+const rawLevelName = curriculum.level?.name || (isHighVoc ? 'ประกาศนียบัตรวิชาชีพชั้นสูง (ปวส.)' : 'ประกาศนียบัตรวิชาชีพ (ปวช.)');
+const levelFullName = rawLevelName.replace(/^ระดับ/, '').trim();
+---
+
+<BaseLayout
+  title={`${curriculum.title} - วิทยาลัยเทคโนโลยีศรีราชา`}
+  description={curriculum.excerpt || `${curriculum.title} ${curriculum.meta?.degreeTh || ''} วิทยาลัยเทคโนโลยีศรีราชา`}
+>
+  <div class="py-8 sm:py-10 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Top Header & Breadcrumb (With Level Separation) -->
+    <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          {curriculum.title}
+        </h1>
+      </div>
+
+      <!-- Breadcrumb on right side with Level separation -->
+      <nav class="flex items-center gap-1.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400 shrink-0 flex-wrap" aria-label="Breadcrumb">
+        <a href="/" class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">หน้าแรก</a>
+        <span>/</span>
+        <a href="/curriculum/" class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">หลักสูตร</a>
+        <span>/</span>
+        <a
+          href={`/curriculum/?level=${levelSlug}`}
+          class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors"
+          title={`ดูหลักสูตรทั้งหมดระดับ ${levelFullName}`}
+        >
+          {levelFullName}
+        </a>
+        <span>/</span>
+        <span class="text-[#0047BA] dark:text-blue-400 font-semibold truncate max-w-[200px] sm:max-w-none" aria-current="page">
+          {curriculum.title}
+        </span>
+      </nav>
+    </div>
+
+    <!-- Hero Panoramic Auto-Slider Strip -->
+    {allPhotos.length > 0 && (
+      <div
+        id="curriculum-carousel"
+        class="relative w-full rounded-2xl overflow-hidden shadow-sm border border-slate-200/80 dark:border-slate-800 bg-slate-900 group select-none"
+        data-total={allPhotos.length}
+      >
+        <!-- Carousel Viewport -->
+        <div id="carousel-viewport" class="overflow-hidden w-full h-[220px] sm:h-[270px] lg:h-[310px]">
+          <div
+            id="carousel-track"
+            class="flex h-full transition-transform duration-500 ease-out will-change-transform"
+            style="transform: translateX(0%);"
+          >
+            {allPhotos.map((photo, idx) => (
+              <div class={`carousel-slide shrink-0 h-full border-r last:border-r-0 border-white/10 dark:border-slate-800 ${
+                allPhotos.length === 1
+                  ? 'w-full'
+                  : allPhotos.length === 2
+                  ? 'w-full sm:w-1/2'
+                  : allPhotos.length === 3
+                  ? 'w-full sm:w-1/2 md:w-1/3'
+                  : 'w-full sm:w-1/2 md:w-1/3 lg:w-1/4'
+              }`}>
+                <button
+                  type="button"
+                  class="strip-photo-btn relative block w-full h-full overflow-hidden focus:outline-none cursor-pointer group/img text-left"
+                  data-full={photo.url}
+                  data-idx={idx}
+                  data-alt={photo.alt}
+                  aria-label={`ดูรูปภาพที่ ${idx + 1}`}
+                >
+                  <img
+                    src={photo.url}
+                    alt={photo.alt}
+                    class="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-105"
+                    loading={idx < 4 ? 'eager' : 'lazy'}
+                  />
+                  <div class="absolute inset-0 bg-black/15 group-hover/img:bg-black/0 transition-colors"></div>
+                  <!-- Hover Zoom Indicator -->
+                  <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">
+                    <span class="p-2.5 rounded-full bg-slate-900/80 text-white backdrop-blur-xs shadow-lg transform scale-90 group-hover/img:scale-100 transition-transform">
+                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
+                      </svg>
+                    </span>
+                  </div>
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- Left Slider Arrow Navigation -->
+        {allPhotos.length > 1 && (
+          <button
+            type="button"
+            id="btn-strip-prev"
+            class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/70 hover:bg-[#0047BA] text-white flex items-center justify-center backdrop-blur-xs transition-all duration-200 cursor-pointer shadow-lg z-10 hover:scale-105"
+            aria-label="เลื่อนภาพก่อนหน้า"
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+        )}
+
+        <!-- Right Slider Arrow Navigation -->
+        {allPhotos.length > 1 && (
+          <button
+            type="button"
+            id="btn-strip-next"
+            class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-900/70 hover:bg-[#0047BA] text-white flex items-center justify-center backdrop-blur-xs transition-all duration-200 cursor-pointer shadow-lg z-10 hover:scale-105"
+            aria-label="เลื่อนภาพถัดไป"
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        )}
+
+        <!-- Bottom badge & gallery indicator -->
+        <div class="absolute bottom-3 right-3 px-3 py-1 rounded-full bg-slate-900/75 text-white text-xs font-medium backdrop-blur-xs pointer-events-none shadow-sm flex items-center gap-1.5 z-10">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <span>{allPhotos.length} รูปภาพ (คลิกเพื่อดูแกลเลอรี)</span>
+        </div>
+      </div>
+    )}
+
+    <!-- Main 2-Column Grid Layout (Left: Curriculum Details, Right: Document & Sidebar) -->
+    <div class="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+      
+      <!-- Left Content Column (8 cols): แสดงเนื้อหาหลักสูตรตามที่จัดการใน WordPress Editor -->
+      <div class="lg:col-span-8">
+        <div class="p-6 sm:p-8 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
+          {curriculum.content ? (
+            <div class="wp-content text-slate-800 dark:text-slate-200 leading-relaxed">
+              <Fragment set:html={curriculum.content} />
+            </div>
+          ) : (
+            <div class="space-y-8">
+              <!-- ชื่อหลักสูตร (กรณีไม่มี content ใน WordPress) -->
+              <div class="space-y-3">
+                <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2.5 pb-3 border-b border-slate-100 dark:border-slate-800">
+                  <span class="w-1.5 h-5 rounded-full bg-[#0047BA]"></span>
+                  {curriculum.meta?.degreeTh || curriculum.title}
+                </h2>
+              </div>
+
+              <!-- ภาพรวมและรายละเอียดหลักสูตร -->
+              <div class="space-y-4 pt-2">
+                <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5 pb-3 border-b border-slate-100 dark:border-slate-800">
+                  <span class="w-1.5 h-5 rounded-full bg-[#0047BA]"></span>
+                  ภาพรวมและรายละเอียดหลักสูตร
+                </h3>
+
+                <div class="wp-content text-slate-800 dark:text-slate-200">
+                  <p>{curriculum.excerpt}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <!-- Right Sidebar Column (4 cols) -->
+      <div class="lg:col-span-4 space-y-6">
+
+        <!-- เอกสารหลักสูตร Card (แสดงเมื่อมีไฟล์เอกสารหลักสูตร) -->
+        {(curriculum.meta?.studyPlanUrl || curriculum.meta?.documentCoverUrl) && (
+          <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <h3 class="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                <span class="w-1.5 h-4 rounded-full bg-[#0047BA]"></span>
+                เอกสารหลักสูตร
+              </h3>
+            </div>
+
+            <!-- Document First Page Preview Container -->
+            <div class="relative rounded-xl border border-slate-200/80 dark:border-slate-800 p-3 sm:p-4 bg-gradient-to-b from-slate-100/90 to-slate-200/50 dark:from-slate-800/60 dark:to-slate-900/80 flex flex-col items-center justify-center overflow-hidden group/doc">
+              
+              <!-- A4 Document Page Sheet -->
+              <div class="w-full max-w-[240px] aspect-[1/1.414] bg-white dark:bg-slate-900 rounded-sm shadow-md ring-1 ring-slate-300 dark:ring-slate-700/80 relative overflow-hidden transition-all duration-300 group-hover/doc:shadow-xl group-hover/doc:-translate-y-1">
+                
+                {curriculum.meta?.documentCoverUrl ? (
+                  <!-- Case 1: Custom Cover Image uploaded -->
+                  <img
+                    src={curriculum.meta.documentCoverUrl}
+                    alt={`หน้าแรกเอกสารหลักสูตร ${curriculum.title}`}
+                    class="w-full h-full object-cover"
+                  />
+                ) : (
+                  <>
+                    <!-- Case 2: PDF Page 1 Canvas (dynamically rendered via PDF.js if PDF exists) -->
+                    <canvas id="pdf-cover-canvas" data-pdf-url={curriculum.meta?.studyPlanUrl || ''} class="hidden w-full h-full object-cover"></canvas>
+
+                    <!-- Case 3: Authentic Thai Vocational Curriculum Page 1 (Fallback / Default) -->
+                    <div id="doc-cover-fallback" class="w-full h-full p-3 flex flex-col justify-between text-center select-none border border-slate-200 dark:border-slate-800 m-0.5 box-border bg-white dark:bg-slate-900">
+                      
+                      <!-- Official College Logo & Document Header -->
+                      <div class="space-y-1 pt-1">
+                        <img
+                          src="/logo/LOGO_SERIRACHA_COLOR_FULL.png"
+                          alt="ตราสัญลักษณ์วิทยาลัยเทคโนโลยีศรีราชา"
+                          class="w-10 h-10 object-contain mx-auto drop-shadow-xs"
+                        />
+                        <p class="text-[8.5px] font-black text-[#0047BA] uppercase tracking-wide leading-tight">
+                          {curriculum.level?.name || 'หลักสูตรประกาศนียบัตรวิชาชีพ'}
+                        </p>
+                        <p class="text-[7.5px] text-slate-500 dark:text-slate-400 font-semibold leading-tight">
+                          พุทธศักราช ๒๕๖๒ (ปรับปรุงตามมาตรฐาน)
+                        </p>
+                      </div>
+
+                      <!-- Center Curriculum Title Frame -->
+                      <div class="my-auto py-2 px-1 border-y border-dashed border-slate-200 dark:border-slate-700 space-y-1">
+                        <span class="inline-block px-1.5 py-0.5 rounded text-[7px] font-bold bg-blue-50 dark:bg-blue-950 text-[#0047BA] dark:text-blue-400">
+                          เอกสารหลักสูตรฉบับสมบูรณ์
+                        </span>
+                        <h4 class="text-[10px] sm:text-[11px] font-black text-slate-900 dark:text-white leading-tight line-clamp-2">
+                          {curriculum.title}
+                        </h4>
+                        <p class="text-[7.5px] text-slate-600 dark:text-slate-300 font-medium line-clamp-1">
+                          {curriculum.meta?.degreeTh || curriculum.title}
+                        </p>
+                        <p class="text-[7px] text-slate-400">
+                          ประเภทวิชา {curriculum.department?.name || 'ช่างอุตสาหกรรม'}
+                        </p>
+                      </div>
+
+                      <!-- Bottom Official Signature / Institution Block -->
+                      <div class="pt-1 text-[7px] text-slate-500 dark:text-slate-400 leading-tight space-y-0.5">
+                        <p class="font-bold text-slate-800 dark:text-slate-200">
+                          วิทยาลัยเทคโนโลยีศรีราชา
+                        </p>
+                        <p>สำนักงานคณะกรรมการการอาชีวศึกษา</p>
+                        <p>กระทรวงศึกษาธิการ</p>
+                      </div>
+
+                    </div>
+                  </>
+                )}
+
+                <!-- Hover Overlay with View / Zoom Indicator -->
+                <a
+                  href={curriculum.meta?.studyPlanUrl || '#'}
+                  target={curriculum.meta?.studyPlanUrl ? '_blank' : '_self'}
+                  rel="noopener noreferrer"
+                  class="absolute inset-0 bg-slate-900/60 opacity-0 group-hover/doc:opacity-100 transition-opacity flex flex-col items-center justify-center text-white p-3 text-center gap-1.5 backdrop-blur-[2px] cursor-pointer"
+                  title="คลิกเพื่อเปิดอ่านเอกสาร"
+                >
+                  <div class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-white backdrop-blur-md">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </div>
+                  <span class="text-[11px] font-bold">คลิกเปิดดูเอกสาร</span>
+                </a>
+
+              </div>
+            </div>
+
+            <!-- Download Action Button -->
+            <a
+              href={curriculum.meta?.studyPlanUrl || '#'}
+              target={curriculum.meta?.studyPlanUrl ? '_blank' : '_self'}
+              rel="noopener noreferrer"
+              class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#0047BA] text-white hover:bg-blue-700 transition-colors shadow-xs"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              <span>ดาวน์โหลดเอกสารหลักสูตร</span>
+            </a>
+          </div>
+        )}
+
+        <!-- จุดเด่นและทักษะที่จะได้รับ (ย้ายมาฝั่งขวา) -->
+        {curriculum.meta?.highlights && curriculum.meta.highlights.length > 0 && (
+          <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+            <h3 class="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <span class="w-1.5 h-4 rounded-full bg-[#0047BA]"></span>
+              จุดเด่นและทักษะที่จะได้รับ
+            </h3>
+
+            <div class="space-y-2.5">
+              {curriculum.meta.highlights.map((hl) => (
+                <div class="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+                  <div class="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-950 text-[#0047BA] dark:text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                  </div>
+                  <span class="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 leading-snug">
+                    {hl}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <!-- โอกาสและแนวทางการประกอบอาชีพ (ย้ายมาฝั่งขวา) -->
+        {curriculum.meta?.careers && curriculum.meta.careers.length > 0 && (
+          <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+            <h3 class="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+              <span class="w-1.5 h-4 rounded-full bg-[#0047BA]"></span>
+              โอกาสและแนวทางการประกอบอาชีพ
+            </h3>
+
+            <div class="space-y-2.5">
+              {curriculum.meta.careers.map((career) => (
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
+                  <div class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0" />
+                    </svg>
+                  </div>
+                  <span class="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200">
+                    {career}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <!-- ติดต่อฝ่ายรับสมัคร -->
+        <div class="p-6 rounded-2xl bg-gradient-to-br from-blue-50/80 via-white to-sky-50/60 dark:from-slate-900 dark:to-slate-800/80 border border-blue-100 dark:border-slate-800 shadow-xs space-y-3 text-xs sm:text-sm">
+          <h4 class="font-bold text-slate-900 dark:text-white">สอบถามข้อมูล / สมัครเรียน</h4>
+          <p class="text-slate-600 dark:text-slate-400 text-xs">
+            ศูนย์รับสมัครนักเรียน-นักศึกษาใหม่ วิทยาลัยเทคโนโลยีศรีราชา
+          </p>
+          <div class="space-y-1 font-semibold text-slate-800 dark:text-slate-200">
+            <p>โทร. <a href="tel:038352440" class="hover:text-[#0047BA] dark:hover:text-blue-400">038-352440</a></p>
+            <p>โทร. <a href="tel:038351785" class="hover:text-[#0047BA] dark:hover:text-blue-400">038-351785</a></p>
+          </div>
+          <a
+            href="/contact/"
+            class="mt-2 w-full inline-flex items-center justify-center px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-[#0047BA] text-white hover:bg-blue-700 transition-colors shadow-xs"
+          >
+            สมัครเรียนออนไลน์
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Interactive Lightbox Modal for Photo Gallery -->
+  <div
+    id="lightbox-modal"
+    class="fixed inset-0 z-50 bg-black/90 hidden items-center justify-center p-4 select-none backdrop-blur-xs"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Image Preview"
+  >
+    <!-- Close Button -->
+    <button
+      type="button"
+      id="lightbox-close"
+      class="absolute top-4 right-4 text-white/80 hover:text-white p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors cursor-pointer z-10"
+      aria-label="ปิด"
+    >
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+    <!-- Prev Button -->
+    <button
+      type="button"
+      id="lightbox-prev"
+      class="absolute left-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors cursor-pointer z-10"
+      aria-label="ภาพก่อนหน้า"
+    >
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
+
+    <!-- Image & Counter Container -->
+    <div class="max-w-4xl max-h-[85vh] flex flex-col items-center">
+      <img
+        id="lightbox-img"
+        src=""
+        alt=""
+        class="max-w-full max-h-[75vh] object-contain rounded-lg shadow-2xl"
+      />
+      <div id="lightbox-caption" class="mt-3 text-center text-xs text-white/70"></div>
+    </div>
+
+    <!-- Next Button -->
+    <button
+      type="button"
+      id="lightbox-next"
+      class="absolute right-4 top-1/2 -translate-y-1/2 text-white/80 hover:text-white p-3 rounded-full bg-white/10 hover:bg-white/20 transition-colors cursor-pointer z-10"
+      aria-label="ภาพถัดไป"
+    >
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </button>
+  </div>
+</BaseLayout>
+
+<script>
+  function setupCurriculumPage() {
+    // 1. Carousel Auto-Slider Logic
+    const carousel = document.getElementById('curriculum-carousel');
+    const track = document.getElementById('carousel-track');
+    const btnPrev = document.getElementById('btn-strip-prev');
+    const btnNext = document.getElementById('btn-strip-next');
+    const slides = document.querySelectorAll<HTMLElement>('.carousel-slide');
+    const totalSlides = slides.length;
+
+    let stopAutoSlide = () => {};
+    let startAutoSlide = () => {};
+
+    if (carousel && track && totalSlides > 0) {
+      let currentSlideIndex = 0;
+      let autoSlideTimer: ReturnType<typeof setInterval> | null = null;
+
+      function getVisibleCount(): number {
+        const width = window.innerWidth;
+        if (width >= 1024) return Math.min(4, totalSlides);
+        if (width >= 768) return Math.min(3, totalSlides);
+        if (width >= 640) return Math.min(2, totalSlides);
+        return 1;
+      }
+
+      function updateCarousel(animate = true) {
+        if (!track) return;
+        const visibleCount = getVisibleCount();
+        const maxIndex = Math.max(0, totalSlides - visibleCount);
+
+        if (currentSlideIndex > maxIndex) {
+          currentSlideIndex = maxIndex;
+        }
+        if (currentSlideIndex < 0) {
+          currentSlideIndex = 0;
+        }
+
+        const percentPerSlide = 100 / visibleCount;
+        track.style.transition = animate ? 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)' : 'none';
+        track.style.transform = `translateX(-${currentSlideIndex * percentPerSlide}%)`;
+
+        // Show/hide navigation arrows if all slides are already in view
+        const canSlide = totalSlides > visibleCount;
+        if (btnPrev) btnPrev.style.display = canSlide ? 'flex' : 'none';
+        if (btnNext) btnNext.style.display = canSlide ? 'flex' : 'none';
+      }
+
+      function nextSlide() {
+        const visibleCount = getVisibleCount();
+        const maxIndex = Math.max(0, totalSlides - visibleCount);
+        if (maxIndex <= 0) return;
+
+        if (currentSlideIndex >= maxIndex) {
+          currentSlideIndex = 0;
+        } else {
+          currentSlideIndex++;
+        }
+        updateCarousel(true);
+      }
+
+      function prevSlide() {
+        const visibleCount = getVisibleCount();
+        const maxIndex = Math.max(0, totalSlides - visibleCount);
+        if (maxIndex <= 0) return;
+
+        if (currentSlideIndex <= 0) {
+          currentSlideIndex = maxIndex;
+        } else {
+          currentSlideIndex--;
+        }
+        updateCarousel(true);
+      }
+
+      startAutoSlide = function() {
+        stopAutoSlide();
+        const visibleCount = getVisibleCount();
+        if (totalSlides > visibleCount) {
+          autoSlideTimer = setInterval(() => {
+            // Pause auto-sliding while lightbox is active
+            if (!modal || modal.classList.contains('hidden')) {
+              nextSlide();
+            }
+          }, 3500);
+        }
+      };
+
+      stopAutoSlide = function() {
+        if (autoSlideTimer) {
+          clearInterval(autoSlideTimer);
+          autoSlideTimer = null;
+        }
+      };
+
+      btnNext?.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        nextSlide();
+      });
+
+      btnPrev?.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        prevSlide();
+      });
+
+      carousel?.addEventListener('mouseenter', stopAutoSlide);
+      carousel?.addEventListener('mouseleave', startAutoSlide);
+
+      window.addEventListener('resize', () => {
+        updateCarousel(false);
+        startAutoSlide();
+      });
+
+      updateCarousel(false);
+      startAutoSlide();
+    }
+
+    // 2. Interactive Full-Screen Lightbox Modal
+    const modal = document.getElementById('lightbox-modal');
+    const modalImg = document.getElementById('lightbox-img') as HTMLImageElement | null;
+    const modalCaption = document.getElementById('lightbox-caption');
+    const closeBtn = document.getElementById('lightbox-close');
+    const lbPrevBtn = document.getElementById('lightbox-prev');
+    const lbNextBtn = document.getElementById('lightbox-next');
+    const stripBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('.strip-photo-btn'));
+
+    interface LightboxItem {
+      url: string;
+      alt: string;
+    }
+
+    const items: LightboxItem[] = [];
+
+    stripBtns.forEach((btn) => {
+      items.push({
+        url: btn.getAttribute('data-full') || '',
+        alt: btn.getAttribute('data-alt') || '',
+      });
+    });
+
+    let currentLbIndex = 0;
+
+    function openLightbox(index: number) {
+      if (!modal || !modalImg || items.length === 0) return;
+      stopAutoSlide();
+      currentLbIndex = Math.max(0, Math.min(index, items.length - 1));
+      const currentItem = items[currentLbIndex];
+
+      modalImg.src = currentItem.url;
+      modalImg.alt = currentItem.alt;
+      if (modalCaption) {
+        modalCaption.textContent = `${currentLbIndex + 1} / ${items.length} — ${currentItem.alt}`;
+      }
+
+      if (lbPrevBtn) lbPrevBtn.style.display = items.length > 1 ? 'flex' : 'none';
+      if (lbNextBtn) lbNextBtn.style.display = items.length > 1 ? 'flex' : 'none';
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      if (!modal) return;
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = '';
+      startAutoSlide();
+    }
+
+    function showNextLb() {
+      if (items.length <= 1) return;
+      currentLbIndex = (currentLbIndex + 1) % items.length;
+      openLightbox(currentLbIndex);
+    }
+
+    function showPrevLb() {
+      if (items.length <= 1) return;
+      currentLbIndex = (currentLbIndex - 1 + items.length) % items.length;
+      openLightbox(currentLbIndex);
+    }
+
+    stripBtns.forEach((btn, idx) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openLightbox(idx);
+      });
+    });
+
+    closeBtn?.addEventListener('click', closeLightbox);
+    lbNextBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      showNextLb();
+    });
+    lbPrevBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      showPrevLb();
+    });
+
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) closeLightbox();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (modal && !modal.classList.contains('hidden')) {
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowRight') showNextLb();
+        if (e.key === 'ArrowLeft') showPrevLb();
+      }
+    });
+
+    // Render Page 1 of PDF if studyPlanUrl is a PDF
+    function loadPdfFirstPagePreview() {
+      const canvas = document.getElementById('pdf-cover-canvas') as HTMLCanvasElement | null;
+      const fallback = document.getElementById('doc-cover-fallback');
+      const pdfUrl = canvas?.getAttribute('data-pdf-url') || '';
+      if (!canvas || !pdfUrl || !pdfUrl.toLowerCase().includes('.pdf')) return;
+
+      function renderPdf() {
+        const win = window as unknown as { [key: string]: any; pdfjsLib?: any };
+        const pdfjsLib = win['pdfjs-dist/build/pdf'] || win.pdfjsLib;
+        if (!pdfjsLib || !canvas) return;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        pdfjsLib.getDocument(pdfUrl).promise.then((pdf: any) => {
+          return pdf.getPage(1);
+        }).then((page: any) => {
+          const viewport = page.getViewport({ scale: 1.5 });
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return;
+          const renderContext = {
+            canvasContext: ctx,
+            viewport: viewport,
+          };
+          page.render(renderContext).promise.then(() => {
+            canvas.classList.remove('hidden');
+            if (fallback) fallback.classList.add('hidden');
+          });
+        }).catch((err: unknown) => {
+          console.debug('PDF preview fallback note:', err);
+        });
+      }
+
+      const win = window as unknown as { [key: string]: any; pdfjsLib?: any };
+      if (win.pdfjsLib) {
+        renderPdf();
+      } else {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+        script.onload = renderPdf;
+        document.head.appendChild(script);
+      }
+    }
+
+    loadPdfFirstPagePreview();
+  }
+
+  setupCurriculumPage();
+  document.addEventListener('astro:page-load', setupCurriculumPage);
+</script>
