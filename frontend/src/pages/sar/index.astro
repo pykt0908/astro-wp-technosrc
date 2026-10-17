@@ -3,7 +3,27 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getSarReports } from '../../lib/wordpress';
 import type { SarReport } from '../../lib/wordpress';
 
-const reports = await getSarReports();
+const rawReports = await getSarReports();
+
+// Helper to extract numeric year from year string (e.g., "ปีการศึกษา 2568" or "2568")
+function getNumericYear(report: SarReport): number {
+  const yearStr = report.year?.name || report.year?.slug || '';
+  const match = yearStr.match(/\d{4}/);
+  return match ? parseInt(match[0], 10) : 0;
+}
+
+// Sort reports: latest year first (descending), then by order ASC, then by date DESC
+const reports = [...rawReports].sort((a, b) => {
+  const yearA = getNumericYear(a);
+  const yearB = getNumericYear(b);
+  if (yearB !== yearA) {
+    return yearB - yearA;
+  }
+  if ((a.order ?? 0) !== (b.order ?? 0)) {
+    return (a.order ?? 0) - (b.order ?? 0);
+  }
+  return new Date(b.publishedAt || 0).getTime() - new Date(a.publishedAt || 0).getTime();
+});
 
 // Format Thai Date
 function formatThaiDate(dateStr?: string) {

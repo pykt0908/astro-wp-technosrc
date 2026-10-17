@@ -1156,6 +1156,27 @@ class Project_Core_REST_API {
             );
         }
 
+        // Sort by latest year descending, then order ASC, then date DESC
+        usort($result, function($a, $b) {
+            $yearA = 0;
+            $yearB = 0;
+            if (!empty($a['year']['name'])) {
+                preg_match('/\d{4}/', $a['year']['name'], $mA);
+                if (!empty($mA[0])) $yearA = (int) $mA[0];
+            }
+            if (!empty($b['year']['name'])) {
+                preg_match('/\d{4}/', $b['year']['name'], $mB);
+                if (!empty($mB[0])) $yearB = (int) $mB[0];
+            }
+            if ($yearB !== $yearA) {
+                return $yearB - $yearA;
+            }
+            if ($a['order'] !== $b['order']) {
+                return $a['order'] - $b['order'];
+            }
+            return strcmp($b['publishedAt'], $a['publishedAt']);
+        });
+
         return rest_ensure_response(array(
             'reports'    => $result,
             'total'      => (int) $query->found_posts,

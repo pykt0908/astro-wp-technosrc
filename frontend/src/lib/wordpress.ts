@@ -1069,8 +1069,15 @@ export async function getSarReports(options?: { year?: string; search?: string }
     if (res.ok) {
       const data = await res.json();
       if (data && Array.isArray(data.reports)) {
-        setInCache(cacheKey, data.reports);
-        return data.reports;
+        const sorted = data.reports.sort((a: SarReport, b: SarReport) => {
+          const yearA = parseInt(a.year?.name?.match(/\d{4}/)?.[0] || a.year?.slug || '0', 10);
+          const yearB = parseInt(b.year?.name?.match(/\d{4}/)?.[0] || b.year?.slug || '0', 10);
+          if (yearB !== yearA) return yearB - yearA;
+          if ((a.order ?? 0) !== (b.order ?? 0)) return (a.order ?? 0) - (b.order ?? 0);
+          return new Date(b.publishedAt || 0).getTime() - new Date(a.publishedAt || 0).getTime();
+        });
+        setInCache(cacheKey, sorted);
+        return sorted;
       }
     }
   } catch (err) {
@@ -1086,6 +1093,13 @@ export async function getSarReports(options?: { year?: string; search?: string }
     const s = searchParam.toLowerCase();
     results = results.filter((r) => r.title.toLowerCase().includes(s) || r.description.toLowerCase().includes(s));
   }
+  results.sort((a, b) => {
+    const yearA = parseInt(a.year?.name?.match(/\d{4}/)?.[0] || a.year?.slug || '0', 10);
+    const yearB = parseInt(b.year?.name?.match(/\d{4}/)?.[0] || b.year?.slug || '0', 10);
+    if (yearB !== yearA) return yearB - yearA;
+    if ((a.order ?? 0) !== (b.order ?? 0)) return (a.order ?? 0) - (b.order ?? 0);
+    return new Date(b.publishedAt || 0).getTime() - new Date(a.publishedAt || 0).getTime();
+  });
   return results;
 }
 
