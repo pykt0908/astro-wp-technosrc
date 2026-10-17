@@ -217,10 +217,10 @@ const LOCAL_MOCK_SITE_SETTINGS: SiteSettings = {
   logoUrl: '/logo/LOGO_SERIRACHA_COLOR_FULL.png',
   faviconUrl: '/favicon.svg',
   contact: {
-    email: 'contact@seriracha.ac.th',
-    phone: '065-465-0306',
-    address: 'ตำบลทุ่งสุขลา อำเภอศรีราชา จังหวัดชลบุรี',
-    officeHours: 'จันทร์ - ศุกร์ 08:30 - 17:00 น.',
+    email: 'technosriracha@gmail.com',
+    phone: '038-352440, 038-351785',
+    address: '12/19 หมู่ที่ 2 ตำบลทุ่งสุขลา อำเภอศรีราชา จังหวัดชลบุรี 20230',
+    officeHours: 'จันทร์ - ศุกร์ 08:30 - 16:30 น.',
   },
   social: {
     facebook: 'https://facebook.com',
