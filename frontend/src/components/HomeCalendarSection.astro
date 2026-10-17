@@ -39,8 +39,6 @@ const availableAcademicYears = Array.from(
   new Set([
     ...academicYears,
     ...events.map((e) => e.academicYear).filter((y): y is string => Boolean(y)),
-    '1/2569',
-    '2/2569',
   ])
 ).sort(compareAcademicTerms);
 
@@ -54,7 +52,7 @@ const autoDetectedTerm = (currentMonthNum >= 5 && currentMonthNum <= 10)
 
 const currentAcademicYear = availableAcademicYears.includes(autoDetectedTerm)
   ? autoDetectedTerm
-  : (availableAcademicYears[0] || '1/2569');
+  : (availableAcademicYears[0] || '');
 
 // Month names in Thai
 const THAI_MONTHS_FULL = [
@@ -259,11 +257,15 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
             class="pl-8 pr-7 py-2 rounded-xl bg-blue-50/80 hover:bg-blue-100/70 text-blue-900 border border-blue-200/90 font-bold text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition-colors appearance-none"
             title="เลือกภาคเรียน / ปีการศึกษาเพื่อดูและดาวน์โหลดปฏิทิน"
           >
-            {availableAcademicYears.map((yr) => (
-              <option value={yr} selected={yr === currentAcademicYear}>
-                {formatAcademicTermDisplay(yr)}
-              </option>
-            ))}
+            {availableAcademicYears.length > 0 ? (
+              availableAcademicYears.map((yr) => (
+                <option value={yr} selected={yr === currentAcademicYear}>
+                  {formatAcademicTermDisplay(yr)}
+                </option>
+              ))
+            ) : (
+              <option value="">ยังไม่มีข้อมูลปีการศึกษา</option>
+            )}
           </select>
           <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none text-blue-500">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -443,21 +445,28 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
       <!-- Right Column: Events List / Timeline -->
       <div class="lg:col-span-7 xl:col-span-8 flex flex-col gap-4">
 
-        <!-- Empty state when no events match category or date -->
+        <!-- Empty state when no events match category or date or no events at all -->
         <div
           id="calendar-empty-state"
-          class="hidden py-16 px-6 text-center  rounded-2xl border border-dashed border-slate-300"
+          class:list={[
+            'py-16 px-6 text-center rounded-2xl border border-dashed border-slate-300',
+            serializedEvents.length === 0 ? '' : 'hidden'
+          ]}
         >
           <div class="w-12 h-12 mx-auto rounded-full bg-slate-200/70 flex items-center justify-center text-slate-400 mb-3">
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
           </div>
-          <h3 class="text-sm font-bold text-slate-800">-- ไม่พบกิจกรรม--</h3>
+          <h3 class="text-sm font-bold text-slate-800">ยังไม่มีข้อมูล</h3>
+          <p class="text-xs text-slate-500 mt-1">ยังไม่มีกำหนดการหรือกิจกรรมในขณะนี้</p>
           <button
             type="button"
             id="cal-empty-reset-btn"
-            class="mt-4 px-4 py-1.5 rounded-full text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors cursor-pointer"
+            class:list={[
+              'mt-4 px-4 py-1.5 rounded-full text-xs font-semibold bg-blue-600 text-white hover:bg-blue-700 transition-colors cursor-pointer',
+              serializedEvents.length === 0 ? 'hidden' : ''
+            ]}
           >
             แสดงกิจกรรมทั้งหมด
           </button>
@@ -592,17 +601,17 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
 
   <!-- Event Detail Modal Overlay -->
   <div id="event-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs hidden transition-opacity duration-200">
-    <div id="event-modal-dialog" class="bg-white rounded-3xl max-w-xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-slate-100 flex flex-col transform scale-95 transition-transform duration-200">
+    <div id="event-modal-dialog" class="bg-white dark:bg-slate-900 rounded-3xl max-w-xl w-full max-h-[90vh] overflow-hidden shadow-2xl border border-slate-100 dark:border-slate-800 flex flex-col transform scale-95 transition-transform duration-200">
       
       <!-- Modal Header -->
-      <div class="px-6 py-4.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
-        <span id="modal-category-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+      <div class="px-6 py-4.5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/70 dark:bg-slate-800/80">
+        <span id="modal-category-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
           กิจกรรมวิทยาลัย
         </span>
         <button
           type="button"
           id="event-modal-close"
-          class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-800 hover:bg-slate-200/60 transition-colors focus:outline-none"
+          class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-700 transition-colors focus:outline-none"
           aria-label="ปิด"
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -613,19 +622,19 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
 
       <!-- Modal Body -->
       <div class="p-6 overflow-y-auto space-y-4">
-        <h3 id="modal-title" class="text-xl sm:text-2xl font-bold text-slate-900 leading-snug">
+        <h3 id="modal-title" class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white leading-snug">
           ชื่อกิจกรรม
         </h3>
 
         <!-- Meta Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-100 text-xs text-slate-600">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300">
           <div class="flex items-center gap-2">
-            <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
             <div>
               <div class="text-[10px] text-slate-400 font-medium">วันที่</div>
-              <div id="modal-date-text" class="font-bold text-slate-800">-</div>
+              <div id="modal-date-text" class="font-bold text-slate-800 dark:text-slate-100">-</div>
             </div>
           </div>
 
@@ -635,44 +644,44 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
             </svg>
             <div>
               <div class="text-[10px] text-slate-400 font-medium">เวลา</div>
-              <div id="modal-time-text" class="font-bold text-slate-800">-</div>
+              <div id="modal-time-text" class="font-bold text-slate-800 dark:text-slate-100">-</div>
             </div>
           </div>
 
           <div class="flex items-center gap-2">
-            <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             </svg>
             <div>
               <div class="text-[10px] text-slate-400 font-medium">สถานที่</div>
-              <div id="modal-location-text" class="font-bold text-slate-800">-</div>
+              <div id="modal-location-text" class="font-bold text-slate-800 dark:text-slate-100">-</div>
             </div>
           </div>
 
           <div class="flex items-center gap-2">
-            <svg class="w-4 h-4 text-purple-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
             </svg>
             <div>
               <div class="text-[10px] text-slate-400 font-medium">หมายเหตุ</div>
-              <div id="modal-note-text" class="font-bold text-slate-800">-</div>
+              <div id="modal-note-text" class="font-bold text-slate-800 dark:text-slate-100">-</div>
             </div>
           </div>
         </div>
 
         <!-- Content -->
-        <div id="modal-content" class="text-sm text-slate-700 leading-relaxed prose prose-slate max-w-none">
+        <div id="modal-content" class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed prose prose-slate dark:prose-invert max-w-none">
           รายละเอียดกิจกรรม
         </div>
 
         <!-- Attachment Link if available -->
-        <div id="modal-attachment-container" class="hidden pt-3 border-t border-slate-100">
+        <div id="modal-attachment-container" class="hidden pt-3 border-t border-slate-100 dark:border-slate-800">
           <a
             id="modal-attachment-link"
             href="#"
             target="_blank"
             rel="noopener noreferrer"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-800 hover:text-blue-700 text-xs font-semibold transition-colors"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 hover:text-blue-700 dark:hover:text-blue-400 text-xs font-semibold transition-colors"
           >
             <svg class="w-4 h-4 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -683,11 +692,11 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
       </div>
 
       <!-- Modal Footer -->
-      <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-100 flex justify-end">
+      <div class="px-6 py-3.5 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-100 dark:border-slate-800 flex justify-end">
         <button
           type="button"
           id="event-modal-footer-close"
-          class="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
+          class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold transition-colors cursor-pointer"
         >
           ปิดหน้าต่าง
         </button>
@@ -765,6 +774,30 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
     box-shadow: 0 4px 10px rgba(0, 71, 186, 0.3);
   }
 
+  :global(.dark .cal-day-cell) {
+    color: #e2e8f0;
+  }
+
+  :global(.dark .cal-day-cell.other-month) {
+    color: #475569;
+  }
+
+  :global(.dark .cal-day-cell:not(.other-month):hover) {
+    background-color: #1e293b;
+    color: #60a5fa;
+  }
+
+  :global(.dark .cal-day-cell.today) {
+    border-color: #3b82f6;
+    color: #60a5fa;
+  }
+
+  :global(.dark .cal-day-cell.selected) {
+    background-color: #0047BA !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(0, 71, 186, 0.5);
+  }
+
   :global(.cal-day-dots) {
     display: flex !important;
     align-items: center !important;
@@ -790,8 +823,11 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
 
 <!-- Client Script for Interactive Month Calendar & Filtering -->
 <script define:vars={{ serializedEvents, THAI_MONTHS_FULL, currentAcademicYear }}>
-  // Helper to check if event overlaps with a given month (0-indexed month)
-  function eventMatchesMonth(startDate, endDate, year, month) {
+  function setupCalendarSection() {
+    if (!document.getElementById('cal-days-grid')) return;
+
+    // Helper to check if event overlaps with a given month (0-indexed month)
+    function eventMatchesMonth(startDate, endDate, year, month) {
     if (!startDate) return false;
     const monthStartStr = `${year}-${String(month + 1).padStart(2, '0')}-01`;
     const lastDay = new Date(year, month + 1, 0).getDate();
@@ -804,10 +840,10 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
   const today = new Date();
   let currentYear = today.getFullYear();
   let currentMonth = today.getMonth(); // 0-indexed: 9 = October
-  let selectedAcademicYear = currentAcademicYear || '1/2569';
+  let selectedAcademicYear = currentAcademicYear || '';
 
   // If current month has no events but serializedEvents has events, match the first event month of current academic year
-  const eventsInCurrentYear = serializedEvents.filter((ev) => ev.academicYear === selectedAcademicYear);
+  const eventsInCurrentYear = serializedEvents.filter((ev) => !selectedAcademicYear || ev.academicYear === selectedAcademicYear);
   const hasEventsInCurrentMonth = eventsInCurrentYear.some((ev) =>
     eventMatchesMonth(ev.startDate, ev.endDate, currentYear, currentMonth)
   );
@@ -1305,7 +1341,14 @@ if (!hasEventsInInitialMonth && events.length > 0 && events[0].startDate) {
     });
   });
 
-  // Initial render
-  renderCalendar();
-  applyFilters();
+    // Initial render
+    renderCalendar();
+    applyFilters();
+  }
+
+  // Run on initial load
+  setupCalendarSection();
+
+  // Re-run on Astro View Transitions client-side page load
+  document.addEventListener('astro:page-load', setupCalendarSection);
 </script>

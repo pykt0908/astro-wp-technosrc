@@ -184,8 +184,6 @@ const availableAcademicYears = Array.from(
     ...allEvents
       .map((e) => e.academicYear)
       .filter((y): y is string => Boolean(y)),
-    "1/2569",
-    "2/2569",
   ]),
 ).sort(compareAcademicTerms);
 
@@ -199,7 +197,7 @@ const autoDetectedTerm =
 
 const defaultYear = availableAcademicYears.includes(autoDetectedTerm)
   ? autoDetectedTerm
-  : availableAcademicYears[0] || "1/2569";
+  : availableAcademicYears[0] || "";
 
 const selectedYear =
   paramYear && availableAcademicYears.includes(paramYear)
@@ -870,11 +868,15 @@ const yearEvents = allEvents
           <label for="web-year-switcher">ภาคเรียน / ปีการศึกษา:</label>
           <select id="web-year-switcher" class="year-select">
             {
-              availableAcademicYears.map((yr) => (
-                <option value={yr} selected={yr === selectedYear}>
-                  {formatAcademicTermDisplay(yr)}
-                </option>
-              ))
+              availableAcademicYears.length > 0 ? (
+                availableAcademicYears.map((yr) => (
+                  <option value={yr} selected={yr === selectedYear}>
+                    {formatAcademicTermDisplay(yr)}
+                  </option>
+                ))
+              ) : (
+                <option value="">ยังไม่มีข้อมูลปีการศึกษา</option>
+              )
             }
           </select>
         </div>

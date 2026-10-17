@@ -14,9 +14,22 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 mt-2 tracking-tight">
         วิทยาลัยเทคโนโลยีศรีราชา
       </h1>
-      <p class="mt-4 text-sm sm:text-base text-slate-600 leading-relaxed">
+      <p class="mt-4 text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
         สถาบันการศึกษาวิชาชีพชั้นนำ ณ ตำบลทุ่งสุขลา อำเภอศรีราชา จังหวัดชลบุรี มุ่งมั่นผลิตกำลังคนวิชาชีพที่มีทักษะสูงและจริยธรรม
       </p>
+
+      <!-- History Link Callout -->
+      <div class="mt-6">
+        <a
+          href="/about/history/"
+          class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-blue-50 dark:bg-blue-950/80 hover:bg-blue-100 dark:hover:bg-blue-900 text-[#0047BA] dark:text-blue-400 border border-blue-200 dark:border-blue-800 text-xs sm:text-sm font-bold shadow-2xs transition-all hover:scale-102"
+        >
+          <span>📜 อ่านประวัติความเป็นมาและลำดับเหตุการณ์สำคัญ (พ.ศ. 2521 - ปัจจุบัน)</span>
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
     </div>
 
     <!-- Vision & Mission -->

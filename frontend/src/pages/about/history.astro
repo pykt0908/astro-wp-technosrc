@@ -1,0 +1,151 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+interface TimelineItem {
+  year: string;
+  title: string;
+  date: string;
+  description: string;
+}
+
+const timeline: TimelineItem[] = [
+  {
+    year: "พ.ศ. 2521",
+    title: "ก่อตั้งโรงเรียนบุญจิตรพาณิชยาการ",
+    date: "23 มิถุนายน 2521",
+    description: "ได้รับอนุญาตวันที่ 23 มิ.ย. 2521 และเปิดสอน 20 พ.ค. 2521 โดยมีนายล้วน บุญจิตสิทธิ์ศักดิ์ เป็นเจ้าของและผู้จัดการ และนายสมาน บุญจิตสิทธิ์ศักดิ์ เป็นครูใหญ่",
+  },
+  {
+    year: "พ.ศ. 2545",
+    title: "แต่งตั้งครูใหญ่",
+    date: "4 มีนาคม 2545",
+    description: "วันที่ 4 มี.ค. 2545 แต่งตั้งนางสาวหนึ่งฤทัย บุญจิตสิทธิ์ศักดิ์ เป็นครูใหญ่โรงเรียนเทคโนโลยีศรีราชา",
+  },
+  {
+    year: "พ.ศ. 2554",
+    title: "เปลี่ยนชื่อเป็น \"วิทยาลัยเทคโนโลยีศรีราชา\"",
+    date: "2 กันยายน 2554",
+    description: "วันที่ 2 ก.ย. 2554 ได้รับอนุญาตเปลี่ยนชื่อเป็น SRIRACHA TECHNOLOGICAL COLLEGE โดยมีนายสมานฯ เป็นผู้รับใบอนุญาต นายเขมวิทย์ฯ เป็นผู้จัดการ และนางหนึ่งฤทัย อิทเศียร เป็นผู้อำนวยการ",
+  },
+  {
+    year: "พ.ศ. 2559",
+    title: "ปรับความจุนักเรียนและจำนวนห้องเรียน",
+    date: "25 ตุลาคม 2559",
+    description: "วันที่ 25 ต.ค. 2559 อนุญาตเปลี่ยนแปลงรายละเอียดความจุนักเรียน ปวช./ปวส. รอบเช้า-บ่าย รวม 96 ห้อง ห้องละ 45 คน รวมความจุ 4,320 คน",
+  },
+  {
+    year: "พ.ศ. 2567",
+    title: "แต่งตั้งผู้อำนวยการวิทยาลัยคนปัจจุบัน",
+    date: "1 พฤษภาคม 2567",
+    description: "วันที่ 1 พ.ค. 2567 แต่งตั้งนางบุญนภัส รินทร์คำ เป็นผู้อำนวยการวิทยาลัย ตามคำสั่งที่ 002/2567",
+  },
+];
+---
+
+<BaseLayout
+  title="ประวัติความเป็นมา - วิทยาลัยเทคโนโลยีศรีราชา"
+  description="ประวัติความเป็นมาและลำดับเหตุการณ์สำคัญของวิทยาลัยเทคโนโลยีศรีราชา (รหัสสถานศึกษา 1320100117) เดิมชื่อโรงเรียนบุญจิตพาณิชยการ ก่อตั้งเมื่อปี พ.ศ. 2521"
+>
+  <div class="py-8 sm:py-12 lg:py-16 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">หน้าแรก</a>
+      <span>/</span>
+      <a href="/about/" class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">เกี่ยวกับเรา</a>
+      <span>/</span>
+      <span class="text-slate-800 dark:text-slate-200 font-semibold" aria-current="page">ประวัติความเป็นมา</span>
+    </nav>
+
+    <!-- Page Title -->
+    <div class="mb-8 sm:mb-12 pb-6 border-b border-slate-200 dark:border-slate-800">
+      <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+        ประวัติความเป็นมา
+      </h1>
+    </div>
+
+    <!-- 1. ส่วนภาพและข้อความประวัติความเป็นมา (Image Above Text) -->
+    <section class="mb-12 sm:mb-16">
+      <div class="max-w-4xl mx-auto space-y-6">
+        
+        <!-- ภาพถ่าย (Crop บน-ล่าง) -->
+        <div class="relative rounded-2xl overflow-hidden shadow-sm border border-slate-200/80 dark:border-slate-800 bg-slate-100 dark:bg-slate-800">
+          <div class="aspect-[4/3] sm:aspect-[16/10] w-full overflow-hidden">
+            <img
+              src="/images/about/college-campus.jpg"
+              alt="วิทยาลัยเทคโนโลยีศรีราชา (Sriracha Technological College)"
+              class="w-full h-full object-cover object-[center_42%]"
+              loading="eager"
+            />
+          </div>
+        </div>
+
+        <!-- ข้อความประวัติ (ไม่มีกรอบ ตัวบางตลอด) -->
+        <div class="space-y-4 text-slate-700 dark:text-slate-300 text-base sm:text-lg leading-relaxed font-normal">
+          <p>
+            วิทยาลัยเทคโนโลยีศรีราชา (รหัสสถานศึกษา 1320100117) เดิมชื่อโรงเรียนบุญจิตพาณิชยการ ได้รับอนุญาตจากสำนักงานคณะกรรมการการศึกษาเอกชน เมื่อวันที่ 23 มิถุนายน พ.ศ. 2521 และเปิดสอนครั้งแรกเมื่อวันที่ 20 พฤษภาคม พ.ศ. 2521 โดยมี นายล้วน บุญจิตสิทธิ์ศักดิ์ เป็นผู้ก่อตั้งและผู้จัดการ
+          </p>
+          <p>
+            ต่อมาได้รับอนุญาตให้เปลี่ยนชื่อเป็น วิทยาลัยเทคโนโลยีศรีราชา เมื่อวันที่ 2 กันยายน พ.ศ. 2554 โดยมี นายสมาน บุญจิตสิทธิ์ศักดิ์ เป็นผู้รับใบอนุญาต และ นางบุญนภัส รินทร์คำ เป็นผู้อำนวยการ ตั้งแต่วันที่ 1 พฤษภาคม พ.ศ. 2567 เป็นต้นมา
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 2. ส่วนลำดับเหตุการณ์สำคัญ (Timeline อยู่ตรงกลาง) -->
+    <section class="pt-8 sm:pt-12 border-t border-slate-200 dark:border-slate-800">
+
+      <!-- Centered Alternating Timeline (Desktop) & Left-Aligned (Mobile) -->
+      <div class="relative max-w-4xl mx-auto">
+        <!-- Connecting Vertical Line in the Center -->
+        <div class="absolute left-4 sm:left-1/2 top-4 bottom-4 w-0.5 bg-[#0047BA]/30 dark:bg-blue-400/30 sm:-translate-x-1/2"></div>
+
+        <div class="space-y-6 sm:space-y-10">
+          {
+            timeline.map((item, idx) => {
+              const isEven = idx % 2 === 0;
+
+              return (
+                <div class="relative flex flex-col sm:flex-row items-start group">
+                  <!-- Timeline Node on Center Line -->
+                  <div class="absolute left-4 sm:left-1/2 -translate-x-1/2 top-5 w-4 h-4 rounded-full bg-white dark:bg-slate-900 border-4 border-[#0047BA] dark:border-blue-400 shadow-xs z-10 group-hover:scale-125 transition-transform" />
+
+                  <!-- Timeline Card Layout (Alternating Left/Right on sm+) -->
+                  <div
+                    class={`w-full sm:w-1/2 pl-12 sm:pl-0 ${
+                      isEven ? "sm:pr-10" : "sm:pl-10 sm:ml-auto"
+                    }`}
+                  >
+                    <div class="bg-white dark:bg-slate-900 p-5 sm:p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-md hover:border-blue-300 dark:hover:border-blue-700 transition-all text-left">
+                      <!-- Year & Date Badge -->
+                      <div class="flex flex-wrap items-center gap-2 mb-2">
+                        <span class="inline-block px-3 py-1 rounded-md bg-[#0047BA] text-white text-xs font-bold shadow-2xs">
+                          {item.year}
+                        </span>
+                        <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                          {item.date}
+                        </span>
+                      </div>
+
+                      <!-- Title -->
+                      <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-snug">
+                        {item.title}
+                      </h3>
+
+                      <!-- Description -->
+                      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed mt-2">
+                        {item.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          }
+        </div>
+      </div>
+    </section>
+
+  </div>
+</BaseLayout>

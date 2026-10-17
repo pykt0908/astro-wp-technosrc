@@ -20,9 +20,9 @@ const formattedDate = !isNaN(dateObj.getTime())
 const fallbackCover = 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800&auto=format&fit=crop';
 ---
 
-<article class="bg-white rounded-lg overflow-hidden flex flex-col group border border-blue-100 shadow-sm hover:shadow-xl hover:border-blue-300 transition-all duration-300">
+<article class="bg-white dark:bg-slate-900 rounded-lg overflow-hidden flex flex-col group border border-blue-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-500 transition-all duration-300">
   <!-- Thumbnail (Optimized for 900x900 square images) -->
-  <a href={`/news/${post.slug}/`} class="relative block aspect-[4/3] sm:aspect-square overflow-hidden bg-slate-100 focus:outline-none">
+  <a href={`/news/${post.slug}/`} class="relative block aspect-[4/3] sm:aspect-square overflow-hidden bg-slate-100 dark:bg-slate-800 focus:outline-none">
     <img
       src={post.coverUrl || fallbackCover}
       alt={post.coverAlt || post.titlePlain}
@@ -42,29 +42,29 @@ const fallbackCover = 'https://images.unsplash.com/photo-1523240795612-9a054b0db
   <!-- Content -->
   <div class="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-3 sm:space-y-4">
     <div class="space-y-2">
-      <div class="flex items-center gap-2 text-xs text-slate-500 font-medium">
-        <svg class="w-4 h-4 text-[#0047BA]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
+        <svg class="w-4 h-4 text-[#0047BA] dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
         <time datetime={post.publishedAt}>{formattedDate}</time>
       </div>
 
-      <h3 class="text-base sm:text-lg font-bold text-slate-900 group-hover:text-[#0047BA] transition-colors line-clamp-2 leading-snug">
+      <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white group-hover:text-[#0047BA] dark:group-hover:text-blue-400 transition-colors line-clamp-2 leading-snug">
         <a href={`/news/${post.slug}/`} class="focus:outline-none focus:underline">
           {post.titlePlain}
         </a>
       </h3>
 
-      <p class="text-sm text-slate-600 line-clamp-3 leading-relaxed">
+      <p class="text-sm text-slate-600 dark:text-slate-300 line-clamp-3 leading-relaxed">
         {post.excerptPlain}
       </p>
     </div>
 
     <!-- Read more link -->
-    <div class="pt-2 border-t border-slate-100">
+    <div class="pt-2 border-t border-slate-100 dark:border-slate-800">
       <a
         href={`/news/${post.slug}/`}
-        class="inline-flex items-center gap-1.5 text-xs font-bold text-[#0047BA] hover:text-[#002D72] transition-colors"
+        class="inline-flex items-center gap-1.5 text-xs font-bold text-[#0047BA] dark:text-blue-400 hover:text-[#002D72] dark:hover:text-blue-300 transition-colors"
       >
         <span>อ่านรายละเอียด</span>
         <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

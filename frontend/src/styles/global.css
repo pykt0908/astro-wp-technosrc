@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* LINE Seed Sans TH Font Declarations (Used for Main Headings & Navbar) */
 @font-face {
   font-family: 'LINE Seed Sans TH';
@@ -272,4 +274,230 @@
   border-color: #93c5fd;
   transform: translateY(-4px);
   box-shadow: 0 20px 25px -5px rgba(0, 71, 186, 0.12), 0 8px 10px -6px rgba(0, 71, 186, 0.06);
+}
+
+/* ==========================================================================
+   Dark Mode System Architecture
+   ========================================================================== */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #0b1120;
+  color: #e2e8f0;
+}
+
+/* Glass Panels & Cards in Dark Mode */
+html.dark .glass-panel {
+  background: #111827;
+  border-color: #1e293b;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+}
+
+html.dark .glass-card {
+  background: #111827;
+  border-color: #1e293b;
+  box-shadow: 0 4px 15px -2px rgba(0, 0, 0, 0.4);
+}
+
+html.dark .glass-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+}
+
+/* Prose Typography in Dark Mode */
+html.dark .wp-content {
+  color: #cbd5e1;
+}
+
+html.dark .wp-content h1,
+html.dark .wp-content h2,
+html.dark .wp-content h3,
+html.dark .wp-content h4,
+html.dark .wp-content h5,
+html.dark .wp-content h6 {
+  color: #f8fafc;
+}
+
+html.dark .wp-content blockquote {
+  background: #1e293b;
+  color: #cbd5e1;
+  border-left-color: #3b82f6;
+}
+
+html.dark .wp-content img {
+  border-color: #1e293b;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.5);
+}
+
+html.dark .wp-content a {
+  color: #60a5fa;
+}
+
+html.dark .wp-content a:hover {
+  color: #93c5fd;
+}
+
+html.dark .wp-content figcaption {
+  color: #94a3b8;
+}
+
+/* Dark Mode Surface Adaptations */
+html.dark .bg-white {
+  background-color: #0f172a;
+}
+
+html.dark .bg-slate-50,
+html.dark .bg-slate-50\/60,
+html.dark .bg-slate-50\/70,
+html.dark .bg-slate-50\/80 {
+  background-color: #0b1120;
+}
+
+html.dark .bg-slate-100 {
+  background-color: #1e293b;
+}
+
+html.dark .border-slate-100 {
+  border-color: #1e293b;
+}
+
+html.dark .border-slate-200,
+html.dark .border-slate-200\/80,
+html.dark .border-slate-200\/90 {
+  border-color: #1e293b;
+}
+
+html.dark .border-blue-100,
+html.dark .border-blue-50 {
+  border-color: #1e3a8a4d;
+}
+
+html.dark .text-slate-900 {
+  color: #f8fafc;
+}
+
+html.dark .text-slate-800 {
+  color: #e2e8f0;
+}
+
+html.dark .text-slate-700 {
+  color: #cbd5e1;
+}
+
+html.dark .text-slate-600 {
+  color: #94a3b8;
+}
+
+html.dark .text-slate-500 {
+  color: #64748b;
+}
+
+/* Category Filter Buttons in Dark Mode */
+html.dark .category-filter-btn {
+  background-color: #1e293b;
+  color: #cbd5e1;
+  border: 1px solid #334155;
+}
+
+html.dark .category-filter-btn:hover:not(.active) {
+  background-color: #334155;
+  border-color: #475569;
+  color: #f8fafc;
+}
+
+html.dark .category-filter-btn.active {
+  background-color: #0047ba !important;
+  color: #ffffff !important;
+  border-color: #0047ba !important;
+  box-shadow: 0 0 12px rgba(0, 71, 186, 0.4);
+}
+
+/* Calendar Controls in Dark Mode */
+html.dark .calendar-category-btn {
+  background-color: #1e293b;
+  color: #cbd5e1;
+  border: 1px solid #334155;
+}
+
+html.dark .calendar-category-btn:hover:not(.active) {
+  background-color: #334155;
+  color: #f8fafc;
+}
+
+html.dark .calendar-category-btn.active {
+  background-color: #0047ba !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+}
+
+html.dark #calendar-days-container > div {
+  border-color: #1e293b;
+}
+
+html.dark #calendar-days-container > div.bg-slate-50\/50,
+html.dark #calendar-days-container > div.bg-slate-50\/60 {
+  background-color: #0d1527;
+}
+
+html.dark #calendar-academic-year-select {
+  background-color: #1e293b;
+  color: #93c5fd;
+  border-color: #1e3a8a;
+}
+
+/* Form Elements in Dark Mode */
+html.dark input[type="text"],
+html.dark input[type="email"],
+html.dark input[type="search"],
+html.dark select,
+html.dark textarea {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+html.dark input[type="text"]:focus,
+html.dark input[type="email"]:focus,
+html.dark input[type="search"]:focus,
+html.dark select:focus,
+html.dark textarea:focus {
+  border-color: #3b82f6;
+  background-color: #1e293b;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b;
+}
+
+/* Nav Dropdown & Mega Menu Hover Engine */
+.nav-item-dropdown {
+  position: relative;
+}
+
+.nav-dropdown-panel {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(6px);
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s;
+}
+
+.nav-item-dropdown:hover .nav-dropdown-panel,
+.nav-item-dropdown:focus-within .nav-dropdown-panel {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  transform: translateY(0) !important;
+}
+
+.nav-item-dropdown:hover .nav-chevron-icon {
+  transform: rotate(180deg);
+  color: #0047BA;
+}
+
+:global(.dark) .nav-item-dropdown:hover .nav-chevron-icon {
+  color: #60a5fa;
 }
