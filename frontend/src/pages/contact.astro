@@ -3,8 +3,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
 <BaseLayout
-  title="ข้อมูลการติดต่อและแผนที่ - วิทยาลัยเทคโนโลยีศรีราชา"
-  description="ข้อมูลการติดต่อ แผนที่ และการเดินทางมายังวิทยาลัยเทคโนโลยีศรีราชา 12/19 หมู่ที่ 2 ตำบลทุ่งสุขลา อำเภอศรีราชา จังหวัดชลบุรี 20230 โทร. 038-352440, 038-351785"
+  title="ข้อมูลการติดต่อ - วิทยาลัยเทคโนโลยีศรีราชา"
+  description="ข้อมูลการติดต่อ ช่องทางการสื่อสาร และเวลาทำการ วิทยาลัยเทคโนโลยีศรีราชา 12/19 หมู่ที่ 2 ตำบลทุ่งสุขลา อำเภอศรีราชา จังหวัดชลบุรี 20230 โทร. 038-352440, 038-351785"
 >
   <div class="py-8 sm:py-12 lg:py-16 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
     
@@ -16,249 +16,223 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     </nav>
 
     <!-- Page Title Header -->
-    <div class="mb-10 sm:mb-12 pb-6 border-b border-slate-200 dark:border-slate-800">
-      <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-        ข้อมูลการติดต่อและแผนที่
-      </h1>
-      <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-2">
-        วิทยาลัยเทคโนโลยีศรีราชา (Sriracha Technological College)
-      </p>
-    </div>
-
-    <div class="space-y-12 sm:space-y-16">
-
-      <!-- 1. Contact Information & Contact Form Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-        
-        <!-- Left: Contact Information Cards (5 cols) -->
-        <div class="lg:col-span-5 space-y-6">
-          <div class="p-6 sm:p-8 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-6">
-            <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
-              <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
-                <span class="w-1.5 h-5 rounded-full bg-[#0047BA]"></span>
-                ข้อมูลการติดต่อ
-              </h2>
-              <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                ช่องทางการติดต่อสื่อสารและสอบถามข้อมูล
-              </p>
-            </div>
-
-            <!-- Address -->
-            <div class="flex items-start gap-4">
-              <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-900/50 mt-0.5">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </div>
-              <div class="space-y-1">
-                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">ที่อยู่</span>
-                <p class="text-sm sm:text-base text-slate-800 dark:text-slate-200 font-medium leading-relaxed">
-                  12/19 หมู่ที่ 2 ตำบลทุ่งสุขลา อำเภอศรีราชา จังหวัดชลบุรี 20230
-                </p>
-              </div>
-            </div>
-
-            <!-- Phone -->
-            <div class="flex items-start gap-4">
-              <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-900/50 mt-0.5">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-              </div>
-              <div class="space-y-1">
-                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">โทรศัพท์</span>
-                <div class="space-y-1">
-                  <a href="tel:038352440" class="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-200 hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors block">
-                    038-352440
-                  </a>
-                  <a href="tel:038351785" class="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-200 hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors block">
-                    038-351785
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <!-- Email -->
-            <div class="flex items-start gap-4">
-              <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-900/50 mt-0.5">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div class="space-y-1">
-                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">อีเมล</span>
-                <a href="mailto:technosriracha@gmail.com" class="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-200 hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors block">
-                  technosriracha@gmail.com
-                </a>
-              </div>
-            </div>
-
-            <!-- Website -->
-            <div class="flex items-start gap-4">
-              <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-900/50 mt-0.5">
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-                </svg>
-              </div>
-              <div class="space-y-1">
-                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider block">เว็บไซต์</span>
-                <a href="http://www.technosriracha.ac.th" target="_blank" rel="noopener noreferrer" class="text-sm sm:text-base font-bold text-slate-800 dark:text-slate-200 hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors block">
-                  www.technosriracha.ac.th
-                </a>
-              </div>
-            </div>
-
-            <!-- Office Hours -->
-            <div class="pt-4 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 leading-relaxed flex items-center gap-2">
-              <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>เวลาทำการ: วันจันทร์ - ศุกร์ 08:30 - 16:30 น. (เว้นวันหยุดราชการ)</span>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Right: Contact Form (7 cols) -->
-        <div class="lg:col-span-7">
-          <div class="p-6 sm:p-8 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
-            <div class="border-b border-slate-200 dark:border-slate-800 pb-4 mb-6">
-              <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
-                <span class="w-1.5 h-5 rounded-full bg-[#0047BA]"></span>
-                ส่งข้อความติดต่อ / สมัครเรียน
-              </h2>
-              <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                กรอกข้อมูลเพื่อให้เจ้าหน้าที่ติดต่อกลับโดยเร็วที่สุด
-              </p>
-            </div>
-
-            <form id="contact-form" class="space-y-4">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label for="name" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase mb-1.5">ชื่อ - นามสกุล *</label>
-                  <input
-                    type="text"
-                    id="name"
-                    required
-                    class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0047BA] text-sm"
-                    placeholder="นายสมชาย ใจดี"
-                  />
-                </div>
-                <div>
-                  <label for="phone" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase mb-1.5">เบอร์โทรศัพท์ติดต่อ *</label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    required
-                    class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0047BA] text-sm"
-                    placeholder="08X-XXX-XXXX"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label for="email" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase mb-1.5">อีเมลติดต่อ *</label>
-                <input
-                  type="email"
-                  id="email"
-                  required
-                  class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0047BA] text-sm"
-                  placeholder="somchai@example.com"
-                />
-              </div>
-
-              <div>
-                <label for="subject" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase mb-1.5">หัวข้อที่สนใจ</label>
-                <select
-                  id="subject"
-                  class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0047BA] text-sm"
-                >
-                  <option value="admission-voc">สมัครเรียนระดับ ปวช.</option>
-                  <option value="admission-high">สมัครเรียนระดับ ปวส.</option>
-                  <option value="internship">ความร่วมมือฝึกงาน / สหกิจศึกษา</option>
-                  <option value="other">สอบถามข้อมูลทั่วไป</option>
-                </select>
-              </div>
-
-              <div>
-                <label for="message" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase mb-1.5">รายละเอียดข้อความ *</label>
-                <textarea
-                  id="message"
-                  rows="4"
-                  required
-                  class="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0047BA] text-sm resize-none"
-                  placeholder="ระบุข้อความหรือคำถามที่ต้องการสอบถาม..."
-                ></textarea>
-              </div>
-
-              <button
-                type="submit"
-                class="w-full py-3.5 px-6 text-sm font-bold text-white bg-[#0047BA] hover:bg-[#003893] rounded-xl shadow-md shadow-blue-600/20 transition-all duration-200"
-              >
-                ส่งข้อความ
-              </button>
-            </form>
-          </div>
-        </div>
-
+    <div class="mb-10 sm:mb-12 pb-6 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          ข้อมูลการติดต่อ
+        </h1>
+        <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-2">
+          วิทยาลัยเทคโนโลยีศรีราชา (Sriracha Technological College)
+        </p>
       </div>
 
-      <!-- 2. Google Maps Section -->
-      <section class="space-y-4 pt-8 border-t border-slate-200 dark:border-slate-800">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2.5">
-              <span class="w-1.5 h-6 rounded-full bg-[#0047BA]"></span>
-              แผนที่และการเดินทาง
-            </h2>
-            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-              วิทยาลัยเทคโนโลยีศรีราชา ตั้งอยู่เลขที่ 12/19 หมู่ที่ 2 ตำบลทุ่งสุขลา อำเภอศรีราชา จังหวัดชลบุรี
-            </p>
-          </div>
+      <!-- Quick Link to Map Page -->
+      <div>
+        <a
+          href="/map/"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-[#0047BA] text-white hover:bg-[#003893] transition-colors shadow-sm"
+        >
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          ดูแผนที่และการเดินทาง
+        </a>
+      </div>
+    </div>
 
-          <a
-            href="https://maps.google.com/?q=13.1055718,100.9148445"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 hover:bg-[#0047BA] hover:text-white dark:hover:bg-[#0047BA] dark:hover:text-white transition-colors border border-blue-200 dark:border-blue-900/50 self-start sm:self-auto"
-          >
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+    <!-- Contact Cards Grid (4 Key Channels) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 sm:mb-12">
+      
+      <!-- 1. Address Card -->
+      <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-blue-300 dark:hover:border-blue-700 transition-colors">
+        <div class="space-y-4">
+          <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/50">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            เปิดดูใน Google Maps
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-slate-900 dark:text-white">ที่อยู่สถานศึกษา</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Campus Location</p>
+          </div>
+          <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            12/19 หมู่ที่ 2 ตำบลทุ่งสุขลา อำเภอศรีราชา จังหวัดชลบุรี 20230
+          </p>
+        </div>
+        <div class="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
+          <a href="/map/" class="text-xs font-bold text-[#0047BA] dark:text-blue-400 hover:underline inline-flex items-center gap-1">
+            เปิดดูในแผนที่ <span>&rarr;</span>
           </a>
         </div>
+      </div>
 
-        <!-- Google Maps Embed Responsive Container -->
-        <div class="relative w-full rounded-2xl overflow-hidden shadow-sm border border-slate-200/80 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 aspect-[16/10] sm:aspect-[21/9] min-h-[380px] sm:min-h-[460px]">
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4432.353774886147!2d100.9148445!3d13.105571800000002!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3102b9c0490daf0d%3A0x64d7370ddd52cff!2z4Lin4Li04LiX4Lii4Liy4Lil4Lix4Lii4LmA4LiX4LiE4LmC4LiZ4LmC4Lil4Lii4Li14Lio4Lij4Li14Lij4Liy4LiK4Liy!5e1!3m2!1sth!2sth!4v1792217824537!5m2!1sth!2sth"
-            class="w-full h-full border-0 absolute inset-0"
-            allowfullscreen=""
-            loading="lazy"
-            referrerpolicy="strict-origin-when-cross-origin"
-            title="แผนที่ตั้งวิทยาลัยเทคโนโลยีศรีราชา"
-          ></iframe>
+      <!-- 2. Phone Card -->
+      <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-blue-300 dark:hover:border-blue-700 transition-colors">
+        <div class="space-y-4">
+          <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/50">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-slate-900 dark:text-white">โทรศัพท์</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Telephone Numbers</p>
+          </div>
+          <div class="space-y-1.5">
+            <a href="tel:038352440" class="block text-base font-bold text-slate-800 dark:text-slate-200 hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">
+              038-352440
+            </a>
+            <a href="tel:038351785" class="block text-base font-bold text-slate-800 dark:text-slate-200 hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">
+              038-351785
+            </a>
+          </div>
         </div>
-      </section>
+        <div class="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-400">
+          โทรได้ในวันและเวลาทำการ
+        </div>
+      </div>
+
+      <!-- 3. Email Card -->
+      <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-blue-300 dark:hover:border-blue-700 transition-colors">
+        <div class="space-y-4">
+          <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/50">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-slate-900 dark:text-white">อีเมล</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Official Email</p>
+          </div>
+          <div class="break-all">
+            <a href="mailto:technosriracha@gmail.com" class="text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">
+              technosriracha@gmail.com
+            </a>
+          </div>
+        </div>
+        <div class="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
+          <a href="mailto:technosriracha@gmail.com" class="text-xs font-bold text-[#0047BA] dark:text-blue-400 hover:underline inline-flex items-center gap-1">
+            ส่งอีเมลติดต่อ <span>&rarr;</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- 4. Website Card -->
+      <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between hover:border-blue-300 dark:hover:border-blue-700 transition-colors">
+        <div class="space-y-4">
+          <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/50">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-slate-900 dark:text-white">เว็บไซต์</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Official Website</p>
+          </div>
+          <div class="break-all">
+            <a href="http://www.technosriracha.ac.th" target="_blank" rel="noopener noreferrer" class="text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">
+              www.technosriracha.ac.th
+            </a>
+          </div>
+        </div>
+        <div class="pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
+          <a href="http://www.technosriracha.ac.th" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-[#0047BA] dark:text-blue-400 hover:underline inline-flex items-center gap-1">
+            เข้าชมเว็บไซต์ <span>&rarr;</span>
+          </a>
+        </div>
+      </div>
 
     </div>
+
+    <!-- Office Hours & Operational Details -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start mb-10 sm:mb-12">
+      
+      <!-- Working Hours -->
+      <div class="p-6 sm:p-8 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/50">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 class="text-lg font-bold text-slate-900 dark:text-white">เวลาทำการ</h2>
+        </div>
+        <div class="space-y-3 text-sm text-slate-600 dark:text-slate-300">
+          <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800">
+            <span>วันจันทร์ - วันศุกร์</span>
+            <span class="font-bold text-slate-900 dark:text-white">08:30 - 16:30 น.</span>
+          </div>
+          <div class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800">
+            <span>วันเสาร์ - วันอาทิตย์</span>
+            <span class="text-slate-400">ปิดทำการ *</span>
+          </div>
+          <div class="flex justify-between items-center py-2">
+            <span>วันหยุดนักขัตฤกษ์</span>
+            <span class="text-slate-400">ปิดทำการ</span>
+          </div>
+        </div>
+        <p class="text-xs text-slate-400 dark:text-slate-500 pt-2 border-t border-slate-100 dark:border-slate-800">
+          * ช่วงเปิดรับสมัครนักศึกษาใหม่ อาจเปิดทำการวันเสาร์-อาทิตย์ ตามประกาศของวิทยาลัย
+        </p>
+      </div>
+
+      <!-- Department Contacts -->
+      <div class="lg:col-span-2 p-6 sm:p-8 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/50">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">หน่วยงานและฝ่ายงานภายใน</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">ติดต่อตรงตามภารกิจงาน</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+          <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+            <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200">ฝ่ายรับสมัครและแนะแนวการศึกษา</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">สอบถามหลักสูตร ปวช. / ปวส. โควตา และทุนการศึกษา</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+            <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200">ฝ่ายทะเบียนและประมวลผล</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">ขอใบรับรองผลการเรียน (Transcript) วุฒิบัตร และเอกสารนักศึกษา</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+            <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200">ฝ่ายการเงินและบัญชี</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">การชำระค่าธรรมเนียมการศึกษา กองทุน กยศ. และใบเสร็จรับเงิน</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+            <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200">ฝ่ายวิชาการและฝึกงาน</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">ความร่วมมือสถานประกอบการ สหกิจศึกษา และงานพัฒนาหลักสูตร</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Map Promotion Banner -->
+    <div class="p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-blue-900 to-[#0047BA] text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md">
+      <div class="space-y-1 text-center sm:text-left">
+        <h2 class="text-lg sm:text-xl font-bold text-white">ต้องการเดินทางมายังวิทยาลัย?</h2>
+        <p class="text-xs sm:text-sm text-blue-100/90">
+          ดูแผนที่ Google Maps แบบละเอียด เส้นทางรถยนต์ และการเดินทางด้วยรถโดยสารประจำทาง
+        </p>
+      </div>
+      <a
+        href="/map/"
+        class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold bg-white text-[#0047BA] hover:bg-blue-50 transition-colors shrink-0 shadow-sm"
+      >
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        ไปยังหน้าแผนที่และการเดินทาง
+      </a>
+    </div>
+
   </div>
 </BaseLayout>
-
-<script>
-  function setupContactForm() {
-    const contactForm = document.getElementById('contact-form') as HTMLFormElement | null;
-    if (contactForm) {
-      contactForm.onsubmit = (e) => {
-        e.preventDefault();
-        alert('ขอบคุณสำหรับข้อความ เจ้าหน้าที่จะติดต่อกลับโดยเร็วที่สุด');
-        contactForm.reset();
-      };
-    }
-  }
-
-  setupContactForm();
-  document.addEventListener('astro:page-load', setupContactForm);
-</script>
