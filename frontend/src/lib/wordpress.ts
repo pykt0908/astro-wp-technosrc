@@ -27,6 +27,10 @@ const apiCache = new Map<string, { data: any; expiresAt: number }>();
 const CACHE_TTL_MS = 20000; // 20s TTL
 
 function getFromCache<T>(key: string): T | null {
+  // In development mode, bypass cache so WordPress updates show up immediately
+  if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV) {
+    return null;
+  }
   const item = apiCache.get(key);
   if (item && item.expiresAt > Date.now()) {
     return item.data as T;
@@ -35,6 +39,9 @@ function getFromCache<T>(key: string): T | null {
 }
 
 function setInCache<T>(key: string, data: T): void {
+  if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV) {
+    return;
+  }
   apiCache.set(key, { data, expiresAt: Date.now() + CACHE_TTL_MS });
 }
 

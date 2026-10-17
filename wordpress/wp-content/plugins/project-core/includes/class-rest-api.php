@@ -84,8 +84,8 @@ class Project_Core_REST_API {
             'permission_callback' => '__return_true',
         ));
 
-        // Single curriculum by slug
-        register_rest_route(self::NAMESPACE, '/curriculums/(?P<slug>[a-zA-Z0-9-]+)', array(
+        // Single curriculum by slug (support Thai & URL-encoded slugs)
+        register_rest_route(self::NAMESPACE, '/curriculums/(?P<slug>[^/]+)', array(
             'methods'             => WP_REST_Server::READABLE,
             'callback'            => array($this, 'get_curriculum_by_slug'),
             'permission_callback' => '__return_true',
@@ -737,14 +737,34 @@ class Project_Core_REST_API {
      * Get single curriculum by slug
      */
     public function get_curriculum_by_slug(WP_REST_Request $request) {
-        $slug = sanitize_text_field($request->get_param('slug'));
+        $raw_slug    = (string) $request->get_param('slug');
+        $decoded     = urldecode($raw_slug);
+        $target_slug = sanitize_title($decoded);
 
         $query = new WP_Query(array(
             'post_type'      => 'curriculum',
-            'name'           => $slug,
+            'name'           => $target_slug,
             'post_status'    => 'publish',
             'posts_per_page' => 1,
         ));
+
+        if (!$query->have_posts()) {
+            $query = new WP_Query(array(
+                'post_type'      => 'curriculum',
+                'name'           => $decoded,
+                'post_status'    => 'publish',
+                'posts_per_page' => 1,
+            ));
+        }
+
+        if (!$query->have_posts()) {
+            $query = new WP_Query(array(
+                'post_type'      => 'curriculum',
+                'name'           => $raw_slug,
+                'post_status'    => 'publish',
+                'posts_per_page' => 1,
+            ));
+        }
 
         if (!$query->have_posts()) {
             return new WP_Error('not_found', 'Curriculum not found', array('status' => 404));
@@ -802,7 +822,7 @@ class Project_Core_REST_API {
         return array(
             'id'            => $id,
             'title'         => html_entity_decode(get_the_title($id), ENT_QUOTES, 'UTF-8'),
-            'slug'          => $post->post_name,
+            'slug'          => urldecode($post->post_name),
             'content'       => apply_filters('the_content', $post->post_content),
             'excerpt'       => wp_strip_all_tags(get_the_excerpt($id)),
             'menuOrder'     => (int) $post->menu_order,
