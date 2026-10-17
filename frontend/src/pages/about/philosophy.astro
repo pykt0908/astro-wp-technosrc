@@ -38,7 +38,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           </svg>
         </div>
 
-        <div class="relative z-10 max-w-2xl">
+        <div class="relative z-10">
           <span class="inline-block px-3 py-1 rounded-full bg-white/15 text-blue-100 text-xs font-bold tracking-wider uppercase mb-4 backdrop-blur-xs border border-white/15">
             College Philosophy
           </span>
@@ -47,14 +47,70 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             ปรัชญา
           </h2>
 
-          <blockquote class="text-2xl sm:text-3xl lg:text-4xl font-black text-amber-300 tracking-tight leading-snug sm:leading-tight space-y-1 drop-shadow-xs">
+          <blockquote class="text-2xl sm:text-3xl lg:text-4xl font-black text-amber-300 tracking-tight leading-snug sm:leading-tight space-y-1 drop-shadow-xs mb-8">
             <p>“ทักษะเยี่ยม เปี่ยมคุณธรรม</p>
             <p class="pl-4 sm:pl-8">ล้ำเลิศวิชา พัฒนาสังคม”</p>
           </blockquote>
 
-          <p class="mt-6 text-xs sm:text-sm text-blue-100/90 leading-relaxed max-w-xl">
-            คติพจน์และปรัชญาสำคัญที่เป็นเข็มทิศนำทางในการจัดการศึกษา เพื่อสร้างบัณฑิตวิชาชีพที่มีทั้งความเชี่ยวชาญในทักษะและยึดมั่นในคุณธรรมเพื่อสังคม
-          </p>
+          <!-- ความเชื่อมั่นในปรัชญาการศึกษา -->
+          <div class="p-6 sm:p-8 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/15 text-blue-50 leading-relaxed mb-8">
+            <p class="text-sm sm:text-base leading-relaxed">
+              คณะผู้ก่อตั้งวิทยาลัยมีความเชื่อมั่นในปรัชญาการศึกษาว่า 
+              <span class="text-amber-200 font-semibold">“รากฐานของตึกคืออิฐ รากฐานของชีวิตคือ การศึกษา”</span> 
+              การศึกษาคือความเจริญงอกงามของการให้การศึกษาที่ดีแก่เด็ก เด็กจะสามารถสร้างคุณภาพชีวิตที่ดี 
+              ซึ่งหมายถึง ชีวิตที่สมบูรณ์ด้วยสติปัญญา คุณธรรม สุขภาพทางกายใจ และได้ใช้ความเชื่อมั่นนี้เป็นพื้นฐานของการดำเนินปรัชญาวิทยาลัยว่า 
+              <span class="text-white font-semibold">“ทักษะเยี่ยม เปี่ยมคุณธรรม ล้ำเลิศวิชา พัฒนาสังคม”</span>
+            </p>
+          </div>
+
+          <!-- ความหมายของปรัชญา 4 ประการ -->
+          <div class="pt-6 border-t border-white/15">
+            <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-blue-200 mb-4">
+              ความหมายของปรัชญา 4 ประการ
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="p-5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/10 hover:bg-white/15 transition-colors">
+                <div class="text-amber-300 font-bold text-base sm:text-lg mb-1.5 flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                  ทักษะเยี่ยม
+                </div>
+                <div class="text-blue-100 text-xs sm:text-sm leading-relaxed">
+                  หมายถึง มีความรู้ ความสามารถตรงตามสาขาที่เรียน
+                </div>
+              </div>
+
+              <div class="p-5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/10 hover:bg-white/15 transition-colors">
+                <div class="text-amber-300 font-bold text-base sm:text-lg mb-1.5 flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                  เปี่ยมคุณธรรม
+                </div>
+                <div class="text-blue-100 text-xs sm:text-sm leading-relaxed">
+                  หมายถึง มีการประพฤติ และปฏิบัติตนไปในทิศทางที่ถูกต้อง เหมาะสม และมีความยุติธรรม
+                </div>
+              </div>
+
+              <div class="p-5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/10 hover:bg-white/15 transition-colors">
+                <div class="text-amber-300 font-bold text-base sm:text-lg mb-1.5 flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                  ล้ำเลิศวิชา
+                </div>
+                <div class="text-blue-100 text-xs sm:text-sm leading-relaxed">
+                  หมายถึง สามารถนำความรู้ไปใช้ปฏิบัติงานได้จริง และคิดคาดคะเนไปในอนาคตในทางที่ดี และสร้างสรรค์
+                </div>
+              </div>
+
+              <div class="p-5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/10 hover:bg-white/15 transition-colors">
+                <div class="text-amber-300 font-bold text-base sm:text-lg mb-1.5 flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                  พัฒนาสังคม
+                </div>
+                <div class="text-blue-100 text-xs sm:text-sm leading-relaxed">
+                  หมายถึง สร้างความเจริญในชุมชนและสังคม
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </section>
 
