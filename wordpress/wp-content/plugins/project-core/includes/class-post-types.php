@@ -1673,7 +1673,6 @@ class Project_Core_Post_Types {
                     wp_set_object_terms($post_id, $sample['year'], 'sar_year');
                     update_post_meta($post_id, 'sar_file_url', $sample['file_url']);
                     update_post_meta($post_id, 'sar_report_no', $sample['report_no']);
-                    update_post_meta($post_id, 'sar_description', $sample['description']);
                     update_post_meta($post_id, 'sar_external_url', $sample['external_url']);
                 }
             }

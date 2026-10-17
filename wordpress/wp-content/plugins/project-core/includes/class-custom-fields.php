@@ -121,7 +121,6 @@ class Project_Core_Custom_Fields {
             'sar_file_id'      => 'integer',
             'sar_external_url' => 'string',
             'sar_report_no'    => 'string',
-            'sar_description'  => 'string',
         );
 
         foreach ($sar_fields as $meta_key => $type) {
@@ -1138,7 +1137,6 @@ class Project_Core_Custom_Fields {
                     'sar_file_id'      => 'absint',
                     'sar_external_url' => 'esc_url_raw',
                     'sar_report_no'    => 'sanitize_text_field',
-                    'sar_description'  => 'sanitize_textarea_field',
                 );
 
                 foreach ($sar_keys as $key => $sanitizer) {
@@ -1590,7 +1588,6 @@ class Project_Core_Custom_Fields {
         $file_id      = get_post_meta($post->ID, 'sar_file_id', true) ?: '';
         $external_url = get_post_meta($post->ID, 'sar_external_url', true) ?: '';
         $report_no    = get_post_meta($post->ID, 'sar_report_no', true) ?: '';
-        $description  = get_post_meta($post->ID, 'sar_description', true) ?: '';
         ?>
         <table class="form-table" style="margin-top: 0;">
             <tr>
@@ -1633,14 +1630,6 @@ class Project_Core_Custom_Fields {
                 <td>
                     <input type="url" id="sar_external_url" name="sar_external_url" value="<?php echo esc_attr($external_url); ?>" class="large-text" placeholder="https://anyflip.com/... หรือ Google Drive" />
                     <p class="description"><?php _e('หากมีลิงก์ E-Book / Flipbook สามารถใส่เพื่อให้นักเรียนหรือบุคคลทั่วไปกดอ่านแบบออนไลน์ได้โดยตรง', 'project-core'); ?></p>
-                </td>
-            </tr>
-
-            <tr>
-                <th scope="row"><label for="sar_description"><?php _e('สรุปผลการประเมินโดยย่อ', 'project-core'); ?></label></th>
-                <td>
-                    <textarea id="sar_description" name="sar_description" rows="4" class="large-text" placeholder="ระบุสาระสำคัญ ผลการประเมินตามมาตรฐาน หรือจุดเด่นของรายงานฉบับนี้..."><?php echo esc_textarea($description); ?></textarea>
-                    <p class="description"><?php _e('คำอธิบายสรุปสั้นๆ จะแสดงใต้ชื่อรายงานในหน้าเว็บ', 'project-core'); ?></p>
                 </td>
             </tr>
         </table>

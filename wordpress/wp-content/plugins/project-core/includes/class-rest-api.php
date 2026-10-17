@@ -1142,7 +1142,7 @@ class Project_Core_REST_API {
                 'title'       => $post->post_title,
                 'slug'        => $post->post_name,
                 'reportNo'    => get_post_meta($post_id, 'sar_report_no', true) ?: '',
-                'description' => get_post_meta($post_id, 'sar_description', true) ?: wp_strip_all_tags($post->post_content),
+                'description' => '',
                 'content'     => apply_filters('the_content', $post->post_content),
                 'year'        => $year_data,
                 'fileUrl'     => $file_url,

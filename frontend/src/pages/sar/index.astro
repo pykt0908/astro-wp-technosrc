@@ -100,7 +100,7 @@ function formatThaiDate(dateStr?: string) {
                   ปีการศึกษา
                 </th>
                 <th scope="col" class="py-4 px-4 min-w-[280px]">
-                  ชื่อรายงาน / รายละเอียดเอกสาร
+                  ชื่อรายงาน
                 </th>
                 <th scope="col" class="py-4 px-4 w-36 text-center whitespace-nowrap hidden sm:table-cell">
                   วันที่เผยแพร่
@@ -141,12 +141,6 @@ function formatThaiDate(dateStr?: string) {
                           </span>
                         )}
                       </div>
-
-                      {report.description && (
-                        <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
-                          {report.description}
-                        </p>
-                      )}
 
                       {report.externalUrl && (
                         <div class="pt-1">
