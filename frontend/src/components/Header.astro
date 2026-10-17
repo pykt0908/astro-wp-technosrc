@@ -92,20 +92,38 @@ const navItems: NavItem[] = [
   },
 ];
 
-function isItemActive(item: NavItem) {
-  if (item.href === "/") return currentPath === "/";
-  if (currentPath.startsWith(item.href)) return true;
+function normalizePath(url: string) {
+  return url.replace(/\/+$/, "") || "/";
+}
+
+function isSubItemActive(sub: SubItem): boolean {
+  if (!sub.href || sub.href === "#") return false;
+  const subPath = sub.href.split("#")[0];
+  if (!subPath) return false;
+
+  const current = normalizePath(currentPath);
+  const target = normalizePath(subPath);
+
+  if (current === target) return true;
+  if ((current === "/map" && target === "/about/map") || (current === "/about/map" && target === "/map")) {
+    return true;
+  }
+
+  return false;
+}
+
+function isItemActive(item: NavItem): boolean {
+  const current = normalizePath(currentPath);
+  const itemPath = normalizePath(item.href);
+
+  if (itemPath === "/") return current === "/";
+  if (current === itemPath || (itemPath !== "/" && current.startsWith(itemPath + "/"))) return true;
+
   if (item.children && item.children.length > 0) {
-    return item.children.some(
-      (sub) => sub.href !== "#" && (currentPath === sub.href || (sub.href !== "/" && currentPath.startsWith(sub.href)))
-    );
+    return item.children.some((sub) => isSubItemActive(sub));
   }
   if (item.megaColumns && item.megaColumns.length > 0) {
-    return item.megaColumns.some((col) =>
-      col.items.some(
-        (sub) => sub.href !== "#" && (currentPath === sub.href || (sub.href !== "/" && currentPath.startsWith(sub.href)))
-      )
-    );
+    return item.megaColumns.some((col) => col.items.some((sub) => isSubItemActive(sub)));
   }
   return false;
 }
@@ -289,14 +307,25 @@ function isItemActive(item: NavItem) {
                 {!isMega && item.children && item.children.length > 0 && (
                   <div class="nav-dropdown-panel absolute left-0 top-full pt-1 opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-200 pointer-events-none group-hover/menu:pointer-events-auto z-50">
                     <div class="w-60 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-100 dark:border-slate-800 p-2 space-y-1">
-                      {item.children.map((sub) => (
-                        <a
-                          href={sub.href}
-                          class="block px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-[#0047BA] dark:hover:text-blue-400 hover:bg-blue-50/80 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                        >
-                          {sub.label}
-                        </a>
-                      ))}
+                      {item.children.map((sub) => {
+                        const isSubActive = isSubItemActive(sub);
+                        return (
+                          <a
+                            href={sub.href}
+                            aria-current={isSubActive ? "page" : undefined}
+                            class={`flex items-center justify-between px-4 py-2.5 text-sm font-semibold rounded-lg transition-colors ${
+                              isSubActive
+                                ? "text-[#0047BA] dark:text-blue-400 bg-blue-50/90 dark:bg-blue-950/60 font-bold border border-blue-200/60 dark:border-blue-900/40"
+                                : "text-slate-700 dark:text-slate-200 hover:text-[#0047BA] dark:hover:text-blue-400 hover:bg-blue-50/80 dark:hover:bg-slate-800 border border-transparent"
+                            }`}
+                          >
+                            <span>{sub.label}</span>
+                            {isSubActive && (
+                              <span class="w-1.5 h-1.5 rounded-full bg-[#0047BA] dark:bg-blue-400 shrink-0"></span>
+                            )}
+                          </a>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -320,17 +349,36 @@ function isItemActive(item: NavItem) {
 
                             <!-- Column Sub-items -->
                             <ul class="space-y-1">
-                              {col.items.map((sub) => (
-                                <li>
-                                  <a
-                                    href={sub.href}
-                                    class="group/item flex items-center gap-2.5 py-2 px-2.5 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-[#0047BA] dark:hover:text-blue-400 hover:bg-blue-50/80 dark:hover:bg-slate-800 transition-colors"
-                                  >
-                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600 group-hover/item:bg-[#0047BA] dark:group-hover/item:bg-blue-400 transition-colors shrink-0" />
-                                    <span>{sub.label}</span>
-                                  </a>
-                                </li>
-                              ))}
+                              {col.items.map((sub) => {
+                                const isSubActive = isSubItemActive(sub);
+                                return (
+                                  <li>
+                                    <a
+                                      href={sub.href}
+                                      aria-current={isSubActive ? "page" : undefined}
+                                      class={`group/item flex items-center justify-between py-2 px-2.5 rounded-lg text-sm font-semibold transition-all duration-150 ${
+                                        isSubActive
+                                          ? "text-[#0047BA] dark:text-blue-400 bg-blue-50/90 dark:bg-blue-950/60 font-bold shadow-2xs border border-blue-200/60 dark:border-blue-900/40"
+                                          : "text-slate-700 dark:text-slate-200 hover:text-[#0047BA] dark:hover:text-blue-400 hover:bg-blue-50/80 dark:hover:bg-slate-800 border border-transparent"
+                                      }`}
+                                    >
+                                      <div class="flex items-center gap-2.5 min-w-0">
+                                        <span
+                                          class={`rounded-full transition-all shrink-0 ${
+                                            isSubActive
+                                              ? "w-2 h-2 bg-[#0047BA] dark:bg-blue-400 ring-2 ring-blue-200 dark:ring-blue-900/60"
+                                              : "w-1.5 h-1.5 bg-slate-300 dark:bg-slate-600 group-hover/item:bg-[#0047BA] dark:group-hover/item:bg-blue-400"
+                                          }`}
+                                        />
+                                        <span class="truncate">{sub.label}</span>
+                                      </div>
+                                      {isSubActive && (
+                                        <span class="w-1.5 h-1.5 rounded-full bg-[#0047BA] dark:bg-blue-400 shrink-0"></span>
+                                      )}
+                                    </a>
+                                  </li>
+                                );
+                              })}
                             </ul>
                           </div>
                         ))}
@@ -552,7 +600,7 @@ function isItemActive(item: NavItem) {
 
           if (hasChildren) {
             return (
-              <details class="group/acc rounded-md overflow-hidden border border-slate-100 dark:border-slate-800">
+              <details open={active} class="group/acc rounded-md overflow-hidden border border-slate-100 dark:border-slate-800">
                 <summary
                   class={`flex items-center justify-between px-3.5 py-2.5 rounded-md text-sm font-semibold transition-colors cursor-pointer select-none list-none ${
                     active
@@ -587,28 +635,46 @@ function isItemActive(item: NavItem) {
                           <span>{col.title}</span>
                         </div>
                         <div class="pl-4 space-y-1">
-                          {col.items.map((sub) => (
-                            <a
-                              href={sub.href}
-                              class="block px-3 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-[#0047BA] dark:hover:text-blue-400 hover:bg-blue-50/80 dark:hover:bg-slate-700/80 rounded-md transition-colors"
-                            >
-                              • {sub.label}
-                            </a>
-                          ))}
+                          {col.items.map((sub) => {
+                            const isSubActive = isSubItemActive(sub);
+                            return (
+                              <a
+                                href={sub.href}
+                                aria-current={isSubActive ? "page" : undefined}
+                                class={`flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors ${
+                                  isSubActive
+                                    ? "text-[#0047BA] dark:text-blue-400 bg-blue-50/90 dark:bg-blue-950/60 font-bold"
+                                    : "text-slate-700 dark:text-slate-300 font-medium hover:text-[#0047BA] dark:hover:text-blue-400 hover:bg-blue-50/80 dark:hover:bg-slate-700/80"
+                                }`}
+                              >
+                                <span class={`w-1.5 h-1.5 rounded-full shrink-0 ${isSubActive ? "bg-[#0047BA] dark:bg-blue-400" : "bg-slate-300 dark:bg-slate-600"}`}></span>
+                                <span>{sub.label}</span>
+                              </a>
+                            );
+                          })}
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
                   <div class="pl-4 pr-2 py-1.5 space-y-1 bg-slate-50/60 dark:bg-slate-800/60 rounded-b-md border-t border-slate-100 dark:border-slate-700">
-                    {item.children?.map((sub) => (
-                      <a
-                        href={sub.href}
-                        class="block px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-[#0047BA] dark:hover:text-blue-400 hover:bg-blue-50/80 dark:hover:bg-slate-700/80 rounded-md transition-colors"
-                      >
-                        • {sub.label}
-                      </a>
-                    ))}
+                    {item.children?.map((sub) => {
+                      const isSubActive = isSubItemActive(sub);
+                      return (
+                        <a
+                          href={sub.href}
+                          aria-current={isSubActive ? "page" : undefined}
+                          class={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors ${
+                            isSubActive
+                              ? "text-[#0047BA] dark:text-blue-400 bg-blue-50/90 dark:bg-blue-950/60 font-bold"
+                              : "text-slate-700 dark:text-slate-300 font-medium hover:text-[#0047BA] dark:hover:text-blue-400 hover:bg-blue-50/80 dark:hover:bg-slate-700/80"
+                          }`}
+                        >
+                          <span class={`w-1.5 h-1.5 rounded-full shrink-0 ${isSubActive ? "bg-[#0047BA] dark:bg-blue-400" : "bg-slate-300 dark:bg-slate-600"}`}></span>
+                          <span>{sub.label}</span>
+                        </a>
+                      );
+                    })}
                   </div>
                 )}
               </details>
