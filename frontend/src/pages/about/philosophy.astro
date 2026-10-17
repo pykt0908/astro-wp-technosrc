@@ -27,149 +27,112 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       </p>
     </div>
 
-    <div class="max-w-4xl mx-auto space-y-8 sm:space-y-12">
+    <div class="max-w-4xl mx-auto space-y-12 sm:space-y-16">
 
       <!-- 1. ปรัชญา (College Philosophy) -->
-      <section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0047BA] via-[#003893] to-[#00286b] text-white p-7 sm:p-10 lg:p-12 shadow-xl">
-        <div class="absolute -right-12 -bottom-12 w-56 h-56 rounded-full bg-white/5 pointer-events-none"></div>
-        <div class="absolute right-8 top-8 opacity-10">
-          <svg class="w-24 h-24 sm:w-32 sm:h-32 fill-current" viewBox="0 0 24 24">
-            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-          </svg>
-        </div>
-
-        <div class="relative z-10">
-          <span class="inline-block px-3 py-1 rounded-full bg-white/15 text-blue-100 text-xs font-bold tracking-wider uppercase mb-4 backdrop-blur-xs border border-white/15">
+      <section class="space-y-6">
+        <div class="border-b border-slate-200 dark:border-slate-800 pb-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-[#0047BA] dark:text-blue-400">
             College Philosophy
           </span>
-
-          <h2 class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white mb-6">
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">
             ปรัชญา
           </h2>
+        </div>
 
-          <blockquote class="text-2xl sm:text-3xl lg:text-4xl font-black text-amber-300 tracking-tight leading-snug sm:leading-tight space-y-1 drop-shadow-xs mb-8">
-            <p>“ทักษะเยี่ยม เปี่ยมคุณธรรม</p>
-            <p class="pl-4 sm:pl-8">ล้ำเลิศวิชา พัฒนาสังคม”</p>
-          </blockquote>
+        <!-- คำขวัญปรัชญา -->
+        <blockquote class="text-2xl sm:text-3xl font-extrabold text-[#0047BA] dark:text-blue-400 tracking-tight leading-snug sm:leading-tight">
+          “ทักษะเยี่ยม เปี่ยมคุณธรรม ล้ำเลิศวิชา พัฒนาสังคม”
+        </blockquote>
 
-          <!-- ความเชื่อมั่นในปรัชญาการศึกษา -->
-          <div class="p-6 sm:p-8 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/15 text-blue-50 leading-relaxed mb-8">
-            <p class="text-sm sm:text-base leading-relaxed">
-              คณะผู้ก่อตั้งวิทยาลัยมีความเชื่อมั่นในปรัชญาการศึกษาว่า 
-              <span class="text-amber-200 font-semibold">“รากฐานของตึกคืออิฐ รากฐานของชีวิตคือ การศึกษา”</span> 
-              การศึกษาคือความเจริญงอกงามของการให้การศึกษาที่ดีแก่เด็ก เด็กจะสามารถสร้างคุณภาพชีวิตที่ดี 
-              ซึ่งหมายถึง ชีวิตที่สมบูรณ์ด้วยสติปัญญา คุณธรรม สุขภาพทางกายใจ และได้ใช้ความเชื่อมั่นนี้เป็นพื้นฐานของการดำเนินปรัชญาวิทยาลัยว่า 
-              <span class="text-white font-semibold">“ทักษะเยี่ยม เปี่ยมคุณธรรม ล้ำเลิศวิชา พัฒนาสังคม”</span>
-            </p>
-          </div>
+        <!-- ความเชื่อมั่นในปรัชญาการศึกษา -->
+        <div class="text-slate-700 dark:text-slate-300 text-base sm:text-lg leading-relaxed font-normal space-y-4">
+          <p>
+            คณะผู้ก่อตั้งวิทยาลัยมีความเชื่อมั่นในปรัชญาการศึกษาว่า 
+            <span class="font-semibold text-slate-900 dark:text-white">“รากฐานของตึกคืออิฐ รากฐานของชีวิตคือ การศึกษา”</span> 
+            การศึกษาคือความเจริญงอกงามของการให้การศึกษาที่ดีแก่เด็ก เด็กจะสามารถสร้างคุณภาพชีวิตที่ดี 
+            ซึ่งหมายถึง ชีวิตที่สมบูรณ์ด้วยสติปัญญา คุณธรรม สุขภาพทางกายใจ และได้ใช้ความเชื่อมั่นนี้เป็นพื้นฐานของการดำเนินปรัชญาวิทยาลัยว่า 
+            <span class="font-semibold text-slate-900 dark:text-white">“ทักษะเยี่ยม เปี่ยมคุณธรรม ล้ำเลิศวิชา พัฒนาสังคม”</span>
+          </p>
+        </div>
 
-          <!-- ความหมายของปรัชญา 4 ประการ -->
-          <div class="pt-6 border-t border-white/15">
-            <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-blue-200 mb-4">
-              ความหมายของปรัชญา 4 ประการ
-            </h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div class="p-5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/10 hover:bg-white/15 transition-colors">
-                <div class="text-amber-300 font-bold text-base sm:text-lg mb-1.5 flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                  ทักษะเยี่ยม
-                </div>
-                <div class="text-blue-100 text-xs sm:text-sm leading-relaxed">
-                  หมายถึง มีความรู้ ความสามารถตรงตามสาขาที่เรียน
-                </div>
-              </div>
-
-              <div class="p-5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/10 hover:bg-white/15 transition-colors">
-                <div class="text-amber-300 font-bold text-base sm:text-lg mb-1.5 flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                  เปี่ยมคุณธรรม
-                </div>
-                <div class="text-blue-100 text-xs sm:text-sm leading-relaxed">
-                  หมายถึง มีการประพฤติ และปฏิบัติตนไปในทิศทางที่ถูกต้อง เหมาะสม และมีความยุติธรรม
-                </div>
-              </div>
-
-              <div class="p-5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/10 hover:bg-white/15 transition-colors">
-                <div class="text-amber-300 font-bold text-base sm:text-lg mb-1.5 flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                  ล้ำเลิศวิชา
-                </div>
-                <div class="text-blue-100 text-xs sm:text-sm leading-relaxed">
-                  หมายถึง สามารถนำความรู้ไปใช้ปฏิบัติงานได้จริง และคิดคาดคะเนไปในอนาคตในทางที่ดี และสร้างสรรค์
-                </div>
-              </div>
-
-              <div class="p-5 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/10 hover:bg-white/15 transition-colors">
-                <div class="text-amber-300 font-bold text-base sm:text-lg mb-1.5 flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                  พัฒนาสังคม
-                </div>
-                <div class="text-blue-100 text-xs sm:text-sm leading-relaxed">
-                  หมายถึง สร้างความเจริญในชุมชนและสังคม
-                </div>
-              </div>
+        <!-- ความหมายของปรัชญา 4 ด้าน -->
+        <div class="pt-4 space-y-3">
+          <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+            ความหมายของปรัชญา
+          </h3>
+          <dl class="space-y-2.5 text-slate-700 dark:text-slate-300 text-base sm:text-lg leading-relaxed font-normal">
+            <div class="flex flex-col sm:flex-row sm:gap-3">
+              <dt class="font-semibold text-slate-900 dark:text-white sm:min-w-[140px]">ทักษะเยี่ยม</dt>
+              <dd class="text-slate-600 dark:text-slate-400">หมายถึง มีความรู้ ความสามารถตรงตามสาขาที่เรียน</dd>
             </div>
-          </div>
-
+            <div class="flex flex-col sm:flex-row sm:gap-3">
+              <dt class="font-semibold text-slate-900 dark:text-white sm:min-w-[140px]">เปี่ยมคุณธรรม</dt>
+              <dd class="text-slate-600 dark:text-slate-400">หมายถึง มีการประพฤติ และปฏิบัติตนไปในทิศทางที่ถูกต้อง เหมาะสม และมีความยุติธรรม</dd>
+            </div>
+            <div class="flex flex-col sm:flex-row sm:gap-3">
+              <dt class="font-semibold text-slate-900 dark:text-white sm:min-w-[140px]">ล้ำเลิศวิชา</dt>
+              <dd class="text-slate-600 dark:text-slate-400">หมายถึง สามารถนำความรู้ไปใช้ปฏิบัติงานได้จริง และคิดคาดคะเนไปในอนาคตในทางที่ดี และสร้างสรรค์</dd>
+            </div>
+            <div class="flex flex-col sm:flex-row sm:gap-3">
+              <dt class="font-semibold text-slate-900 dark:text-white sm:min-w-[140px]">พัฒนาสังคม</dt>
+              <dd class="text-slate-600 dark:text-slate-400">หมายถึง สร้างความเจริญในชุมชนและสังคม</dd>
+            </div>
+          </dl>
         </div>
       </section>
 
       <!-- 2. วิสัยทัศน์ (Vision 2028) -->
-      <section class="p-7 sm:p-10 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden">
-        <div class="flex items-center gap-2 mb-3">
-          <span class="px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 text-xs font-bold tracking-wider uppercase border border-blue-100 dark:border-blue-900/50">
+      <section class="space-y-4 pt-8 border-t border-slate-200 dark:border-slate-800">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-[#0047BA] dark:text-blue-400">
             Vision 2028
           </span>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">
+            วิสัยทัศน์
+          </h2>
         </div>
 
-        <h2 class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 dark:text-white mb-4">
-          วิสัยทัศน์
-        </h2>
-
-        <p class="text-base sm:text-lg lg:text-xl text-slate-700 dark:text-slate-200 leading-relaxed font-medium">
+        <p class="text-base sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
           “มุ่งผลิตและพัฒนากำลังคนอาชีวศึกษาที่มีคุณภาพ ควบคู่คุณธรรม สอดคล้องต่อความต้องการตลาดแรงงาน สู่มาตรฐานสากลภายในปีการศึกษา 2571”
         </p>
       </section>
 
       <!-- 3. อัตลักษณ์ & เอกลักษณ์ (College Identity & Learner Identity) -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-slate-200 dark:border-slate-800">
         
         <!-- อัตลักษณ์ (College Identity) -->
-        <section class="p-7 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+        <section class="space-y-3">
           <div>
-            <span class="inline-block px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 text-xs font-bold tracking-wider uppercase mb-3 border border-blue-100 dark:border-blue-900/50">
+            <span class="text-xs font-bold uppercase tracking-wider text-[#0047BA] dark:text-blue-400">
               College Identity
             </span>
-
-            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mb-4">
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">
               อัตลักษณ์
             </h2>
-
-            <p class="text-lg sm:text-xl font-bold text-[#0047BA] dark:text-blue-400 leading-relaxed">
-              “ทักษะดี มีวินัย ใฝ่คุณธรรม”
-            </p>
           </div>
-          <p class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p class="text-lg sm:text-xl font-bold text-[#0047BA] dark:text-blue-400">
+            “ทักษะดี มีวินัย ใฝ่คุณธรรม”
+          </p>
+          <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-normal">
             คุณลักษณะอันโดดเด่นของผู้เรียนและบุคลากรวิทยาลัยเทคโนโลยีศรีราชา
           </p>
         </section>
 
         <!-- เอกลักษณ์ (Learner Identity) -->
-        <section class="p-7 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+        <section class="space-y-3">
           <div>
-            <span class="inline-block px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/80 text-[#0047BA] dark:text-blue-400 text-xs font-bold tracking-wider uppercase mb-3 border border-blue-100 dark:border-blue-900/50">
+            <span class="text-xs font-bold uppercase tracking-wider text-[#0047BA] dark:text-blue-400">
               Learner Identity
             </span>
-
-            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white mb-4">
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mt-1">
               เอกลักษณ์
             </h2>
-
-            <p class="text-lg sm:text-xl font-bold text-[#0047BA] dark:text-blue-400 leading-relaxed">
-              “เป็นแหล่งเรียนรู้ สู่อาชีพ”
-            </p>
           </div>
-          <p class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <p class="text-lg sm:text-xl font-bold text-[#0047BA] dark:text-blue-400">
+            “เป็นแหล่งเรียนรู้ สู่อาชีพ”
+          </p>
+          <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-normal">
             จุดเด่นของสถานศึกษาที่เป็นศูนย์กลางการถ่ายทอดทักษะวิชาชีพสู่ความสำเร็จในอนาคต
           </p>
         </section>
