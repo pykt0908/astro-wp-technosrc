@@ -351,3 +351,66 @@ export interface EducationMisItem {
   modifiedAt?: string;
 }
 
+export interface OrgPersonnel {
+  id?: number | string;
+  name: string;
+  photo?: string;
+  position?: string;
+  sub?: string;
+}
+
+export interface OrgLeader {
+  id: number | string;
+  position: string;
+  type: 'executive' | 'committee' | string;
+  sub?: string;
+  remark?: string;
+  status?: string;
+  personnel: OrgPersonnel;
+}
+
+export interface OrgJob {
+  id: number | string;
+  title: string;
+  code?: string;
+  order?: number;
+  position_title?: string;
+  remark?: string;
+  personnel: OrgPersonnel;
+}
+
+export interface OrgDivision {
+  id: number | string;
+  slug: string;
+  title: string;
+  color: string;
+  order: number;
+  description?: string;
+  head: {
+    id?: number | string;
+    position: string;
+    sub?: string;
+    remark?: string;
+    personnel: OrgPersonnel;
+  };
+  jobs: OrgJob[];
+}
+
+export interface OrgSettings {
+  page_title: string;
+  page_description: string;
+  academic_year: string;
+  updated_at: string;
+  pdf_url?: string;
+  committee_title: string;
+  committee_desc: string;
+  committee_link?: string;
+}
+
+export interface OrganizationData {
+  settings: OrgSettings;
+  leaders: OrgLeader[];
+  committee: OrgLeader;
+  divisions: OrgDivision[];
+}
+

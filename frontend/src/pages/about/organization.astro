@@ -1,0 +1,494 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getOrganizationData } from "../../lib/wordpress";
+
+const orgData = await getOrganizationData();
+const { settings, leaders, committee, divisions } = orgData;
+
+// Format date in Thai
+function formatThaiDate(dateStr: string) {
+  if (!dateStr) return "";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    const months = [
+      "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+      "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+    ];
+    return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear() + 543}`;
+  } catch {
+    return dateStr;
+  }
+}
+
+const formattedUpdated = formatThaiDate(settings.updated_at);
+---
+
+<BaseLayout
+  title={`${settings.page_title} - วิทยาลัยเทคโนโลยีศรีราชา`}
+  description={settings.page_description}
+>
+  <div class="py-8 sm:py-12 lg:py-16 max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Breadcrumb -->
+    <nav
+      class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6"
+      aria-label="Breadcrumb"
+    >
+      <a href="/" class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">หน้าแรก</a>
+      <span>/</span>
+      <a href="/about/" class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">เกี่ยวกับเรา</a>
+      <span>/</span>
+      <span class="text-slate-800 dark:text-slate-200 font-semibold" aria-current="page">
+        {settings.page_title}
+      </span>
+    </nav>
+
+    <!-- Intro Header -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-200 dark:border-slate-800 mb-10">
+      <div>
+        <div class="text-xs font-bold tracking-widest uppercase text-[#0047BA] dark:text-blue-400 mb-2">
+          ADMINISTRATION STRUCTURE
+        </div>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+          {settings.page_title}
+        </h1>
+        <p class="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
+          {settings.page_description}
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs sm:text-sm text-slate-700 dark:text-slate-300 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>ปีการศึกษา</span>
+          <strong class="text-slate-900 dark:text-white font-bold">{settings.academic_year}</strong>
+        </div>
+
+        {settings.pdf_url && (
+          <a
+            href={settings.pdf_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#0047BA] hover:bg-blue-700 text-white text-xs sm:text-sm font-medium transition-all shadow-sm hover:shadow"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <span>ดาวน์โหลดผังฉบับอนุมัติ (PDF)</span>
+          </a>
+        )}
+      </div>
+    </div>
+
+    <!-- Section 1: Chart View -->
+    <section class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 sm:p-8 lg:p-10 shadow-sm relative mb-14 overflow-hidden" aria-label="ผังสายการบริหาร">
+      <!-- Chart Top Bar -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between text-xs sm:text-sm text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800/80 pb-4 mb-8 gap-2">
+        <div class="flex items-center gap-2 font-medium">
+          <svg class="w-4 h-4 text-[#0047BA] dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
+          </svg>
+          <span>สายการบริหารวิทยาลัย</span>
+        </div>
+        <div class="hidden sm:block text-slate-400 dark:text-slate-500">
+          ผู้บริหารระดับนโยบาย → ผู้บริหาร 4 ฝ่าย → หน่วยงานในสังกัด
+        </div>
+      </div>
+
+      <!-- Leaders Vertical Tree Stack -->
+      <div class="flex flex-col items-center">
+        {leaders.map((leader, idx) => {
+          const isDirector = idx === 2; // ผู้อำนวยการ
+          return (
+            <div class="flex flex-col items-center">
+              {idx > 0 && (
+                <div class="w-px h-6 bg-slate-300 dark:bg-slate-700" aria-hidden="true"></div>
+              )}
+
+              <div class={`relative ${isDirector ? 'director-wrap' : ''}`}>
+                <!-- Leader Card -->
+                <article class="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow w-[280px] sm:w-[320px] flex items-center gap-4">
+                  <!-- Photo Container -->
+                  <div class="relative w-16 h-20 sm:w-18 sm:h-22 rounded-xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 flex-shrink-0 border border-slate-200 dark:border-slate-700">
+                    {leader.personnel?.photo ? (
+                      <img
+                        src={leader.personnel.photo}
+                        alt={`ภาพ ${leader.personnel.name}`}
+                        class="w-full h-full object-cover object-top"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <svg class="w-full h-full text-slate-400 dark:text-slate-500" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <circle cx="50" cy="37" r="20" fill="currentColor" opacity="0.55" />
+                        <path d="M10 115V96c0-23 16-36 40-36s40 13 40 36v19" fill="currentColor" opacity="0.55" />
+                        <path d="m36 65 14 15 14-15-7 42H43Z" fill="#eff4f8" />
+                        <path d="m47 80 6 0 3 25-6 7-6-7Z" fill="#849eb5" />
+                      </svg>
+                    )}
+                  </div>
+
+                  <!-- Info -->
+                  <div class="min-w-0 flex-1">
+                    <span class="inline-block text-xs font-bold text-[#0047BA] dark:text-blue-400 mb-1">
+                      {leader.position}
+                    </span>
+                    <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate">
+                      {leader.personnel?.name || "ชื่อ–นามสกุล"}
+                    </h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                      {leader.sub || "ผู้บริหารวิทยาลัย"}
+                    </p>
+                    {leader.remark && (
+                      <span class="inline-block mt-1 text-[10px] bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full border border-amber-200/60 dark:border-amber-800">
+                        {leader.remark}
+                      </span>
+                    )}
+                  </div>
+                </article>
+
+                <!-- School Board / Committee (Beside Director on desktop, stacks below on mobile) -->
+                {isDirector && committee && (
+                  <div class="committee-card mt-3 lg:mt-0 lg:absolute lg:left-[calc(100%+40px)] lg:top-1/2 lg:-translate-y-1/2 flex items-center z-10">
+                    <!-- Dashed Connector Line (Desktop) -->
+                    <div class="hidden lg:block w-10 border-t-2 border-dashed border-sky-400 dark:border-sky-600 -ml-10" aria-hidden="true"></div>
+
+                    <div class="border border-dashed border-sky-300 dark:border-sky-700/80 bg-sky-50/80 dark:bg-sky-950/40 rounded-2xl p-4 w-[280px] sm:w-[300px] shadow-sm">
+                      <div class="flex items-center gap-2 mb-1">
+                        <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+                        <div class="text-xs font-bold text-sky-800 dark:text-sky-300">
+                          {committee.position || settings.committee_title}
+                        </div>
+                      </div>
+                      <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                        {committee.sub || settings.committee_desc}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+
+        <!-- Vertical Connector to Branches -->
+        <div class="w-px h-8 bg-slate-300 dark:bg-slate-700" aria-hidden="true"></div>
+      </div>
+
+      <!-- 4 Division Branches (Grid with tree connectors) -->
+      <div class="relative pt-6">
+        <!-- Horizontal tree branch line across top (connecting 4 branches on desktop) -->
+        <div class="hidden lg:block absolute top-0 left-[12.5%] right-[12.5%] h-px bg-slate-300 dark:bg-slate-700" aria-hidden="true"></div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+          {divisions.map((div, i) => (
+            <div class="relative flex flex-col items-center">
+              <!-- Vertical tree stem connecting from top horizontal line (desktop) -->
+              <div class="hidden lg:block absolute -top-6 left-1/2 -translate-x-1/2 w-px h-6 bg-slate-300 dark:bg-slate-700" aria-hidden="true"></div>
+
+              <article
+                class="w-full h-full bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-all relative overflow-hidden group"
+                style={`border-top: 4px solid ${div.color};`}
+              >
+                <!-- Top Color Accent Pip -->
+                <div class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full" style={`background-color: ${div.color};`}></div>
+
+                <!-- Division Head Photo -->
+                <div class="relative w-20 h-24 sm:w-24 sm:h-28 rounded-xl overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 mb-3 border border-slate-200 dark:border-slate-700 shadow-inner flex-shrink-0">
+                  {div.head?.personnel?.photo ? (
+                    <img
+                      src={div.head.personnel.photo}
+                      alt={`ภาพ ${div.head.personnel.name}`}
+                      class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <svg class="w-full h-full text-slate-400 dark:text-slate-500" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <circle cx="50" cy="37" r="20" fill="currentColor" opacity="0.55" />
+                      <path d="M10 115V96c0-23 16-36 40-36s40 13 40 36v19" fill="currentColor" opacity="0.55" />
+                      <path d="m36 65 14 15 14-15-7 42H43Z" fill="#eff4f8" />
+                      <path d="m47 80 6 0 3 25-6 7-6-7Z" fill="#849eb5" />
+                    </svg>
+                  )}
+                </div>
+
+                <!-- Position & Name -->
+                <div class="text-xs font-bold leading-snug min-h-[36px] flex items-center justify-center px-1" style={`color: ${div.color};`}>
+                  {div.title}
+                </div>
+                <div class="text-sm font-bold text-slate-900 dark:text-white mt-1 truncate max-w-full">
+                  {div.head?.personnel?.name || "ชื่อ–นามสกุล"}
+                </div>
+                <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate max-w-full">
+                  {div.head?.sub || "ผู้บริหารฝ่าย"}
+                </div>
+
+                <!-- Action Button to jump to department jobs -->
+                <button
+                  type="button"
+                  class="mt-4 w-full py-2 px-3 text-xs font-semibold rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-700/60 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors flex items-center justify-center gap-1.5 border border-slate-200 dark:border-slate-600/60"
+                  data-select-dept={i}
+                  aria-label={`ดูงานในสังกัดของ ${div.title}`}
+                >
+                  <span>ดูงานในสังกัด ({div.jobs.length})</span>
+                  <span aria-hidden="true" class="text-slate-400 group-hover:translate-x-0.5 transition-transform">↗</span>
+                </button>
+              </article>
+            </div>
+          ))}
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Section 2: Department & Jobs Detail (Tabs & Panels) -->
+    <section id="department" class="scroll-mt-24" aria-label="หน่วยงานในสังกัด">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            หน่วยงานในสังกัด
+          </h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            เลือกฝ่ายเพื่อดูรายการงานและผู้รับผิดชอบแต่ละส่วนงาน
+          </p>
+        </div>
+        <div class="text-xs text-slate-400 dark:text-slate-500">
+          ทั้งหมด 4 ฝ่าย · รวม {divisions.reduce((acc, d) => acc + d.jobs.length, 0)} งาน
+        </div>
+      </div>
+
+      <!-- Tab Buttons (Accessible Tabs) -->
+      <div
+        class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-6"
+        role="tablist"
+        aria-label="ฝ่ายบริหารงาน"
+        id="org-tablist"
+      >
+        {divisions.map((div, i) => (
+          <button
+            type="button"
+            role="tab"
+            id={`tab-btn-${i}`}
+            aria-controls={`tab-panel-${i}`}
+            aria-selected={i === 0 ? "true" : "false"}
+            tabindex={i === 0 ? "0" : "-1"}
+            data-tab-index={i}
+            class={`org-tab-btn px-4 py-3 sm:py-3.5 rounded-2xl text-xs sm:text-sm font-bold text-center transition-all border flex items-center justify-center gap-2 relative ${
+              i === 0
+                ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 border-slate-900 dark:border-white shadow-sm"
+                : "bg-white text-slate-600 dark:bg-slate-900 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+            }`}
+          >
+            <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style={`background-color: ${div.color};`}></span>
+            <span class="truncate">{div.title}</span>
+          </button>
+        ))}
+      </div>
+
+      <!-- Tab Panels -->
+      <div class="space-y-6">
+        {divisions.map((div, i) => (
+          <div
+            id={`tab-panel-${i}`}
+            role="tabpanel"
+            aria-labelledby={`tab-btn-${i}`}
+            class={`org-tab-panel ${i === 0 ? "block" : "hidden"}`}
+          >
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-sm">
+              <!-- Panel Header -->
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-8 border-b border-slate-100 dark:border-slate-800/80 gap-4">
+                <div class="flex items-center gap-4">
+                  <span class="text-3xl sm:text-4xl font-serif font-black text-slate-300 dark:text-slate-700" aria-hidden="true">
+                    0{i + 1}
+                  </span>
+                  <div>
+                    <h3 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <span>{div.title}</span>
+                      <span class="text-xs px-2.5 py-0.5 rounded-full font-sans font-medium text-white" style={`background-color: ${div.color};`}>
+                        {div.jobs.length} งาน
+                      </span>
+                    </h3>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                      {div.description || `งานในสังกัด ${div.title}`}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Division Leader Badge -->
+                <div class="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-2.5 pr-4">
+                  <div class="w-10 h-12 rounded-lg overflow-hidden bg-slate-200 dark:bg-slate-700 flex-shrink-0">
+                    {div.head?.personnel?.photo ? (
+                      <img
+                        src={div.head.personnel.photo}
+                        alt={`ภาพ ${div.head.personnel.name}`}
+                        class="w-full h-full object-cover object-top"
+                      />
+                    ) : (
+                      <svg class="w-full h-full text-slate-400" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <circle cx="50" cy="37" r="20" fill="currentColor" opacity="0.55" />
+                        <path d="M10 115V96c0-23 16-36 40-36s40 13 40 36v19" fill="currentColor" opacity="0.55" />
+                      </svg>
+                    )}
+                  </div>
+                  <div class="min-w-0">
+                    <div class="text-[11px] font-medium text-slate-500 dark:text-slate-400">ผู้บริหารฝ่าย</div>
+                    <div class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
+                      {div.head?.personnel?.name || "ชื่อ–นามสกุล"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Jobs Grid (2 Columns on Desktop) -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {div.jobs.map((job) => (
+                  <article class="flex items-center gap-4 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors">
+                    <!-- Job Head Avatar -->
+                    <div class="w-12 h-14 sm:w-14 sm:h-16 rounded-xl overflow-hidden bg-slate-200 dark:bg-slate-700 border border-slate-200 dark:border-slate-700 flex-shrink-0">
+                      {job.personnel?.photo ? (
+                        <img
+                          src={job.personnel.photo}
+                          alt={`ภาพ ${job.personnel.name}`}
+                          class="w-full h-full object-cover object-top"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <svg class="w-full h-full text-slate-400 dark:text-slate-500" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                          <circle cx="50" cy="37" r="20" fill="currentColor" opacity="0.55" />
+                          <path d="M10 115V96c0-23 16-36 40-36s40 13 40 36v19" fill="currentColor" opacity="0.55" />
+                          <path d="m36 65 14 15 14-15-7 42H43Z" fill="#eff4f8" />
+                          <path d="m47 80 6 0 3 25-6 7-6-7Z" fill="#849eb5" />
+                        </svg>
+                      )}
+                    </div>
+
+                    <!-- Job Title & Appointee Info -->
+                    <div class="min-w-0 flex-1">
+                      <h4 class="text-sm font-bold text-slate-900 dark:text-white leading-snug">
+                        {job.title}
+                      </h4>
+                      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5 flex-wrap">
+                        <span class="font-medium text-slate-700 dark:text-slate-300">
+                          {job.personnel?.name || "ชื่อ–นามสกุล"}
+                        </span>
+                        <span>·</span>
+                        <span>{job.position_title || "ผู้รับผิดชอบงาน"}</span>
+                      </p>
+                      {job.remark && (
+                        <span class="inline-block mt-1 text-[10px] bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full border border-amber-200/60 dark:border-amber-800">
+                          {job.remark}
+                        </span>
+                      )}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- Footer Note -->
+    <div class="mt-12 pt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between text-xs text-slate-500 dark:text-slate-400 gap-3">
+      <div>
+        <span>วิทยาลัยเทคโนโลยีศรีราชา · โครงสร้างการบริหารงานวิทยาลัย</span>
+        {formattedUpdated && (
+          <span class="block sm:inline sm:ml-2 text-slate-400 dark:text-slate-500">
+            (ข้อมูลปรับปรุงล่าสุด: {formattedUpdated})
+          </span>
+        )}
+      </div>
+      <div>
+        <span>ระบบบริหารจัดการโครงสร้างผ่าน WordPress Headless CMS</span>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  function initOrganizationTabs() {
+    const tabButtons = document.querySelectorAll('.org-tab-btn');
+    const tabPanels = document.querySelectorAll('.org-tab-panel');
+    const deptButtons = document.querySelectorAll('[data-select-dept]');
+
+    if (!tabButtons.length || !tabPanels.length) return;
+
+    function switchTab(targetIndex) {
+      tabButtons.forEach((btn, idx) => {
+        const isSelected = idx === targetIndex;
+        btn.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+        btn.setAttribute('tabindex', isSelected ? '0' : '-1');
+
+        if (isSelected) {
+          btn.classList.add('bg-slate-900', 'text-white', 'dark:bg-white', 'dark:text-slate-900', 'border-slate-900', 'dark:border-white', 'shadow-sm');
+          btn.classList.remove('bg-white', 'text-slate-600', 'dark:bg-slate-900', 'dark:text-slate-300', 'border-slate-200', 'dark:border-slate-800');
+        } else {
+          btn.classList.remove('bg-slate-900', 'text-white', 'dark:bg-white', 'dark:text-slate-900', 'border-slate-900', 'dark:border-white', 'shadow-sm');
+          btn.classList.add('bg-white', 'text-slate-600', 'dark:bg-slate-900', 'dark:text-slate-300', 'border-slate-200', 'dark:border-slate-800');
+        }
+      });
+
+      tabPanels.forEach((panel, idx) => {
+        if (idx === targetIndex) {
+          panel.classList.remove('hidden');
+          panel.classList.add('block');
+        } else {
+          panel.classList.remove('block');
+          panel.classList.add('hidden');
+        }
+      });
+    }
+
+    // Click on tab button
+    tabButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.getAttribute('data-tab-index') || '0', 10);
+        switchTab(idx);
+      });
+
+      // Keyboard navigation (ArrowLeft, ArrowRight, Home, End)
+      btn.addEventListener('keydown', (e) => {
+        const total = tabButtons.length;
+        let currentIdx = parseInt(btn.getAttribute('data-tab-index') || '0', 10);
+        let nextIdx = currentIdx;
+
+        if (e.key === 'ArrowRight') {
+          nextIdx = (currentIdx + 1) % total;
+        } else if (e.key === 'ArrowLeft') {
+          nextIdx = (currentIdx - 1 + total) % total;
+        } else if (e.key === 'Home') {
+          nextIdx = 0;
+        } else if (e.key === 'End') {
+          nextIdx = total - 1;
+        } else {
+          return;
+        }
+
+        e.preventDefault();
+        switchTab(nextIdx);
+        tabButtons[nextIdx]?.focus();
+      });
+    });
+
+    // "ดูงานในสังกัด ↗" buttons on division cards
+    deptButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const deptIndex = parseInt(btn.getAttribute('data-select-dept') || '0', 10);
+        switchTab(deptIndex);
+
+        const targetSection = document.getElementById('department');
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  }
+
+  // Run on first load and on client-side navigation
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initOrganizationTabs);
+  } else {
+    initOrganizationTabs();
+  }
+  document.addEventListener('astro:page-load', initOrganizationTabs);
+</script>

@@ -21,6 +21,12 @@ import type {
   AchievementStatRow,
   EmploymentStatRow,
   PartnerEnterpriseRow,
+  OrganizationData,
+  OrgLeader,
+  OrgDivision,
+  OrgJob,
+  OrgSettings,
+  OrgPersonnel,
 } from '../types/wordpress';
 export type {
   Personnel,
@@ -36,6 +42,12 @@ export type {
   AchievementStatRow,
   EmploymentStatRow,
   PartnerEnterpriseRow,
+  OrganizationData,
+  OrgLeader,
+  OrgDivision,
+  OrgJob,
+  OrgSettings,
+  OrgPersonnel,
 };
 import { sanitizeWordPressHtml, stripHtml } from './sanitize';
 
@@ -1461,6 +1473,171 @@ export async function getEducationMis(year?: string): Promise<EducationMisItem |
   }
   return null;
 }
+
+// ==========================================
+// Organization Structure (โครงสร้างการบริหาร)
+// ==========================================
+
+const LOCAL_MOCK_ORGANIZATION: OrganizationData = {
+  settings: {
+    page_title: 'โครงสร้างการบริหาร',
+    page_description: 'รู้จักผู้บริหารและหน่วยงานที่ร่วมขับเคลื่อนวิทยาลัยเทคโนโลยีศรีราชา',
+    academic_year: '2569',
+    updated_at: '2026-10-18',
+    pdf_url: '',
+    committee_title: 'คณะกรรมการสถานศึกษา',
+    committee_desc: 'ร่วมกำกับ ดูแล และส่งเสริมมาตรฐานคุณภาพการจัดการศึกษา',
+    committee_link: '',
+  },
+  leaders: [
+    {
+      id: 'mock_1',
+      position: 'ผู้รับใบอนุญาต',
+      type: 'executive',
+      sub: 'ผู้บริหารวิทยาลัย',
+      remark: '',
+      status: 'active',
+      personnel: { name: 'ชื่อ–นามสกุล', photo: '' },
+    },
+    {
+      id: 'mock_2',
+      position: 'ผู้จัดการ',
+      type: 'executive',
+      sub: 'ผู้บริหารวิทยาลัย',
+      remark: '',
+      status: 'active',
+      personnel: { name: 'ชื่อ–นามสกุล', photo: '' },
+    },
+    {
+      id: 'mock_3',
+      position: 'ผู้อำนวยการวิทยาลัย',
+      type: 'executive',
+      sub: 'ผู้อำนวยการ',
+      remark: '',
+      status: 'active',
+      personnel: { name: 'ชื่อ–นามสกุล', photo: '' },
+    },
+  ],
+  committee: {
+    id: 'mock_comm',
+    position: 'คณะกรรมการสถานศึกษา',
+    type: 'committee',
+    sub: 'ร่วมกำกับ ดูแล และส่งเสริมมาตรฐานคุณภาพการจัดการศึกษา',
+    remark: '',
+    status: 'active',
+    personnel: { name: 'คณะกรรมการสถานศึกษา', photo: '' },
+  },
+  divisions: [
+    {
+      id: 'mock_div_1',
+      slug: 'resource-management',
+      title: 'ฝ่ายบริหารทรัพยากร',
+      color: '#278bb4',
+      order: 1,
+      description: 'งานบริหารงานทั่วไป งานบุคคล การเงิน อาคารสถานที่ และทะเบียน',
+      head: {
+        position: 'ฝ่ายบริหารทรัพยากร',
+        sub: 'ผู้บริหารฝ่าย',
+        personnel: { name: 'ชื่อ–นามสกุล', photo: '' },
+      },
+      jobs: [
+        { id: 'job_1_1', title: 'งานบริหารงานทั่วไป', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+        { id: 'job_1_2', title: 'งานบริหารและพัฒนาทรัพยากรบุคคล', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+        { id: 'job_1_3', title: 'งานการเงิน งานบัญชี และพัสดุ', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+        { id: 'job_1_4', title: 'งานอาคารสถานที่', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+        { id: 'job_1_5', title: 'งานทะเบียน', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+      ],
+    },
+    {
+      id: 'mock_div_2',
+      slug: 'strategic-planning',
+      title: 'ฝ่ายยุทธศาสตร์และแผนงาน',
+      color: '#7372b3',
+      order: 2,
+      description: 'งานยุทธศาสตร์ แผนงาน ประกันคุณภาพ ศูนย์ข้อมูล และส่งเสริมธุรกิจ',
+      head: {
+        position: 'ฝ่ายยุทธศาสตร์และแผนงาน',
+        sub: 'ผู้บริหารฝ่าย',
+        personnel: { name: 'ชื่อ–นามสกุล', photo: '' },
+      },
+      jobs: [
+        { id: 'job_2_1', title: 'งานพัฒนายุทธศาสตร์ แผนงานและงบประมาณ', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+        { id: 'job_2_2', title: 'งานมาตรฐานและการประกันคุณภาพการศึกษา', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+        { id: 'job_2_3', title: 'งานศูนย์สารสนเทศและสื่อสารองค์กร', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+        { id: 'job_2_4', title: 'งานส่งเสริมการวิจัย นวัตกรรม และสิ่งประดิษฐ์', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+        { id: 'job_2_5', title: 'งานส่งเสริมธุรกิจและการเป็นผู้ประกอบการ', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+        { id: 'job_2_6', title: 'งานติดตามและประเมินผลการจัดการศึกษา', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+      ],
+    },
+    {
+      id: 'mock_div_3',
+      slug: 'student-affairs',
+      title: 'ฝ่ายกิจการนักเรียน นักศึกษา',
+      color: '#348a7a',
+      order: 3,
+      description: 'งานกิจกรรม ครูที่ปรึกษา ปกครอง สวัสดิการ และโครงการพิเศษ',
+      head: {
+        position: 'ฝ่ายกิจการนักเรียน นักศึกษา',
+        sub: 'ผู้บริหารฝ่าย',
+        personnel: { name: 'ชื่อ–นามสกุล', photo: '' },
+      },
+      jobs: [
+        { id: 'job_3_1', title: 'งานกิจกรรมนักเรียน นักศึกษา', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+        { id: 'job_3_2', title: 'งานครูที่ปรึกษาและการแนะแนว', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+        { id: 'job_3_3', title: 'งานปกครองและความปลอดภัยนักเรียน นักศึกษา', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+        { id: 'job_3_4', title: 'งานสวัสดิการนักเรียน นักศึกษา', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+        { id: 'job_3_5', title: 'งานโครงการพิเศษและการบริการ', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+      ],
+    },
+    {
+      id: 'mock_div_4',
+      slug: 'academic-affairs',
+      title: 'ฝ่ายวิชาการ',
+      color: '#bd9052',
+      order: 4,
+      description: 'แผนกวิชา หลักสูตร วัดผล ทวิภาคี วิทยบริการ และการทดสอบ',
+      head: {
+        position: 'ฝ่ายวิชาการ',
+        sub: 'ผู้บริหารฝ่าย',
+        personnel: { name: 'ชื่อ–นามสกุล', photo: '' },
+      },
+      jobs: [
+        { id: 'job_4_1', title: 'แผนกวิชา / สาขาวิชา', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+        { id: 'job_4_2', title: 'งานพัฒนาหลักสูตรและการจัดการเรียนรู้', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+        { id: 'job_4_3', title: 'งานวัดผลและประเมินผล', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+        { id: 'job_4_4', title: 'งานอาชีวศึกษาระบบทวิภาคีและความร่วมมือ', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+        { id: 'job_4_5', title: 'งานวิทยบริการและเทคโนโลยีการศึกษา', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+        { id: 'job_4_6', title: 'งานการจัดการศึกษาและทดสอบทางการศึกษา', personnel: { name: 'ชื่อ–นามสกุล', photo: '' } },
+      ],
+    },
+  ],
+};
+
+/**
+ * Fetch Organization Structure Data from WordPress Headless REST API
+ */
+export async function getOrganizationData(): Promise<OrganizationData> {
+  const cacheKey = 'org_structure_data';
+  const cached = getFromCache<OrganizationData>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/organization`;
+    const res = await fetchWithTimeout(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.divisions && Array.isArray(data.divisions)) {
+        setInCache(cacheKey, data);
+        return data as OrganizationData;
+      }
+    }
+  } catch (err) {
+    console.warn('[WordPress API] Unable to fetch organization data:', err);
+  }
+
+  return LOCAL_MOCK_ORGANIZATION;
+}
+
 
 
 

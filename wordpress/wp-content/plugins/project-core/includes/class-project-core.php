@@ -18,6 +18,7 @@ class Project_Core {
     public $site_settings;
     public $webhook_manager;
     public $rest_api;
+    public $organization;
 
     public static function instance() {
         if (is_null(self::$instance)) {
@@ -37,6 +38,7 @@ class Project_Core {
         require_once PROJECT_CORE_PATH . 'includes/class-custom-fields.php';
         require_once PROJECT_CORE_PATH . 'includes/class-site-settings.php';
         require_once PROJECT_CORE_PATH . 'includes/class-webhook-manager.php';
+        require_once PROJECT_CORE_PATH . 'includes/class-organization.php';
         require_once PROJECT_CORE_PATH . 'includes/class-rest-api.php';
     }
 
@@ -49,6 +51,9 @@ class Project_Core {
 
         $this->site_settings   = new Project_Core_Site_Settings();
         $this->site_settings->init();
+
+        $this->organization    = new Project_Core_Organization();
+        $this->organization->init();
 
         $this->webhook_manager = new Project_Core_Webhook_Manager();
         $this->webhook_manager->init();
