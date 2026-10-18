@@ -90,11 +90,14 @@ const tocItems = [
     </div>
 
     <!-- Main Content Layout with Sticky Table of Contents -->
-    <div class="lg:flex lg:gap-8 lg:items-start">
+    <div class="flex flex-col md:flex-row gap-8 items-start relative">
       
-      <!-- Sticky Table of Contents (TOC) Desktop Sidebar -->
-      <aside class="hidden lg:block lg:w-72 xl:w-80 shrink-0 sticky top-24">
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs">
+      <!-- Sticky Table of Contents (TOC) Sidebar -->
+      <aside
+        class="w-full md:w-64 lg:w-72 xl:w-80 shrink-0 sticky top-24 z-30 self-start"
+        style="position: sticky; top: 96px;"
+      >
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs max-h-[calc(100vh-7.5rem)] overflow-y-auto">
           <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100 dark:border-slate-800">
             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">สารบัญเนื้อหา</span>
             <span class="text-[11px] font-semibold text-[#0047BA] dark:text-blue-400">7 ด้านสำคัญ</span>
@@ -124,21 +127,6 @@ const tocItems = [
 
       <!-- Main Content Panels (Flowing All 7 Sections) -->
       <main class="flex-1 min-w-0">
-        
-        <!-- Mobile Table of Contents Quick Jump Bar -->
-        <div class="lg:hidden mb-6 p-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
-          <div class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 px-1">สารบัญเนื้อหา</div>
-          <div class="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-            {tocItems.map((toc) => (
-              <a
-                href={`#${toc.id}`}
-                class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-              >
-                {toc.no}. {toc.title}
-              </a>
-            ))}
-          </div>
-        </div>
 
         {allMisItems.map((item, itemIdx) => (
           <div
@@ -1014,36 +1002,48 @@ const tocItems = [
               panel.classList.add('hidden');
             }
           });
+
+          // Refresh active TOC on year switch
+          updateActiveToc();
         });
       });
 
       // ScrollSpy for Table of Contents
-      var sections = document.querySelectorAll('section[id^="sec-"]');
       var tocLinks = document.querySelectorAll('.toc-link');
 
       function updateActiveToc() {
-        var scrollPos = window.scrollY + 160;
+        var activePanel = document.querySelector('.mis-year-panel:not(.hidden)');
+        if (!activePanel) return;
+
+        var sections = activePanel.querySelectorAll('section[id^="sec-"]');
+        var currentSectionId = '';
 
         sections.forEach(function (section) {
-          var top = section.offsetTop;
-          var height = section.offsetHeight;
-          var id = section.getAttribute('id');
+          var rect = section.getBoundingClientRect();
+          // Active if section header is near the top or section spans viewport
+          if (rect.top <= 200 && rect.bottom >= 120) {
+            currentSectionId = section.getAttribute('id');
+          }
+        });
 
-          if (scrollPos >= top && scrollPos < top + height) {
-            tocLinks.forEach(function (link) {
-              if (link.getAttribute('data-section') === id) {
-                link.classList.add('text-[#0047BA]', 'dark:text-blue-400', 'border-[#0047BA]', 'dark:border-blue-400', 'bg-blue-50/50', 'dark:bg-blue-950/20');
-                link.classList.remove('text-slate-600', 'dark:text-slate-400', 'border-transparent');
-              } else {
-                link.classList.remove('text-[#0047BA]', 'dark:text-blue-400', 'border-[#0047BA]', 'dark:border-blue-400', 'bg-blue-50/50', 'dark:bg-blue-950/20');
-                link.classList.add('text-slate-600', 'dark:text-slate-400', 'border-transparent');
-              }
-            });
+        // Fallback for top of page
+        if (!currentSectionId && sections.length > 0 && window.scrollY < 300) {
+          currentSectionId = sections[0].getAttribute('id');
+        }
+
+        tocLinks.forEach(function (link) {
+          if (link.getAttribute('data-section') === currentSectionId) {
+            link.classList.add('text-[#0047BA]', 'dark:text-blue-400', 'border-[#0047BA]', 'dark:border-blue-400', 'bg-blue-50/70', 'dark:bg-blue-950/30', 'font-semibold');
+            link.classList.remove('text-slate-600', 'dark:text-slate-400', 'border-transparent', 'font-medium');
+          } else {
+            link.classList.remove('text-[#0047BA]', 'dark:text-blue-400', 'border-[#0047BA]', 'dark:border-blue-400', 'bg-blue-50/70', 'dark:bg-blue-950/30', 'font-semibold');
+            link.classList.add('text-slate-600', 'dark:text-slate-400', 'border-transparent', 'font-medium');
           }
         });
       }
 
       window.addEventListener('scroll', updateActiveToc, { passive: true });
+      window.addEventListener('resize', updateActiveToc, { passive: true });
       updateActiveToc();
     });
   </script>
