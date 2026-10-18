@@ -90,38 +90,51 @@ const tocItems = [
     </div>
 
     <!-- Main Content Layout with Sticky Table of Contents -->
-    <div class="flex flex-col md:flex-row gap-8 items-start relative">
+    <div class="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start relative">
       
-      <!-- Sticky Table of Contents (TOC) Sidebar -->
+      <!-- ================= Left Column: Table of Contents (Sticky on Desktop) ================= -->
       <aside
-        class="w-full md:w-64 lg:w-72 xl:w-80 shrink-0 sticky top-24 z-30 self-start"
-        style="position: sticky; top: 96px;"
+        class="w-full lg:w-64 xl:w-72 shrink-0 lg:sticky lg:top-28 self-start"
       >
-        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs max-h-[calc(100vh-7.5rem)] overflow-y-auto">
-          <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100 dark:border-slate-800">
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">สารบัญเนื้อหา</span>
-            <span class="text-[11px] font-semibold text-[#0047BA] dark:text-blue-400">7 ด้านสำคัญ</span>
-          </div>
-          <nav class="space-y-1" id="toc-nav">
-            {tocItems.map((toc) => (
-              <a
-                href={`#${toc.id}`}
-                class="toc-link group flex items-start gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-[#0047BA] dark:hover:text-blue-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-all border-l-2 border-transparent"
-                data-section={toc.id}
+        <div
+          class="p-5 rounded-2xl bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800"
+        >
+          <div
+            class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 mb-3"
+          >
+            <h2
+              class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2"
+            >
+              <svg
+                class="w-4 h-4 text-[#0047BA] dark:text-blue-400"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
               >
-                <span class="font-mono text-[11px] text-slate-400 group-hover:text-[#0047BA] dark:group-hover:text-blue-400 transition-colors pt-0.5">
-                  {toc.no}
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12"></path>
+              </svg>
+              สารบัญเนื้อหา
+            </h2>
+          </div>
+
+          <nav class="space-y-1" id="toc-nav">
+            {tocItems.map((item, index) => (
+              <a
+                href={`#${item.id}`}
+                data-target={item.id}
+                class="toc-link flex items-center justify-between px-3 py-2 rounded-lg text-xs sm:text-sm text-slate-600 dark:text-slate-400 hover:text-[#0047BA] dark:hover:text-blue-400 hover:bg-white dark:hover:bg-slate-800 transition-all font-normal"
+              >
+                <span class="truncate">{item.title}</span>
+                <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono ml-2">
+                  {(index + 1).toString().padStart(2, '0')}
                 </span>
-                <span class="leading-relaxed">{toc.title}</span>
               </a>
             ))}
           </nav>
-
-          <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
-            <div class="text-[11px] text-slate-400 leading-relaxed">
-              คลิกเพื่อเลื่อนไปยังหัวข้อที่ต้องการ หรือเลื่อนหน้าจอเพื่อดูเนื้อหาทั้งหมดอย่างต่อเนื่อง
-            </div>
-          </div>
         </div>
       </aside>
 
@@ -1057,12 +1070,39 @@ const tocItems = [
         }
 
         tocLinks.forEach(function (link) {
-          if (link.getAttribute('data-section') === currentSectionId) {
-            link.classList.add('text-[#0047BA]', 'dark:text-blue-400', 'border-[#0047BA]', 'dark:border-blue-400', 'bg-blue-50/70', 'dark:bg-blue-950/30', 'font-semibold');
-            link.classList.remove('text-slate-600', 'dark:text-slate-400', 'border-transparent', 'font-medium');
+          var isMatch = link.getAttribute('data-target') === currentSectionId;
+          if (isMatch) {
+            link.classList.add(
+              'text-[#0047BA]',
+              'dark:text-blue-400',
+              'font-semibold',
+              'bg-blue-50/80',
+              'dark:bg-blue-950/50',
+              'border-l-2',
+              'border-[#0047BA]',
+              'pl-2.5'
+            );
+            link.classList.remove(
+              'text-slate-600',
+              'dark:text-slate-400',
+              'font-normal'
+            );
           } else {
-            link.classList.remove('text-[#0047BA]', 'dark:text-blue-400', 'border-[#0047BA]', 'dark:border-blue-400', 'bg-blue-50/70', 'dark:bg-blue-950/30', 'font-semibold');
-            link.classList.add('text-slate-600', 'dark:text-slate-400', 'border-transparent', 'font-medium');
+            link.classList.remove(
+              'text-[#0047BA]',
+              'dark:text-blue-400',
+              'font-semibold',
+              'bg-blue-50/80',
+              'dark:bg-blue-950/50',
+              'border-l-2',
+              'border-[#0047BA]',
+              'pl-2.5'
+            );
+            link.classList.add(
+              'text-slate-600',
+              'dark:text-slate-400',
+              'font-normal'
+            );
           }
         });
       }
