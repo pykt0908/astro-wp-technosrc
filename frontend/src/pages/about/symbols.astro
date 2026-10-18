@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 // Table of Contents Items
 const tocItems = [
   { id: "sec-emblem", label: "ตราสัญลักษณ์ประจำวิทยาลัย" },
-  { id: "sec-colors", label: "สีประจำวิทยาลัย" },
+  { id: "sec-colors", label: "สีและต้นไม้ประจำวิทยาลัย" },
   { id: "sec-wordmark", label: "อัตลักษณ์ตัวอักษร S-TECH (2026)" },
   { id: "sec-tobe", label: "ตราสัญลักษณ์ TO BE NUMBER ONE" },
   { id: "sec-guidelines", label: "แนวทางการนำไปใช้งาน" },
@@ -63,38 +63,38 @@ const emblemVariants = [
   },
 ];
 
-// Color Palette Data
+// Color Palette Data (สีประจำวิทยาลัย: ฟ้า - ขาว)
 const collegeColors = [
   {
-    name: "สีน้ำเงินศรีราชา (S-TECH Royal Blue)",
-    role: "สีหลักประจำวิทยาลัย (Primary Identity)",
-    hex: "#0047BA",
-    rgb: "RGB(0, 71, 186)",
-    cmyk: "CMYK(100, 75, 0, 0)",
-    desc: "สะท้อนถึงความมั่นคง ความสุขุมรอบรู้ ความเป็นเลิศทางเทคโนโลยี และเกียรติภูมิของวิทยาลัยเทคโนโลยีศรีราชา",
-    bg: "bg-[#0047BA]",
+    name: "สีฟ้า (S-TECH Sky Blue)",
+    role: "สีหลักประจำวิทยาลัย (Official Color)",
+    hex: "#00A3E0",
+    rgb: "RGB(0, 163, 224)",
+    cmyk: "CMYK(75, 15, 0, 0)",
+    desc: "หมายถึง ความบริบูรณ์ หรือความถึงพร้อมด้วยความรู้",
+    bg: "bg-[#00A3E0]",
     textLight: true,
   },
   {
-    name: "สีฟ้าคราม (Sky Tech Blue)",
-    role: "สีรองประจำวิทยาลัย (Secondary Identity)",
-    hex: "#058EFA",
-    rgb: "RGB(5, 142, 250)",
-    cmyk: "CMYK(75, 40, 0, 0)",
-    desc: "สะท้อนถึงพลังความคิดสร้างสรรค์ นวัตกรรมใหม่ ความเปิดกว้างทางวิชาการ และท้องทะเลศรีราชา",
-    bg: "bg-[#058EFA]",
-    textLight: true,
-  },
-  {
-    name: "สีขาวบริสุทธิ์ (Pure White)",
-    role: "สีอัตลักษณ์ร่วม (Accent Color)",
+    name: "สีขาว (S-TECH Pure White)",
+    role: "สีหลักประจำวิทยาลัย (Official Color)",
     hex: "#FFFFFF",
     rgb: "RGB(255, 255, 255)",
     cmyk: "CMYK(0, 0, 0, 0)",
-    desc: "สะท้อนถึงความบริสุทธิ์ คุณธรรม จริยธรรมในวิชาชีพ ความโปร่งใส และความซื่อสัตย์สุจริต",
+    desc: "หมายถึง ความเป็นผู้มีคุณธรรมและจริยธรรมอันดี",
     bg: "bg-white",
     border: "border border-slate-200 dark:border-slate-700",
     textLight: false,
+  },
+  {
+    name: "สีน้ำเงินเทคโนฯ (Tech Navy Blue)",
+    role: "สีอัตลักษณ์ตราสัญลักษณ์ (Brand Accent)",
+    hex: "#0047BA",
+    rgb: "RGB(0, 71, 186)",
+    cmyk: "CMYK(100, 75, 0, 0)",
+    desc: "สีน้ำเงินเข้มในตราสัญลักษณ์และตัวอักษร S-TECH สำหรับงานดิจิทัลและสิ่งพิมพ์",
+    bg: "bg-[#0047BA]",
+    textLight: true,
   },
   {
     name: "สีทองเกียรติยศ (Honor Gold)",
@@ -102,7 +102,7 @@ const collegeColors = [
     hex: "#B57E10",
     rgb: "RGB(181, 126, 16)",
     cmyk: "CMYK(20, 45, 100, 15)",
-    desc: "สะท้อนถึงความสำเร็จอันทรงเกียรติ ความภาคภูมิใจ และมาตรฐานความเป็นเลิศระดับสากล",
+    desc: "สีทองสำหรับงานพิธีการ โล่เกียรติยศ และของที่ระลึกพิเศษประจำวิทยาลัย",
     bg: "bg-[#B57E10]",
     textLight: true,
   },
@@ -518,72 +518,151 @@ const tobeVariants = [
         </section>
 
 
-        <!-- SECTION 2: สีประจำวิทยาลัย -->
+        <!-- SECTION 2: สีและต้นไม้ประจำวิทยาลัย -->
         <section id="sec-colors" class="scroll-mt-28 space-y-8">
           
           <div class="flex items-center gap-3">
-            <span class="w-1.5 h-6 rounded-full bg-[#0047BA]"></span>
+            <span class="w-1.5 h-6 rounded-full bg-[#00A3E0]"></span>
             <div>
-              <span class="text-xs font-mono font-semibold text-[#0047BA] dark:text-blue-400 tracking-wider">02</span>
+              <span class="text-xs font-mono font-semibold text-[#00A3E0] dark:text-sky-400 tracking-wider">02</span>
               <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-                สีประจำวิทยาลัย
+                สีและต้นไม้ประจำวิทยาลัย
               </h2>
             </div>
           </div>
 
-          <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-            ระบบสีอัตลักษณ์ของวิทยาลัยเทคโนโลยีศรีราชา กำหนดขึ้นเพื่อสร้างเอกลักษณ์และความเป็นอันหนึ่งอันเดียวกันในทุกสื่อ สามารถคลิกที่การ์ดเพื่อคัดลอกรหัสสี (HEX / RGB) ได้ทันที
-          </p>
+          <!-- Featured Dual Cards: สีประจำวิทยาลัย (ฟ้า-ขาว) + ต้นไม้ประจำวิทยาลัย (ต้นราชพฤกษ์) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+            <!-- สีประจำวิทยาลัย -->
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+              <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center justify-between">
+                <span>สีประจำวิทยาลัย</span>
+                <span class="text-sm font-semibold text-slate-500 dark:text-slate-400">ฟ้า – ขาว</span>
+              </h3>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
-            {collegeColors.map((color) => (
-              <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-all">
-                <div>
-                  <!-- Color Swatch Block -->
-                  <div class:list={["w-full h-28 rounded-xl relative p-4 flex flex-col justify-between mb-5 shadow-inner", color.bg, color.border]}>
-                    <div class="flex items-center justify-between">
-                      <span class:list={["text-xs font-bold uppercase tracking-wider", color.textLight ? "text-white/90" : "text-slate-800"]}>
-                        {color.role}
-                      </span>
-                      <button
-                        type="button"
-                        class="copy-btn px-2.5 py-1 rounded-md text-[11px] font-mono font-bold bg-black/20 hover:bg-black/35 text-white backdrop-blur-xs transition-colors flex items-center gap-1 active:scale-95"
-                        data-copy={color.hex}
-                        title="คลิกเพื่อคัดลอก HEX"
-                      >
-                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
-                        </svg>
-                        <span>{color.hex}</span>
-                      </button>
-                    </div>
-
-                    <div class:list={["text-xs font-mono font-medium", color.textLight ? "text-white/80" : "text-slate-700"]}>
-                      {color.rgb}
-                    </div>
-                  </div>
-
-                  <h3 class="font-bold text-slate-900 dark:text-white text-base mb-1">
-                    {color.name}
-                  </h3>
-                  <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
-                    {color.desc}
-                  </p>
+              <div class="flex h-11 w-full rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-xs">
+                <div class="w-1/2 bg-[#00A3E0] flex items-center justify-center text-xs sm:text-sm font-bold text-white tracking-wider">
+                  ฟ้า
                 </div>
+                <div class="w-1/2 bg-white flex items-center justify-center text-xs sm:text-sm font-bold text-slate-700 tracking-wider">
+                  ขาว
+                </div>
+              </div>
 
-                <!-- Code Values Table -->
-                <div class="pt-4 border-t border-slate-100 dark:border-slate-800 grid grid-cols-2 gap-2 text-xs font-mono">
-                  <div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60">
-                    <span class="text-[10px] text-slate-400 block uppercase">RGB Value</span>
-                    <span class="text-slate-700 dark:text-slate-300 font-semibold">{color.rgb}</span>
+              <div class="space-y-3 pt-2 text-xs sm:text-sm">
+                <div class="flex items-start gap-2.5">
+                  <span class="w-3.5 h-3.5 rounded-full bg-[#00A3E0] shrink-0 mt-0.5 border border-black/10"></span>
+                  <div>
+                    <strong class="text-slate-900 dark:text-white font-semibold">สีฟ้า</strong>
+                    <p class="text-slate-600 dark:text-slate-400 leading-relaxed mt-0.5">
+                      หมายถึง ความบริบูรณ์ หรือความถึงพร้อมด้วยความรู้
+                    </p>
                   </div>
-                  <div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60">
-                    <span class="text-[10px] text-slate-400 block uppercase">CMYK (Print)</span>
-                    <span class="text-slate-700 dark:text-slate-300 font-semibold">{color.cmyk}</span>
+                </div>
+                <div class="flex items-start gap-2.5">
+                  <span class="w-3.5 h-3.5 rounded-full bg-white border border-slate-300 dark:border-slate-600 shrink-0 mt-0.5"></span>
+                  <div>
+                    <strong class="text-slate-900 dark:text-white font-semibold">สีขาว</strong>
+                    <p class="text-slate-600 dark:text-slate-400 leading-relaxed mt-0.5">
+                      หมายถึง ความเป็นผู้มีคุณธรรมและจริยธรรมอันดี
+                    </p>
                   </div>
                 </div>
               </div>
-            ))}
+            </div>
+
+            <!-- ต้นไม้ประจำวิทยาลัย -->
+            <div class="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between space-y-4">
+              <div>
+                <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-3">
+                  ต้นไม้ประจำวิทยาลัย
+                </h3>
+                <div class="flex items-center gap-4">
+                  <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0 shadow-xs">
+                    <img
+                      src="/images/about/tree-ratchaphruek.jpg"
+                      alt="ต้นราชพฤกษ์ ต้นไม้ประจำวิทยาลัยเทคโนโลยีศรีราชา"
+                      class="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div class="space-y-1">
+                    <p class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+                      ต้นราชพฤกษ์
+                    </p>
+                    <p class="text-slate-600 dark:text-slate-400 text-xs sm:text-sm leading-relaxed">
+                      หมายถึง ความเจริญรุ่งเรืองของหมู่คณะ
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <p class="text-xs text-slate-400 dark:text-slate-500 pt-2 border-t border-slate-100 dark:border-slate-800">
+                พรรณไม้มงคลสัญลักษณ์แห่งความเจริญงอกงามและความสามัคคี
+              </p>
+            </div>
+          </div>
+
+          <!-- Color Swatches & Codes for Designers -->
+          <div class="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <div>
+              <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+                รหัสสีอัตลักษณ์สำหรับการนำไปใช้งาน (Color Specifications)
+              </h3>
+              <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                ค่าสีมาตรฐานสำหรับงานพิมพ์ (CMYK) และสื่อดิจิทัล (HEX / RGB) สามารถคลิกเพื่อคัดลอกรหัสสีได้ทันที
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+              {collegeColors.map((color) => (
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-all">
+                  <div>
+                    <!-- Color Swatch Block -->
+                    <div class:list={["w-full h-28 rounded-xl relative p-4 flex flex-col justify-between mb-5 shadow-inner", color.bg, color.border]}>
+                      <div class="flex items-center justify-between">
+                        <span class:list={["text-xs font-bold uppercase tracking-wider", color.textLight ? "text-white/90" : "text-slate-800"]}>
+                          {color.role}
+                        </span>
+                        <button
+                          type="button"
+                          class="copy-btn px-2.5 py-1 rounded-md text-[11px] font-mono font-bold bg-black/20 hover:bg-black/35 text-white backdrop-blur-xs transition-colors flex items-center gap-1 active:scale-95"
+                          data-copy={color.hex}
+                          title="คลิกเพื่อคัดลอก HEX"
+                        >
+                          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                          </svg>
+                          <span>{color.hex}</span>
+                        </button>
+                      </div>
+
+                      <div class:list={["text-xs font-mono font-medium", color.textLight ? "text-white/80" : "text-slate-700"]}>
+                        {color.rgb}
+                      </div>
+                    </div>
+
+                    <h3 class="font-bold text-slate-900 dark:text-white text-base mb-1">
+                      {color.name}
+                    </h3>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                      {color.desc}
+                    </p>
+                  </div>
+
+                  <!-- Code Values Table -->
+                  <div class="pt-4 border-t border-slate-100 dark:border-slate-800 grid grid-cols-2 gap-2 text-xs font-mono">
+                    <div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60">
+                      <span class="text-[10px] text-slate-400 block uppercase">RGB Value</span>
+                      <span class="text-slate-700 dark:text-slate-300 font-semibold">{color.rgb}</span>
+                    </div>
+                    <div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60">
+                      <span class="text-[10px] text-slate-400 block uppercase">CMYK (Print)</span>
+                      <span class="text-slate-700 dark:text-slate-300 font-semibold">{color.cmyk}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
         </section>
