@@ -151,15 +151,6 @@ class Project_Core_Organization {
             'manage_options',
             'edit.php?post_type=org_unit'
         );
-
-        add_submenu_page(
-            'project-core-organization',
-            __('ตั้งค่าหน้าโครงสร้าง', 'project-core'),
-            __('ตั้งค่าหน้าโครงสร้าง', 'project-core'),
-            'manage_options',
-            'project-core-org-settings',
-            array($this, 'render_settings_page')
-        );
     }
 
     /**
@@ -668,96 +659,7 @@ class Project_Core_Organization {
         return wp_parse_args($saved, $defaults);
     }
 
-    /**
-     * Render Settings Page
-     */
-    public function render_settings_page() {
-        if (isset($_POST['project_core_org_settings_nonce'])) {
-            if (wp_verify_nonce($_POST['project_core_org_settings_nonce'], 'project_core_org_save_settings')) {
-                $settings = array(
-                    'page_title'       => sanitize_text_field($_POST['page_title']),
-                    'page_description' => sanitize_textarea_field($_POST['page_description']),
-                    'academic_year'    => sanitize_text_field($_POST['academic_year']),
-                    'updated_at'       => sanitize_text_field($_POST['updated_at']),
-                    'pdf_url'          => esc_url_raw($_POST['pdf_url']),
-                    'committee_title'  => sanitize_text_field($_POST['committee_title']),
-                    'committee_desc'   => sanitize_textarea_field($_POST['committee_desc']),
-                    'committee_link'   => esc_url_raw($_POST['committee_link']),
-                );
-                update_option(self::SETTINGS_OPTION, $settings);
-                echo '<div class="notice notice-success is-dismissible"><p>' . __('บันทึกการตั้งค่าเรียบร้อยแล้ว', 'project-core') . '</p></div>';
-            }
-        }
 
-        $settings = self::get_settings();
-        wp_enqueue_media();
-        ?>
-        <div class="wrap">
-            <h1><?php _e('ตั้งค่าหน้าโครงสร้างการบริหาร', 'project-core'); ?></h1>
-            <p class="description"><?php _e('กำหนดข้อมูลทั่วไป ปีการศึกษา และเอกสารดาวน์โหลดสำหรับหน้าโครงสร้างการบริหารบนเว็บไซต์', 'project-core'); ?></p>
-
-            <form method="post" action="">
-                <?php wp_nonce_field('project_core_org_save_settings', 'project_core_org_settings_nonce'); ?>
-                <table class="form-table">
-                    <tr>
-                        <th scope="row"><label for="page_title"><?php _e('ชื่อหน้า', 'project-core'); ?></label></th>
-                        <td><input type="text" name="page_title" id="page_title" value="<?php echo esc_attr($settings['page_title']); ?>" class="regular-text"></td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><label for="page_description"><?php _e('คำอธิบายหน้า', 'project-core'); ?></label></th>
-                        <td><textarea name="page_description" id="page_description" rows="2" class="large-text"><?php echo esc_textarea($settings['page_description']); ?></textarea></td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><label for="academic_year"><?php _e('ปีการศึกษา', 'project-core'); ?></label></th>
-                        <td><input type="text" name="academic_year" id="academic_year" value="<?php echo esc_attr($settings['academic_year']); ?>" class="regular-text" style="max-width:150px;"></td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><label for="updated_at"><?php _e('วันที่ปรับปรุงข้อมูล', 'project-core'); ?></label></th>
-                        <td><input type="date" name="updated_at" id="updated_at" value="<?php echo esc_attr($settings['updated_at']); ?>" class="regular-text" style="max-width:200px;"></td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><label for="pdf_url"><?php _e('ไฟล์ PDF ผังฉบับอนุมัติ (ถ้ามี)', 'project-core'); ?></label></th>
-                        <td>
-                            <input type="text" name="pdf_url" id="pdf_url" value="<?php echo esc_attr($settings['pdf_url']); ?>" class="large-text" placeholder="https://...">
-                            <button type="button" class="button" id="upload_pdf_btn"><?php _e('เลือกไฟล์จากคลังสื่อ', 'project-core'); ?></button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><label for="committee_title"><?php _e('หัวข้อคณะกรรมการสถานศึกษา', 'project-core'); ?></label></th>
-                        <td><input type="text" name="committee_title" id="committee_title" value="<?php echo esc_attr($settings['committee_title']); ?>" class="regular-text"></td>
-                    </tr>
-                    <tr>
-                        <th scope="row"><label for="committee_desc"><?php _e('รายละเอียดคณะกรรมการสถานศึกษา', 'project-core'); ?></label></th>
-                        <td><textarea name="committee_desc" id="committee_desc" rows="2" class="large-text"><?php echo esc_textarea($settings['committee_desc']); ?></textarea></td>
-                    </tr>
-                </table>
-
-                <?php submit_button(__('บันทึกการตั้งค่า', 'project-core')); ?>
-            </form>
-        </div>
-
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var btn = document.getElementById('upload_pdf_btn');
-            if (btn) {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    var frame = wp.media({
-                        title: 'เลือกไฟล์ PDF ผังโครงสร้าง',
-                        button: { text: 'ใช้ไฟล์นี้' },
-                        multiple: false
-                    });
-                    frame.on('select', function() {
-                        var attachment = frame.state().get('selection').first().toJSON();
-                        document.getElementById('pdf_url').value = attachment.url;
-                    });
-                    frame.open();
-                });
-            }
-        });
-        </script>
-        <?php
-    }
 
     /**
      * Render Overview Page
