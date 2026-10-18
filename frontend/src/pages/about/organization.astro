@@ -108,21 +108,21 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
               <div class={`relative ${isDirector ? 'director-wrap' : ''}`}>
                 <!-- Leader Card -->
                 <article class="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow w-[280px] sm:w-[320px] flex items-center gap-4">
-                  <!-- Photo Container (Uniform size w-20 h-24, no border) -->
-                  <div class="relative w-20 h-24 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex-shrink-0">
+                  <!-- Photo Container (Square 1:1, no border) -->
+                  <div class="relative w-[88px] h-[88px] aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex-shrink-0">
                     {leader.personnel?.photo ? (
                       <img
                         src={leader.personnel.photo}
                         alt={`ภาพ ${leader.personnel.name}`}
-                        class="w-full h-full object-cover object-top"
+                        class="w-full h-full object-cover object-center"
                         loading="lazy"
                       />
                     ) : (
-                      <svg class="w-full h-full text-slate-400 dark:text-slate-500" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <circle cx="50" cy="37" r="20" fill="currentColor" opacity="0.55" />
-                        <path d="M10 115V96c0-23 16-36 40-36s40 13 40 36v19" fill="currentColor" opacity="0.55" />
-                        <path d="m36 65 14 15 14-15-7 42H43Z" fill="#eff4f8" />
-                        <path d="m47 80 6 0 3 25-6 7-6-7Z" fill="#849eb5" />
+                      <svg class="w-full h-full text-slate-400 dark:text-slate-500" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <circle cx="50" cy="34" r="20" fill="currentColor" opacity="0.55" />
+                        <path d="M12 100V84c0-22 16-34 38-34s38 12 38 34v16" fill="currentColor" opacity="0.55" />
+                        <path d="m36 57 14 15 14-15-7 43H43Z" fill="#eff4f8" />
+                        <path d="m47 72 6 0 3 25-6 3-6-3Z" fill="#849eb5" />
                       </svg>
                     )}
                   </div>
@@ -192,21 +192,21 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
                 <!-- Top Color Accent Pip -->
                 <div class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full" style={`background-color: ${div.color};`}></div>
 
-                <!-- Division Head Photo (Uniform size w-20 h-24, no border) -->
-                <div class="relative w-20 h-24 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 mb-3 flex-shrink-0">
+                <!-- Division Head Photo (Square 1:1, no border) -->
+                <div class="relative w-[88px] h-[88px] aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 mb-3 flex-shrink-0">
                   {div.head?.personnel?.photo ? (
                     <img
                       src={div.head.personnel.photo}
                       alt={`ภาพ ${div.head.personnel.name}`}
-                      class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                      class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
                       loading="lazy"
                     />
                   ) : (
-                    <svg class="w-full h-full text-slate-400 dark:text-slate-500" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                      <circle cx="50" cy="37" r="20" fill="currentColor" opacity="0.55" />
-                      <path d="M10 115V96c0-23 16-36 40-36s40 13 40 36v19" fill="currentColor" opacity="0.55" />
-                      <path d="m36 65 14 15 14-15-7 42H43Z" fill="#eff4f8" />
-                      <path d="m47 80 6 0 3 25-6 7-6-7Z" fill="#849eb5" />
+                    <svg class="w-full h-full text-slate-400 dark:text-slate-500" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <circle cx="50" cy="34" r="20" fill="currentColor" opacity="0.55" />
+                      <path d="M12 100V84c0-22 16-34 38-34s38 12 38 34v16" fill="currentColor" opacity="0.55" />
+                      <path d="m36 57 14 15 14-15-7 43H43Z" fill="#eff4f8" />
+                      <path d="m47 72 6 0 3 25-6 3-6-3Z" fill="#849eb5" />
                     </svg>
                   )}
                 </div>
@@ -312,21 +312,21 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
                   </div>
                 </div>
 
-                <!-- Division Leader Badge (Uniform size w-20 h-24, no border) -->
+                <!-- Division Leader Badge (Square 1:1, no border) -->
                 <div class="flex items-center gap-3.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-2.5 pr-5">
-                  <div class="w-20 h-24 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex-shrink-0">
+                  <div class="w-[88px] h-[88px] aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex-shrink-0">
                     {div.head?.personnel?.photo ? (
                       <img
                         src={div.head.personnel.photo}
                         alt={`ภาพ ${div.head.personnel.name}`}
-                        class="w-full h-full object-cover object-top"
+                        class="w-full h-full object-cover object-center"
                       />
                     ) : (
-                      <svg class="w-full h-full text-slate-400 dark:text-slate-500" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <circle cx="50" cy="37" r="20" fill="currentColor" opacity="0.55" />
-                        <path d="M10 115V96c0-23 16-36 40-36s40 13 40 36v19" fill="currentColor" opacity="0.55" />
-                        <path d="m36 65 14 15 14-15-7 42H43Z" fill="#eff4f8" />
-                        <path d="m47 80 6 0 3 25-6 7-6-7Z" fill="#849eb5" />
+                      <svg class="w-full h-full text-slate-400 dark:text-slate-500" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <circle cx="50" cy="34" r="20" fill="currentColor" opacity="0.55" />
+                        <path d="M12 100V84c0-22 16-34 38-34s38 12 38 34v16" fill="currentColor" opacity="0.55" />
+                        <path d="m36 57 14 15 14-15-7 43H43Z" fill="#eff4f8" />
+                        <path d="m47 72 6 0 3 25-6 3-6-3Z" fill="#849eb5" />
                       </svg>
                     )}
                   </div>
@@ -343,21 +343,21 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {div.jobs.map((job) => (
                   <article class="flex items-center gap-4 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors">
-                    <!-- Job Head Avatar (Uniform size w-20 h-24, no border) -->
-                    <div class="w-20 h-24 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex-shrink-0">
+                    <!-- Job Head Avatar (Square 1:1, no border) -->
+                    <div class="w-[88px] h-[88px] aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex-shrink-0">
                       {job.personnel?.photo ? (
                         <img
                           src={job.personnel.photo}
                           alt={`ภาพ ${job.personnel.name}`}
-                          class="w-full h-full object-cover object-top"
+                          class="w-full h-full object-cover object-center"
                           loading="lazy"
                         />
                       ) : (
-                        <svg class="w-full h-full text-slate-400 dark:text-slate-500" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                          <circle cx="50" cy="37" r="20" fill="currentColor" opacity="0.55" />
-                          <path d="M10 115V96c0-23 16-36 40-36s40 13 40 36v19" fill="currentColor" opacity="0.55" />
-                          <path d="m36 65 14 15 14-15-7 42H43Z" fill="#eff4f8" />
-                          <path d="m47 80 6 0 3 25-6 7-6-7Z" fill="#849eb5" />
+                        <svg class="w-full h-full text-slate-400 dark:text-slate-500" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                          <circle cx="50" cy="34" r="20" fill="currentColor" opacity="0.55" />
+                          <path d="M12 100V84c0-22 16-34 38-34s38 12 38 34v16" fill="currentColor" opacity="0.55" />
+                          <path d="m36 57 14 15 14-15-7 43H43Z" fill="#eff4f8" />
+                          <path d="m47 72 6 0 3 25-6 3-6-3Z" fill="#849eb5" />
                         </svg>
                       )}
                     </div>
