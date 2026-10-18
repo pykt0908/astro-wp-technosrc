@@ -210,16 +210,15 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
                   </div>
                 )}
 
-                <!-- Action Button to jump to department jobs (borderless) -->
-                <button
-                  type="button"
+                <!-- Action Link to jump to division details -->
+                <a
+                  href={`#division-${i}`}
                   class="mt-4 w-full py-2.5 px-3 text-xs font-semibold rounded-xl bg-slate-200/70 hover:bg-slate-200 dark:bg-slate-700/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors flex items-center justify-center gap-1.5"
-                  data-select-dept={i}
                   aria-label={`ดูงานในสังกัดของ ${div.title}`}
                 >
                   <span>ดูงานในสังกัด ({div.jobs.length})</span>
-                  <span aria-hidden="true" class="text-slate-400 group-hover:translate-x-0.5 transition-transform">↗</span>
-                </button>
+                  <span aria-hidden="true" class="text-slate-400 group-hover:translate-y-0.5 transition-transform">↓</span>
+                </a>
               </article>
             </div>
           ))}
@@ -227,83 +226,84 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
       </div>
     </section>
 
-    <!-- Section 2: Department & Jobs Detail (Tabs & Panels) -->
+    <!-- Section 2: Department & Jobs Detail (Continuous Flow by Division) -->
     <section id="department" class="scroll-mt-24" aria-label="หน่วยงานในสังกัด">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
-        <div>
-          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            หน่วยงานในสังกัด
-          </h2>
-          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            เลือกฝ่ายเพื่อดูรายการงานและผู้รับผิดชอบแต่ละส่วนงาน
-          </p>
-        </div>
+      <div class="mb-8">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          หน่วยงานในสังกัด
+        </h2>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+          รายการงานและบุคลากรผู้รับผิดชอบงานในสังกัดแต่ละฝ่าย
+        </p>
       </div>
 
-      <!-- Tab Buttons (Accessible Tabs) -->
-      <div
-        class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-6"
-        role="tablist"
-        aria-label="ฝ่ายบริหารงาน"
-        id="org-tablist"
-      >
-        {divisions.map((div, i) => (
-          <button
-            type="button"
-            role="tab"
-            id={`tab-btn-${i}`}
-            aria-controls={`tab-panel-${i}`}
-            aria-selected={i === 0 ? "true" : "false"}
-            tabindex={i === 0 ? "0" : "-1"}
-            data-tab-index={i}
-            class={`org-tab-btn px-4 py-3 sm:py-3.5 rounded-2xl text-xs sm:text-sm font-bold text-center transition-all flex items-center justify-center gap-2 relative ${
-              i === 0
-                ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm"
-                : "bg-slate-100/90 text-slate-600 dark:bg-slate-800/80 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700"
-            }`}
-          >
-            <span class="truncate">{div.title}</span>
-          </button>
-        ))}
-      </div>
-
-      <!-- Tab Panels -->
-      <div class="space-y-6">
+      <!-- Divisions List (Flowing down sequentially) -->
+      <div class="space-y-8 sm:space-y-12">
         {divisions.map((div, i) => (
           <div
-            id={`tab-panel-${i}`}
-            role="tabpanel"
-            aria-labelledby={`tab-btn-${i}`}
-            class={`org-tab-panel ${i === 0 ? "block" : "hidden"}`}
+            id={`division-${i}`}
+            class="scroll-mt-24 bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 lg:p-10 border-0"
           >
-            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 lg:p-10">
-              <!-- Panel Header -->
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-8 border-b border-slate-100 dark:border-slate-800/80 gap-4">
-                <div class="flex items-center gap-4">
-                  <span class="text-3xl sm:text-4xl font-serif font-black text-slate-300 dark:text-slate-700" aria-hidden="true">
-                    0{i + 1}
-                  </span>
-                  <div>
-                    <h3 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                      <span>{div.title}</span>
-                      <span class="text-xs px-2.5 py-0.5 rounded-full font-sans font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                        {div.jobs.length} งาน
-                      </span>
-                    </h3>
-                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                      {div.description || `งานในสังกัด ${div.title}`}
-                    </p>
+            <!-- Division Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-8 border-b border-slate-100 dark:border-slate-800/80 gap-4">
+              <div class="flex items-center gap-4">
+                <span class="text-3xl sm:text-4xl font-serif font-black text-slate-300 dark:text-slate-700" aria-hidden="true">
+                  0{i + 1}
+                </span>
+                <div>
+                  <h3 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span>{div.title}</span>
+                    <span class="text-xs px-2.5 py-0.5 rounded-full font-sans font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                      {div.jobs.length} งาน
+                    </span>
+                  </h3>
+                  <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                    {div.description || `งานในสังกัด ${div.title}`}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Division Leader Badge (Square 1:1, 96px, no border, no shadow) -->
+              <div class="flex items-center gap-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-2.5 pr-5">
+                <div class="w-24 h-24 aspect-square rounded-2xl overflow-hidden bg-slate-200/80 dark:bg-slate-700/80 flex-shrink-0">
+                  {div.head?.personnel?.photo ? (
+                    <img
+                      src={div.head.personnel.photo}
+                      alt={`ภาพ ${div.head.personnel.name}`}
+                      class="w-full h-full object-cover object-center"
+                    />
+                  ) : (
+                    <svg class="w-full h-full text-slate-400 dark:text-slate-500" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <circle cx="50" cy="34" r="20" fill="currentColor" opacity="0.55" />
+                      <path d="M12 100V84c0-22 16-34 38-34s38 12 38 34v16" fill="currentColor" opacity="0.55" />
+                      <path d="m36 57 14 15 14-15-7 43H43Z" fill="#eff4f8" />
+                      <path d="m47 72 6 0 3 25-6 3-6-3Z" fill="#849eb5" />
+                    </svg>
+                  )}
+                </div>
+                <div class="min-w-0">
+                  <div class="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">
+                    {div.head?.personnel?.name || "ชื่อ–นามสกุล"}
+                  </div>
+                  <div class="text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 mt-0.5">
+                    {div.head?.position || "ผู้บริหารฝ่าย"}
                   </div>
                 </div>
+              </div>
+            </div>
 
-                <!-- Division Leader Badge (Square 1:1, 96px, no border, no shadow) -->
-                <div class="flex items-center gap-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-2.5 pr-5">
-                  <div class="w-24 h-24 aspect-square rounded-2xl overflow-hidden bg-slate-200/80 dark:bg-slate-700/80 flex-shrink-0">
-                    {div.head?.personnel?.photo ? (
+            <!-- Jobs Grid (2 Columns on Desktop) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {div.jobs.map((job) => (
+                <article class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 hover:bg-slate-100/90 dark:hover:bg-slate-800/80 transition-colors">
+                  <!-- Job Head Avatar (Square 1:1, 80-96px, no border, no shadow) -->
+                  <div class="w-20 h-20 sm:w-24 sm:h-24 aspect-square rounded-2xl overflow-hidden bg-slate-200/80 dark:bg-slate-700/80 flex-shrink-0">
+                    {job.personnel?.photo ? (
                       <img
-                        src={div.head.personnel.photo}
-                        alt={`ภาพ ${div.head.personnel.name}`}
+                        src={job.personnel.photo}
+                        alt={`ภาพ ${job.personnel.name}`}
                         class="w-full h-full object-cover object-center"
+                        loading="lazy"
                       />
                     ) : (
                       <svg class="w-full h-full text-slate-400 dark:text-slate-500" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -314,63 +314,29 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
                       </svg>
                     )}
                   </div>
-                  <div class="min-w-0">
-                    <div class="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">
-                      {div.head?.personnel?.name || "ชื่อ–นามสกุล"}
-                    </div>
-                    <div class="text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 mt-0.5">
-                      {div.head?.position || "ผู้บริหารฝ่าย"}
-                    </div>
+
+                  <!-- Name on top, Job & Position below -->
+                  <div class="min-w-0 flex-1">
+                    <h4 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-snug truncate">
+                      {job.personnel?.name || "ชื่อ–นามสกุล"}
+                    </h4>
+                    <p class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                      <span>{job.title}</span>
+                      {job.position_title && (
+                        <>
+                          <span class="text-slate-300 dark:text-slate-600">·</span>
+                          <span class="font-normal text-slate-500 dark:text-slate-400">{job.position_title}</span>
+                        </>
+                      )}
+                    </p>
+                    {job.remark && (
+                      <span class="inline-block mt-1 text-[10px] bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full">
+                        {job.remark}
+                      </span>
+                    )}
                   </div>
-                </div>
-              </div>
-
-              <!-- Jobs Grid (2 Columns on Desktop) -->
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {div.jobs.map((job) => (
-                  <article class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 hover:bg-slate-100/90 dark:hover:bg-slate-800/80 transition-colors">
-                    <!-- Job Head Avatar (Square 1:1, 80-96px, no border, no shadow) -->
-                    <div class="w-20 h-20 sm:w-24 sm:h-24 aspect-square rounded-2xl overflow-hidden bg-slate-200/80 dark:bg-slate-700/80 flex-shrink-0">
-                      {job.personnel?.photo ? (
-                        <img
-                          src={job.personnel.photo}
-                          alt={`ภาพ ${job.personnel.name}`}
-                          class="w-full h-full object-cover object-center"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <svg class="w-full h-full text-slate-400 dark:text-slate-500" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                          <circle cx="50" cy="34" r="20" fill="currentColor" opacity="0.55" />
-                          <path d="M12 100V84c0-22 16-34 38-34s38 12 38 34v16" fill="currentColor" opacity="0.55" />
-                          <path d="m36 57 14 15 14-15-7 43H43Z" fill="#eff4f8" />
-                          <path d="m47 72 6 0 3 25-6 3-6-3Z" fill="#849eb5" />
-                        </svg>
-                      )}
-                    </div>
-
-                    <!-- Name on top, Job & Position below -->
-                    <div class="min-w-0 flex-1">
-                      <h4 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-snug truncate">
-                        {job.personnel?.name || "ชื่อ–นามสกุล"}
-                      </h4>
-                      <p class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mt-0.5 flex items-center gap-1.5 flex-wrap">
-                        <span>{job.title}</span>
-                        {job.position_title && (
-                          <>
-                            <span class="text-slate-300 dark:text-slate-600">·</span>
-                            <span class="font-normal text-slate-500 dark:text-slate-400">{job.position_title}</span>
-                          </>
-                        )}
-                      </p>
-                      {job.remark && (
-                        <span class="inline-block mt-1 text-[10px] bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full">
-                          {job.remark}
-                        </span>
-                      )}
-                    </div>
-                  </article>
-                ))}
-              </div>
+                </article>
+              ))}
             </div>
           </div>
         ))}
@@ -393,91 +359,3 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
     </div>
   </div>
 </BaseLayout>
-
-<script is:inline>
-  function initOrganizationTabs() {
-    const tabButtons = document.querySelectorAll('.org-tab-btn');
-    const tabPanels = document.querySelectorAll('.org-tab-panel');
-    const deptButtons = document.querySelectorAll('[data-select-dept]');
-
-    if (!tabButtons.length || !tabPanels.length) return;
-
-    function switchTab(targetIndex) {
-      tabButtons.forEach((btn, idx) => {
-        const isSelected = idx === targetIndex;
-        btn.setAttribute('aria-selected', isSelected ? 'true' : 'false');
-        btn.setAttribute('tabindex', isSelected ? '0' : '-1');
-
-        if (isSelected) {
-          btn.classList.add('bg-slate-900', 'text-white', 'dark:bg-white', 'dark:text-slate-900', 'shadow-sm');
-          btn.classList.remove('bg-slate-100/90', 'text-slate-600', 'dark:bg-slate-800/80', 'dark:text-slate-300', 'hover:bg-slate-200/80', 'dark:hover:bg-slate-700');
-        } else {
-          btn.classList.remove('bg-slate-900', 'text-white', 'dark:bg-white', 'dark:text-slate-900', 'shadow-sm');
-          btn.classList.add('bg-slate-100/90', 'text-slate-600', 'dark:bg-slate-800/80', 'dark:text-slate-300', 'hover:bg-slate-200/80', 'dark:hover:bg-slate-700');
-        }
-      });
-
-      tabPanels.forEach((panel, idx) => {
-        if (idx === targetIndex) {
-          panel.classList.remove('hidden');
-          panel.classList.add('block');
-        } else {
-          panel.classList.remove('block');
-          panel.classList.add('hidden');
-        }
-      });
-    }
-
-    // Click on tab button
-    tabButtons.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const idx = parseInt(btn.getAttribute('data-tab-index') || '0', 10);
-        switchTab(idx);
-      });
-
-      // Keyboard navigation (ArrowLeft, ArrowRight, Home, End)
-      btn.addEventListener('keydown', (e) => {
-        const total = tabButtons.length;
-        let currentIdx = parseInt(btn.getAttribute('data-tab-index') || '0', 10);
-        let nextIdx = currentIdx;
-
-        if (e.key === 'ArrowRight') {
-          nextIdx = (currentIdx + 1) % total;
-        } else if (e.key === 'ArrowLeft') {
-          nextIdx = (currentIdx - 1 + total) % total;
-        } else if (e.key === 'Home') {
-          nextIdx = 0;
-        } else if (e.key === 'End') {
-          nextIdx = total - 1;
-        } else {
-          return;
-        }
-
-        e.preventDefault();
-        switchTab(nextIdx);
-        tabButtons[nextIdx]?.focus();
-      });
-    });
-
-    // "ดูงานในสังกัด ↗" buttons on division cards
-    deptButtons.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const deptIndex = parseInt(btn.getAttribute('data-select-dept') || '0', 10);
-        switchTab(deptIndex);
-
-        const targetSection = document.getElementById('department');
-        if (targetSection) {
-          targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      });
-    });
-  }
-
-  // Run on first load and on client-side navigation
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initOrganizationTabs);
-  } else {
-    initOrganizationTabs();
-  }
-  document.addEventListener('astro:page-load', initOrganizationTabs);
-</script>
