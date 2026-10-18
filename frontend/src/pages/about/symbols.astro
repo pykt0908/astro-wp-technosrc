@@ -558,12 +558,12 @@ const tobeVariants = [
           </div>
 
           <!-- Wordmark Gallery Grid -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {wordmarkVariants.map((item) => (
               <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between hover:border-blue-300 dark:hover:border-blue-700 transition-all">
                 <div>
                   <!-- Preview Box -->
-                  <div class:list={["w-full h-36 rounded-xl flex items-center justify-center p-4 mb-4 relative overflow-hidden shadow-inner", item.bgClass]}>
+                  <div class:list={["w-full h-44 rounded-xl flex items-center justify-center p-6 mb-4 relative overflow-hidden", item.bgClass]}>
                     <img
                       src={item.png}
                       alt={item.title}
