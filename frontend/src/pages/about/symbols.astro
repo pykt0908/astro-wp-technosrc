@@ -83,28 +83,8 @@ const collegeColors = [
     cmyk: "CMYK(0, 0, 0, 0)",
     desc: "หมายถึง ความเป็นผู้มีคุณธรรมและจริยธรรมอันดี",
     bg: "bg-white",
-    border: "border border-slate-200 dark:border-slate-700",
+    border: "border-2 border-slate-200 dark:border-slate-700",
     textLight: false,
-  },
-  {
-    name: "สีน้ำเงินเทคโนฯ (Tech Navy Blue)",
-    role: "สีอัตลักษณ์ตราสัญลักษณ์ (Brand Accent)",
-    hex: "#0047BA",
-    rgb: "RGB(0, 71, 186)",
-    cmyk: "CMYK(100, 75, 0, 0)",
-    desc: "สีน้ำเงินเข้มในตราสัญลักษณ์และตัวอักษร S-TECH สำหรับงานดิจิทัลและสิ่งพิมพ์",
-    bg: "bg-[#0047BA]",
-    textLight: true,
-  },
-  {
-    name: "สีทองเกียรติยศ (Honor Gold)",
-    role: "สีพิเศษสำหรับพิธีการ (Ceremonial Accent)",
-    hex: "#B57E10",
-    rgb: "RGB(181, 126, 16)",
-    cmyk: "CMYK(20, 45, 100, 15)",
-    desc: "สีทองสำหรับงานพิธีการ โล่เกียรติยศ และของที่ระลึกพิเศษประจำวิทยาลัย",
-    bg: "bg-[#B57E10]",
-    textLight: true,
   },
 ];
 
@@ -497,12 +477,17 @@ const tobeVariants = [
                     <!-- Color Swatch Block -->
                     <div class:list={["w-full h-28 rounded-xl relative p-4 flex flex-col justify-between mb-5 shadow-inner", color.bg, color.border]}>
                       <div class="flex items-center justify-between">
-                        <span class:list={["text-xs font-bold uppercase tracking-wider", color.textLight ? "text-white/90" : "text-slate-800"]}>
+                        <span class:list={["text-xs font-bold uppercase tracking-wider", color.textLight ? "text-white/90" : "text-black"]}>
                           {color.role}
                         </span>
                         <button
                           type="button"
-                          class="copy-btn px-2.5 py-1 rounded-md text-[11px] font-mono font-bold bg-black/20 hover:bg-black/35 text-white backdrop-blur-xs transition-colors flex items-center gap-1 active:scale-95"
+                          class:list={[
+                            "copy-btn px-2.5 py-1 rounded-md text-[11px] font-mono font-bold transition-all flex items-center gap-1 active:scale-95",
+                            color.textLight
+                              ? "bg-black/25 hover:bg-black/40 text-white backdrop-blur-xs"
+                              : "bg-slate-100 hover:bg-slate-200 text-black border border-slate-300 shadow-xs"
+                          ]}
                           data-copy={color.hex}
                           title="คลิกเพื่อคัดลอก HEX"
                         >
@@ -513,7 +498,7 @@ const tobeVariants = [
                         </button>
                       </div>
 
-                      <div class:list={["text-xs font-mono font-medium", color.textLight ? "text-white/80" : "text-slate-700"]}>
+                      <div class:list={["text-xs font-mono font-bold", color.textLight ? "text-white/90" : "text-black"]}>
                         {color.rgb}
                       </div>
                     </div>
