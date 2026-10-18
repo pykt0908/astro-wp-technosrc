@@ -117,7 +117,7 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
                     <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">
                       {leader.personnel?.name || "ชื่อ–นามสกุล"}
                     </h3>
-                    <div class="text-xs sm:text-sm font-semibold text-[#0047BA] dark:text-blue-400 mt-0.5 truncate">
+                    <div class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mt-0.5 truncate">
                       {leader.position}
                     </div>
                     {leader.sub && leader.sub !== leader.position && (
@@ -178,12 +178,6 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
               <article
                 class="w-full h-full bg-slate-50/90 dark:bg-slate-800/80 hover:bg-slate-100/90 dark:hover:bg-slate-800 rounded-2xl p-5 flex flex-col items-center text-center transition-all relative overflow-hidden group"
               >
-                <!-- Top Color Accent Bar -->
-                <div class="absolute top-0 left-0 right-0 h-1" style={`background-color: ${div.color};`}></div>
-
-                <!-- Top Color Accent Pip -->
-                <div class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full" style={`background-color: ${div.color};`}></div>
-
                 <!-- Division Head Photo (Square 1:1, 96px, no border) -->
                 <div class="relative w-24 h-24 aspect-square rounded-2xl overflow-hidden bg-slate-200/80 dark:bg-slate-700/80 mb-3.5 flex-shrink-0">
                   {div.head?.personnel?.photo ? (
@@ -203,11 +197,11 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
                   )}
                 </div>
 
-                <!-- Name on top, Position below -->
+                <!-- Name on top, Position below (All black text) -->
                 <div class="text-base font-bold text-slate-900 dark:text-white truncate max-w-full">
                   {div.head?.personnel?.name || "ชื่อ–นามสกุล"}
                 </div>
-                <div class="text-xs font-semibold leading-snug min-h-[36px] flex items-center justify-center px-1 mt-1" style={`color: ${div.color};`}>
+                <div class="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 leading-snug min-h-[36px] flex items-center justify-center px-1 mt-1">
                   {div.title}
                 </div>
                 {div.head?.sub && div.head.sub !== div.title && (
@@ -268,7 +262,6 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
                 : "bg-slate-100/90 text-slate-600 dark:bg-slate-800/80 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700"
             }`}
           >
-            <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style={`background-color: ${div.color};`}></span>
             <span class="truncate">{div.title}</span>
           </button>
         ))}
@@ -293,7 +286,7 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
                   <div>
                     <h3 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                       <span>{div.title}</span>
-                      <span class="text-xs px-2.5 py-0.5 rounded-full font-sans font-medium text-white" style={`background-color: ${div.color};`}>
+                      <span class="text-xs px-2.5 py-0.5 rounded-full font-sans font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
                         {div.jobs.length} งาน
                       </span>
                     </h3>
@@ -325,7 +318,7 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
                     <div class="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">
                       {div.head?.personnel?.name || "ชื่อ–นามสกุล"}
                     </div>
-                    <div class="text-xs sm:text-sm font-semibold text-[#0047BA] dark:text-blue-400 mt-0.5">
+                    <div class="text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 mt-0.5">
                       {div.head?.position || "ผู้บริหารฝ่าย"}
                     </div>
                   </div>
@@ -360,7 +353,7 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
                       <h4 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-snug truncate">
                         {job.personnel?.name || "ชื่อ–นามสกุล"}
                       </h4>
-                      <p class="text-xs sm:text-sm font-semibold text-[#0047BA] dark:text-blue-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                      <p class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mt-0.5 flex items-center gap-1.5 flex-wrap">
                         <span>{job.title}</span>
                         {job.position_title && (
                           <>
