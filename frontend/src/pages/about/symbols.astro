@@ -1,0 +1,941 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+// Table of Contents Items
+const tocItems = [
+  { id: "sec-emblem", label: "ตราสัญลักษณ์ประจำวิทยาลัย" },
+  { id: "sec-colors", label: "สีประจำวิทยาลัย" },
+  { id: "sec-wordmark", label: "อัตลักษณ์ตัวอักษร S-TECH (2026)" },
+  { id: "sec-tobe", label: "ตราสัญลักษณ์ TO BE NUMBER ONE" },
+  { id: "sec-guidelines", label: "แนวทางการนำไปใช้งาน" },
+];
+
+// Circle Logo Variants
+const emblemVariants = [
+  {
+    title: "สีน้ำเงินเต็มวง (Official Full Color)",
+    desc: "ตราทางการสำหรับเอกสารราชการ ประกาศนียบัตร และสื่อสิ่งพิมพ์ทางการ",
+    png: "/logo/main/logo_circle_color_full.png",
+    svg: "/logo/main/logo_circle_color_full.svg",
+    bgClass: "bg-white",
+    badge: "ทางการ",
+  },
+  {
+    title: "สีน้ำเงินพื้นโปร่งใส (Transparent Color)",
+    desc: "เหมาะสำหรับวางบนพื้นหลังสีขาวหรือสีสว่างโดยไม่มีขอบขาว",
+    png: "/logo/main/logo_circle_color_transparent.png",
+    svg: "/logo/main/logo_circle_color_transparent.svg",
+    bgClass: "bg-slate-50 dark:bg-slate-800/60",
+    badge: "พื้นใส",
+  },
+  {
+    title: "สีทองพรีเมียม (Gold Metallic)",
+    desc: "สำหรับงานพิธีการ โล่รางวัล บัตรเชิญเกียรติยศ และของที่ระลึกพิเศษ",
+    png: "/logo/main/logo_circle_gold.png",
+    svg: "/logo/main/logo_circle_gold.svg",
+    bgClass: "bg-gradient-to-br from-amber-50 to-amber-100/60 dark:from-slate-900 dark:to-amber-950/30",
+    badge: "พรีเมียม",
+  },
+  {
+    title: "สีเงินพรีเมียม (Silver Metallic)",
+    desc: "สำหรับงานออกแบบร่วมสมัย ป้ายสถาบัน และงานสกรีนวัสดุโลหะ",
+    png: "/logo/main/logo_circle_silver.png",
+    svg: "/logo/main/logo_circle_silver.svg",
+    bgClass: "bg-gradient-to-br from-slate-100 to-slate-200/60 dark:from-slate-900 dark:to-slate-800",
+    badge: "เมทัลลิก",
+  },
+  {
+    title: "สีขาวล้วน (Silhouette White)",
+    desc: "สำหรับวางบนพื้นหลังสีเข้ม รูปภาพ หรือวิดีโอประชาสัมพันธ์",
+    png: "/logo/main/logo_circle_white.png",
+    svg: "/logo/main/logo_circle_white.svg",
+    bgClass: "bg-slate-900",
+    badge: "พื้นเข้ม",
+    darkText: true,
+  },
+  {
+    title: "สีดำ-ขาว (Monochrome Black)",
+    desc: "สำหรับเอกสารขาว-ดำ งานพิมพ์หนังสือเวียน และแฟกซ์",
+    png: "/logo/main/logo_circle_black_white.png",
+    svg: "/logo/main/logo_circle_black_white.svg",
+    bgClass: "bg-white dark:bg-slate-800/80",
+    badge: "ขาว-ดำ",
+  },
+];
+
+// Color Palette Data
+const collegeColors = [
+  {
+    name: "สีน้ำเงินศรีราชา (S-TECH Royal Blue)",
+    role: "สีหลักประจำวิทยาลัย (Primary Identity)",
+    hex: "#0047BA",
+    rgb: "RGB(0, 71, 186)",
+    cmyk: "CMYK(100, 75, 0, 0)",
+    desc: "สะท้อนถึงความมั่นคง ความสุขุมรอบรู้ ความเป็นเลิศทางเทคโนโลยี และเกียรติภูมิของวิทยาลัยเทคโนโลยีศรีราชา",
+    bg: "bg-[#0047BA]",
+    textLight: true,
+  },
+  {
+    name: "สีฟ้าคราม (Sky Tech Blue)",
+    role: "สีรองประจำวิทยาลัย (Secondary Identity)",
+    hex: "#058EFA",
+    rgb: "RGB(5, 142, 250)",
+    cmyk: "CMYK(75, 40, 0, 0)",
+    desc: "สะท้อนถึงพลังความคิดสร้างสรรค์ นวัตกรรมใหม่ ความเปิดกว้างทางวิชาการ และท้องทะเลศรีราชา",
+    bg: "bg-[#058EFA]",
+    textLight: true,
+  },
+  {
+    name: "สีขาวบริสุทธิ์ (Pure White)",
+    role: "สีอัตลักษณ์ร่วม (Accent Color)",
+    hex: "#FFFFFF",
+    rgb: "RGB(255, 255, 255)",
+    cmyk: "CMYK(0, 0, 0, 0)",
+    desc: "สะท้อนถึงความบริสุทธิ์ คุณธรรม จริยธรรมในวิชาชีพ ความโปร่งใส และความซื่อสัตย์สุจริต",
+    bg: "bg-white",
+    border: "border border-slate-200 dark:border-slate-700",
+    textLight: false,
+  },
+  {
+    name: "สีทองเกียรติยศ (Honor Gold)",
+    role: "สีพิเศษสำหรับพิธีการ (Ceremonial Accent)",
+    hex: "#B57E10",
+    rgb: "RGB(181, 126, 16)",
+    cmyk: "CMYK(20, 45, 100, 15)",
+    desc: "สะท้อนถึงความสำเร็จอันทรงเกียรติ ความภาคภูมิใจ และมาตรฐานความเป็นเลิศระดับสากล",
+    bg: "bg-[#B57E10]",
+    textLight: true,
+  },
+];
+
+// Wordmark 2026 Variants
+const wordmarkVariants = [
+  {
+    title: "สีดำมาตรฐาน (Black Standard)",
+    desc: "สำหรับใช้งานบนพื้นสว่างหรือเอกสารทั่วไป",
+    png: "/logo/text/stech_text_black.png",
+    svg: "/logo/text/stech_text_black.svg",
+    bgClass: "bg-white dark:bg-slate-800",
+  },
+  {
+    title: "สีขาวล้วน (White Reverse)",
+    desc: "สำหรับใช้งานบนพื้นสีเข้ม ภาพถ่าย หรือวิดีโอ",
+    png: "/logo/text/stech_text_white.png",
+    svg: "/logo/text/stech_text_white.svg",
+    bgClass: "bg-slate-900",
+  },
+  {
+    title: "สีน้ำเงิน-ฟ้า S-TECH (Brand Blue)",
+    desc: "อัตลักษณ์สีหลักตัวอักษรวิทยาลัย สดใส ทันสมัย",
+    png: "/logo/text/stech_text_blue.png",
+    svg: "/logo/text/stech_text_blue.svg",
+    bgClass: "bg-slate-950",
+  },
+  {
+    title: "สีทองเมทัลลิก (Metallic Gold)",
+    desc: "เรียบหรู ทรงคุณค่า เหมาะกับงานเกียรติยศ",
+    png: "/logo/text/stech_text_gold.png",
+    svg: "/logo/text/stech_text_gold.svg",
+    bgClass: "bg-slate-950",
+  },
+  {
+    title: "สีเงินเมทัลลิก (Metallic Silver)",
+    desc: "ทันสมัย สไตล์ไฮเทค เหมาะกับงานสื่อเทคโนโลยี",
+    png: "/logo/text/stech_text_silver.png",
+    svg: "/logo/text/stech_text_silver.svg",
+    bgClass: "bg-slate-950",
+  },
+  {
+    title: "สีเทาชาร์โคล (Minimal Charcoal)",
+    desc: "สไตล์มินิมอล ทางการ เรียบง่าย",
+    png: "/logo/text/stech_text_gray.png",
+    svg: "/logo/text/stech_text_gray.svg",
+    bgClass: "bg-white dark:bg-slate-800",
+  },
+  {
+    title: "แถบสปอร์ตไดนามิก (Athletic Stripe)",
+    desc: "สำหรับงานกิจกรรมนักศึกษา กีฬา และสื่อสมัยใหม่",
+    png: "/logo/text/stech_text_stripe_blue.png",
+    svg: "/logo/text/stech_text_stripe_blue.svg",
+    bgClass: "bg-slate-950",
+  },
+  {
+    title: "โครงร่างสีน้ำเงินเข้ม (Outline Dark)",
+    desc: "ลวดลายเชิงสถาปัตยกรรมสำหรับกราฟิกแบคกราวด์",
+    png: "/logo/text/stech_text_outline_dark.png",
+    svg: "/logo/text/stech_text_outline_dark.svg",
+    bgClass: "bg-[#001744]",
+  },
+  {
+    title: "โครงร่างสีฟ้าอ่อน (Outline Light)",
+    desc: "ลวดลายโปร่งเบาสำหรับพื้นหลังสีสว่าง",
+    png: "/logo/text/stech_text_outline_light.png",
+    svg: "/logo/text/stech_text_outline_light.svg",
+    bgClass: "bg-sky-50 dark:bg-slate-800",
+  },
+  {
+    title: "โลหะรมดำ (Dark Metallic)",
+    desc: "สไตล์พรีเมียมลึกซึ้ง เหมาะกับสื่อโปรดักชัน",
+    png: "/logo/text/stech_text_dark_metallic.png",
+    svg: "/logo/text/stech_text_dark_metallic.svg",
+    bgClass: "bg-slate-100 dark:bg-slate-800",
+  },
+];
+
+// TO BE NUMBER ONE Variants
+const tobeVariants = [
+  {
+    title: "ตราทางการสีน้ำเงิน-แดง (Official Full Color)",
+    desc: "ตราสัญลักษณ์ทางการชมรม TO BE NUMBER ONE วิทยาลัยเทคโนโลยีศรีราชา",
+    png: "/logo/tobe/tobe_color.png",
+    svg: "/logo/tobe/tobe_color.svg",
+    bgClass: "bg-white dark:bg-slate-800",
+  },
+  {
+    title: "สีดำ-ขาว (Monochrome Black)",
+    desc: "สำหรับงานพิมพ์ขาวดำและเอกสารทางการทั่วไป",
+    png: "/logo/tobe/tobe_black.png",
+    svg: "/logo/tobe/tobe_black.svg",
+    bgClass: "bg-white dark:bg-slate-800",
+  },
+  {
+    title: "สีขาวล้วน (White Reverse)",
+    desc: "สำหรับงานสกรีนเสื้อชมรมสีเข้ม และสื่อดิจิทัลบนพื้นมืด",
+    png: "/logo/tobe/tobe_white.png",
+    svg: "/logo/tobe/tobe_white.svg",
+    bgClass: "bg-slate-900",
+  },
+];
+---
+
+<BaseLayout
+  title="ตราสัญลักษณ์และสีประจำวิทยาลัย - วิทยาลัยเทคโนโลยีศรีราชา"
+  description="ข้อมูลอัตลักษณ์องค์กร ตราสัญลักษณ์ทางการประจำวิทยาลัยเทคโนโลยีศรีราชา สีประจำวิทยาลัย โลโก้ S-TECH 2026 ตรา TO BE NUMBER ONE และคู่มือการนำไปใช้งาน พร้อมดาวน์โหลดไฟล์ความละเอียดสูง"
+>
+  <!-- Toast Notification for Copy Code -->
+  <div
+    id="copy-toast"
+    class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2 text-xs sm:text-sm font-semibold"
+  >
+    <svg class="w-4 h-4 text-emerald-400 dark:text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+    </svg>
+    <span id="copy-toast-msg">คัดลอกโค้ดสีเรียบร้อยแล้ว</span>
+  </div>
+
+  <div class="py-8 sm:py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-6 sm:mb-8">
+      <a href="/" class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">หน้าแรก</a>
+      <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+      <a href="/about/" class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">เกี่ยวกับเรา</a>
+      <svg class="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+      <span class="text-slate-800 dark:text-slate-200 font-medium">ตราสัญลักษณ์และสีประจำวิทยาลัย</span>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="mb-10 sm:mb-12 pb-6 border-b border-slate-200 dark:border-slate-800">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <span class="text-xs font-semibold tracking-wider text-[#0047BA] dark:text-blue-400 uppercase">
+            College Identity & Brand Assets
+          </span>
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-1">
+            ตราสัญลักษณ์และสีประจำวิทยาลัย
+          </h1>
+          <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-2 max-w-2xl leading-relaxed">
+            อัตลักษณ์แห่งความภาคภูมิใจ ความหมายของตราสัญลักษณ์ประจำสถาบัน โค้ดสีทางการ และแหล่งดาวน์โหลดไฟล์ตราสัญลักษณ์ความละเอียดสูงสำหรับงานพิมพ์และสื่อดิจิทัล
+          </p>
+        </div>
+
+        <!-- Quick Download All Pack Button -->
+        <div class="shrink-0">
+          <a
+            href="/logo/main/logo_circle_color_full.png"
+            download="STECH_OFFICIAL_LOGO.png"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0047BA] hover:bg-[#003893] text-white text-xs sm:text-sm font-semibold shadow-xs hover:shadow-md transition-all active:scale-98"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <span>ดาวน์โหลดโลโก้ทางการ (PNG)</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Grid: Left TOC Sidebar + Right Content Area -->
+    <div class="flex flex-col lg:flex-row gap-8 lg:gap-10 items-start">
+      
+      <!-- ================= Left Column: Table of Contents ================= -->
+      <aside class="w-full lg:w-64 xl:w-72 shrink-0 lg:sticky lg:top-28 z-20">
+        <div class="bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-slate-200/80 dark:border-slate-800 p-4 sm:p-5 shadow-xs">
+          
+          <div class="flex items-center gap-2 pb-3 mb-3 border-b border-slate-200 dark:border-slate-800">
+            <svg class="w-4 h-4 text-[#0047BA] dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h10" />
+            </svg>
+            <h2 class="text-sm font-bold text-slate-800 dark:text-slate-200">
+              สารบัญเนื้อหา
+            </h2>
+          </div>
+
+          <nav class="space-y-1" id="toc-nav">
+            {tocItems.map((item, index) => {
+              const isActive = index === 0;
+              return (
+                <a
+                  href={`#${item.id}`}
+                  data-target={item.id}
+                  class:list={[
+                    "toc-link flex items-center justify-between px-3 py-2 rounded-lg text-xs sm:text-sm transition-all",
+                    isActive
+                      ? "text-[#0047BA] dark:text-blue-400 font-semibold bg-blue-50/80 dark:bg-blue-950/50"
+                      : "text-slate-600 dark:text-slate-400 font-normal hover:text-[#0047BA] dark:hover:text-blue-400 hover:bg-white dark:hover:bg-slate-800"
+                  ]}
+                >
+                  <span class="truncate">{item.label}</span>
+                  <span
+                    class:list={[
+                      "toc-number text-[10px] font-mono ml-2 transition-colors",
+                      isActive
+                        ? "text-[#0047BA] dark:text-blue-400 font-semibold"
+                        : "text-slate-400 dark:text-slate-500 font-normal"
+                    ]}
+                  >
+                    {(index + 1).toString().padStart(2, "0")}
+                  </span>
+                </a>
+              );
+            })}
+          </nav>
+
+          <!-- Quick Helpline Box -->
+          <div class="mt-6 pt-4 border-t border-slate-200/60 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 space-y-1">
+            <span class="font-semibold block text-slate-700 dark:text-slate-300">ฝ่ายสื่อสารองค์กร</span>
+            <p class="leading-relaxed">ติดต่อขอไฟล์อัตลักษณ์เพิ่มเติมหรือสอบถามลิขสิทธิ์ตราสัญลักษณ์</p>
+            <a href="/contact/" class="text-[#0047BA] dark:text-blue-400 hover:underline block pt-1 font-medium">
+              ติดต่อวิทยาลัย &rarr;
+            </a>
+          </div>
+
+        </div>
+      </aside>
+
+      <!-- ================= Right Column: Content ================= -->
+      <main class="flex-1 min-w-0 max-w-4xl space-y-14 sm:space-y-16">
+
+        <!-- SECTION 1: ตราสัญลักษณ์ประจำวิทยาลัย -->
+        <section id="sec-emblem" class="scroll-mt-28 space-y-8">
+          
+          <div class="flex items-center gap-3">
+            <span class="w-1.5 h-6 rounded-full bg-[#0047BA]"></span>
+            <div>
+              <span class="text-xs font-mono font-semibold text-[#0047BA] dark:text-blue-400 tracking-wider">01</span>
+              <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                ตราสัญลักษณ์ประจำวิทยาลัย
+              </h2>
+            </div>
+          </div>
+
+          <!-- Official Hero Showcase Card -->
+          <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-10 shadow-xs overflow-hidden relative">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+              
+              <!-- Left: Emblem Visual Display with Interactive Canvas Background -->
+              <div class="md:col-span-5 flex flex-col items-center">
+                <div class="relative w-56 h-56 sm:w-64 sm:h-64 rounded-2xl p-6 bg-gradient-to-b from-blue-50/50 to-white dark:from-slate-800/80 dark:to-slate-900 border border-blue-100 dark:border-slate-700/80 flex items-center justify-center shadow-inner group">
+                  <img
+                    src="/logo/main/logo_circle_color_full.png"
+                    alt="ตราสัญลักษณ์ วิทยาลัยเทคโนโลยีศรีราชา"
+                    class="w-full h-full object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <!-- Year 2521 Badge -->
+                  <div class="absolute -bottom-3 bg-[#0047BA] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-md tracking-wider">
+                    ก่อตั้ง พ.ศ. ๒๕๒๑
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2 mt-6">
+                  <a
+                    href="/logo/main/logo_circle_color_full.png"
+                    download="logo_sriracha_official.png"
+                    class="px-3.5 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/80 hover:bg-blue-100 dark:hover:bg-blue-900 text-[#0047BA] dark:text-blue-300 text-xs font-semibold border border-blue-200 dark:border-blue-800 transition-colors inline-flex items-center gap-1.5"
+                  >
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    PNG (1000px)
+                  </a>
+                  <a
+                    href="/logo/main/logo_circle_color_full.svg"
+                    download="logo_sriracha_official.svg"
+                    class="px-3.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-colors inline-flex items-center gap-1.5"
+                  >
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    </svg>
+                    SVG เวกเตอร์
+                  </a>
+                </div>
+              </div>
+
+              <!-- Right: Detailed Meaning Breakdown -->
+              <div class="md:col-span-7 space-y-4">
+                <span class="inline-block px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/60 text-[#0047BA] dark:text-blue-300 text-xs font-semibold">
+                  ความหมายและสัญลักษณ์ศาสตร์
+                </span>
+                <h3 class="text-xl font-bold text-slate-900 dark:text-white">
+                  ตราสัญลักษณ์รูปวงกลมเรือใบและพระอาทิตย์
+                </h3>
+                <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                  ตราสัญลักษณ์ประจำวิทยาลัยเทคโนโลยีศรีราชา ได้รับการออกแบบอย่างวิจิตรบรรจง สะท้อนถึงเอกลักษณ์ ภูมิศาสตร์ของอำเภอศรีราชา และจิตวิญญาณแห่งการศึกษาเพื่อความก้าวหน้า
+                </p>
+
+                <!-- Symbol Elements Breakdown List -->
+                <div class="space-y-3 pt-2">
+                  
+                  <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                    <span class="w-6 h-6 rounded-lg bg-blue-100 dark:bg-blue-900/60 text-[#0047BA] dark:text-blue-400 flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+                      ⛵
+                    </span>
+                    <div>
+                      <span class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm block">เรือใบแล่นฝ่าคลื่นลม</span>
+                      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        สื่อถึงความมุ่งมั่น บากบั่น ไม่ย่อท้อต่ออุปสรรค นำพาผู้เรียนฝ่าฟันความท้าทายมุ่งสู่จุดหมายปลายทางแห่งความสำเร็จในวิชาชีพ
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                    <span class="w-6 h-6 rounded-lg bg-amber-100 dark:bg-amber-900/60 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+                      ☀️
+                    </span>
+                    <div>
+                      <span class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm block">พระอาทิตย์ส่องแสงเจิดจ้า</span>
+                      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        สื่อถึงปัญญา ความรู้แจ้ง แสงสว่างนำทางชีวิต และอนาคตที่รุ่งโรจน์ของการศึกษา
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                    <span class="w-6 h-6 rounded-lg bg-sky-100 dark:bg-sky-900/60 text-sky-600 dark:text-sky-400 flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+                      🌊
+                    </span>
+                    <div>
+                      <span class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm block">เกลียวคลื่นและท้องทะเลศรีราชา</span>
+                      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        สื่อถึงทำเลที่ตั้งของวิทยาลัย ณ ตำบลทุ่งสุขลา อำเภอศรีราชา จังหวัดชลบุรี ศูนย์กลางอุตสาหกรรมและพาณิชยการทางทะเล
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                    <span class="w-6 h-6 rounded-lg bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+                      ๒๕๒๑
+                    </span>
+                    <div>
+                      <span class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm block">เลขไทย ๒๕๒๑ (พ.ศ. 2521)</span>
+                      <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        ปีที่ได้รับอนุมัติก่อตั้งวิทยาลัย แสดงถึงรากฐานอันมั่นคงและประวัติศาสตร์การจัดการศึกษาที่ยาวนานกว่า 4 ทศวรรษ
+                      </p>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Variants Grid -->
+          <div>
+            <div class="mb-4">
+              <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+                ชุดตราสัญลักษณ์ทางการรูปแบบต่างๆ (Official Variants)
+              </h3>
+              <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                เลือกรูปแบบและดาวน์โหลดตามประเภทของสื่อ สิ่งพิมพ์ หรืองานผลิตที่ต้องการใช้งาน
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {emblemVariants.map((item) => (
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between hover:border-blue-300 dark:hover:border-blue-700 transition-all">
+                  <div>
+                    <!-- Image Preview Area -->
+                    <div class:list={["w-full h-44 rounded-xl flex items-center justify-center p-6 mb-4 relative overflow-hidden", item.bgClass]}>
+                      <img
+                        src={item.png}
+                        alt={item.title}
+                        class="max-h-full max-w-full object-contain filter drop-shadow-sm transition-transform duration-200 hover:scale-105"
+                      />
+                      <span class="absolute top-2.5 right-2.5 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-900/60 text-white backdrop-blur-xs">
+                        {item.badge}
+                      </span>
+                    </div>
+
+                    <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-1">
+                      {item.title}
+                    </h4>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                      {item.desc}
+                    </p>
+                  </div>
+
+                  <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
+                    <span class="text-[10px] font-mono text-slate-400">1000x1000 px</span>
+                    <div class="flex items-center gap-1.5">
+                      <a
+                        href={item.png}
+                        download
+                        class="px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950/80 hover:bg-blue-100 dark:hover:bg-blue-900 text-[#0047BA] dark:text-blue-300 text-xs font-semibold transition-colors"
+                        title="ดาวน์โหลดไฟล์ PNG"
+                      >
+                        PNG
+                      </a>
+                      <a
+                        href={item.svg}
+                        download
+                        class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-colors"
+                        title="ดาวน์โหลดไฟล์ SVG"
+                      >
+                        SVG
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- SECTION 2: สีประจำวิทยาลัย -->
+        <section id="sec-colors" class="scroll-mt-28 space-y-8">
+          
+          <div class="flex items-center gap-3">
+            <span class="w-1.5 h-6 rounded-full bg-[#0047BA]"></span>
+            <div>
+              <span class="text-xs font-mono font-semibold text-[#0047BA] dark:text-blue-400 tracking-wider">02</span>
+              <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                สีประจำวิทยาลัย
+              </h2>
+            </div>
+          </div>
+
+          <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+            ระบบสีอัตลักษณ์ของวิทยาลัยเทคโนโลยีศรีราชา กำหนดขึ้นเพื่อสร้างเอกลักษณ์และความเป็นอันหนึ่งอันเดียวกันในทุกสื่อ สามารถคลิกที่การ์ดเพื่อคัดลอกรหัสสี (HEX / RGB) ได้ทันที
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+            {collegeColors.map((color) => (
+              <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition-all">
+                <div>
+                  <!-- Color Swatch Block -->
+                  <div class:list={["w-full h-28 rounded-xl relative p-4 flex flex-col justify-between mb-5 shadow-inner", color.bg, color.border]}>
+                    <div class="flex items-center justify-between">
+                      <span class:list={["text-xs font-bold uppercase tracking-wider", color.textLight ? "text-white/90" : "text-slate-800"]}>
+                        {color.role}
+                      </span>
+                      <button
+                        type="button"
+                        class="copy-btn px-2.5 py-1 rounded-md text-[11px] font-mono font-bold bg-black/20 hover:bg-black/35 text-white backdrop-blur-xs transition-colors flex items-center gap-1 active:scale-95"
+                        data-copy={color.hex}
+                        title="คลิกเพื่อคัดลอก HEX"
+                      >
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                        <span>{color.hex}</span>
+                      </button>
+                    </div>
+
+                    <div class:list={["text-xs font-mono font-medium", color.textLight ? "text-white/80" : "text-slate-700"]}>
+                      {color.rgb}
+                    </div>
+                  </div>
+
+                  <h3 class="font-bold text-slate-900 dark:text-white text-base mb-1">
+                    {color.name}
+                  </h3>
+                  <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                    {color.desc}
+                  </p>
+                </div>
+
+                <!-- Code Values Table -->
+                <div class="pt-4 border-t border-slate-100 dark:border-slate-800 grid grid-cols-2 gap-2 text-xs font-mono">
+                  <div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60">
+                    <span class="text-[10px] text-slate-400 block uppercase">RGB Value</span>
+                    <span class="text-slate-700 dark:text-slate-300 font-semibold">{color.rgb}</span>
+                  </div>
+                  <div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60">
+                    <span class="text-[10px] text-slate-400 block uppercase">CMYK (Print)</span>
+                    <span class="text-slate-700 dark:text-slate-300 font-semibold">{color.cmyk}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+        </section>
+
+
+        <!-- SECTION 3: โลโก้ตัวอักษรและอัตลักษณ์ใหม่ S-TECH (2026) -->
+        <section id="sec-wordmark" class="scroll-mt-28 space-y-8">
+          
+          <div class="flex items-center gap-3">
+            <span class="w-1.5 h-6 rounded-full bg-[#0047BA]"></span>
+            <div>
+              <span class="text-xs font-mono font-semibold text-[#0047BA] dark:text-blue-400 tracking-wider">03</span>
+              <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                อัตลักษณ์ตัวอักษร S-TECH (Wordmark 2026)
+              </h2>
+            </div>
+          </div>
+
+          <div class="bg-gradient-to-r from-blue-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 shadow-md">
+            <div class="max-w-2xl">
+              <span class="text-xs font-mono text-blue-300 tracking-wider uppercase">
+                Modern Typographic Identity 2026
+              </span>
+              <h3 class="text-xl sm:text-2xl font-bold mt-1 tracking-tight">
+                S-TECH Sriracha Technological College
+              </h3>
+              <p class="text-sm text-blue-100/90 mt-2 leading-relaxed">
+                ชุดตัวอักษรและสัญลักษณ์แบบโมเดิร์น ได้รับการออกแบบตามหลักเรขาคณิตผสานพลังความเร็ว (Dynamic Slant) สะท้อนถึงการก้าวล้ำทันโลกเทคโนโลยีดิจิทัล และความพร้อมสู่สากล
+              </p>
+            </div>
+          </div>
+
+          <!-- Wordmark Gallery Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {wordmarkVariants.map((item) => (
+              <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-xs flex flex-col justify-between hover:border-blue-300 dark:hover:border-blue-700 transition-all">
+                <div>
+                  <!-- Preview Box -->
+                  <div class:list={["w-full h-36 rounded-xl flex items-center justify-center p-4 mb-4 relative overflow-hidden shadow-inner", item.bgClass]}>
+                    <img
+                      src={item.png}
+                      alt={item.title}
+                      class="max-h-full max-w-full object-contain filter drop-shadow-sm transition-transform duration-200 hover:scale-102"
+                    />
+                  </div>
+
+                  <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-1">
+                    {item.title}
+                  </h4>
+                  <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-4">
+                    {item.desc}
+                  </p>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between gap-2">
+                  <span class="text-[10px] font-mono text-slate-400">1800x1800 px</span>
+                  <div class="flex items-center gap-1.5">
+                    <a
+                      href={item.png}
+                      download
+                      class="px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950/80 hover:bg-blue-100 dark:hover:bg-blue-900 text-[#0047BA] dark:text-blue-300 text-xs font-semibold transition-colors"
+                      title="ดาวน์โหลดไฟล์ PNG"
+                    >
+                      PNG
+                    </a>
+                    <a
+                      href={item.svg}
+                      download
+                      class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-colors"
+                      title="ดาวน์โหลดไฟล์ SVG"
+                    >
+                      SVG
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+        </section>
+
+
+        <!-- SECTION 4: ตราสัญลักษณ์ TO BE NUMBER ONE -->
+        <section id="sec-tobe" class="scroll-mt-28 space-y-8">
+          
+          <div class="flex items-center gap-3">
+            <span class="w-1.5 h-6 rounded-full bg-[#0047BA]"></span>
+            <div>
+              <span class="text-xs font-mono font-semibold text-[#0047BA] dark:text-blue-400 tracking-wider">04</span>
+              <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                ตราสัญลักษณ์ TO BE NUMBER ONE
+              </h2>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-xs">
+            <div class="max-w-2xl mb-6">
+              <span class="text-xs font-semibold text-rose-600 dark:text-rose-400 tracking-wider uppercase">
+                ชมรม TO BE NUMBER ONE วิทยาลัยเทคโนโลยีศรีราชา
+              </span>
+              <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mt-1">
+                สัญลักษณ์ "เป็นหนึ่งโดยไม่พึ่งยาเสพติด"
+              </h3>
+              <p class="text-sm text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
+                ออกแบบพิเศษโดยผสานตราสัญลักษณ์โครงการ TO BE NUMBER ONE ในทูลกระหม่อมหญิงอุบลรัตนราชกัญญา สิริวัฒนาพรรณวดี เข้ากับรูปเรือใบของวิทยาลัยเทคโนโลยีศรีราชา เพื่อส่งเสริมเยาวชนคนรุ่นใหม่ให้มีภูมิคุ้มกันทางจิตใจและใช้เวลาว่างให้เกิดประโยชน์
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+              {tobeVariants.map((item) => (
+                <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 p-4 flex flex-col justify-between">
+                  <div>
+                    <div class:list={["w-full h-36 rounded-xl flex items-center justify-center p-3 mb-3 relative overflow-hidden shadow-xs", item.bgClass]}>
+                      <img
+                        src={item.png}
+                        alt={item.title}
+                        class="max-h-full max-w-full object-contain filter drop-shadow-xs transition-transform duration-200 hover:scale-105"
+                      />
+                    </div>
+                    <h4 class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm mb-1">
+                      {item.title}
+                    </h4>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed mb-3">
+                      {item.desc}
+                    </p>
+                  </div>
+
+                  <div class="pt-2 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between gap-1">
+                    <span class="text-[9px] font-mono text-slate-400">3840x3840 px</span>
+                    <div class="flex items-center gap-1">
+                      <a
+                        href={item.png}
+                        download
+                        class="px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/80 hover:bg-blue-100 text-[#0047BA] dark:text-blue-300 text-[11px] font-semibold"
+                      >
+                        PNG
+                      </a>
+                      <a
+                        href={item.svg}
+                        download
+                        class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-300 text-[11px] font-semibold"
+                      >
+                        SVG
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </section>
+
+
+        <!-- SECTION 5: แนวทางการนำตราสัญลักษณ์ไปใช้งาน -->
+        <section id="sec-guidelines" class="scroll-mt-28 space-y-8">
+          
+          <div class="flex items-center gap-3">
+            <span class="w-1.5 h-6 rounded-full bg-[#0047BA]"></span>
+            <div>
+              <span class="text-xs font-mono font-semibold text-[#0047BA] dark:text-blue-400 tracking-wider">05</span>
+              <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                แนวทางการนำไปใช้งาน (Brand Guidelines)
+              </h2>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Do's -->
+            <div class="bg-emerald-50/50 dark:bg-emerald-950/20 rounded-2xl border border-emerald-200 dark:border-emerald-900/40 p-5 sm:p-6">
+              <div class="flex items-center gap-2 mb-4 text-emerald-700 dark:text-emerald-400 font-bold text-base">
+                <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>ข้อแนะนำที่ถูกต้อง (Recommended)</span>
+              </div>
+              <ul class="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                <li class="flex items-start gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0"></span>
+                  <span><strong>เว้นระยะปลอดภัย (Clear Space):</strong> ควรรักษาระยะห่างรอบตราสัญลักษณ์ไม่น้อยกว่า 1/4 ของความกว้างตรา เพื่อความคมชัดและโดดเด่น</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0"></span>
+                  <span><strong>ใช้ไฟล์เวกเตอร์ SVG สำหรับงานพิมพ์ขนาดใหญ่:</strong> เช่น ไวนิล แบนเนอร์ หรือป้ายเวที เพื่อให้ได้ความคมชัดสูงสุดโดยภาพไม่แตก</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 shrink-0"></span>
+                  <span><strong>เลือกเวอร์ชันที่ตัดกับพื้นหลัง:</strong> เช่น ใช้ตราสีขาวล้วนบนพื้นหลังสีเข้ม หรือใช้ตราทางการบนพื้นหลังสีขาว</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Don'ts -->
+            <div class="bg-rose-50/50 dark:bg-rose-950/20 rounded-2xl border border-rose-200 dark:border-rose-900/40 p-5 sm:p-6">
+              <div class="flex items-center gap-2 mb-4 text-rose-700 dark:text-rose-400 font-bold text-base">
+                <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span>ข้อห้ามในการใช้งาน (Strictly Avoid)</span>
+              </div>
+              <ul class="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                <li class="flex items-start gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500 mt-2 shrink-0"></span>
+                  <span><strong>ห้ามบิดเบือนสัดส่วน (Distortion):</strong> ต้องย่อ-ขยายตราสัญลักษณ์โดยคงอัตราส่วน 1:1 เสมอ ห้ามยืดหรือบีบให้ผิดเพี้ยน</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500 mt-2 shrink-0"></span>
+                  <span><strong>ห้ามเปลี่ยนสีนอกเหนือคู่มือ:</strong> ไม่อนุญาตให้เปลี่ยนสีตราเป็นสีอื่นนอกเหนือจากที่กำหนดในระบบอัตลักษณ์วิทยาลัย</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500 mt-2 shrink-0"></span>
+                  <span><strong>ห้ามตัดทอนส่วนประกอบ:</strong> ห้ามลบองค์ประกอบ เช่น พระอาทิตย์ เรือใบ หรือตัวอักษรออกจากวงกลมตราสัญลักษณ์</span>
+                </li>
+              </ul>
+            </div>
+
+          </div>
+
+          <!-- Bottom Contact / Copyright Notice -->
+          <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
+            สงวนลิขสิทธิ์ตราสัญลักษณ์และเครื่องหมายการค้า © วิทยาลัยเทคโนโลยีศรีราชา (Sriracha Technological College)
+            <br />
+            การนำตราสัญลักษณ์ไปใช้ในเชิงพาณิชย์หรือกิจกรรมภายนอก ต้องได้รับอนุญาตอย่างเป็นทางการจากวิทยาลัย
+          </div>
+
+        </section>
+
+      </main>
+
+    </div>
+
+  </div>
+
+  <!-- Interactive ScrollSpy & Clipboard Toast Script -->
+  <script is:inline>
+    function initSymbolsPage() {
+      // 1. Copy Color Code Helper
+      const copyBtns = document.querySelectorAll('.copy-btn');
+      const toast = document.getElementById('copy-toast');
+      const toastMsg = document.getElementById('copy-toast-msg');
+
+      copyBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const code = btn.getAttribute('data-copy');
+          if (!code) return;
+
+          navigator.clipboard.writeText(code).then(() => {
+            if (toast && toastMsg) {
+              toastMsg.textContent = `คัดลอก ${code} เรียบร้อยแล้ว`;
+              toast.classList.remove('translate-y-20', 'opacity-0');
+              toast.classList.add('translate-y-0', 'opacity-100');
+
+              setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+              }, 2200);
+            }
+          });
+        });
+      });
+
+      // 2. ScrollSpy for Table of Contents
+      const links = document.querySelectorAll('.toc-link');
+      if (!links.length) return;
+
+      const sections = Array.from(links)
+        .map((link) => {
+          const id = link.getAttribute('data-target');
+          return id ? document.getElementById(id) : null;
+        })
+        .filter(Boolean);
+
+      if (!sections.length) return;
+
+      function updateActiveToc() {
+        let currentSectionId = '';
+
+        sections.forEach((section) => {
+          const rect = section.getBoundingClientRect();
+          if (rect.top <= 220 && rect.bottom >= 100) {
+            currentSectionId = section.getAttribute('id');
+          }
+        });
+
+        // Top of page fallback
+        if (!currentSectionId && window.scrollY < 350 && sections.length > 0) {
+          currentSectionId = sections[0].getAttribute('id');
+        }
+
+        // Bottom of page fallback
+        if (
+          window.innerHeight + window.scrollY >=
+          document.documentElement.scrollHeight - 60
+        ) {
+          currentSectionId = sections[sections.length - 1].getAttribute('id');
+        }
+
+        if (currentSectionId) {
+          links.forEach((link) => {
+            const isMatch = link.getAttribute('data-target') === currentSectionId;
+            const numSpan = link.querySelector('.toc-number');
+
+            if (isMatch) {
+              link.classList.add(
+                'text-[#0047BA]',
+                'dark:text-blue-400',
+                'font-semibold',
+                'bg-blue-50/80',
+                'dark:bg-blue-950/50'
+              );
+              link.classList.remove(
+                'text-slate-600',
+                'dark:text-slate-400',
+                'font-normal'
+              );
+              if (numSpan) {
+                numSpan.classList.add('text-[#0047BA]', 'dark:text-blue-400', 'font-semibold');
+                numSpan.classList.remove('text-slate-400', 'dark:text-slate-500', 'font-normal');
+              }
+            } else {
+              link.classList.remove(
+                'text-[#0047BA]',
+                'dark:text-blue-400',
+                'font-semibold',
+                'bg-blue-50/80',
+                'dark:bg-blue-950/50'
+              );
+              link.classList.add(
+                'text-slate-600',
+                'dark:text-slate-400',
+                'font-normal'
+              );
+              if (numSpan) {
+                numSpan.classList.remove('text-[#0047BA]', 'dark:text-blue-400', 'font-semibold');
+                numSpan.classList.add('text-slate-400', 'dark:text-slate-500', 'font-normal');
+              }
+            }
+          });
+        }
+      }
+
+      window.addEventListener('scroll', updateActiveToc, { passive: true });
+      window.addEventListener('resize', updateActiveToc, { passive: true });
+      updateActiveToc();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initSymbolsPage);
+    } else {
+      initSymbolsPage();
+    }
+    document.addEventListener('astro:page-load', initSymbolsPage);
+  </script>
+</BaseLayout>
