@@ -41,7 +41,7 @@ class Project_Core_Custom_Fields {
     public function enqueue_admin_scripts($hook) {
         global $post;
         if ($hook === 'post-new.php' || $hook === 'post.php') {
-            if (isset($post) && in_array($post->post_type, array('banner', 'post', 'college_event', 'curriculum', 'sar_report'), true)) {
+            if (isset($post) && in_array($post->post_type, array('banner', 'post', 'college_event', 'curriculum', 'sar_report', 'education_mis'), true)) {
                 wp_enqueue_media();
             }
         }
@@ -125,6 +125,54 @@ class Project_Core_Custom_Fields {
 
         foreach ($sar_fields as $meta_key => $type) {
             register_post_meta('sar_report', $meta_key, array(
+                'show_in_rest'  => true,
+                'single'        => true,
+                'type'          => $type,
+                'auth_callback' => array($this, 'auth_check'),
+            ));
+        }
+
+        // Educational MIS Meta Fields
+        $mis_fields = array(
+            'mis_academic_year_text'            => 'string',
+            'mis_report_pdf_url'                => 'string',
+            'mis_report_pdf_id'                 => 'integer',
+            'mis_students_total'                => 'integer',
+            'mis_students_pvch_total'           => 'integer',
+            'mis_students_pvs_total'            => 'integer',
+            'mis_students_by_dept'              => 'string',
+            'mis_personnel_total'               => 'integer',
+            'mis_personnel_executives'          => 'integer',
+            'mis_personnel_teachers'            => 'integer',
+            'mis_personnel_support'             => 'integer',
+            'mis_personnel_breakdown'           => 'string',
+            'mis_curriculum_levels_count'       => 'integer',
+            'mis_departments_count'             => 'integer',
+            'mis_programs_count'                => 'integer',
+            'mis_curriculum_list'               => 'string',
+            'mis_admissions_graduates'          => 'string',
+            'mis_gpax_avg'                      => 'string',
+            'mis_gpax_pvch'                     => 'string',
+            'mis_gpax_pvs'                      => 'string',
+            'mis_vnet_pass_rate'                => 'string',
+            'mis_vocational_standard_pass_rate' => 'string',
+            'mis_achievements_list'             => 'string',
+            'mis_employment_total_rate'         => 'string',
+            'mis_employed_field_rate'           => 'string',
+            'mis_employed_other_rate'           => 'string',
+            'mis_higher_education_rate'         => 'string',
+            'mis_freelance_business_rate'       => 'string',
+            'mis_unemployed_or_other_rate'      => 'string',
+            'mis_employment_data'               => 'string',
+            'mis_mou_partners_count'            => 'integer',
+            'mis_dual_vocational_count'         => 'integer',
+            'mis_intern_students_count'         => 'integer',
+            'mis_intern_allowance_avg'          => 'integer',
+            'mis_partner_enterprises'           => 'string',
+        );
+
+        foreach ($mis_fields as $meta_key => $type) {
+            register_post_meta('education_mis', $meta_key, array(
                 'show_in_rest'  => true,
                 'single'        => true,
                 'type'          => $type,
@@ -395,6 +443,16 @@ class Project_Core_Custom_Fields {
             __('ข้อมูลรายงานผลการประเมินตนเอง (SAR) และการแนบไฟล์', 'project-core'),
             array($this, 'render_sar_meta_box'),
             'sar_report',
+            'normal',
+            'high'
+        );
+
+        // Educational MIS details box
+        add_meta_box(
+            'project_core_education_mis_details',
+            __('ข้อมูลสารสนเทศทางการศึกษา (7 ด้านสำคัญ)', 'project-core'),
+            array($this, 'render_education_mis_meta_box'),
+            'education_mis',
             'normal',
             'high'
         );
@@ -1146,6 +1204,69 @@ class Project_Core_Custom_Fields {
                 }
             }
         }
+
+        // Save Educational MIS Meta
+        if (isset($_POST['project_core_mis_nonce_field']) && wp_verify_nonce($_POST['project_core_mis_nonce_field'], 'project_core_mis_nonce')) {
+            if (current_user_can('edit_post', $post_id)) {
+                $mis_scalar_keys = array(
+                    'mis_academic_year_text'            => 'sanitize_text_field',
+                    'mis_report_pdf_url'                => 'esc_url_raw',
+                    'mis_report_pdf_id'                 => 'absint',
+                    'mis_students_total'                => 'absint',
+                    'mis_students_pvch_total'           => 'absint',
+                    'mis_students_pvs_total'            => 'absint',
+                    'mis_personnel_total'               => 'absint',
+                    'mis_personnel_executives'          => 'absint',
+                    'mis_personnel_teachers'            => 'absint',
+                    'mis_personnel_support'             => 'absint',
+                    'mis_curriculum_levels_count'       => 'absint',
+                    'mis_departments_count'             => 'absint',
+                    'mis_programs_count'                => 'absint',
+                    'mis_gpax_avg'                      => 'sanitize_text_field',
+                    'mis_gpax_pvch'                     => 'sanitize_text_field',
+                    'mis_gpax_pvs'                      => 'sanitize_text_field',
+                    'mis_vnet_pass_rate'                => 'sanitize_text_field',
+                    'mis_vocational_standard_pass_rate' => 'sanitize_text_field',
+                    'mis_employment_total_rate'         => 'sanitize_text_field',
+                    'mis_employed_field_rate'           => 'sanitize_text_field',
+                    'mis_employed_other_rate'           => 'sanitize_text_field',
+                    'mis_higher_education_rate'         => 'sanitize_text_field',
+                    'mis_freelance_business_rate'       => 'sanitize_text_field',
+                    'mis_unemployed_or_other_rate'      => 'sanitize_text_field',
+                    'mis_mou_partners_count'            => 'absint',
+                    'mis_dual_vocational_count'         => 'absint',
+                    'mis_intern_students_count'         => 'absint',
+                    'mis_intern_allowance_avg'          => 'absint',
+                );
+
+                foreach ($mis_scalar_keys as $key => $sanitizer) {
+                    if (isset($_POST[$key])) {
+                        update_post_meta($post_id, $key, call_user_func($sanitizer, $_POST[$key]));
+                    }
+                }
+
+                // JSON repeater fields
+                $json_fields = array(
+                    'mis_students_by_dept',
+                    'mis_personnel_breakdown',
+                    'mis_curriculum_list',
+                    'mis_admissions_graduates',
+                    'mis_achievements_list',
+                    'mis_employment_data',
+                    'mis_partner_enterprises',
+                );
+
+                foreach ($json_fields as $jkey) {
+                    if (isset($_POST[$jkey])) {
+                        $raw = wp_unslash($_POST[$jkey]);
+                        $decoded = json_decode($raw, true);
+                        if (is_array($decoded)) {
+                            update_post_meta($post_id, $jkey, wp_json_encode($decoded, JSON_UNESCAPED_UNICODE));
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -1670,6 +1791,781 @@ class Project_Core_Custom_Fields {
                 $('#sar_file_url').val('');
                 $('#sar_file_id').val('');
                 $('#sar_file_preview').hide();
+                $(this).hide();
+            });
+        });
+        </script>
+        <?php
+    }
+
+    /**
+     * Render Educational MIS Comprehensive Meta Box
+     */
+    public function render_education_mis_meta_box($post) {
+        wp_nonce_field('project_core_mis_nonce', 'project_core_mis_nonce_field');
+
+        // General
+        $year_text = get_post_meta($post->ID, 'mis_academic_year_text', true) ?: '';
+        $pdf_url   = get_post_meta($post->ID, 'mis_report_pdf_url', true) ?: '';
+        $pdf_id    = get_post_meta($post->ID, 'mis_report_pdf_id', true) ?: '';
+
+        // 1. Students
+        $students_total = get_post_meta($post->ID, 'mis_students_total', true) ?: '';
+        $students_pvch  = get_post_meta($post->ID, 'mis_students_pvch_total', true) ?: '';
+        $students_pvs   = get_post_meta($post->ID, 'mis_students_pvs_total', true) ?: '';
+        $students_dept  = get_post_meta($post->ID, 'mis_students_by_dept', true) ?: '[]';
+
+        // 2. Personnel
+        $personnel_total = get_post_meta($post->ID, 'mis_personnel_total', true) ?: '';
+        $personnel_exec  = get_post_meta($post->ID, 'mis_personnel_executives', true) ?: '';
+        $personnel_teach = get_post_meta($post->ID, 'mis_personnel_teachers', true) ?: '';
+        $personnel_supp  = get_post_meta($post->ID, 'mis_personnel_support', true) ?: '';
+        $personnel_dept  = get_post_meta($post->ID, 'mis_personnel_breakdown', true) ?: '[]';
+
+        // 3. Curriculum
+        $curr_levels     = get_post_meta($post->ID, 'mis_curriculum_levels_count', true) ?: '2';
+        $curr_depts      = get_post_meta($post->ID, 'mis_departments_count', true) ?: '8';
+        $curr_progs      = get_post_meta($post->ID, 'mis_programs_count', true) ?: '14';
+        $curr_list       = get_post_meta($post->ID, 'mis_curriculum_list', true) ?: '[]';
+
+        // 4. Admissions & Graduates
+        $admissions_data = get_post_meta($post->ID, 'mis_admissions_graduates', true) ?: '[]';
+
+        // 5. Achievements
+        $gpax_avg        = get_post_meta($post->ID, 'mis_gpax_avg', true) ?: '';
+        $gpax_pvch       = get_post_meta($post->ID, 'mis_gpax_pvch', true) ?: '';
+        $gpax_pvs        = get_post_meta($post->ID, 'mis_gpax_pvs', true) ?: '';
+        $vnet_rate       = get_post_meta($post->ID, 'mis_vnet_pass_rate', true) ?: '';
+        $standard_rate   = get_post_meta($post->ID, 'mis_vocational_standard_pass_rate', true) ?: '';
+        $achieve_list    = get_post_meta($post->ID, 'mis_achievements_list', true) ?: '[]';
+
+        // 6. Employment & Higher Ed
+        $emp_total_rate  = get_post_meta($post->ID, 'mis_employment_total_rate', true) ?: '';
+        $emp_field_rate  = get_post_meta($post->ID, 'mis_employed_field_rate', true) ?: '';
+        $emp_other_rate  = get_post_meta($post->ID, 'mis_employed_other_rate', true) ?: '';
+        $emp_higher_rate = get_post_meta($post->ID, 'mis_higher_education_rate', true) ?: '';
+        $emp_free_rate   = get_post_meta($post->ID, 'mis_freelance_business_rate', true) ?: '';
+        $emp_unemp_rate  = get_post_meta($post->ID, 'mis_unemployed_or_other_rate', true) ?: '';
+        $emp_data        = get_post_meta($post->ID, 'mis_employment_data', true) ?: '[]';
+
+        // 7. Partner Enterprises
+        $mou_count       = get_post_meta($post->ID, 'mis_mou_partners_count', true) ?: '';
+        $dual_count      = get_post_meta($post->ID, 'mis_dual_vocational_count', true) ?: '';
+        $intern_count    = get_post_meta($post->ID, 'mis_intern_students_count', true) ?: '';
+        $intern_pay      = get_post_meta($post->ID, 'mis_intern_allowance_avg', true) ?: '';
+        $partner_list    = get_post_meta($post->ID, 'mis_partner_enterprises', true) ?: '[]';
+        ?>
+        <style>
+            .mis-nav-tabs { display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 2px solid #0047BA; margin-bottom: 20px; padding-bottom: 4px; }
+            .mis-nav-tab { padding: 8px 14px; background: #f1f5f9; border: 1px solid #cbd5e1; border-bottom: none; border-radius: 6px 6px 0 0; cursor: pointer; font-size: 13px; font-weight: 600; color: #475569; text-decoration: none; }
+            .mis-nav-tab.active { background: #0047BA; color: #ffffff; border-color: #0047BA; }
+            .mis-tab-content { display: none; }
+            .mis-tab-content.active { display: block; }
+            .mis-stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px; }
+            .mis-stat-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; }
+            .mis-stat-card label { font-size: 12px; font-weight: bold; color: #64748b; display: block; margin-bottom: 6px; }
+            .mis-stat-card input { width: 100%; font-size: 16px; font-weight: 600; }
+            .mis-table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #fff; }
+            .mis-table th { background: #f1f5f9; border: 1px solid #cbd5e1; padding: 8px 10px; font-size: 12px; text-align: left; }
+            .mis-table td { border: 1px solid #e2e8f0; padding: 6px 8px; font-size: 13px; }
+            .mis-table input, .mis-table select { width: 100%; box-sizing: border-box; }
+            .mis-btn-remove { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; border-radius: 4px; cursor: pointer; padding: 4px 8px; font-size: 11px; }
+            .mis-btn-remove:hover { background: #fecaca; }
+            .mis-btn-add { background: #eff6ff; color: #1d4ed8; border: 1px dashed #93c5fd; border-radius: 6px; padding: 8px 16px; cursor: pointer; font-weight: 600; margin-top: 10px; display: inline-flex; align-items: center; gap: 4px; }
+            .mis-btn-add:hover { background: #dbeafe; }
+        </style>
+
+        <div class="mis-admin-wrapper">
+            <!-- Year Heading & Quick Year Selector Info -->
+            <div style="background: #f0f7ff; border-left: 4px solid #0047BA; padding: 12px 16px; border-radius: 0 8px 8px 0; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <strong style="color: #0047BA; font-size: 14px;"><?php _e('ข้อมูลสารสนเทศทางการศึกษา (7 ด้านมาตรฐาน)', 'project-core'); ?></strong>
+                    <p style="margin: 3px 0 0; color: #475569; font-size: 12px;"><?php _e('กรอกข้อมูลสรุปและตารางรายการในแต่ละด้าน เพื่อแสดงผลบนหน้าเว็บไซต์สารสนเทศทางการศึกษา', 'project-core'); ?></p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <label for="mis_academic_year_text" style="font-weight: bold; font-size: 13px;"><?php _e('ปีการศึกษา:', 'project-core'); ?></label>
+                    <input type="text" id="mis_academic_year_text" name="mis_academic_year_text" value="<?php echo esc_attr($year_text); ?>" placeholder="เช่น 2568" style="width: 100px; font-weight: bold; text-align: center;" />
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="mis-nav-tabs" id="mis-tabs-nav">
+                <button type="button" class="mis-nav-tab active" data-tab="tab-students">1. นักเรียน–นักศึกษา</button>
+                <button type="button" class="mis-nav-tab" data-tab="tab-personnel">2. บุคลากร</button>
+                <button type="button" class="mis-nav-tab" data-tab="tab-curriculum">3. หลักสูตร & สาขาวิชา</button>
+                <button type="button" class="mis-nav-tab" data-tab="tab-admissions">4. สถิติรับเข้า & จบการศึกษา</button>
+                <button type="button" class="mis-nav-tab" data-tab="tab-achievements">5. ผลสัมฤทธิ์ & V-NET</button>
+                <button type="button" class="mis-nav-tab" data-tab="tab-employment">6. มีงานทำ & ศึกษาต่อ</button>
+                <button type="button" class="mis-nav-tab" data-tab="tab-partners">7. สถานประกอบการคู่ความร่วมมือ</button>
+                <button type="button" class="mis-nav-tab" data-tab="tab-report">8. ไฟล์รายงาน PDF</button>
+            </div>
+
+            <!-- Tab 1: นักเรียน–นักศึกษา -->
+            <div class="mis-tab-content active" id="tab-students">
+                <div class="mis-stat-grid">
+                    <div class="mis-stat-card">
+                        <label><?php _e('จำนวนนักเรียน-นักศึกษา รวมทั้งสิ้น (คน)', 'project-core'); ?></label>
+                        <input type="number" name="mis_students_total" value="<?php echo esc_attr($students_total); ?>" placeholder="1850" />
+                    </div>
+                    <div class="mis-stat-card">
+                        <label><?php _e('ระดับ ปวช. รวม (คน)', 'project-core'); ?></label>
+                        <input type="number" name="mis_students_pvch_total" value="<?php echo esc_attr($students_pvch); ?>" placeholder="1120" />
+                    </div>
+                    <div class="mis-stat-card">
+                        <label><?php _e('ระดับ ปวส. รวม (คน)', 'project-core'); ?></label>
+                        <input type="number" name="mis_students_pvs_total" value="<?php echo esc_attr($students_pvs); ?>" placeholder="730" />
+                    </div>
+                </div>
+
+                <h4 style="margin: 16px 0 6px;"><?php _e('รายละเอียดสถิตินักเรียน–นักศึกษา แยกตามระดับชั้นและสาขาวิชา', 'project-core'); ?></h4>
+                <table class="mis-table" id="table-students-dept">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;"><?php _e('ระดับชั้น', 'project-core'); ?></th>
+                            <th style="width: 35%;"><?php _e('สาขาวิชา', 'project-core'); ?></th>
+                            <th style="width: 15%;"><?php _e('ชาย (คน)', 'project-core'); ?></th>
+                            <th style="width: 15%;"><?php _e('หญิง (คน)', 'project-core'); ?></th>
+                            <th style="width: 15%;"><?php _e('รวม (คน)', 'project-core'); ?></th>
+                            <th style="width: 5%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <button type="button" class="mis-btn-add" id="btn-add-student-row">＋ <?php _e('เพิ่มสาขาวิชา', 'project-core'); ?></button>
+                <textarea id="mis_students_by_dept" name="mis_students_by_dept" style="display:none;"><?php echo esc_textarea($students_dept); ?></textarea>
+            </div>
+
+            <!-- Tab 2: บุคลากร -->
+            <div class="mis-tab-content" id="tab-personnel">
+                <div class="mis-stat-grid">
+                    <div class="mis-stat-card">
+                        <label><?php _e('รวมบุคลากรทั้งหมด (คน)', 'project-core'); ?></label>
+                        <input type="number" name="mis_personnel_total" value="<?php echo esc_attr($personnel_total); ?>" placeholder="85" />
+                    </div>
+                    <div class="mis-stat-card">
+                        <label><?php _e('ผู้บริหารสถานศึกษา (คน)', 'project-core'); ?></label>
+                        <input type="number" name="mis_personnel_executives" value="<?php echo esc_attr($personnel_exec); ?>" placeholder="5" />
+                    </div>
+                    <div class="mis-stat-card">
+                        <label><?php _e('ครูประจำการ / ครูผู้สอน (คน)', 'project-core'); ?></label>
+                        <input type="number" name="mis_personnel_teachers" value="<?php echo esc_attr($personnel_teach); ?>" placeholder="58" />
+                    </div>
+                    <div class="mis-stat-card">
+                        <label><?php _e('บุคลากรสายสนับสนุน (คน)', 'project-core'); ?></label>
+                        <input type="number" name="mis_personnel_support" value="<?php echo esc_attr($personnel_supp); ?>" placeholder="22" />
+                    </div>
+                </div>
+
+                <h4 style="margin: 16px 0 6px;"><?php _e('จำแนกบุคลากรตามฝ่ายงาน / แผนกวิชา', 'project-core'); ?></h4>
+                <table class="mis-table" id="table-personnel-breakdown">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;"><?php _e('กลุ่ม / แผนกงาน', 'project-core'); ?></th>
+                            <th style="width: 35%;"><?php _e('ตำแหน่ง / บทบาท', 'project-core'); ?></th>
+                            <th style="width: 15%;"><?php _e('จำนวน (คน)', 'project-core'); ?></th>
+                            <th style="width: 20%;"><?php _e('หมายเหตุ / วุฒิ', 'project-core'); ?></th>
+                            <th style="width: 5%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <button type="button" class="mis-btn-add" id="btn-add-personnel-row">＋ <?php _e('เพิ่มรายการฝ่ายงาน', 'project-core'); ?></button>
+                <textarea id="mis_personnel_breakdown" name="mis_personnel_breakdown" style="display:none;"><?php echo esc_textarea($personnel_dept); ?></textarea>
+            </div>
+
+            <!-- Tab 3: หลักสูตร & สาขาวิชา -->
+            <div class="mis-tab-content" id="tab-curriculum">
+                <div class="mis-stat-grid">
+                    <div class="mis-stat-card">
+                        <label><?php _e('จำนวนระดับหลักสูตร (ระดับ)', 'project-core'); ?></label>
+                        <input type="number" name="mis_curriculum_levels_count" value="<?php echo esc_attr($curr_levels); ?>" placeholder="2" />
+                    </div>
+                    <div class="mis-stat-card">
+                        <label><?php _e('จำนวนสาขาวิชาที่เปิดสอน (สาขาวิชา)', 'project-core'); ?></label>
+                        <input type="number" name="mis_departments_count" value="<?php echo esc_attr($curr_depts); ?>" placeholder="8" />
+                    </div>
+                    <div class="mis-stat-card">
+                        <label><?php _e('จำนวนสาขางานทั้งหมด (สาขางาน)', 'project-core'); ?></label>
+                        <input type="number" name="mis_programs_count" value="<?php echo esc_attr($curr_progs); ?>" placeholder="14" />
+                    </div>
+                </div>
+
+                <h4 style="margin: 16px 0 6px;"><?php _e('รายชื่อหลักสูตร สาขาวิชา และสาขางานที่เปิดสอน', 'project-core'); ?></h4>
+                <table class="mis-table" id="table-curriculum-list">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;"><?php _e('ระดับ', 'project-core'); ?></th>
+                            <th style="width: 25%;"><?php _e('สาขาวิชา', 'project-core'); ?></th>
+                            <th style="width: 35%;"><?php _e('สาขางานที่เปิดสอน', 'project-core'); ?></th>
+                            <th style="width: 20%;"><?php _e('รูปแบบการศึกษา', 'project-core'); ?></th>
+                            <th style="width: 5%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <button type="button" class="mis-btn-add" id="btn-add-curriculum-row">＋ <?php _e('เพิ่มหลักสูตร/สาขาวิชา', 'project-core'); ?></button>
+                <textarea id="mis_curriculum_list" name="mis_curriculum_list" style="display:none;"><?php echo esc_textarea($curr_list); ?></textarea>
+            </div>
+
+            <!-- Tab 4: สถิติรับเข้า & จบการศึกษา -->
+            <div class="mis-tab-content" id="tab-admissions">
+                <p style="color: #64748b; font-size: 13px;"><?php _e('สถิติเปรียบเทียบจำนวนผู้เข้าเรียนใหม่และผู้สำเร็จการศึกษาในแต่ละปีการศึกษา', 'project-core'); ?></p>
+                <table class="mis-table" id="table-admissions-graduates">
+                    <thead>
+                        <tr>
+                            <th style="width: 12%;"><?php _e('ปีการศึกษา', 'project-core'); ?></th>
+                            <th style="width: 13%;"><?php _e('รับเข้า ปวช. (คน)', 'project-core'); ?></th>
+                            <th style="width: 13%;"><?php _e('รับเข้า ปวส. (คน)', 'project-core'); ?></th>
+                            <th style="width: 13%;"><?php _e('รวมรับเข้า (คน)', 'project-core'); ?></th>
+                            <th style="width: 13%;"><?php _e('สำเร็จ ปวช. (คน)', 'project-core'); ?></th>
+                            <th style="width: 13%;"><?php _e('สำเร็จ ปวส. (คน)', 'project-core'); ?></th>
+                            <th style="width: 13%;"><?php _e('รวมผู้สำเร็จ (คน)', 'project-core'); ?></th>
+                            <th style="width: 10%;"><?php _e('ร้อยละ (%)', 'project-core'); ?></th>
+                            <th style="width: 5%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <button type="button" class="mis-btn-add" id="btn-add-admissions-row">＋ <?php _e('เพิ่มแถวปีการศึกษา', 'project-core'); ?></button>
+                <textarea id="mis_admissions_graduates" name="mis_admissions_graduates" style="display:none;"><?php echo esc_textarea($admissions_data); ?></textarea>
+            </div>
+
+            <!-- Tab 5: ผลสัมฤทธิ์ & V-NET -->
+            <div class="mis-tab-content" id="tab-achievements">
+                <div class="mis-stat-grid">
+                    <div class="mis-stat-card">
+                        <label><?php _e('ผลการเรียนเฉลี่ยสะสมรวม (GPAX)', 'project-core'); ?></label>
+                        <input type="text" name="mis_gpax_avg" value="<?php echo esc_attr($gpax_avg); ?>" placeholder="3.28" />
+                    </div>
+                    <div class="mis-stat-card">
+                        <label><?php _e('GPAX เฉลี่ยระดับ ปวช.', 'project-core'); ?></label>
+                        <input type="text" name="mis_gpax_pvch" value="<?php echo esc_attr($gpax_pvch); ?>" placeholder="3.21" />
+                    </div>
+                    <div class="mis-stat-card">
+                        <label><?php _e('GPAX เฉลี่ยระดับ ปวส.', 'project-core'); ?></label>
+                        <input type="text" name="mis_gpax_pvs" value="<?php echo esc_attr($gpax_pvs); ?>" placeholder="3.36" />
+                    </div>
+                    <div class="mis-stat-card">
+                        <label><?php _e('ร้อยละการผ่านเกณฑ์ V-NET (%)', 'project-core'); ?></label>
+                        <input type="text" name="mis_vnet_pass_rate" value="<?php echo esc_attr($vnet_rate); ?>" placeholder="89.4" />
+                    </div>
+                    <div class="mis-stat-card">
+                        <label><?php _e('ร้อยละการผ่านเกณฑ์มาตรฐานวิชาชีพ (%)', 'project-core'); ?></label>
+                        <input type="text" name="mis_vocational_standard_pass_rate" value="<?php echo esc_attr($standard_rate); ?>" placeholder="96.2" />
+                    </div>
+                </div>
+
+                <h4 style="margin: 16px 0 6px;"><?php _e('ผลสัมฤทธิ์ทางการเรียนและการทดสอบ จำแนกตามแผนกวิชา', 'project-core'); ?></h4>
+                <table class="mis-table" id="table-achievements-list">
+                    <thead>
+                        <tr>
+                            <th style="width: 35%;"><?php _e('แผนกวิชา / สาระการเรียนรู้', 'project-core'); ?></th>
+                            <th style="width: 20%;"><?php _e('GPAX เฉลี่ย', 'project-core'); ?></th>
+                            <th style="width: 20%;"><?php _e('ผลทดสอบ V-NET (%)', 'project-core'); ?></th>
+                            <th style="width: 20%;"><?php _e('ผ่านประเมินมาตรฐานวิชาชีพ (%)', 'project-core'); ?></th>
+                            <th style="width: 5%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <button type="button" class="mis-btn-add" id="btn-add-achieve-row">＋ <?php _e('เพิ่มแถวแผนกวิชา', 'project-core'); ?></button>
+                <textarea id="mis_achievements_list" name="mis_achievements_list" style="display:none;"><?php echo esc_textarea($achieve_list); ?></textarea>
+            </div>
+
+            <!-- Tab 6: มีงานทำ & ศึกษาต่อ -->
+            <div class="mis-tab-content" id="tab-employment">
+                <div class="mis-stat-grid">
+                    <div class="mis-stat-card" style="border-left: 4px solid #10b981;">
+                        <label><?php _e('อัตราความสำเร็จรวม (มีงานทำ+ศึกษาต่อ) (%)', 'project-core'); ?></label>
+                        <input type="text" name="mis_employment_total_rate" value="<?php echo esc_attr($emp_total_rate); ?>" placeholder="96.8" />
+                    </div>
+                    <div class="mis-stat-card">
+                        <label><?php _e('ได้งานทำตรงสาขาวิชา (%)', 'project-core'); ?></label>
+                        <input type="text" name="mis_employed_field_rate" value="<?php echo esc_attr($emp_field_rate); ?>" placeholder="62.5" />
+                    </div>
+                    <div class="mis-stat-card">
+                        <label><?php _e('ได้งานทำต่างสาขาวิชา (%)', 'project-core'); ?></label>
+                        <input type="text" name="mis_employed_other_rate" value="<?php echo esc_attr($emp_other_rate); ?>" placeholder="14.3" />
+                    </div>
+                    <div class="mis-stat-card">
+                        <label><?php _e('ศึกษาต่อในระดับสูงขึ้น (%)', 'project-core'); ?></label>
+                        <input type="text" name="mis_higher_education_rate" value="<?php echo esc_attr($emp_higher_rate); ?>" placeholder="15.0" />
+                    </div>
+                    <div class="mis-stat-card">
+                        <label><?php _e('ประกอบอาชีพอิสระ/ธุรกิจส่วนตัว (%)', 'project-core'); ?></label>
+                        <input type="text" name="mis_freelance_business_rate" value="<?php echo esc_attr($emp_free_rate); ?>" placeholder="5.0" />
+                    </div>
+                    <div class="mis-stat-card">
+                        <label><?php _e('อื่นๆ / เตรียมตัว (%)', 'project-core'); ?></label>
+                        <input type="text" name="mis_unemployed_or_other_rate" value="<?php echo esc_attr($emp_unemp_rate); ?>" placeholder="3.2" />
+                    </div>
+                </div>
+
+                <h4 style="margin: 16px 0 6px;"><?php _e('ข้อมูลสัดส่วนและการประกอบอาชีพของผู้สำเร็จการศึกษา', 'project-core'); ?></h4>
+                <table class="mis-table" id="table-employment-data">
+                    <thead>
+                        <tr>
+                            <th style="width: 40%;"><?php _e('สถานะ / กลุ่มการมีงานทำ', 'project-core'); ?></th>
+                            <th style="width: 15%;"><?php _e('จำนวน (คน)', 'project-core'); ?></th>
+                            <th style="width: 15%;"><?php _e('ร้อยละ (%)', 'project-core'); ?></th>
+                            <th style="width: 25%;"><?php _e('ฐานเงินเดือนเฉลี่ย (บาท/เดือน)', 'project-core'); ?></th>
+                            <th style="width: 5%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <button type="button" class="mis-btn-add" id="btn-add-employment-row">＋ <?php _e('เพิ่มแถวข้อมูลการมีงานทำ', 'project-core'); ?></button>
+                <textarea id="mis_employment_data" name="mis_employment_data" style="display:none;"><?php echo esc_textarea($emp_data); ?></textarea>
+            </div>
+
+            <!-- Tab 7: สถานประกอบการคู่ความร่วมมือ -->
+            <div class="mis-tab-content" id="tab-partners">
+                <div class="mis-stat-grid">
+                    <div class="mis-stat-card">
+                        <label><?php _e('จำนวนสถานประกอบการที่ทำ MOU (แห่ง)', 'project-core'); ?></label>
+                        <input type="number" name="mis_mou_partners_count" value="<?php echo esc_attr($mou_count); ?>" placeholder="54" />
+                    </div>
+                    <div class="mis-stat-card">
+                        <label><?php _e('สถานประกอบการฝึกทวิภาคี (แห่ง)', 'project-core'); ?></label>
+                        <input type="number" name="mis_dual_vocational_count" value="<?php echo esc_attr($dual_count); ?>" placeholder="42" />
+                    </div>
+                    <div class="mis-stat-card">
+                        <label><?php _e('นักศึกษาเข้าร่วมฝึกอาชีพ (คน)', 'project-core'); ?></label>
+                        <input type="number" name="mis_intern_students_count" value="<?php echo esc_attr($intern_count); ?>" placeholder="640" />
+                    </div>
+                    <div class="mis-stat-card">
+                        <label><?php _e('เบี้ยเลี้ยงฝึกอาชีพเฉลี่ย (บาท/เดือน)', 'project-core'); ?></label>
+                        <input type="number" name="mis_intern_allowance_avg" value="<?php echo esc_attr($intern_pay); ?>" placeholder="10500" />
+                    </div>
+                </div>
+
+                <h4 style="margin: 16px 0 6px;"><?php _e('รายชื่อสถานประกอบการคู่ความร่วมมือและการฝึกอาชีพชั้นนำ', 'project-core'); ?></h4>
+                <table class="mis-table" id="table-partner-enterprises">
+                    <thead>
+                        <tr>
+                            <th style="width: 30%;"><?php _e('ชื่อสถานประกอบการ / องค์กร', 'project-core'); ?></th>
+                            <th style="width: 25%;"><?php _e('ประเภทอุตสาหกรรม / กลุ่มธุรกิจ', 'project-core'); ?></th>
+                            <th style="width: 25%;"><?php _e('รูปแบบความร่วมมือ', 'project-core'); ?></th>
+                            <th style="width: 15%;"><?php _e('สาขาวิชาที่ร่วมมือ', 'project-core'); ?></th>
+                            <th style="width: 5%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <button type="button" class="mis-btn-add" id="btn-add-partner-row">＋ <?php _e('เพิ่มสถานประกอบการ', 'project-core'); ?></button>
+                <textarea id="mis_partner_enterprises" name="mis_partner_enterprises" style="display:none;"><?php echo esc_textarea($partner_list); ?></textarea>
+            </div>
+
+            <!-- Tab 8: ไฟล์รายงาน PDF -->
+            <div class="mis-tab-content" id="tab-report">
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; max-width: 700px;">
+                    <label for="mis_report_pdf_url" style="display: block; font-weight: bold; margin-bottom: 8px;">
+                        <?php _e('เอกสารรายงานสารสนเทศทางการศึกษาฉบับสมบูรณ์ (PDF)', 'project-core'); ?>
+                    </label>
+                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+                        <input type="text" id="mis_report_pdf_url" name="mis_report_pdf_url" value="<?php echo esc_attr($pdf_url); ?>" class="large-text" placeholder="https://... ลิงก์ไฟล์ PDF รายงานฉบับสมบูรณ์" style="font-family: monospace; font-size: 13px;" />
+                        <input type="hidden" id="mis_report_pdf_id" name="mis_report_pdf_id" value="<?php echo esc_attr($pdf_id); ?>" />
+                        <button type="button" class="button button-primary" id="btn_upload_mis_pdf" style="white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
+                            <span class="dashicons dashicons-upload" style="font-size: 16px; width: 16px; height: 16px; line-height: 16px;"></span>
+                            <?php _e('อัปโหลดไฟล์', 'project-core'); ?>
+                        </button>
+                        <button type="button" class="button" id="btn_clear_mis_pdf" style="<?php echo empty($pdf_url) ? 'display: none;' : ''; ?> color: #b91c1c;">
+                            <?php _e('ลบไฟล์', 'project-core'); ?>
+                        </button>
+                    </div>
+                    <div id="mis_pdf_preview" style="<?php echo empty($pdf_url) ? 'display: none;' : ''; ?> margin-top: 6px;">
+                        <a href="<?php echo esc_url($pdf_url); ?>" target="_blank" class="button button-small" style="display: inline-flex; align-items: center; gap: 4px; color: #0047BA;">
+                            <span class="dashicons dashicons-pdf" style="font-size: 14px; width: 14px; height: 14px; line-height: 14px;"></span>
+                            <?php _e('ทดลองเปิดดูไฟล์ PDF', 'project-core'); ?>
+                        </a>
+                    </div>
+                    <p class="description" style="margin-top: 8px; color: #64748b;">
+                        <?php _e('รองรับไฟล์ .pdf ขนาดไม่เกิน 50MB เพื่อให้นักเรียน ผู้ปกครอง และหน่วยงานภายนอกสามารถดาวน์โหลดรายงานฉบับสมบูรณ์ได้จากหน้าเว็บ', 'project-core'); ?>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        jQuery(document).ready(function($) {
+            // Tab switching
+            $('#mis-tabs-nav .mis-nav-tab').on('click', function(e) {
+                e.preventDefault();
+                $('#mis-tabs-nav .mis-nav-tab').removeClass('active');
+                $(this).addClass('active');
+                var tabId = $(this).data('tab');
+                $('.mis-tab-content').removeClass('active');
+                $('#' + tabId).addClass('active');
+            });
+
+            // Helper to render student rows
+            function renderStudentRows() {
+                var data = [];
+                try { data = JSON.parse($('#mis_students_by_dept').val() || '[]'); } catch(e) { data = []; }
+                var $tbody = $('#table-students-dept tbody').empty();
+                data.forEach(function(row, idx) {
+                    var tr = $('<tr>' +
+                        '<td><select class="r-level"><option value="ปวช." '+(row.level==='ปวช.'?'selected':'')+'>ปวช.</option><option value="ปวส." '+(row.level==='ปวส.'?'selected':'')+'>ปวส.</option></select></td>' +
+                        '<td><input type="text" class="r-dept" value="'+(row.department||'')+'" placeholder="ชื่อสาขาวิชา"></td>' +
+                        '<td><input type="number" class="r-male" value="'+(row.male||0)+'"></td>' +
+                        '<td><input type="number" class="r-female" value="'+(row.female||0)+'"></td>' +
+                        '<td><input type="number" class="r-total" value="'+(row.total||0)+'"></td>' +
+                        '<td style="text-align:center;"><button type="button" class="mis-btn-remove" data-idx="'+idx+'">ลบ</button></td>' +
+                    '</tr>');
+                    $tbody.append(tr);
+                });
+            }
+
+            function saveStudentRows() {
+                var data = [];
+                $('#table-students-dept tbody tr').each(function() {
+                    data.push({
+                        level: $(this).find('.r-level').val(),
+                        department: $(this).find('.r-dept').val(),
+                        male: parseInt($(this).find('.r-male').val(), 10) || 0,
+                        female: parseInt($(this).find('.r-female').val(), 10) || 0,
+                        total: parseInt($(this).find('.r-total').val(), 10) || 0
+                    });
+                });
+                $('#mis_students_by_dept').val(JSON.stringify(data));
+            }
+
+            $('#btn-add-student-row').on('click', function() {
+                var data = [];
+                try { data = JSON.parse($('#mis_students_by_dept').val() || '[]'); } catch(e){}
+                data.push({ level: 'ปวช.', department: '', male: 0, female: 0, total: 0 });
+                $('#mis_students_by_dept').val(JSON.stringify(data));
+                renderStudentRows();
+            });
+
+            $('#table-students-dept').on('click', '.mis-btn-remove', function() {
+                var idx = $(this).data('idx');
+                var data = JSON.parse($('#mis_students_by_dept').val() || '[]');
+                data.splice(idx, 1);
+                $('#mis_students_by_dept').val(JSON.stringify(data));
+                renderStudentRows();
+            });
+
+            $('#table-students-dept').on('input change', 'input, select', function() {
+                // Auto calculate total male+female if user changes male or female
+                var $tr = $(this).closest('tr');
+                if ($(this).hasClass('r-male') || $(this).hasClass('r-female')) {
+                    var m = parseInt($tr.find('.r-male').val(), 10) || 0;
+                    var f = parseInt($tr.find('.r-female').val(), 10) || 0;
+                    $tr.find('.r-total').val(m + f);
+                }
+                saveStudentRows();
+            });
+
+            // Helper to render personnel rows
+            function renderPersonnelRows() {
+                var data = [];
+                try { data = JSON.parse($('#mis_personnel_breakdown').val() || '[]'); } catch(e){}
+                var $tbody = $('#table-personnel-breakdown tbody').empty();
+                data.forEach(function(row, idx) {
+                    var tr = $('<tr>' +
+                        '<td><input type="text" class="r-cat" value="'+(row.category||'')+'" placeholder="แผนก/กลุ่มงาน"></td>' +
+                        '<td><input type="text" class="r-pos" value="'+(row.position||'')+'" placeholder="ตำแหน่ง"></td>' +
+                        '<td><input type="number" class="r-count" value="'+(row.count||0)+'"></td>' +
+                        '<td><input type="text" class="r-notes" value="'+(row.notes||'')+'" placeholder="วุฒิ/หมายเหตุ"></td>' +
+                        '<td style="text-align:center;"><button type="button" class="mis-btn-remove" data-idx="'+idx+'">ลบ</button></td>' +
+                    '</tr>');
+                    $tbody.append(tr);
+                });
+            }
+            function savePersonnelRows() {
+                var data = [];
+                $('#table-personnel-breakdown tbody tr').each(function() {
+                    data.push({
+                        category: $(this).find('.r-cat').val(),
+                        position: $(this).find('.r-pos').val(),
+                        count: parseInt($(this).find('.r-count').val(), 10) || 0,
+                        notes: $(this).find('.r-notes').val()
+                    });
+                });
+                $('#mis_personnel_breakdown').val(JSON.stringify(data));
+            }
+            $('#btn-add-personnel-row').on('click', function() {
+                var data = [];
+                try { data = JSON.parse($('#mis_personnel_breakdown').val() || '[]'); } catch(e){}
+                data.push({ category: '', position: '', count: 0, notes: '' });
+                $('#mis_personnel_breakdown').val(JSON.stringify(data));
+                renderPersonnelRows();
+            });
+            $('#table-personnel-breakdown').on('click', '.mis-btn-remove', function() {
+                var idx = $(this).data('idx');
+                var data = JSON.parse($('#mis_personnel_breakdown').val() || '[]');
+                data.splice(idx, 1);
+                $('#mis_personnel_breakdown').val(JSON.stringify(data));
+                renderPersonnelRows();
+            });
+            $('#table-personnel-breakdown').on('input change', 'input', savePersonnelRows);
+
+            // Helper to render curriculum rows
+            function renderCurriculumRows() {
+                var data = [];
+                try { data = JSON.parse($('#mis_curriculum_list').val() || '[]'); } catch(e){}
+                var $tbody = $('#table-curriculum-list tbody').empty();
+                data.forEach(function(row, idx) {
+                    var tr = $('<tr>' +
+                        '<td><select class="r-curr-lvl"><option value="ปวช." '+(row.level==='ปวช.'?'selected':'')+'>ปวช.</option><option value="ปวส." '+(row.level==='ปวส.'?'selected':'')+'>ปวส.</option></select></td>' +
+                        '<td><input type="text" class="r-curr-dept" value="'+(row.department||'')+'" placeholder="สาขาวิชา"></td>' +
+                        '<td><input type="text" class="r-curr-spec" value="'+(row.specialties||'')+'" placeholder="สาขางานที่เปิดสอน"></td>' +
+                        '<td><input type="text" class="r-curr-mode" value="'+(row.study_mode||'')+'" placeholder="เช่น ปกติ / ทวิภาคี"></td>' +
+                        '<td style="text-align:center;"><button type="button" class="mis-btn-remove" data-idx="'+idx+'">ลบ</button></td>' +
+                    '</tr>');
+                    $tbody.append(tr);
+                });
+            }
+            function saveCurriculumRows() {
+                var data = [];
+                $('#table-curriculum-list tbody tr').each(function() {
+                    data.push({
+                        level: $(this).find('.r-curr-lvl').val(),
+                        department: $(this).find('.r-curr-dept').val(),
+                        specialties: $(this).find('.r-curr-spec').val(),
+                        study_mode: $(this).find('.r-curr-mode').val()
+                    });
+                });
+                $('#mis_curriculum_list').val(JSON.stringify(data));
+            }
+            $('#btn-add-curriculum-row').on('click', function() {
+                var data = [];
+                try { data = JSON.parse($('#mis_curriculum_list').val() || '[]'); } catch(e){}
+                data.push({ level: 'ปวช.', department: '', specialties: '', study_mode: 'ปกติ และ ทวิภาคี' });
+                $('#mis_curriculum_list').val(JSON.stringify(data));
+                renderCurriculumRows();
+            });
+            $('#table-curriculum-list').on('click', '.mis-btn-remove', function() {
+                var idx = $(this).data('idx');
+                var data = JSON.parse($('#mis_curriculum_list').val() || '[]');
+                data.splice(idx, 1);
+                $('#mis_curriculum_list').val(JSON.stringify(data));
+                renderCurriculumRows();
+            });
+            $('#table-curriculum-list').on('input change', 'input, select', saveCurriculumRows);
+
+            // Helper to render admissions rows
+            function renderAdmissionsRows() {
+                var data = [];
+                try { data = JSON.parse($('#mis_admissions_graduates').val() || '[]'); } catch(e){}
+                var $tbody = $('#table-admissions-graduates tbody').empty();
+                data.forEach(function(row, idx) {
+                    var tr = $('<tr>' +
+                        '<td><input type="text" class="r-adm-yr" value="'+(row.year||'')+'" placeholder="2568"></td>' +
+                        '<td><input type="number" class="r-adm-inpvch" value="'+(row.intake_pvch||0)+'"></td>' +
+                        '<td><input type="number" class="r-adm-inpvs" value="'+(row.intake_pvs||0)+'"></td>' +
+                        '<td><input type="number" class="r-adm-intot" value="'+(row.intake_total||0)+'"></td>' +
+                        '<td><input type="number" class="r-adm-grpvch" value="'+(row.grad_pvch||0)+'"></td>' +
+                        '<td><input type="number" class="r-adm-grpvs" value="'+(row.grad_pvs||0)+'"></td>' +
+                        '<td><input type="number" class="r-adm-grtot" value="'+(row.grad_total||0)+'"></td>' +
+                        '<td><input type="text" class="r-adm-rate" value="'+(row.grad_rate||'')+'" placeholder="95.5%"></td>' +
+                        '<td style="text-align:center;"><button type="button" class="mis-btn-remove" data-idx="'+idx+'">ลบ</button></td>' +
+                    '</tr>');
+                    $tbody.append(tr);
+                });
+            }
+            function saveAdmissionsRows() {
+                var data = [];
+                $('#table-admissions-graduates tbody tr').each(function() {
+                    data.push({
+                        year: $(this).find('.r-adm-yr').val(),
+                        intake_pvch: parseInt($(this).find('.r-adm-inpvch').val(), 10) || 0,
+                        intake_pvs: parseInt($(this).find('.r-adm-inpvs').val(), 10) || 0,
+                        intake_total: parseInt($(this).find('.r-adm-intot').val(), 10) || 0,
+                        grad_pvch: parseInt($(this).find('.r-adm-grpvch').val(), 10) || 0,
+                        grad_pvs: parseInt($(this).find('.r-adm-grpvs').val(), 10) || 0,
+                        grad_total: parseInt($(this).find('.r-adm-grtot').val(), 10) || 0,
+                        grad_rate: $(this).find('.r-adm-rate').val()
+                    });
+                });
+                $('#mis_admissions_graduates').val(JSON.stringify(data));
+            }
+            $('#btn-add-admissions-row').on('click', function() {
+                var data = [];
+                try { data = JSON.parse($('#mis_admissions_graduates').val() || '[]'); } catch(e){}
+                data.push({ year: '', intake_pvch: 0, intake_pvs: 0, intake_total: 0, grad_pvch: 0, grad_pvs: 0, grad_total: 0, grad_rate: '' });
+                $('#mis_admissions_graduates').val(JSON.stringify(data));
+                renderAdmissionsRows();
+            });
+            $('#table-admissions-graduates').on('click', '.mis-btn-remove', function() {
+                var idx = $(this).data('idx');
+                var data = JSON.parse($('#mis_admissions_graduates').val() || '[]');
+                data.splice(idx, 1);
+                $('#mis_admissions_graduates').val(JSON.stringify(data));
+                renderAdmissionsRows();
+            });
+            $('#table-admissions-graduates').on('input change', 'input', saveAdmissionsRows);
+
+            // Helper to render achievements rows
+            function renderAchievementsRows() {
+                var data = [];
+                try { data = JSON.parse($('#mis_achievements_list').val() || '[]'); } catch(e){}
+                var $tbody = $('#table-achievements-list tbody').empty();
+                data.forEach(function(row, idx) {
+                    var tr = $('<tr>' +
+                        '<td><input type="text" class="r-ach-dept" value="'+(row.department||'')+'" placeholder="แผนกวิชา"></td>' +
+                        '<td><input type="text" class="r-ach-gpax" value="'+(row.gpax||'')+'" placeholder="3.25"></td>' +
+                        '<td><input type="text" class="r-ach-vnet" value="'+(row.vnet_score||'')+'" placeholder="78.5%"></td>' +
+                        '<td><input type="text" class="r-ach-std" value="'+(row.standard_pass_rate||'')+'" placeholder="96.0%"></td>' +
+                        '<td style="text-align:center;"><button type="button" class="mis-btn-remove" data-idx="'+idx+'">ลบ</button></td>' +
+                    '</tr>');
+                    $tbody.append(tr);
+                });
+            }
+            function saveAchievementsRows() {
+                var data = [];
+                $('#table-achievements-list tbody tr').each(function() {
+                    data.push({
+                        department: $(this).find('.r-ach-dept').val(),
+                        gpax: $(this).find('.r-ach-gpax').val(),
+                        vnet_score: $(this).find('.r-ach-vnet').val(),
+                        standard_pass_rate: $(this).find('.r-ach-std').val()
+                    });
+                });
+                $('#mis_achievements_list').val(JSON.stringify(data));
+            }
+            $('#btn-add-achieve-row').on('click', function() {
+                var data = [];
+                try { data = JSON.parse($('#mis_achievements_list').val() || '[]'); } catch(e){}
+                data.push({ department: '', gpax: '3.00', vnet_score: '75.0%', standard_pass_rate: '95.0%' });
+                $('#mis_achievements_list').val(JSON.stringify(data));
+                renderAchievementsRows();
+            });
+            $('#table-achievements-list').on('click', '.mis-btn-remove', function() {
+                var idx = $(this).data('idx');
+                var data = JSON.parse($('#mis_achievements_list').val() || '[]');
+                data.splice(idx, 1);
+                $('#mis_achievements_list').val(JSON.stringify(data));
+                renderAchievementsRows();
+            });
+            $('#table-achievements-list').on('input change', 'input', saveAchievementsRows);
+
+            // Helper to render employment rows
+            function renderEmploymentRows() {
+                var data = [];
+                try { data = JSON.parse($('#mis_employment_data').val() || '[]'); } catch(e){}
+                var $tbody = $('#table-employment-data tbody').empty();
+                data.forEach(function(row, idx) {
+                    var tr = $('<tr>' +
+                        '<td><input type="text" class="r-emp-cat" value="'+(row.category||'')+'" placeholder="กลุ่ม/ประเภท"></td>' +
+                        '<td><input type="number" class="r-emp-cnt" value="'+(row.count||0)+'"></td>' +
+                        '<td><input type="text" class="r-emp-pct" value="'+(row.percent||'')+'" placeholder="60.0%"></td>' +
+                        '<td><input type="text" class="r-emp-sal" value="'+(row.avg_salary||'')+'" placeholder="15,000 - 20,000"></td>' +
+                        '<td style="text-align:center;"><button type="button" class="mis-btn-remove" data-idx="'+idx+'">ลบ</button></td>' +
+                    '</tr>');
+                    $tbody.append(tr);
+                });
+            }
+            function saveEmploymentRows() {
+                var data = [];
+                $('#table-employment-data tbody tr').each(function() {
+                    data.push({
+                        category: $(this).find('.r-emp-cat').val(),
+                        count: parseInt($(this).find('.r-emp-cnt').val(), 10) || 0,
+                        percent: $(this).find('.r-emp-pct').val(),
+                        avg_salary: $(this).find('.r-emp-sal').val()
+                    });
+                });
+                $('#mis_employment_data').val(JSON.stringify(data));
+            }
+            $('#btn-add-employment-row').on('click', function() {
+                var data = [];
+                try { data = JSON.parse($('#mis_employment_data').val() || '[]'); } catch(e){}
+                data.push({ category: '', count: 0, percent: '', avg_salary: '' });
+                $('#mis_employment_data').val(JSON.stringify(data));
+                renderEmploymentRows();
+            });
+            $('#table-employment-data').on('click', '.mis-btn-remove', function() {
+                var idx = $(this).data('idx');
+                var data = JSON.parse($('#mis_employment_data').val() || '[]');
+                data.splice(idx, 1);
+                $('#mis_employment_data').val(JSON.stringify(data));
+                renderEmploymentRows();
+            });
+            $('#table-employment-data').on('input change', 'input', saveEmploymentRows);
+
+            // Helper to render partner rows
+            function renderPartnerRows() {
+                var data = [];
+                try { data = JSON.parse($('#mis_partner_enterprises').val() || '[]'); } catch(e){}
+                var $tbody = $('#table-partner-enterprises tbody').empty();
+                data.forEach(function(row, idx) {
+                    var tr = $('<tr>' +
+                        '<td><input type="text" class="r-part-name" value="'+(row.name||'')+'" placeholder="ชื่อบริษัท/สถานประกอบการ"></td>' +
+                        '<td><input type="text" class="r-part-ind" value="'+(row.industry||'')+'" placeholder="อุตสาหกรรม"></td>' +
+                        '<td><input type="text" class="r-part-coop" value="'+(row.cooperation_type||'')+'" placeholder="ทวิภาคี / ฝึกงาน"></td>' +
+                        '<td><input type="text" class="r-part-dept" value="'+(row.departments||'')+'" placeholder="สาขาวิชา"></td>' +
+                        '<td style="text-align:center;"><button type="button" class="mis-btn-remove" data-idx="'+idx+'">ลบ</button></td>' +
+                    '</tr>');
+                    $tbody.append(tr);
+                });
+            }
+            function savePartnerRows() {
+                var data = [];
+                $('#table-partner-enterprises tbody tr').each(function() {
+                    data.push({
+                        name: $(this).find('.r-part-name').val(),
+                        industry: $(this).find('.r-part-ind').val(),
+                        cooperation_type: $(this).find('.r-part-coop').val(),
+                        departments: $(this).find('.r-part-dept').val()
+                    });
+                });
+                $('#mis_partner_enterprises').val(JSON.stringify(data));
+            }
+            $('#btn-add-partner-row').on('click', function() {
+                var data = [];
+                try { data = JSON.parse($('#mis_partner_enterprises').val() || '[]'); } catch(e){}
+                data.push({ name: '', industry: '', cooperation_type: 'ทวิภาคี (DVE)', departments: '' });
+                $('#mis_partner_enterprises').val(JSON.stringify(data));
+                renderPartnerRows();
+            });
+            $('#table-partner-enterprises').on('click', '.mis-btn-remove', function() {
+                var idx = $(this).data('idx');
+                var data = JSON.parse($('#mis_partner_enterprises').val() || '[]');
+                data.splice(idx, 1);
+                $('#mis_partner_enterprises').val(JSON.stringify(data));
+                renderPartnerRows();
+            });
+            $('#table-partner-enterprises').on('input change', 'input', savePartnerRows);
+
+            // Initial renders
+            renderStudentRows();
+            renderPersonnelRows();
+            renderCurriculumRows();
+            renderAdmissionsRows();
+            renderAchievementsRows();
+            renderEmploymentRows();
+            renderPartnerRows();
+
+            // PDF Media Frame
+            var misPdfFrame;
+            $('#btn_upload_mis_pdf').on('click', function(e) {
+                e.preventDefault();
+                if (misPdfFrame) {
+                    misPdfFrame.open();
+                    return;
+                }
+                misPdfFrame = wp.media({
+                    title: '<?php echo esc_js(__('เลือกหรืออัปโหลดไฟล์รายงานสารสนเทศทางการศึกษา (PDF)', 'project-core')); ?>',
+                    button: { text: '<?php echo esc_js(__('ใช้ไฟล์นี้', 'project-core')); ?>' },
+                    multiple: false
+                });
+                misPdfFrame.on('select', function() {
+                    var attachment = misPdfFrame.state().get('selection').first().toJSON();
+                    $('#mis_report_pdf_url').val(attachment.url);
+                    $('#mis_report_pdf_id').val(attachment.id);
+                    $('#mis_pdf_preview').show().find('a').attr('href', attachment.url);
+                    $('#btn_clear_mis_pdf').show();
+                });
+                misPdfFrame.open();
+            });
+
+            $('#btn_clear_mis_pdf').on('click', function(e) {
+                e.preventDefault();
+                $('#mis_report_pdf_url').val('');
+                $('#mis_report_pdf_id').val('');
+                $('#mis_pdf_preview').hide();
                 $(this).hide();
             });
         });

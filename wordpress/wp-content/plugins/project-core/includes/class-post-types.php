@@ -49,6 +49,12 @@ class Project_Core_Post_Types {
         add_action('manage_sar_report_posts_custom_column', array($this, 'render_sar_report_columns'), 10, 2);
         add_action('restrict_manage_posts', array($this, 'filter_sar_reports_by_year'), 10, 2);
         add_action('pre_get_posts', array($this, 'admin_sar_report_filter_query'));
+
+        // Educational MIS Admin Columns & Filters
+        add_filter('manage_education_mis_posts_columns', array($this, 'set_education_mis_columns'));
+        add_action('manage_education_mis_posts_custom_column', array($this, 'render_education_mis_columns'), 10, 2);
+        add_action('restrict_manage_posts', array($this, 'filter_education_mis_by_year'), 10, 2);
+        add_action('pre_get_posts', array($this, 'admin_education_mis_filter_query'));
     }
 
     /**
@@ -239,6 +245,43 @@ class Project_Core_Post_Types {
         );
 
         register_post_type('sar_report', $sar_args);
+
+        // Educational MIS CPT
+        $mis_labels = array(
+            'name'                  => __('สารสนเทศทางการศึกษา / Educational MIS', 'project-core'),
+            'singular_name'         => __('สารสนเทศทางการศึกษา', 'project-core'),
+            'menu_name'             => __('สารสนเทศทางการศึกษา', 'project-core'),
+            'name_admin_bar'        => __('สารสนเทศทางการศึกษา', 'project-core'),
+            'add_new'               => __('เพิ่มข้อมูลสารสนเทศ', 'project-core'),
+            'add_new_item'          => __('เพิ่มข้อมูลสารสนเทศประจำปี', 'project-core'),
+            'new_item'              => __('ข้อมูลใหม่', 'project-core'),
+            'edit_item'             => __('แก้ไขข้อมูลสารสนเทศ', 'project-core'),
+            'view_item'             => __('ดูข้อมูลสารสนเทศ', 'project-core'),
+            'all_items'             => __('ข้อมูลสารสนเทศทั้งหมด', 'project-core'),
+            'search_items'          => __('ค้นหาข้อมูลสารสนเทศ', 'project-core'),
+            'not_found'             => __('ไม่พบข้อมูลสารสนเทศ', 'project-core'),
+            'not_found_in_trash'    => __('ไม่พบในถังขยะ', 'project-core'),
+        );
+
+        $mis_args = array(
+            'labels'             => $mis_labels,
+            'public'             => true,
+            'publicly_queryable' => true,
+            'show_ui'            => true,
+            'show_in_menu'       => true,
+            'query_var'          => true,
+            'rewrite'            => array('slug' => 'education-mis'),
+            'capability_type'    => 'post',
+            'has_archive'        => false,
+            'hierarchical'       => false,
+            'menu_position'      => 25,
+            'menu_icon'          => 'dashicons-chart-pie',
+            'supports'           => array('title', 'editor', 'thumbnail', 'page-attributes'),
+            'show_in_rest'       => true,
+            'rest_base'          => 'education-mis-posts',
+        );
+
+        register_post_type('education_mis', $mis_args);
     }
 
     /**
@@ -427,10 +470,37 @@ class Project_Core_Post_Types {
 
         register_taxonomy('sar_year', array('sar_report'), $sar_year_args);
 
+        // Academic Year Taxonomy for Educational MIS
+        $mis_year_labels = array(
+            'name'              => __('ปีการศึกษา / Academic Years', 'project-core'),
+            'singular_name'     => __('ปีการศึกษา', 'project-core'),
+            'search_items'      => __('ค้นหาปีการศึกษา', 'project-core'),
+            'all_items'         => __('ปีการศึกษาทั้งหมด', 'project-core'),
+            'edit_item'         => __('แก้ไขปีการศึกษา', 'project-core'),
+            'update_item'       => __('อัปเดตปีการศึกษา', 'project-core'),
+            'add_new_item'      => __('เพิ่มปีการศึกษาใหม่', 'project-core'),
+            'new_item_name'     => __('ชื่อปีการศึกษาใหม่', 'project-core'),
+            'menu_name'         => __('ปีการศึกษา', 'project-core'),
+        );
+
+        $mis_year_args = array(
+            'hierarchical'      => true,
+            'labels'            => $mis_year_labels,
+            'show_ui'           => true,
+            'show_admin_column' => true,
+            'query_var'         => true,
+            'rewrite'           => false,
+            'show_in_rest'      => true,
+            'rest_base'         => 'mis-academic-years',
+        );
+
+        register_taxonomy('mis_academic_year', array('education_mis'), $mis_year_args);
+
         // Seed default terms if empty
         $this->seed_default_curriculum_terms();
         $this->seed_default_personnel_data();
         $this->seed_default_sar_data();
+        $this->seed_default_education_mis_data();
     }
 
     /**
@@ -1685,6 +1755,353 @@ class Project_Core_Post_Types {
                     update_post_meta($post_id, 'sar_report_no', $sample['report_no']);
                     update_post_meta($post_id, 'sar_external_url', $sample['external_url']);
                 }
+            }
+        }
+    }
+
+    /**
+     * Set columns for Educational MIS admin table
+     */
+    public function set_education_mis_columns($columns) {
+        $new_columns = array();
+        $new_columns['cb']               = $columns['cb'];
+        $new_columns['title']            = __('ปีการศึกษา / รายการสารสนเทศ', 'project-core');
+        $new_columns['mis_year']         = __('ปีการศึกษา', 'project-core');
+        $new_columns['students_count']   = __('จำนวนนักศึกษา', 'project-core');
+        $new_columns['personnel_count']  = __('จำนวนบุคลากร', 'project-core');
+        $new_columns['employment_rate']  = __('อัตรามีงานทำ/ศึกษาต่อ', 'project-core');
+        $new_columns['pdf_file']         = __('ไฟล์รายงาน PDF', 'project-core');
+        $new_columns['date']             = $columns['date'];
+        return $new_columns;
+    }
+
+    /**
+     * Render Educational MIS admin columns
+     */
+    public function render_education_mis_columns($column, $post_id) {
+        switch ($column) {
+            case 'mis_year':
+                $terms = get_the_terms($post_id, 'mis_academic_year');
+                if ($terms && !is_wp_error($terms)) {
+                    $links = array();
+                    foreach ($terms as $t) {
+                        $links[] = sprintf(
+                            '<a href="%s"><strong style="color: #0047BA;">%s</strong></a>',
+                            esc_url(add_query_arg(array('post_type' => 'education_mis', 'mis_academic_year' => $t->slug), 'edit.php')),
+                            esc_html($t->name)
+                        );
+                    }
+                    echo implode(', ', $links);
+                } else {
+                    $year_text = get_post_meta($post_id, 'mis_academic_year_text', true);
+                    echo !empty($year_text) ? 'ปีการศึกษา ' . esc_html($year_text) : '—';
+                }
+                break;
+
+            case 'students_count':
+                $total = get_post_meta($post_id, 'mis_students_total', true);
+                if (!empty($total)) {
+                    echo '<strong>' . number_format((int)$total) . '</strong> <span style="color:#64748b;">คน</span>';
+                } else {
+                    echo '—';
+                }
+                break;
+
+            case 'personnel_count':
+                $total = get_post_meta($post_id, 'mis_personnel_total', true);
+                if (!empty($total)) {
+                    echo '<strong>' . number_format((int)$total) . '</strong> <span style="color:#64748b;">คน</span>';
+                } else {
+                    echo '—';
+                }
+                break;
+
+            case 'employment_rate':
+                $rate = get_post_meta($post_id, 'mis_employment_total_rate', true);
+                if (!empty($rate)) {
+                    echo '<span style="display:inline-block; padding: 2px 8px; border-radius: 9999px; background: #ecfdf5; color: #047857; font-weight: 600; font-size: 12px;">' . esc_html($rate) . '%</span>';
+                } else {
+                    echo '—';
+                }
+                break;
+
+            case 'pdf_file':
+                $url = get_post_meta($post_id, 'mis_report_pdf_url', true);
+                if (!empty($url)) {
+                    printf(
+                        '<a href="%s" target="_blank" class="button button-small" style="display:inline-flex; align-items:center; gap:3px;"><span class="dashicons dashicons-pdf" style="font-size:14px; width:14px; height:14px; line-height:14px;"></span> %s</a>',
+                        esc_url($url),
+                        __('ดาวน์โหลด PDF', 'project-core')
+                    );
+                } else {
+                    echo '<span style="color: #94a3b8;">— ไม่มีไฟล์ —</span>';
+                }
+                break;
+        }
+    }
+
+    /**
+     * Filter Educational MIS by academic year dropdown in admin
+     */
+    public function filter_education_mis_by_year($post_type, $which) {
+        if ($post_type === 'education_mis') {
+            $selected = isset($_GET['mis_academic_year']) ? sanitize_text_field($_GET['mis_academic_year']) : '';
+            $terms    = get_terms(array(
+                'taxonomy'   => 'mis_academic_year',
+                'hide_empty' => false,
+            ));
+
+            if (!empty($terms) && !is_wp_error($terms)) {
+                echo '<select name="mis_academic_year" id="filter-by-mis-year">';
+                echo '<option value="">' . __('— ทุกปีการศึกษา —', 'project-core') . '</option>';
+                foreach ($terms as $t) {
+                    printf(
+                        '<option value="%s" %s>%s (%d)</option>',
+                        esc_attr($t->slug),
+                        selected($selected, $t->slug, false),
+                        esc_html($t->name),
+                        $t->count
+                    );
+                }
+                echo '</select>';
+            }
+        }
+    }
+
+    /**
+     * Apply filter query for Educational MIS in admin
+     */
+    public function admin_education_mis_filter_query($query) {
+        global $pagenow;
+        if (is_admin() && $pagenow === 'edit.php' && isset($_GET['post_type']) && $_GET['post_type'] === 'education_mis') {
+            if (!empty($_GET['mis_academic_year'])) {
+                $query->set('tax_query', array(
+                    array(
+                        'taxonomy' => 'mis_academic_year',
+                        'field'    => 'slug',
+                        'terms'    => sanitize_text_field($_GET['mis_academic_year']),
+                    ),
+                ));
+            }
+            if (!isset($_GET['orderby'])) {
+                $query->set('orderby', array('menu_order' => 'ASC', 'date' => 'DESC'));
+            }
+        }
+    }
+
+    /**
+     * Seed default academic years and comprehensive MIS data
+     */
+    public function seed_default_education_mis_data() {
+        if (!taxonomy_exists('mis_academic_year') || !post_type_exists('education_mis')) {
+            return;
+        }
+
+        // Default academic years
+        $years = array(
+            '2568' => 'ปีการศึกษา 2568',
+            '2567' => 'ปีการศึกษา 2567',
+            '2566' => 'ปีการศึกษา 2566',
+        );
+
+        foreach ($years as $slug => $name) {
+            if (!term_exists($slug, 'mis_academic_year')) {
+                wp_insert_term($name, 'mis_academic_year', array('slug' => $slug));
+            }
+        }
+
+        // Check if sample exists
+        $existing = get_posts(array(
+            'post_type'      => 'education_mis',
+            'post_status'    => 'any',
+            'posts_per_page' => 1,
+        ));
+
+        if (empty($existing)) {
+            // Seed Year 2568 (Latest & complete)
+            $students_by_dept_2568 = array(
+                array('level' => 'ปวช.', 'department' => 'ช่างยนต์', 'male' => 210, 'female' => 12, 'total' => 222),
+                array('level' => 'ปวช.', 'department' => 'ช่างไฟฟ้ากำลัง', 'male' => 185, 'female' => 15, 'total' => 200),
+                array('level' => 'ปวช.', 'department' => 'ช่างอิเล็กทรอนิกส์', 'male' => 140, 'female' => 18, 'total' => 158),
+                array('level' => 'ปวช.', 'department' => 'เทคโนโลยีสารสนเทศ', 'male' => 110, 'female' => 65, 'total' => 175),
+                array('level' => 'ปวช.', 'department' => 'การบัญชี', 'male' => 25, 'female' => 165, 'total' => 190),
+                array('level' => 'ปวช.', 'department' => 'การตลาด', 'male' => 35, 'female' => 140, 'total' => 175),
+                array('level' => 'ปวส.', 'department' => 'เทคนิคเครื่องกล (ช่างยนต์)', 'male' => 145, 'female' => 5, 'total' => 150),
+                array('level' => 'ปวส.', 'department' => 'ไฟฟ้า', 'male' => 130, 'female' => 10, 'total' => 140),
+                array('level' => 'ปวส.', 'department' => 'เทคโนโลยีสารสนเทศ', 'male' => 85, 'female' => 55, 'total' => 140),
+                array('level' => 'ปวส.', 'department' => 'การบัญชี', 'male' => 20, 'female' => 135, 'total' => 155),
+                array('level' => 'ปวส.', 'department' => 'การจัดการโลจิสติกส์', 'male' => 45, 'female' => 100, 'total' => 145),
+            );
+
+            $personnel_breakdown_2568 = array(
+                array('category' => 'ฝ่ายบริหาร', 'position' => 'ผู้อำนวยการ และรองผู้อำนวยการ', 'count' => 5, 'notes' => 'ปริญญาเอก 2, ปริญญาโท 3'),
+                array('category' => 'แผนกวิชาช่างยนต์', 'position' => 'ครูผู้สอนประจำแผนกวิชา', 'count' => 12, 'notes' => 'ผู้เชี่ยวชาญยานยนต์ไฟฟ้า (EV) 4 คน'),
+                array('category' => 'แผนกวิชาช่างไฟฟ้ากำลัง', 'position' => 'ครูผู้สอนประจำแผนกวิชา', 'count' => 10, 'notes' => 'ผู้ทดสอบมาตรฐานฝีมือแรงงาน 5 คน'),
+                array('category' => 'แผนกวิชาช่างอิเล็กทรอนิกส์', 'position' => 'ครูผู้สอนประจำแผนกวิชา', 'count' => 8, 'notes' => 'IoT และหุ่นยนต์อุตสาหกรรม'),
+                array('category' => 'แผนกวิชาเทคโนโลยีสารสนเทศ', 'position' => 'ครูผู้สอนประจำแผนกวิชา', 'count' => 9, 'notes' => 'Cloud & Software Development'),
+                array('category' => 'แผนกวิชาการบัญชี', 'position' => 'ครูผู้สอนประจำแผนกวิชา', 'count' => 8, 'notes' => 'ERP & Digital Accounting'),
+                array('category' => 'แผนกวิชาการตลาดและโลจิสติกส์', 'position' => 'ครูผู้สอนประจำแผนกวิชา', 'count' => 7, 'notes' => 'E-Commerce & Supply Chain'),
+                array('category' => 'แผนกวิชาสามัญสัมพันธ์', 'position' => 'ครูผู้สอนหมวดวิชาสามัญ (ภาษา/วิทย์/คณิต)', 'count' => 4, 'notes' => 'ครูต่างชาติ 2 คน'),
+                array('category' => 'บุคลากรทางการศึกษา', 'position' => 'เจ้าหน้าที่สนับสนุนการปฏิบัติงาน/ธุรการ', 'count' => 22, 'notes' => 'ฝ่ายทะเบียน, การเงิน, พัสดุ, อาคารสถานที่'),
+            );
+
+            $curriculum_list_2568 = array(
+                array('level' => 'ปวช.', 'department' => 'ช่างยนต์', 'specialties' => 'สาขางานยานยนต์, สาขางานยานยนต์ไฟฟ้า (EV)', 'study_mode' => 'ปกติ และ ทวิภาคี'),
+                array('level' => 'ปวช.', 'department' => 'ช่างไฟฟ้ากำลัง', 'specialties' => 'สาขางานไฟฟ้ากำลัง, สาขางานระบบควบคุมอัตโนมัติ', 'study_mode' => 'ปกติ และ ทวิภาคี'),
+                array('level' => 'ปวช.', 'department' => 'ช่างอิเล็กทรอนิกส์', 'specialties' => 'สาขางานอิเล็กทรอนิกส์, สาขางานอุปกรณ์การสื่อสาร', 'study_mode' => 'ปกติ'),
+                array('level' => 'ปวช.', 'department' => 'เทคโนโลยีสารสนเทศ', 'specialties' => 'สาขางานนักพัฒนาซอฟต์แวร์, สาขางานคอมพิวเตอร์กราฟิก', 'study_mode' => 'ปกติ และ ทวิภาคี'),
+                array('level' => 'ปวช.', 'department' => 'การบัญชี', 'specialties' => 'สาขางานการบัญชี', 'study_mode' => 'ปกติ'),
+                array('level' => 'ปวช.', 'department' => 'การตลาด', 'specialties' => 'สาขางานการตลาดดิจิทัล', 'study_mode' => 'ปกติ และ ทวิภาคี'),
+                array('level' => 'ปวส.', 'department' => 'เทคนิคเครื่องกล', 'specialties' => 'สาขางานเทคนิคยานยนต์, สาขางานยานยนต์ไฟฟ้าอัจฉริยะ', 'study_mode' => 'ทวิภาคี 100%'),
+                array('level' => 'ปวส.', 'department' => 'ไฟฟ้า', 'specialties' => 'สาขางานระบบควบคุมและระบบอัตโนมัติอุตสาหกรรม', 'study_mode' => 'ปกติ และ ทวิภาคี'),
+                array('level' => 'ปวส.', 'department' => 'เทคโนโลยีสารสนเทศ', 'specialties' => 'สาขางานเทคโนโลยีสารสนเทศและการสื่อสาร, Cloud Platform', 'study_mode' => 'ปกติ และ ทวิภาคี'),
+                array('level' => 'ปวส.', 'department' => 'การบัญชี', 'specialties' => 'สาขางานการบัญชีและระบบสารสนเทศทางการเงิน', 'study_mode' => 'ปกติ'),
+                array('level' => 'ปวส.', 'department' => 'การจัดการโลจิสติกส์และซัพพลายเชน', 'specialties' => 'สาขางานการจัดการคลังสินค้าและการขนส่งต่อเนื่อง', 'study_mode' => 'ปกติ และ ทวิภาคี'),
+            );
+
+            $admissions_graduates_2568 = array(
+                array('year' => '2568', 'intake_pvch' => 480, 'intake_pvs' => 390, 'intake_total' => 870, 'grad_pvch' => 395, 'grad_pvs' => 340, 'grad_total' => 735, 'grad_rate' => '95.8%'),
+                array('year' => '2567', 'intake_pvch' => 465, 'intake_pvs' => 380, 'intake_total' => 845, 'grad_pvch' => 380, 'grad_pvs' => 330, 'grad_total' => 710, 'grad_rate' => '94.2%'),
+                array('year' => '2566', 'intake_pvch' => 450, 'intake_pvs' => 360, 'intake_total' => 810, 'grad_pvch' => 370, 'grad_pvs' => 315, 'grad_total' => 685, 'grad_rate' => '93.6%'),
+            );
+
+            $achievements_list_2568 = array(
+                array('department' => 'ช่างยนต์', 'gpax' => '3.15', 'vnet_score' => '72.4%', 'standard_pass_rate' => '98.5%'),
+                array('department' => 'ช่างไฟฟ้ากำลัง', 'gpax' => '3.20', 'vnet_score' => '74.2%', 'standard_pass_rate' => '97.2%'),
+                array('department' => 'ช่างอิเล็กทรอนิกส์', 'gpax' => '3.18', 'vnet_score' => '71.8%', 'standard_pass_rate' => '95.0%'),
+                array('department' => 'เทคโนโลยีสารสนเทศ', 'gpax' => '3.38', 'vnet_score' => '82.5%', 'standard_pass_rate' => '96.8%'),
+                array('department' => 'การบัญชี', 'gpax' => '3.42', 'vnet_score' => '84.1%', 'standard_pass_rate' => '99.0%'),
+                array('department' => 'การตลาดและโลจิสติกส์', 'gpax' => '3.25', 'vnet_score' => '76.3%', 'standard_pass_rate' => '94.5%'),
+            );
+
+            $employment_data_2568 = array(
+                array('category' => 'มีงานทำตรงสาขาวิชาที่สำเร็จการศึกษา', 'count' => 459, 'percent' => '62.5%', 'avg_salary' => '16,500 - 24,000'),
+                array('category' => 'มีงานทำในสาขาวิชาอื่น / ภาคอุตสาหกรรม', 'count' => 105, 'percent' => '14.3%', 'avg_salary' => '15,000 - 18,500'),
+                array('category' => 'ศึกษาต่อในระดับปริญญาตรี / สถาบันอุดมศึกษา', 'count' => 110, 'percent' => '15.0%', 'avg_salary' => '—'),
+                array('category' => 'ประกอบอาชีพอิสระ / ผู้ประกอบการใหม่ (Startup)', 'count' => 37, 'percent' => '5.0%', 'avg_salary' => '18,000 - 35,000'),
+                array('category' => 'อยู่ระหว่างรอการเกณฑ์ทหาร / เตรียมตัวศึกษาต่อ', 'count' => 24, 'percent' => '3.2%', 'avg_salary' => '—'),
+            );
+
+            $partner_enterprises_2568 = array(
+                array('name' => 'บริษัท โตโยต้า มอเตอร์ ประเทศไทย จำกัด', 'industry' => 'ยานยนต์และชิ้นส่วน', 'cooperation_type' => 'ทวิภาคี (DVE) & มอบทุนการศึกษา', 'departments' => 'ช่างยนต์, ช่างไฟฟ้า'),
+                array('name' => 'บริษัท ฮอนด้า ออโตโมบิล (ประเทศไทย) จำกัด', 'industry' => 'ยานยนต์อัจฉริยะ', 'cooperation_type' => 'ทวิภาคี & รับเข้าทำงานทันที', 'departments' => 'ช่างยนต์, ช่างอิเล็กทรอนิกส์'),
+                array('name' => 'บริษัท เดลต้า อีเลคโทรนิคส์ (ประเทศไทย) จำกัด (มหาชน)', 'industry' => 'อิเล็กทรอนิกส์และพลังงานหมุนเวียน', 'cooperation_type' => 'ศูนย์เรียนรู้ & ฝึกอาชีพทวิภาคี', 'departments' => 'ช่างอิเล็กทรอนิกส์, ช่างไฟฟ้ากำลัง'),
+                array('name' => 'บริษัท มิตซูบิชิ มอเตอร์ส (ประเทศไทย) จำกัด', 'industry' => 'ยานยนต์และระบบอัตโนมัติ', 'cooperation_type' => 'ทวิภาคีพรีเมียม (EEC Model)', 'departments' => 'เทคนิคเครื่องกล, แมคคาทรอนิกส์'),
+                array('name' => 'บมจ. ซีพี ออลล์ (CP ALL PCL)', 'industry' => 'ค้าปลีกและเทคโนโลยีสารสนเทศ', 'cooperation_type' => 'ทวิภาคี & ทุนเรียนฟรีมีรายได้', 'departments' => 'การตลาด, เทคโนโลยีสารสนเทศ'),
+                array('name' => 'บริษัท เคอรี่ เอ็กซ์เพรส (ประเทศไทย) จำกัด (มหาชน)', 'industry' => 'การจัดการคลังสินค้าและโลจิสติกส์', 'cooperation_type' => 'ฝึกงานและระบบบริหารจัดส่ง', 'departments' => 'การจัดการโลจิสติกส์'),
+                array('name' => 'บริษัท ดับบลิวเอชเอ อินดัสเตรียล ดีเวลลอปเมนท์ จำกัด (มหาชน)', 'industry' => 'นิคมอุตสาหกรรมและสาธารณูปโภค', 'cooperation_type' => 'MOU พัฒนากำลังคนเขต EEC', 'departments' => 'ทุกสาขาวิชาช่างและบริหาร'),
+                array('name' => 'บริษัท บี.กริม เพาเวอร์ จำกัด (มหาชน)', 'industry' => 'พลังงานสะอาดและวิศวกรรมไฟฟ้า', 'cooperation_type' => 'ฝึกอาชีพช่างเทคนิคโรงไฟฟ้า', 'departments' => 'ช่างไฟฟ้ากำลัง, ช่างยนต์'),
+            );
+
+            $post_id = wp_insert_post(array(
+                'post_title'   => 'ข้อมูลสารสนเทศทางการศึกษา ประจำปีการศึกษา 2568',
+                'post_name'    => 'education-mis-2568',
+                'post_status'  => 'publish',
+                'post_type'    => 'education_mis',
+                'post_content' => 'สรุปสารสนเทศทางการศึกษา วิทยาลัยเทคโนโลยีศรีราชา ประจำปีการศึกษา 2568 รวบรวมข้อมูลสถิตินักเรียนนักศึกษา บุคลากร หลักสูตร ผลสัมฤทธิ์ทางการเรียน ผลการทดสอบ V-NET การมีงานทำ และความร่วมมือกับสถานประกอบการตามมาตรฐานการอาชีวศึกษา',
+                'menu_order'   => 1,
+            ));
+
+            if ($post_id && !is_wp_error($post_id)) {
+                wp_set_object_terms($post_id, '2568', 'mis_academic_year');
+
+                // General
+                update_post_meta($post_id, 'mis_academic_year_text', '2568');
+                update_post_meta($post_id, 'mis_report_pdf_url', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf');
+
+                // 1. Students
+                update_post_meta($post_id, 'mis_students_total', 1850);
+                update_post_meta($post_id, 'mis_students_pvch_total', 1120);
+                update_post_meta($post_id, 'mis_students_pvs_total', 730);
+                update_post_meta($post_id, 'mis_students_by_dept', wp_json_encode($students_by_dept_2568, JSON_UNESCAPED_UNICODE));
+
+                // 2. Personnel
+                update_post_meta($post_id, 'mis_personnel_total', 85);
+                update_post_meta($post_id, 'mis_personnel_executives', 5);
+                update_post_meta($post_id, 'mis_personnel_teachers', 58);
+                update_post_meta($post_id, 'mis_personnel_support', 22);
+                update_post_meta($post_id, 'mis_personnel_breakdown', wp_json_encode($personnel_breakdown_2568, JSON_UNESCAPED_UNICODE));
+
+                // 3. Curriculum
+                update_post_meta($post_id, 'mis_curriculum_levels_count', 2);
+                update_post_meta($post_id, 'mis_departments_count', 8);
+                update_post_meta($post_id, 'mis_programs_count', 14);
+                update_post_meta($post_id, 'mis_curriculum_list', wp_json_encode($curriculum_list_2568, JSON_UNESCAPED_UNICODE));
+
+                // 4. Admissions & Graduates
+                update_post_meta($post_id, 'mis_admissions_graduates', wp_json_encode($admissions_graduates_2568, JSON_UNESCAPED_UNICODE));
+
+                // 5. Achievements
+                update_post_meta($post_id, 'mis_gpax_avg', '3.28');
+                update_post_meta($post_id, 'mis_gpax_pvch', '3.21');
+                update_post_meta($post_id, 'mis_gpax_pvs', '3.36');
+                update_post_meta($post_id, 'mis_vnet_pass_rate', '89.4');
+                update_post_meta($post_id, 'mis_vocational_standard_pass_rate', '96.2');
+                update_post_meta($post_id, 'mis_achievements_list', wp_json_encode($achievements_list_2568, JSON_UNESCAPED_UNICODE));
+
+                // 6. Employment & Higher Education
+                update_post_meta($post_id, 'mis_employment_total_rate', '96.8');
+                update_post_meta($post_id, 'mis_employed_field_rate', '62.5');
+                update_post_meta($post_id, 'mis_employed_other_rate', '14.3');
+                update_post_meta($post_id, 'mis_higher_education_rate', '15.0');
+                update_post_meta($post_id, 'mis_freelance_business_rate', '5.0');
+                update_post_meta($post_id, 'mis_unemployed_or_other_rate', '3.2');
+                update_post_meta($post_id, 'mis_employment_data', wp_json_encode($employment_data_2568, JSON_UNESCAPED_UNICODE));
+
+                // 7. Partner Enterprises
+                update_post_meta($post_id, 'mis_mou_partners_count', 54);
+                update_post_meta($post_id, 'mis_dual_vocational_count', 42);
+                update_post_meta($post_id, 'mis_intern_students_count', 640);
+                update_post_meta($post_id, 'mis_intern_allowance_avg', 10500);
+                update_post_meta($post_id, 'mis_partner_enterprises', wp_json_encode($partner_enterprises_2568, JSON_UNESCAPED_UNICODE));
+            }
+
+            // Seed Year 2567 (Previous year for historical comparison)
+            $post_id_2567 = wp_insert_post(array(
+                'post_title'   => 'ข้อมูลสารสนเทศทางการศึกษา ประจำปีการศึกษา 2567',
+                'post_name'    => 'education-mis-2567',
+                'post_status'  => 'publish',
+                'post_type'    => 'education_mis',
+                'post_content' => 'สารสนเทศทางการศึกษา วิทยาลัยเทคโนโลยีศรีราชา ประจำปีการศึกษา 2567',
+                'menu_order'   => 2,
+            ));
+
+            if ($post_id_2567 && !is_wp_error($post_id_2567)) {
+                wp_set_object_terms($post_id_2567, '2567', 'mis_academic_year');
+                update_post_meta($post_id_2567, 'mis_academic_year_text', '2567');
+                update_post_meta($post_id_2567, 'mis_report_pdf_url', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf');
+                update_post_meta($post_id_2567, 'mis_students_total', 1780);
+                update_post_meta($post_id_2567, 'mis_students_pvch_total', 1080);
+                update_post_meta($post_id_2567, 'mis_students_pvs_total', 700);
+                update_post_meta($post_id_2567, 'mis_students_by_dept', wp_json_encode($students_by_dept_2568, JSON_UNESCAPED_UNICODE));
+                update_post_meta($post_id_2567, 'mis_personnel_total', 82);
+                update_post_meta($post_id_2567, 'mis_personnel_executives', 5);
+                update_post_meta($post_id_2567, 'mis_personnel_teachers', 56);
+                update_post_meta($post_id_2567, 'mis_personnel_support', 21);
+                update_post_meta($post_id_2567, 'mis_personnel_breakdown', wp_json_encode($personnel_breakdown_2568, JSON_UNESCAPED_UNICODE));
+                update_post_meta($post_id_2567, 'mis_curriculum_levels_count', 2);
+                update_post_meta($post_id_2567, 'mis_departments_count', 8);
+                update_post_meta($post_id_2567, 'mis_programs_count', 13);
+                update_post_meta($post_id_2567, 'mis_curriculum_list', wp_json_encode($curriculum_list_2568, JSON_UNESCAPED_UNICODE));
+                update_post_meta($post_id_2567, 'mis_admissions_graduates', wp_json_encode($admissions_graduates_2568, JSON_UNESCAPED_UNICODE));
+                update_post_meta($post_id_2567, 'mis_gpax_avg', '3.22');
+                update_post_meta($post_id_2567, 'mis_gpax_pvch', '3.16');
+                update_post_meta($post_id_2567, 'mis_gpax_pvs', '3.30');
+                update_post_meta($post_id_2567, 'mis_vnet_pass_rate', '87.2');
+                update_post_meta($post_id_2567, 'mis_vocational_standard_pass_rate', '95.1');
+                update_post_meta($post_id_2567, 'mis_achievements_list', wp_json_encode($achievements_list_2568, JSON_UNESCAPED_UNICODE));
+                update_post_meta($post_id_2567, 'mis_employment_total_rate', '95.4');
+                update_post_meta($post_id_2567, 'mis_employed_field_rate', '60.2');
+                update_post_meta($post_id_2567, 'mis_employed_other_rate', '15.2');
+                update_post_meta($post_id_2567, 'mis_higher_education_rate', '15.5');
+                update_post_meta($post_id_2567, 'mis_freelance_business_rate', '4.5');
+                update_post_meta($post_id_2567, 'mis_unemployed_or_other_rate', '4.6');
+                update_post_meta($post_id_2567, 'mis_employment_data', wp_json_encode($employment_data_2568, JSON_UNESCAPED_UNICODE));
+                update_post_meta($post_id_2567, 'mis_mou_partners_count', 48);
+                update_post_meta($post_id_2567, 'mis_dual_vocational_count', 36);
+                update_post_meta($post_id_2567, 'mis_intern_students_count', 590);
+                update_post_meta($post_id_2567, 'mis_intern_allowance_avg', 9800);
+                update_post_meta($post_id_2567, 'mis_partner_enterprises', wp_json_encode($partner_enterprises_2568, JSON_UNESCAPED_UNICODE));
             }
         }
     }

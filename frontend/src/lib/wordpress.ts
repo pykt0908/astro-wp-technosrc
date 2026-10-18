@@ -12,8 +12,31 @@ import type {
   PersonnelCategory,
   SarReport,
   SarYear,
+  EducationMisItem,
+  EducationMisYear,
+  StudentStatRow,
+  PersonnelStatRow,
+  CurriculumStatRow,
+  AdmissionsGraduatesRow,
+  AchievementStatRow,
+  EmploymentStatRow,
+  PartnerEnterpriseRow,
 } from '../types/wordpress';
-export type { Personnel, PersonnelCategory, SarReport, SarYear };
+export type {
+  Personnel,
+  PersonnelCategory,
+  SarReport,
+  SarYear,
+  EducationMisItem,
+  EducationMisYear,
+  StudentStatRow,
+  PersonnelStatRow,
+  CurriculumStatRow,
+  AdmissionsGraduatesRow,
+  AchievementStatRow,
+  EmploymentStatRow,
+  PartnerEnterpriseRow,
+};
 import { sanitizeWordPressHtml, stripHtml } from './sanitize';
 
 // Base API endpoints
@@ -1127,5 +1150,317 @@ export async function getSarYears(): Promise<SarYear[]> {
 
   return LOCAL_MOCK_SAR_YEARS;
 }
+
+// Fallback Mock Data for Educational MIS
+export const LOCAL_MOCK_MIS_YEARS: EducationMisYear[] = [
+  { id: 81, name: 'ปีการศึกษา 2568', slug: '2568', count: 1 },
+  { id: 82, name: 'ปีการศึกษา 2567', slug: '2567', count: 1 },
+  { id: 83, name: 'ปีการศึกษา 2566', slug: '2566', count: 0 },
+];
+
+export const LOCAL_MOCK_EDUCATION_MIS: EducationMisItem[] = [
+  {
+    id: 36,
+    title: 'ข้อมูลสารสนเทศทางการศึกษา ประจำปีการศึกษา 2568',
+    slug: 'education-mis-2568',
+    description: 'สรุปสารสนเทศทางการศึกษา วิทยาลัยเทคโนโลยีศรีราชา ประจำปีการศึกษา 2568 รวบรวมข้อมูลสถิตินักเรียนนักศึกษา บุคลากร หลักสูตร ผลสัมฤทธิ์ทางการเรียน ผลการทดสอบ V-NET การมีงานทำ และความร่วมมือกับสถานประกอบการตามมาตรฐานการอาชีวศึกษา',
+    academicYear: { id: 81, name: 'ปีการศึกษา 2568', slug: '2568' },
+    pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    overview: {
+      totalStudents: 1850,
+      totalPersonnel: 85,
+      programsCount: 14,
+      employmentRate: '96.8',
+      avgGpax: '3.28',
+      partnerCount: 54,
+    },
+    students: {
+      total: 1850,
+      pvchTotal: 1120,
+      pvsTotal: 730,
+      byDepartment: [
+        { level: 'ปวช.', department: 'ช่างยนต์', male: 210, female: 12, total: 222 },
+        { level: 'ปวช.', department: 'ช่างไฟฟ้ากำลัง', male: 185, female: 15, total: 200 },
+        { level: 'ปวช.', department: 'ช่างอิเล็กทรอนิกส์', male: 140, female: 18, total: 158 },
+        { level: 'ปวช.', department: 'เทคโนโลยีสารสนเทศ', male: 110, female: 65, total: 175 },
+        { level: 'ปวช.', department: 'การบัญชี', male: 25, female: 165, total: 190 },
+        { level: 'ปวช.', department: 'การตลาด', male: 35, female: 140, total: 175 },
+        { level: 'ปวส.', department: 'เทคนิคเครื่องกล (ช่างยนต์)', male: 145, female: 5, total: 150 },
+        { level: 'ปวส.', department: 'ไฟฟ้า', male: 130, female: 10, total: 140 },
+        { level: 'ปวส.', department: 'เทคโนโลยีสารสนเทศ', male: 85, female: 55, total: 140 },
+        { level: 'ปวส.', department: 'การบัญชี', male: 20, female: 135, total: 155 },
+        { level: 'ปวส.', department: 'การจัดการโลจิสติกส์', male: 45, female: 100, total: 145 },
+      ],
+    },
+    personnel: {
+      total: 85,
+      executives: 5,
+      teachers: 58,
+      support: 22,
+      breakdown: [
+        { category: 'ฝ่ายบริหาร', position: 'ผู้อำนวยการ และรองผู้อำนวยการ', count: 5, notes: 'ปริญญาเอก 2, ปริญญาโท 3' },
+        { category: 'แผนกวิชาช่างยนต์', position: 'ครูผู้สอนประจำแผนกวิชา', count: 12, notes: 'ผู้เชี่ยวชาญยานยนต์ไฟฟ้า (EV) 4 คน' },
+        { category: 'แผนกวิชาช่างไฟฟ้ากำลัง', position: 'ครูผู้สอนประจำแผนกวิชา', count: 10, notes: 'ผู้ทดสอบมาตรฐานฝีมือแรงงาน 5 คน' },
+        { category: 'แผนกวิชาช่างอิเล็กทรอนิกส์', position: 'ครูผู้สอนประจำแผนกวิชา', count: 8, notes: 'IoT และหุ่นยนต์อุตสาหกรรม' },
+        { category: 'แผนกวิชาเทคโนโลยีสารสนเทศ', position: 'ครูผู้สอนประจำแผนกวิชา', count: 9, notes: 'Cloud & Software Development' },
+        { category: 'แผนกวิชาการบัญชี', position: 'ครูผู้สอนประจำแผนกวิชา', count: 8, notes: 'ERP & Digital Accounting' },
+        { category: 'แผนกวิชาการตลาดและโลจิสติกส์', position: 'ครูผู้สอนประจำแผนกวิชา', count: 7, notes: 'E-Commerce & Supply Chain' },
+        { category: 'แผนกวิชาสามัญสัมพันธ์', position: 'ครูผู้สอนหมวดวิชาสามัญ (ภาษา/วิทย์/คณิต)', count: 4, notes: 'ครูต่างชาติ 2 คน' },
+        { category: 'บุคลากรทางการศึกษา', position: 'เจ้าหน้าที่สนับสนุนการปฏิบัติงาน/ธุรการ', count: 22, notes: 'ฝ่ายทะเบียน, การเงิน, พัสดุ, อาคารสถานที่' },
+      ],
+    },
+    curriculum: {
+      levelsCount: 2,
+      departmentsCount: 8,
+      programsCount: 14,
+      list: [
+        { level: 'ปวช.', department: 'ช่างยนต์', specialties: 'สาขางานยานยนต์, สาขางานยานยนต์ไฟฟ้า (EV)', study_mode: 'ปกติ และ ทวิภาคี' },
+        { level: 'ปวช.', department: 'ช่างไฟฟ้ากำลัง', specialties: 'สาขางานไฟฟ้ากำลัง, สาขางานระบบควบคุมอัตโนมัติ', study_mode: 'ปกติ และ ทวิภาคี' },
+        { level: 'ปวช.', department: 'ช่างอิเล็กทรอนิกส์', specialties: 'สาขางานอิเล็กทรอนิกส์, สาขางานอุปกรณ์การสื่อสาร', study_mode: 'ปกติ' },
+        { level: 'ปวช.', department: 'เทคโนโลยีสารสนเทศ', specialties: 'สาขางานนักพัฒนาซอฟต์แวร์, สาขางานคอมพิวเตอร์กราฟิก', study_mode: 'ปกติ และ ทวิภาคี' },
+        { level: 'ปวช.', department: 'การบัญชี', specialties: 'สาขางานการบัญชี', study_mode: 'ปกติ' },
+        { level: 'ปวช.', department: 'การตลาด', specialties: 'สาขางานการตลาดดิจิทัล', study_mode: 'ปกติ และ ทวิภาคี' },
+        { level: 'ปวส.', department: 'เทคนิคเครื่องกล', specialties: 'สาขางานเทคนิคยานยนต์, สาขางานยานยนต์ไฟฟ้าอัจฉริยะ', study_mode: 'ทวิภาคี 100%' },
+        { level: 'ปวส.', department: 'ไฟฟ้า', specialties: 'สาขางานระบบควบคุมและระบบอัตโนมัติอุตสาหกรรม', study_mode: 'ปกติ และ ทวิภาคี' },
+        { level: 'ปวส.', department: 'เทคโนโลยีสารสนเทศ', specialties: 'สาขางานเทคโนโลยีสารสนเทศและการสื่อสาร, Cloud Platform', study_mode: 'ปกติ และ ทวิภาคี' },
+        { level: 'ปวส.', department: 'การบัญชี', specialties: 'สาขางานการบัญชีและระบบสารสนเทศทางการเงิน', study_mode: 'ปกติ' },
+        { level: 'ปวส.', department: 'การจัดการโลจิสติกส์และซัพพลายเชน', specialties: 'สาขางานการจัดการคลังสินค้าและการขนส่งต่อเนื่อง', study_mode: 'ปกติ และ ทวิภาคี' },
+      ],
+    },
+    admissionsGraduates: [
+      { year: '2568', intake_pvch: 480, intake_pvs: 390, intake_total: 870, grad_pvch: 395, grad_pvs: 340, grad_total: 735, grad_rate: '95.8%' },
+      { year: '2567', intake_pvch: 465, intake_pvs: 380, intake_total: 845, grad_pvch: 380, grad_pvs: 330, grad_total: 710, grad_rate: '94.2%' },
+      { year: '2566', intake_pvch: 450, intake_pvs: 360, intake_total: 810, grad_pvch: 370, grad_pvs: 315, grad_total: 685, grad_rate: '93.6%' },
+    ],
+    achievements: {
+      gpaxAvg: '3.28',
+      gpaxPvch: '3.21',
+      gpaxPvs: '3.36',
+      vnetPassRate: '89.4',
+      vocationalStandardPassRate: '96.2',
+      list: [
+        { department: 'ช่างยนต์', gpax: '3.15', vnet_score: '72.4%', standard_pass_rate: '98.5%' },
+        { department: 'ช่างไฟฟ้ากำลัง', gpax: '3.20', vnet_score: '74.2%', standard_pass_rate: '97.2%' },
+        { department: 'ช่างอิเล็กทรอนิกส์', gpax: '3.18', vnet_score: '71.8%', standard_pass_rate: '95.0%' },
+        { department: 'เทคโนโลยีสารสนเทศ', gpax: '3.38', vnet_score: '82.5%', standard_pass_rate: '96.8%' },
+        { department: 'การบัญชี', gpax: '3.42', vnet_score: '84.1%', standard_pass_rate: '99.0%' },
+        { department: 'การตลาดและโลจิสติกส์', gpax: '3.25', vnet_score: '76.3%', standard_pass_rate: '94.5%' },
+      ],
+    },
+    employment: {
+      totalRate: '96.8',
+      fieldRate: '62.5',
+      otherRate: '14.3',
+      higherEdRate: '15.0',
+      freelanceRate: '5.0',
+      unemployedRate: '3.2',
+      data: [
+        { category: 'มีงานทำตรงสาขาวิชาที่สำเร็จการศึกษา', count: 459, percent: '62.5%', avg_salary: '16,500 - 24,000' },
+        { category: 'มีงานทำในสาขาวิชาอื่น / ภาคอุตสาหกรรม', count: 105, percent: '14.3%', avg_salary: '15,000 - 18,500' },
+        { category: 'ศึกษาต่อในระดับปริญญาตรี / สถาบันอุดมศึกษา', count: 110, percent: '15.0%', avg_salary: '—' },
+        { category: 'ประกอบอาชีพอิสระ / ผู้ประกอบการใหม่ (Startup)', count: 37, percent: '5.0%', avg_salary: '18,000 - 35,000' },
+        { category: 'อยู่ระหว่างรอการเกณฑ์ทหาร / เตรียมตัวศึกษาต่อ', count: 24, percent: '3.2%', avg_salary: '—' },
+      ],
+    },
+    partners: {
+      mouCount: 54,
+      dualVocationalCount: 42,
+      internStudentsCount: 640,
+      internAllowanceAvg: 10500,
+      enterprises: [
+        { name: 'บริษัท โตโยต้า มอเตอร์ ประเทศไทย จำกัด', industry: 'ยานยนต์และชิ้นส่วน', cooperation_type: 'ทวิภาคี (DVE) & มอบทุนการศึกษา', departments: 'ช่างยนต์, ช่างไฟฟ้า' },
+        { name: 'บริษัท ฮอนด้า ออโตโมบิล (ประเทศไทย) จำกัด', industry: 'ยานยนต์อัจฉริยะ', cooperation_type: 'ทวิภาคี & รับเข้าทำงานทันที', departments: 'ช่างยนต์, ช่างอิเล็กทรอนิกส์' },
+        { name: 'บริษัท เดลต้า อีเลคโทรนิคส์ (ประเทศไทย) จำกัด (มหาชน)', industry: 'อิเล็กทรอนิกส์และพลังงานหมุนเวียน', cooperation_type: 'ศูนย์เรียนรู้ & ฝึกอาชีพทวิภาคี', departments: 'ช่างอิเล็กทรอนิกส์, ช่างไฟฟ้ากำลัง' },
+        { name: 'บริษัท มิตซูบิชิ มอเตอร์ส (ประเทศไทย) จำกัด', industry: 'ยานยนต์และระบบอัตโนมัติ', cooperation_type: 'ทวิภาคีพรีเมียม (EEC Model)', departments: 'เทคนิคเครื่องกล, แมคคาทรอนิกส์' },
+        { name: 'บมจ. ซีพี ออลล์ (CP ALL PCL)', industry: 'ค้าปลีกและเทคโนโลยีสารสนเทศ', cooperation_type: 'ทวิภาคี & ทุนเรียนฟรีมีรายได้', departments: 'การตลาด, เทคโนโลยีสารสนเทศ' },
+        { name: 'บริษัท เคอรี่ เอ็กซ์เพรส (ประเทศไทย) จำกัด (มหาชน)', industry: 'การจัดการคลังสินค้าและโลจิสติกส์', cooperation_type: 'ฝึกงานและระบบบริหารจัดส่ง', departments: 'การจัดการโลจิสติกส์' },
+        { name: 'บริษัท ดับบลิวเอชเอ อินดัสเตรียล ดีเวลลอปเมนท์ จำกัด (มหาชน)', industry: 'นิคมอุตสาหกรรมและสาธารณูปโภค', cooperation_type: 'MOU พัฒนากำลังคนเขต EEC', departments: 'ทุกสาขาวิชาช่างและบริหาร' },
+        { name: 'บริษัท บี.กริม เพาเวอร์ จำกัด (มหาชน)', industry: 'พลังงานสะอาดและวิศวกรรมไฟฟ้า', cooperation_type: 'ฝึกอาชีพช่างเทคนิคโรงไฟฟ้า', departments: 'ช่างไฟฟ้ากำลัง, ช่างยนต์' },
+      ],
+    },
+    publishedAt: '2026-10-18T00:00:00+07:00',
+  },
+  {
+    id: 37,
+    title: 'ข้อมูลสารสนเทศทางการศึกษา ประจำปีการศึกษา 2567',
+    slug: 'education-mis-2567',
+    description: 'สารสนเทศทางการศึกษา วิทยาลัยเทคโนโลยีศรีราชา ประจำปีการศึกษา 2567',
+    academicYear: { id: 82, name: 'ปีการศึกษา 2567', slug: '2567' },
+    pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    overview: {
+      totalStudents: 1780,
+      totalPersonnel: 82,
+      programsCount: 13,
+      employmentRate: '95.4',
+      avgGpax: '3.22',
+      partnerCount: 48,
+    },
+    students: {
+      total: 1780,
+      pvchTotal: 1080,
+      pvsTotal: 700,
+      byDepartment: [
+        { level: 'ปวช.', department: 'ช่างยนต์', male: 200, female: 10, total: 210 },
+        { level: 'ปวช.', department: 'ช่างไฟฟ้ากำลัง', male: 180, female: 12, total: 192 },
+        { level: 'ปวช.', department: 'ช่างอิเล็กทรอนิกส์', male: 135, female: 15, total: 150 },
+        { level: 'ปวช.', department: 'เทคโนโลยีสารสนเทศ', male: 105, female: 60, total: 165 },
+        { level: 'ปวช.', department: 'การบัญชี', male: 22, female: 160, total: 182 },
+        { level: 'ปวช.', department: 'การตลาด', male: 32, female: 135, total: 167 },
+        { level: 'ปวส.', department: 'เทคนิคเครื่องกล (ช่างยนต์)', male: 140, female: 4, total: 144 },
+        { level: 'ปวส.', department: 'ไฟฟ้า', male: 125, female: 8, total: 133 },
+        { level: 'ปวส.', department: 'เทคโนโลยีสารสนเทศ', male: 80, female: 50, total: 130 },
+        { level: 'ปวส.', department: 'การบัญชี', male: 18, female: 130, total: 148 },
+        { level: 'ปวส.', department: 'การจัดการโลจิสติกส์', male: 42, female: 95, total: 137 },
+      ],
+    },
+    personnel: {
+      total: 82,
+      executives: 5,
+      teachers: 56,
+      support: 21,
+      breakdown: [
+        { category: 'ฝ่ายบริหาร', position: 'ผู้อำนวยการ และรองผู้อำนวยการ', count: 5, notes: 'ปริญญาเอก 2, ปริญญาโท 3' },
+        { category: 'ครูผู้สอนประจำแผนกวิชา', position: 'ครูประจำการสายผู้สอน', count: 56, notes: 'วุฒิปริญญาโท 24 คน, ปริญญาตรี 32 คน' },
+        { category: 'บุคลากรทางการศึกษา', position: 'เจ้าหน้าที่สนับสนุน', count: 21, notes: 'ทุกฝ่ายงานสนับสนุน' },
+      ],
+    },
+    curriculum: {
+      levelsCount: 2,
+      departmentsCount: 8,
+      programsCount: 13,
+      list: [
+        { level: 'ปวช.', department: 'ช่างยนต์', specialties: 'สาขางานยานยนต์', study_mode: 'ปกติ และ ทวิภาคี' },
+        { level: 'ปวช.', department: 'ช่างไฟฟ้ากำลัง', specialties: 'สาขางานไฟฟ้ากำลัง', study_mode: 'ปกติ และ ทวิภาคี' },
+        { level: 'ปวช.', department: 'ช่างอิเล็กทรอนิกส์', specialties: 'สาขางานอิเล็กทรอนิกส์', study_mode: 'ปกติ' },
+        { level: 'ปวช.', department: 'เทคโนโลยีสารสนเทศ', specialties: 'สาขางานคอมพิวเตอร์และสารสนเทศ', study_mode: 'ปกติ' },
+        { level: 'ปวช.', department: 'การบัญชี', specialties: 'สาขางานการบัญชี', study_mode: 'ปกติ' },
+        { level: 'ปวช.', department: 'การตลาด', specialties: 'สาขางานการตลาด', study_mode: 'ปกติ' },
+      ],
+    },
+    admissionsGraduates: [
+      { year: '2567', intake_pvch: 465, intake_pvs: 380, intake_total: 845, grad_pvch: 380, grad_pvs: 330, grad_total: 710, grad_rate: '94.2%' },
+      { year: '2566', intake_pvch: 450, intake_pvs: 360, intake_total: 810, grad_pvch: 370, grad_pvs: 315, grad_total: 685, grad_rate: '93.6%' },
+    ],
+    achievements: {
+      gpaxAvg: '3.22',
+      gpaxPvch: '3.16',
+      gpaxPvs: '3.30',
+      vnetPassRate: '87.2',
+      vocationalStandardPassRate: '95.1',
+      list: [
+        { department: 'ช่างยนต์', gpax: '3.10', vnet_score: '70.5%', standard_pass_rate: '97.0%' },
+        { department: 'ช่างไฟฟ้ากำลัง', gpax: '3.15', vnet_score: '72.0%', standard_pass_rate: '96.0%' },
+        { department: 'เทคโนโลยีสารสนเทศ', gpax: '3.32', vnet_score: '80.0%', standard_pass_rate: '95.5%' },
+        { department: 'การบัญชี', gpax: '3.38', vnet_score: '82.5%', standard_pass_rate: '98.0%' },
+      ],
+    },
+    employment: {
+      totalRate: '95.4',
+      fieldRate: '60.2',
+      otherRate: '15.2',
+      higherEdRate: '15.5',
+      freelanceRate: '4.5',
+      unemployedRate: '4.6',
+      data: [
+        { category: 'มีงานทำตรงสาขาวิชา', count: 427, percent: '60.2%', avg_salary: '15,500 - 22,000' },
+        { category: 'มีงานทำในสาขาอื่น', count: 108, percent: '15.2%', avg_salary: '14,500 - 17,500' },
+        { category: 'ศึกษาต่อระดับปริญญาตรี', count: 110, percent: '15.5%', avg_salary: '—' },
+        { category: 'ประกอบอาชีพอิสระ', count: 32, percent: '4.5%', avg_salary: '16,000 - 30,000' },
+        { category: 'อื่นๆ', count: 33, percent: '4.6%', avg_salary: '—' },
+      ],
+    },
+    partners: {
+      mouCount: 48,
+      dualVocationalCount: 36,
+      internStudentsCount: 590,
+      internAllowanceAvg: 9800,
+      enterprises: [
+        { name: 'บริษัท โตโยต้า มอเตอร์ ประเทศไทย จำกัด', industry: 'ยานยนต์', cooperation_type: 'ทวิภาคี', departments: 'ช่างยนต์' },
+        { name: 'บริษัท ฮอนด้า ออโตโมบิล (ประเทศไทย) จำกัด', industry: 'ยานยนต์', cooperation_type: 'ทวิภาคี', departments: 'ช่างยนต์' },
+        { name: 'บริษัท เดลต้า อีเลคโทรนิคส์ จำกัด (มหาชน)', industry: 'อิเล็กทรอนิกส์', cooperation_type: 'ฝึกงาน', departments: 'ช่างอิเล็กทรอนิกส์' },
+      ],
+    },
+    publishedAt: '2025-10-18T00:00:00+07:00',
+  },
+];
+
+/**
+ * Fetch Educational MIS list
+ */
+export async function getEducationMisList(options?: { year?: string; search?: string }): Promise<EducationMisItem[]> {
+  const yearParam = options?.year?.trim();
+  const searchParam = options?.search?.trim();
+  const cacheKey = `education_mis_list_${yearParam || 'all'}_${searchParam || 'none'}`;
+  const cached = getFromCache<EducationMisItem[]>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const params = new URLSearchParams();
+    if (yearParam && yearParam !== 'all') params.set('year', yearParam);
+    if (searchParam) params.set('search', searchParam);
+
+    const queryString = params.toString();
+    const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/education-mis${queryString ? `?${queryString}` : ''}`;
+
+    const res = await fetchWithTimeout(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && Array.isArray(data.items) && data.items.length > 0) {
+        setInCache(cacheKey, data.items);
+        return data.items;
+      }
+    }
+  } catch (err) {
+    console.warn('[WordPress API] Unable to fetch Educational MIS items from WordPress:', err);
+  }
+
+  // Filter fallback mock data
+  let results = [...LOCAL_MOCK_EDUCATION_MIS];
+  if (yearParam && yearParam !== 'all') {
+    results = results.filter((r) => r.academicYear?.slug === yearParam || r.academicYear?.name === yearParam);
+  }
+  if (searchParam) {
+    const s = searchParam.toLowerCase();
+    results = results.filter((r) => r.title.toLowerCase().includes(s) || (r.description && r.description.toLowerCase().includes(s)));
+  }
+  return results;
+}
+
+/**
+ * Fetch Educational MIS academic years
+ */
+export async function getEducationMisYears(): Promise<EducationMisYear[]> {
+  const cacheKey = 'education_mis_years';
+  const cached = getFromCache<EducationMisYear[]>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/education-mis-years`;
+    const res = await fetchWithTimeout(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setInCache(cacheKey, data);
+        return data;
+      }
+    }
+  } catch (err) {
+    console.warn('[WordPress API] Unable to fetch Educational MIS years:', err);
+  }
+
+  return LOCAL_MOCK_MIS_YEARS;
+}
+
+/**
+ * Fetch a single Educational MIS item for a specific year or latest
+ */
+export async function getEducationMis(year?: string): Promise<EducationMisItem | null> {
+  const list = await getEducationMisList({ year });
+  if (list && list.length > 0) {
+    return list[0];
+  }
+  return null;
+}
+
 
 

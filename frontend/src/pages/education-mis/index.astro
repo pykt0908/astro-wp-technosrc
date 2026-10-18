@@ -1,0 +1,883 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getEducationMisList, getEducationMisYears } from '../../lib/wordpress';
+import type { EducationMisItem, EducationMisYear } from '../../lib/wordpress';
+
+// Fetch all available academic years and items
+const yearsList: EducationMisYear[] = await getEducationMisYears();
+const allMisItems: EducationMisItem[] = await getEducationMisList({ year: 'all' });
+
+// Default to the latest year (or first available)
+const currentItem: EducationMisItem | undefined = allMisItems.length > 0 ? allMisItems[0] : undefined;
+---
+
+<BaseLayout
+  title="สารสนเทศทางการศึกษา (Educational MIS) - วิทยาลัยเทคโนโลยีศรีราชา"
+  description="ข้อมูลสารสนเทศทางการศึกษา วิทยาลัยเทคโนโลยีศรีราชา สถิติจำนวนนักเรียนนักศึกษา บุคลากร หลักสูตร ผลสัมฤทธิ์ทางการเรียน V-NET การมีงานทำ และสถานประกอบการความร่วมมือ"
+>
+  <div class="py-8 sm:py-12 lg:py-16 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">หน้าแรก</a>
+      <span>/</span>
+      <a href="/about/" class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">เกี่ยวกับเรา</a>
+      <span>/</span>
+      <span class="text-slate-800 dark:text-slate-200 font-semibold" aria-current="page">สารสนเทศทางการศึกษา</span>
+    </nav>
+
+    <!-- Header Section with Year Selector & PDF Button -->
+    <div class="mb-8 pb-6 border-b border-slate-200 dark:border-slate-800 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-[#0047BA] dark:bg-blue-950/60 dark:text-blue-400 mb-3 border border-blue-100 dark:border-blue-900/40">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18.375 2.25c-1.035 0-1.875.84-1.875 1.875v15.75c0 1.035.84 1.875 1.875 1.875h.75A.75.75 0 0022 21V3a.75.75 0 00-.75-.75h-2.875zM2.25 9.75c0-1.036.84-1.875 1.875-1.875h.75A.75.75 0 015.625 8.625v12.75A.75.75 0 014.875 22h-.75A1.875 1.875 0 012.25 20.125V9.75zm8.25-4.5c-1.036 0-1.875.84-1.875 1.875v14.25c0 1.035.84 1.875 1.875 1.875h.75A.75.75 0 0012 22.5V6a.75.75 0 00-.75-.75h-2.25z" />
+          </svg>
+          ข้อมูลสารสนเทศทางการศึกษา (Educational Information System)
+        </div>
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          สารสนเทศทางการศึกษา
+        </h1>
+        <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-2 max-w-2xl leading-relaxed">
+          สรุปรายงานและข้อมูลสถิติตามมาตรฐานการจัดการอาชีวศึกษา 7 ด้านสำคัญ วิทยาลัยเทคโนโลยีศรีราชา เพื่อความโปร่งใสและการประกันคุณภาพการศึกษา
+        </p>
+      </div>
+
+      <!-- Year Selector Pills & PDF Download -->
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Academic Year Dropdown / Tabs -->
+        {yearsList.length > 0 && (
+          <div class="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 text-xs sm:text-sm" id="year-selector-tabs">
+            {allMisItems.map((item, idx) => (
+              <button
+                type="button"
+                class={`px-3.5 py-1.5 rounded-lg font-semibold transition-all ${
+                  idx === 0
+                    ? 'bg-[#0047BA] text-white shadow-xs'
+                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
+                }`}
+                data-year-slug={item.academicYear.slug}
+                data-target-id={`mis-item-${item.id}`}
+              >
+                {item.academicYear.name || `ปีการศึกษา ${item.academicYear.slug}`}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <!-- PDF Download Button -->
+        {currentItem?.pdfUrl && (
+          <a
+            href={currentItem.pdfUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 dark:bg-rose-600 dark:hover:bg-rose-700 rounded-xl shadow-xs transition-colors"
+            id="btn-download-pdf"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0016.5 9h-1.875a1.875 1.875 0 01-1.875-1.875V5.25A3.75 3.75 0 009 1.5H5.625z" />
+              <path d="M12.971 1.816A5.23 5.23 0 0114.25 5.25v1.875c0 .207.168.375.375.375H16.5a5.23 5.23 0 013.434 1.279 9.768 9.768 0 00-6.963-6.963z" />
+            </svg>
+            <span>รายงานฉบับสมบูรณ์ (PDF)</span>
+          </a>
+        )}
+      </div>
+    </div>
+
+    <!-- Active Year Contents Wrapper -->
+    {allMisItems.map((item, itemIdx) => (
+      <div
+        id={`mis-item-${item.id}`}
+        class={`mis-year-panel ${itemIdx === 0 ? '' : 'hidden'}`}
+        data-year-slug={item.academicYear.slug}
+      >
+        <!-- KPI Overview Metric Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-8">
+          <!-- 1. Total Students -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-xs relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full blur-xl -mr-6 -mt-6 group-hover:scale-110 transition-transform"></div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-medium text-slate-500 dark:text-slate-400">นักเรียน–นักศึกษา</span>
+              <span class="w-8 h-8 rounded-lg bg-blue-50 text-[#0047BA] dark:bg-blue-950 dark:text-blue-400 flex items-center justify-center">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.633 13.067 13.067 0 01-6.761 1.87 13.067 13.067 0 01-6.76-1.87.75.75 0 01-.364-.633l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.66.75.75 0 00.374-.639v-.01a6 6 0 00-5.2-5.945z" />
+                </svg>
+              </span>
+            </div>
+            <div class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 dark:text-white">
+              {item.overview.totalStudents.toLocaleString()}
+            </div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
+              <span>ปวช. {item.students.pvchTotal}</span>
+              <span>•</span>
+              <span>ปวส. {item.students.pvsTotal}</span>
+            </div>
+          </div>
+
+          <!-- 2. Total Personnel -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-xs relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-20 h-20 bg-indigo-500/10 rounded-full blur-xl -mr-6 -mt-6 group-hover:scale-110 transition-transform"></div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-medium text-slate-500 dark:text-slate-400">บุคลากรทั้งหมด</span>
+              <span class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400 flex items-center justify-center">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.6-7.812-1.7a.75.75 0 01-.437-.695z" clip-rule="evenodd" />
+                </svg>
+              </span>
+            </div>
+            <div class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 dark:text-white">
+              {item.overview.totalPersonnel}
+            </div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              ครูผู้สอน {item.personnel.teachers} คน
+            </div>
+          </div>
+
+          <!-- 3. Programs Count -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-xs relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-20 h-20 bg-amber-500/10 rounded-full blur-xl -mr-6 -mt-6 group-hover:scale-110 transition-transform"></div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-medium text-slate-500 dark:text-slate-400">หลักสูตร & สาขา</span>
+              <span class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-400 flex items-center justify-center">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M11.7 2.805a.75.75 0 01.6 0A60.65 60.65 0 0122.83 8.72a.75.75 0 01-.231 1.337 49.948 49.948 0 00-9.902 3.912l-.003.002c-.114.06-.24.09-.367.09s-.253-.03-.367-.09l-.003-.001a49.95 49.95 0 00-9.902-3.913.75.75 0 01-.23-1.337A60.65 60.65 0 0111.7 2.805z" />
+                  <path d="M13.06 15.473a48.455 48.455 0 017.666-3.282c.134 1.414.22 2.843.255 4.284a.75.75 0 01-.46.711 47.87 47.87 0 00-8.105 4.342.75.75 0 01-.832 0 47.87 47.87 0 00-8.104-4.342.75.75 0 01-.461-.71c.035-1.442.121-2.87.255-4.286.913.46 1.854.898 2.818 1.311v3.29c0 1.258.91 2.302 2.164 2.417a49.524 49.524 0 004.81 0c1.253-.115 2.164-1.159 2.164-2.417v-3.29z" />
+                </svg>
+              </span>
+            </div>
+            <div class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 dark:text-white">
+              {item.curriculum.departmentsCount}
+            </div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              เปิดสอน {item.curriculum.programsCount} สาขางาน
+            </div>
+          </div>
+
+          <!-- 4. Employment Rate -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-xs relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-20 h-20 bg-emerald-500/10 rounded-full blur-xl -mr-6 -mt-6 group-hover:scale-110 transition-transform"></div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-medium text-slate-500 dark:text-slate-400">มีงานทำ/ศึกษาต่อ</span>
+              <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400 flex items-center justify-center">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-.53 14.03a.75.75 0 001.06 0l3-3a.75.75 0 10-1.06-1.06l-1.72 1.72V7.5a.75.75 0 00-1.5 0v6.44l-1.72-1.72a.75.75 0 00-1.06 1.06l3 3z" clip-rule="evenodd" />
+                </svg>
+              </span>
+            </div>
+            <div class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400">
+              {item.overview.employmentRate}%
+            </div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              ตรงสาขา {item.employment.fieldRate}%
+            </div>
+          </div>
+
+          <!-- 5. Academic Achievement / Vocational Standards -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-xs relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 rounded-full blur-xl -mr-6 -mt-6 group-hover:scale-110 transition-transform"></div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-medium text-slate-500 dark:text-slate-400">มาตรฐานวิชาชีพ</span>
+              <span class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 dark:bg-purple-950 dark:text-purple-400 flex items-center justify-center">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307Zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25Z" clip-rule="evenodd" />
+                </svg>
+              </span>
+            </div>
+            <div class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-purple-600 dark:text-purple-400">
+              {item.achievements.vocationalStandardPassRate}%
+            </div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              GPAX เฉลี่ย {item.overview.avgGpax}
+            </div>
+          </div>
+
+          <!-- 6. Partners MOU -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-xs relative overflow-hidden group">
+            <div class="absolute top-0 right-0 w-20 h-20 bg-teal-500/10 rounded-full blur-xl -mr-6 -mt-6 group-hover:scale-110 transition-transform"></div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-medium text-slate-500 dark:text-slate-400">ความร่วมมือ MOU</span>
+              <span class="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 dark:bg-teal-950 dark:text-teal-400 flex items-center justify-center">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M4.5 3.75a3 3 0 00-3 3v.75h21v-.75a3 3 0 00-3-3h-15z" />
+                  <path fill-rule="evenodd" d="M22.5 9.75h-21v7.5a3 3 0 003 3h15a3 3 0 003-3v-7.5zm-18 3.75a.75.75 0 01.75-.75h6a.75.75 0 010 1.5h-6a.75.75 0 01-.75-.75zm.75 2.25a.75.75 0 000 1.5h3a.75.75 0 000-1.5h-3z" clip-rule="evenodd" />
+                </svg>
+              </span>
+            </div>
+            <div class="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 dark:text-white">
+              {item.overview.partnerCount}
+            </div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              ทวิภาคี {item.partners.dualVocationalCount} แห่ง
+            </div>
+          </div>
+        </div>
+
+        <!-- 7 Core Sections Interactive Tabs -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden mb-12">
+          <!-- Section Nav Buttons -->
+          <div class="flex items-center gap-1 p-2 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 overflow-x-auto scrollbar-none" id={`sec-nav-${item.id}`}>
+            <button
+              type="button"
+              class="sec-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all bg-[#0047BA] text-white shadow-xs"
+              data-sec-target={`sec-students-${item.id}`}
+            >
+              👥 1. นักเรียน–นักศึกษา
+            </button>
+            <button
+              type="button"
+              class="sec-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              data-sec-target={`sec-personnel-${item.id}`}
+            >
+              👔 2. ผู้บริหาร & บุคลากร
+            </button>
+            <button
+              type="button"
+              class="sec-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              data-sec-target={`sec-curriculum-${item.id}`}
+            >
+              📚 3. หลักสูตรที่เปิดสอน
+            </button>
+            <button
+              type="button"
+              class="sec-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              data-sec-target={`sec-admissions-${item.id}`}
+            >
+              📈 4. รับเข้า & สำเร็จการศึกษา
+            </button>
+            <button
+              type="button"
+              class="sec-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              data-sec-target={`sec-achieve-${item.id}`}
+            >
+              🎯 5. ผลสัมฤทธิ์ & V-NET
+            </button>
+            <button
+              type="button"
+              class="sec-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              data-sec-target={`sec-employment-${item.id}`}
+            >
+              💼 6. มีงานทำ & ศึกษาต่อ
+            </button>
+            <button
+              type="button"
+              class="sec-tab-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              data-sec-target={`sec-partners-${item.id}`}
+            >
+              🏢 7. สถานประกอบการความร่วมมือ
+            </button>
+          </div>
+
+          <!-- Section Panels -->
+          <div class="p-4 sm:p-6 lg:p-8">
+
+            <!-- Section 1: นักเรียน–นักศึกษา -->
+            <div id={`sec-students-${item.id}`} class="sec-panel">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div>
+                  <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+                    จำนวนนักเรียน–นักศึกษา แยกตามระดับชั้นและสาขาวิชา
+                  </h3>
+                  <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                    ข้อมูลประจำ {item.academicYear.name || `ปีการศึกษา ${item.academicYear.slug}`} จำแนกเพศชาย-หญิง และระดับการศึกษา
+                  </p>
+                </div>
+                <!-- Proportional Bar Level Summary -->
+                <div class="flex items-center gap-3 bg-slate-50 dark:bg-slate-800 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs">
+                  <div>
+                    <span class="text-slate-500 dark:text-slate-400">ระดับ ปวช.:</span>
+                    <strong class="ml-1 text-blue-600 dark:text-blue-400 font-bold">{item.students.pvchTotal.toLocaleString()} คน</strong>
+                    <span class="text-slate-400 text-[11px]">({Math.round((item.students.pvchTotal / (item.students.total || 1)) * 100)}%)</span>
+                  </div>
+                  <div class="w-px h-4 bg-slate-300 dark:bg-slate-600"></div>
+                  <div>
+                    <span class="text-slate-500 dark:text-slate-400">ระดับ ปวส.:</span>
+                    <strong class="ml-1 text-emerald-600 dark:text-emerald-400 font-bold">{item.students.pvsTotal.toLocaleString()} คน</strong>
+                    <span class="text-slate-400 text-[11px]">({Math.round((item.students.pvsTotal / (item.students.total || 1)) * 100)}%)</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Student Distribution Visual Ratio Bar -->
+              <div class="mb-6">
+                <div class="flex items-center justify-between text-xs font-semibold mb-1.5 text-slate-600 dark:text-slate-400">
+                  <span>สัดส่วนระดับ ปวช. ({Math.round((item.students.pvchTotal / (item.students.total || 1)) * 100)}%)</span>
+                  <span>สัดส่วนระดับ ปวส. ({Math.round((item.students.pvsTotal / (item.students.total || 1)) * 100)}%)</span>
+                </div>
+                <div class="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
+                  <div
+                    class="bg-[#0047BA] h-full"
+                    style={`width: ${(item.students.pvchTotal / (item.students.total || 1)) * 100}%`}
+                  ></div>
+                  <div
+                    class="bg-emerald-500 h-full"
+                    style={`width: ${(item.students.pvsTotal / (item.students.total || 1)) * 100}%`}
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Student Department Table -->
+              <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                  <thead>
+                    <tr class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-bold">
+                      <th class="py-3 px-4 w-12 text-center">ลำดับ</th>
+                      <th class="py-3 px-4 w-28">ระดับชั้น</th>
+                      <th class="py-3 px-4">สาขาวิชา</th>
+                      <th class="py-3 px-4 w-28 text-right">ชาย (คน)</th>
+                      <th class="py-3 px-4 w-28 text-right">หญิง (คน)</th>
+                      <th class="py-3 px-4 w-32 text-right">รวมทั้งสิ้น (คน)</th>
+                      <th class="py-3 px-4 w-36 text-center">สัดส่วน ช-ญ</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
+                    {item.students.byDepartment.map((row, idx) => {
+                      const malePct = row.total > 0 ? Math.round((row.male / row.total) * 100) : 0;
+                      const femalePct = 100 - malePct;
+                      return (
+                        <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+                          <td class="py-3 px-4 text-center text-slate-400 font-medium">{idx + 1}</td>
+                          <td class="py-3 px-4">
+                            <span class={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                              row.level.includes('ปวช')
+                                ? 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'
+                                : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                            }`}>
+                              {row.level}
+                            </span>
+                          </td>
+                          <td class="py-3 px-4 font-semibold text-slate-800 dark:text-slate-200">
+                            {row.department}
+                          </td>
+                          <td class="py-3 px-4 text-right text-slate-600 dark:text-slate-400 font-mono">
+                            {row.male.toLocaleString()}
+                          </td>
+                          <td class="py-3 px-4 text-right text-slate-600 dark:text-slate-400 font-mono">
+                            {row.female.toLocaleString()}
+                          </td>
+                          <td class="py-3 px-4 text-right font-bold text-slate-900 dark:text-white font-mono">
+                            {row.total.toLocaleString()}
+                          </td>
+                          <td class="py-3 px-4 text-center">
+                            <div class="flex items-center gap-1.5 w-24 mx-auto">
+                              <span class="text-[10px] text-blue-600 font-medium">{malePct}%</span>
+                              <div class="flex-1 h-2 bg-pink-400 rounded-full overflow-hidden flex">
+                                <div class="bg-blue-500 h-full" style={`width: ${malePct}%`}></div>
+                              </div>
+                              <span class="text-[10px] text-pink-600 font-medium">{femalePct}%</span>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                  <tfoot>
+                    <tr class="bg-slate-100/80 dark:bg-slate-800 font-bold border-t-2 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white">
+                      <td colspan="3" class="py-3 px-4 text-center">รวมยอดนักเรียน–นักศึกษาทั้งสิ้น</td>
+                      <td class="py-3 px-4 text-right font-mono">
+                        {item.students.byDepartment.reduce((acc, r) => acc + (r.male || 0), 0).toLocaleString()}
+                      </td>
+                      <td class="py-3 px-4 text-right font-mono">
+                        {item.students.byDepartment.reduce((acc, r) => acc + (r.female || 0), 0).toLocaleString()}
+                      </td>
+                      <td class="py-3 px-4 text-right text-[#0047BA] dark:text-blue-400 font-extrabold font-mono">
+                        {item.students.total.toLocaleString()}
+                      </td>
+                      <td class="py-3 px-4 text-center text-xs text-slate-500">คน</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+            <!-- Section 2: ผู้บริหาร & บุคลากร -->
+            <div id={`sec-personnel-${item.id}`} class="sec-panel hidden">
+              <div class="mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+                <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+                  จำนวนผู้บริหาร ครู และบุคลากรทางการศึกษา
+                </h3>
+                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                  กำลังพลและบุคลากรผู้ปฏิบัติงานเพื่อพัฒนาคุณภาพการเรียนการสอนและสนับสนุนการศึกษา
+                </p>
+              </div>
+
+              <!-- Personnel Categorized Cards -->
+              <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
+                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">รวมบุคลากรทั้งสิ้น</div>
+                  <div class="text-2xl font-black text-[#0047BA] dark:text-blue-400 mt-1">{item.personnel.total} คน</div>
+                  <div class="text-xs text-slate-400 mt-1">อัตราครู : นศ. ประมาณ 1 : {Math.round(item.students.total / (item.personnel.teachers || 1))}</div>
+                </div>
+                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">ผู้บริหารสถานศึกษา</div>
+                  <div class="text-2xl font-black text-slate-900 dark:text-white mt-1">{item.personnel.executives} คน</div>
+                  <div class="text-xs text-slate-400 mt-1">ผู้อำนวยการและรองฯ</div>
+                </div>
+                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">ครูประจำการ / ครูผู้สอน</div>
+                  <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{item.personnel.teachers} คน</div>
+                  <div class="text-xs text-slate-400 mt-1">ครอบคลุมทุกสาขาวิชาชีพ</div>
+                </div>
+                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">บุคลากรสายสนับสนุน</div>
+                  <div class="text-2xl font-black text-purple-600 dark:text-purple-400 mt-1">{item.personnel.support} คน</div>
+                  <div class="text-xs text-slate-400 mt-1">เจ้าหน้าที่และธุรการ</div>
+                </div>
+              </div>
+
+              <!-- Personnel Breakdown Table -->
+              <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                  <thead>
+                    <tr class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-bold">
+                      <th class="py-3 px-4 w-12 text-center">ลำดับ</th>
+                      <th class="py-3 px-4 w-48">กลุ่มงาน / แผนกวิชา</th>
+                      <th class="py-3 px-4">ตำแหน่งหน้าที่ / บทบาท</th>
+                      <th class="py-3 px-4 w-32 text-right">จำนวน (คน)</th>
+                      <th class="py-3 px-4">คุณวุฒิ / หมายเหตุ</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
+                    {item.personnel.breakdown.map((row, idx) => (
+                      <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+                        <td class="py-3 px-4 text-center text-slate-400">{idx + 1}</td>
+                        <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">{row.category}</td>
+                        <td class="py-3 px-4 text-slate-700 dark:text-slate-300">{row.position}</td>
+                        <td class="py-3 px-4 text-right font-extrabold font-mono text-[#0047BA] dark:text-blue-400">{row.count}</td>
+                        <td class="py-3 px-4 text-slate-500 dark:text-slate-400">{row.notes || '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Section 3: หลักสูตรที่เปิดสอน -->
+            <div id={`sec-curriculum-${item.id}`} class="sec-panel hidden">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div>
+                  <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+                    หลักสูตรและสาขาวิชาที่เปิดสอน
+                  </h3>
+                  <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                    เปิดสอนทั้งระดับ ปวช. และ ปวส. ในระบบปกติและระบบทวิภาคีร่วมกับสถานประกอบการ
+                  </p>
+                </div>
+                <a
+                  href="/curriculum/"
+                  class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-[#0047BA] text-white hover:bg-blue-700 rounded-xl transition-colors shadow-xs"
+                >
+                  <span>ดูรายละเอียดหลักสูตรทั้งหมด</span>
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </a>
+              </div>
+
+              <!-- Curriculum List Table -->
+              <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                  <thead>
+                    <tr class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-bold">
+                      <th class="py-3 px-4 w-12 text-center">ลำดับ</th>
+                      <th class="py-3 px-4 w-28">ระดับ</th>
+                      <th class="py-3 px-4 w-48">สาขาวิชา</th>
+                      <th class="py-3 px-4">สาขางานที่เปิดสอน</th>
+                      <th class="py-3 px-4 w-44">รูปแบบการศึกษา</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
+                    {item.curriculum.list.map((row, idx) => (
+                      <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+                        <td class="py-3 px-4 text-center text-slate-400">{idx + 1}</td>
+                        <td class="py-3 px-4">
+                          <span class={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                            row.level.includes('ปวช')
+                              ? 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300'
+                              : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                          }`}>
+                            {row.level}
+                          </span>
+                        </td>
+                        <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">{row.department}</td>
+                        <td class="py-3 px-4 text-slate-700 dark:text-slate-300">{row.specialties}</td>
+                        <td class="py-3 px-4">
+                          <span class="inline-flex items-center gap-1 text-slate-600 dark:text-slate-400 text-xs font-medium">
+                            {row.study_mode}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Section 4: รับเข้า & สำเร็จการศึกษา -->
+            <div id={`sec-admissions-${item.id}`} class="sec-panel hidden">
+              <div class="mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+                <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+                  สถิติผู้เข้าเรียนใหม่และผู้สำเร็จการศึกษา
+                </h3>
+                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                  สถิติเปรียบเทียบจำนวนนักเรียนนักศึกษารับเข้าใหม่กับผู้สำเร็จการศึกษาในแต่ละปีการศึกษา
+                </p>
+              </div>
+
+              <!-- Admissions vs Graduates Table -->
+              <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                  <thead>
+                    <tr class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-bold">
+                      <th rowspan="2" class="py-3 px-4 w-28 text-center border-r border-slate-200 dark:border-slate-700">ปีการศึกษา</th>
+                      <th colspan="3" class="py-2 px-4 text-center border-b border-r border-slate-200 dark:border-slate-700 bg-blue-50/50 dark:bg-blue-950/20 text-[#0047BA] dark:text-blue-400">
+                        ผู้เข้าเรียนใหม่ (คน)
+                      </th>
+                      <th colspan="3" class="py-2 px-4 text-center border-b border-r border-slate-200 dark:border-slate-700 bg-emerald-50/50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400">
+                        ผู้สำเร็จการศึกษา (คน)
+                      </th>
+                      <th rowspan="2" class="py-3 px-4 w-32 text-center">ร้อยละความสำเร็จ</th>
+                    </tr>
+                    <tr class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-slate-500 text-xs">
+                      <th class="py-2 px-3 text-right">ปวช.</th>
+                      <th class="py-2 px-3 text-right">ปวส.</th>
+                      <th class="py-2 px-3 text-right font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700">รวมรับเข้า</th>
+                      <th class="py-2 px-3 text-right">ปวช.</th>
+                      <th class="py-2 px-3 text-right">ปวส.</th>
+                      <th class="py-2 px-3 text-right font-bold text-slate-800 dark:text-slate-200 border-r border-slate-200 dark:border-slate-700">รวมสำเร็จ</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 font-mono">
+                    {item.admissionsGraduates.map((row) => (
+                      <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+                        <td class="py-3 px-4 text-center font-bold text-slate-900 dark:text-white border-r border-slate-100 dark:border-slate-800">
+                          {row.year}
+                        </td>
+                        <td class="py-3 px-3 text-right text-slate-600 dark:text-slate-400">{row.intake_pvch}</td>
+                        <td class="py-3 px-3 text-right text-slate-600 dark:text-slate-400">{row.intake_pvs}</td>
+                        <td class="py-3 px-3 text-right font-bold text-[#0047BA] dark:text-blue-400 border-r border-slate-100 dark:border-slate-800">
+                          {row.intake_total}
+                        </td>
+                        <td class="py-3 px-3 text-right text-slate-600 dark:text-slate-400">{row.grad_pvch}</td>
+                        <td class="py-3 px-3 text-right text-slate-600 dark:text-slate-400">{row.grad_pvs}</td>
+                        <td class="py-3 px-3 text-right font-bold text-emerald-600 dark:text-emerald-400 border-r border-slate-100 dark:border-slate-800">
+                          {row.grad_total}
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                          <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                            {row.grad_rate}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Section 5: ผลสัมฤทธิ์ & V-NET -->
+            <div id={`sec-achieve-${item.id}`} class="sec-panel hidden">
+              <div class="mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+                <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+                  ข้อมูลผลสัมฤทธิ์ทางการเรียนและผลการทดสอบมาตรฐานวิชาชีพ
+                </h3>
+                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                  ผลการเรียนเฉลี่ยสะสม (GPAX), การทดสอบทางการศึกษาระดับชาติด้านอาชีวศึกษา (V-NET) และการประเมินมาตรฐานวิชาชีพ
+                </p>
+              </div>
+
+              <!-- Key Achievement Indicators -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                <div class="p-5 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800/60 border border-blue-100 dark:border-slate-700">
+                  <div class="text-xs font-bold text-blue-800 dark:text-blue-300">GPAX เฉลี่ยสะสมทั้งวิทยาลัย</div>
+                  <div class="text-3xl font-black text-[#0047BA] dark:text-blue-400 mt-2">{item.achievements.gpaxAvg}</div>
+                  <div class="text-xs text-slate-500 dark:text-slate-400 mt-2 flex gap-3">
+                    <span>ปวช.: <strong>{item.achievements.gpaxPvch}</strong></span>
+                    <span>ปวส.: <strong>{item.achievements.gpaxPvs}</strong></span>
+                  </div>
+                </div>
+                <div class="p-5 rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-slate-800 dark:to-slate-800/60 border border-purple-100 dark:border-slate-700">
+                  <div class="text-xs font-bold text-purple-800 dark:text-purple-300">ร้อยละการผ่านเกณฑ์ V-NET</div>
+                  <div class="text-3xl font-black text-purple-600 dark:text-purple-400 mt-2">{item.achievements.vnetPassRate}%</div>
+                  <div class="text-xs text-slate-500 dark:text-slate-400 mt-2">การทดสอบระดับชาติด้านอาชีวศึกษา</div>
+                </div>
+                <div class="p-5 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-slate-800 dark:to-slate-800/60 border border-emerald-100 dark:border-slate-700">
+                  <div class="text-xs font-bold text-emerald-800 dark:text-emerald-300">ผ่านการประเมินมาตรฐานวิชาชีพ</div>
+                  <div class="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-2">{item.achievements.vocationalStandardPassRate}%</div>
+                  <div class="text-xs text-slate-500 dark:text-slate-400 mt-2">ตามเกณฑ์สำนักงานคณะกรรมการการอาชีวศึกษา</div>
+                </div>
+              </div>
+
+              <!-- Department Achievements Table -->
+              <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                  <thead>
+                    <tr class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-bold">
+                      <th class="py-3 px-4 w-12 text-center">ลำดับ</th>
+                      <th class="py-3 px-4">แผนกวิชา / กลุ่มสาระ</th>
+                      <th class="py-3 px-4 w-32 text-center">GPAX เฉลี่ย</th>
+                      <th class="py-3 px-4 w-40 text-center">ผลทดสอบ V-NET</th>
+                      <th class="py-3 px-4 w-48 text-center">ผ่านเกณฑ์มาตรฐานวิชาชีพ</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
+                    {item.achievements.list.map((row, idx) => (
+                      <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+                        <td class="py-3 px-4 text-center text-slate-400">{idx + 1}</td>
+                        <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">{row.department}</td>
+                        <td class="py-3 px-4 text-center font-bold text-[#0047BA] dark:text-blue-400 font-mono">{row.gpax}</td>
+                        <td class="py-3 px-4 text-center font-semibold text-purple-600 dark:text-purple-400 font-mono">{row.vnet_score}</td>
+                        <td class="py-3 px-4 text-center">
+                          <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 font-mono">
+                            {row.standard_pass_rate}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Section 6: มีงานทำ & ศึกษาต่อ -->
+            <div id={`sec-employment-${item.id}`} class="sec-panel hidden">
+              <div class="mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+                <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+                  ข้อมูลการมีงานทำและการศึกษาต่อของผู้สำเร็จการศึกษา
+                </h3>
+                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                  สำรวจภาวะการมีงานทำ การศึกษาต่อในระดับปริญญาตรี และการประกอบอาชีพอิสระ
+                </p>
+              </div>
+
+              <!-- Employment Distribution Visualization -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- Visual Bars -->
+                <div class="bg-slate-50 dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col justify-center">
+                  <div class="flex items-center justify-between mb-4">
+                    <span class="text-sm font-bold text-slate-800 dark:text-slate-200">สัดส่วนภาวะการมีงานทำและการศึกษาต่อ</span>
+                    <span class="text-xs font-extrabold px-2.5 py-1 bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 rounded-full">
+                      รวมความสำเร็จ {item.employment.totalRate}%
+                    </span>
+                  </div>
+
+                  <div class="space-y-3">
+                    <div>
+                      <div class="flex justify-between text-xs font-semibold mb-1">
+                        <span class="text-slate-700 dark:text-slate-300">ได้งานทำตรงสาขาวิชา</span>
+                        <span class="text-[#0047BA] dark:text-blue-400">{item.employment.fieldRate}%</span>
+                      </div>
+                      <div class="h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-[#0047BA]" style={`width: ${item.employment.fieldRate}%`}></div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div class="flex justify-between text-xs font-semibold mb-1">
+                        <span class="text-slate-700 dark:text-slate-300">ศึกษาต่อระดับปริญญาตรี</span>
+                        <span class="text-indigo-600 dark:text-indigo-400">{item.employment.higherEdRate}%</span>
+                      </div>
+                      <div class="h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-indigo-500" style={`width: ${item.employment.higherEdRate}%`}></div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div class="flex justify-between text-xs font-semibold mb-1">
+                        <span class="text-slate-700 dark:text-slate-300">ได้งานทำต่างสาขาวิชา</span>
+                        <span class="text-teal-600 dark:text-teal-400">{item.employment.otherRate}%</span>
+                      </div>
+                      <div class="h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-teal-500" style={`width: ${item.employment.otherRate}%`}></div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div class="flex justify-between text-xs font-semibold mb-1">
+                        <span class="text-slate-700 dark:text-slate-300">ประกอบอาชีพอิสระ / ธุรกิจส่วนตัว</span>
+                        <span class="text-amber-600 dark:text-amber-400">{item.employment.freelanceRate}%</span>
+                      </div>
+                      <div class="h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-amber-500" style={`width: ${item.employment.freelanceRate}%`}></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Summary Highlight Box -->
+                <div class="bg-gradient-to-br from-blue-900 to-slate-900 text-white p-6 rounded-2xl relative overflow-hidden flex flex-col justify-between">
+                  <div>
+                    <div class="text-xs uppercase tracking-wider text-blue-300 font-semibold">Employability Excellence</div>
+                    <h4 class="text-xl font-bold mt-1 text-white">ตลาดแรงงาน EEC ต้องการกำลังคนวิชาชีพ</h4>
+                    <p class="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
+                      ผู้สำเร็จการศึกษาจากวิทยาลัยเทคโนโลยีศรีราชาได้รับการตอบรับเข้าทำงานในโรงงานอุตสาหกรรมชั้นนำในเขตพัฒนาพิเศษภาคตะวันออก (EEC) และนิคมอุตสาหกรรมแหลมฉบังอย่างต่อเนื่อง
+                    </p>
+                  </div>
+                  <div class="pt-4 border-t border-white/10 mt-4 flex items-center justify-between text-xs">
+                    <span class="text-slate-300">ฐานเงินเดือนเฉลี่ยเริ่มต้น:</span>
+                    <strong class="text-amber-400 text-sm font-bold">16,500 – 24,000 บาท/เดือน</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Employment Table -->
+              <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                  <thead>
+                    <tr class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-bold">
+                      <th class="py-3 px-4 w-12 text-center">ลำดับ</th>
+                      <th class="py-3 px-4">สถานะการมีงานทำและการศึกษาต่อ</th>
+                      <th class="py-3 px-4 w-32 text-right">จำนวน (คน)</th>
+                      <th class="py-3 px-4 w-32 text-right">ร้อยละ (%)</th>
+                      <th class="py-3 px-4 w-48 text-right">ฐานเงินเดือนเฉลี่ย (บาท)</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 font-mono">
+                    {item.employment.data.map((row, idx) => (
+                      <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+                        <td class="py-3 px-4 text-center text-slate-400 font-sans">{idx + 1}</td>
+                        <td class="py-3 px-4 font-bold text-slate-800 dark:text-slate-200 font-sans">{row.category}</td>
+                        <td class="py-3 px-4 text-right text-slate-600 dark:text-slate-400">{row.count.toLocaleString()}</td>
+                        <td class="py-3 px-4 text-right font-bold text-[#0047BA] dark:text-blue-400">{row.percent}</td>
+                        <td class="py-3 px-4 text-right text-slate-600 dark:text-slate-400">{row.avg_salary}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Section 7: สถานประกอบการคู่ความร่วมมือ -->
+            <div id={`sec-partners-${item.id}`} class="sec-panel hidden">
+              <div class="mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+                <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+                  ข้อมูลสถานประกอบการคู่ความร่วมมือและการฝึกอาชีพ
+                </h3>
+                <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+                  เครือข่ายความร่วมมือในการจัดการอาชีวศึกษาระบบทวิภาคี (Dual Vocational Education: DVE) และการฝึกประสบการณ์วิชาชีพ
+                </p>
+              </div>
+
+              <!-- Partner Stat Summary Cards -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div class="text-xs text-slate-500 dark:text-slate-400">ลงนามบันทึกความร่วมมือ (MOU)</div>
+                  <div class="text-2xl font-black text-[#0047BA] dark:text-blue-400 mt-1">{item.partners.mouCount} แห่ง</div>
+                </div>
+                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div class="text-xs text-slate-500 dark:text-slate-400">สถานประกอบการทวิภาคี</div>
+                  <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1">{item.partners.dualVocationalCount} แห่ง</div>
+                </div>
+                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div class="text-xs text-slate-500 dark:text-slate-400">นักศึกษาฝึกอาชีพ</div>
+                  <div class="text-2xl font-black text-purple-600 dark:text-purple-400 mt-1">{item.partners.internStudentsCount} คน</div>
+                </div>
+                <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <div class="text-xs text-slate-500 dark:text-slate-400">เบี้ยเลี้ยงฝึกอาชีพเฉลี่ย</div>
+                  <div class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">{item.partners.internAllowanceAvg.toLocaleString()} บ./ด.</div>
+                </div>
+              </div>
+
+              <!-- Partner Enterprises Grid -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {item.partners.enterprises.map((p, pIdx) => (
+                  <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500 transition-colors">
+                    <div class="flex items-start justify-between gap-2">
+                      <div class="font-bold text-slate-900 dark:text-white text-sm">
+                        {p.name}
+                      </div>
+                      <span class="inline-block px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300 whitespace-nowrap">
+                        {p.industry}
+                      </span>
+                    </div>
+                    <div class="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                      <span class="px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 font-medium border border-emerald-200 dark:border-emerald-800">
+                        {p.cooperation_type}
+                      </span>
+                      <span class="text-slate-500 dark:text-slate-400">
+                        สาขาวิชา: <strong class="text-slate-700 dark:text-slate-300">{p.departments}</strong>
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    ))}
+
+    <!-- Empty State Fallback -->
+    {allMisItems.length === 0 && (
+      <div class="py-16 text-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+        <p class="text-slate-500 dark:text-slate-400">อยู่ระหว่างการจัดเตรียมข้อมูลสารสนเทศทางการศึกษา</p>
+      </div>
+    )}
+
+  </div>
+
+  <!-- Interactive Script for Year and Section Tabs -->
+  <script is:inline>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Academic Year Tabs switcher
+      var yearButtons = document.querySelectorAll('#year-selector-tabs button');
+      var yearPanels = document.querySelectorAll('.mis-year-panel');
+
+      yearButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var targetId = btn.getAttribute('data-target-id');
+
+          // Highlight active year button
+          yearButtons.forEach(function (b) {
+            b.classList.remove('bg-[#0047BA]', 'text-white', 'shadow-xs');
+            b.classList.add('text-slate-600', 'dark:text-slate-300');
+          });
+          btn.classList.add('bg-[#0047BA]', 'text-white', 'shadow-xs');
+          btn.classList.remove('text-slate-600', 'dark:text-slate-300');
+
+          // Show targeted year panel
+          yearPanels.forEach(function (panel) {
+            if (panel.id === targetId) {
+              panel.classList.remove('hidden');
+            } else {
+              panel.classList.add('hidden');
+            }
+          });
+        });
+      });
+
+      // Section Navigation Tabs inside each year panel
+      var allSecNavs = document.querySelectorAll('[id^="sec-nav-"]');
+      allSecNavs.forEach(function (navContainer) {
+        var buttons = navContainer.querySelectorAll('.sec-tab-btn');
+        var parentCard = navContainer.closest('.bg-white');
+
+        buttons.forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var secTargetId = btn.getAttribute('data-sec-target');
+
+            // Button styling
+            buttons.forEach(function (b) {
+              b.classList.remove('bg-[#0047BA]', 'text-white', 'shadow-xs');
+              b.classList.add('text-slate-600', 'dark:text-slate-400');
+            });
+            btn.classList.add('bg-[#0047BA]', 'text-white', 'shadow-xs');
+            btn.classList.remove('text-slate-600', 'dark:text-slate-400');
+
+            // Show selected section panel
+            if (parentCard) {
+              var panels = parentCard.querySelectorAll('.sec-panel');
+              panels.forEach(function (p) {
+                if (p.id === secTargetId) {
+                  p.classList.remove('hidden');
+                } else {
+                  p.classList.add('hidden');
+                }
+              });
+            }
+          });
+        });
+      });
+    });
+  </script>
+</BaseLayout>

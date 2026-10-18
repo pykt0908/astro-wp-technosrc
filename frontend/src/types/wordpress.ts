@@ -225,3 +225,128 @@ export interface SarReport {
   publishedAt: string;
   modifiedAt?: string;
 }
+
+export interface EducationMisYear {
+  id: number;
+  name: string;
+  slug: string;
+  count?: number;
+}
+
+export interface StudentStatRow {
+  level: string;
+  department: string;
+  male: number;
+  female: number;
+  total: number;
+}
+
+export interface PersonnelStatRow {
+  category: string;
+  position: string;
+  count: number;
+  notes?: string;
+}
+
+export interface CurriculumStatRow {
+  level: string;
+  department: string;
+  specialties: string;
+  study_mode: string;
+}
+
+export interface AdmissionsGraduatesRow {
+  year: string;
+  intake_pvch: number;
+  intake_pvs: number;
+  intake_total: number;
+  grad_pvch: number;
+  grad_pvs: number;
+  grad_total: number;
+  grad_rate: string;
+}
+
+export interface AchievementStatRow {
+  department: string;
+  gpax: string;
+  vnet_score: string;
+  standard_pass_rate: string;
+}
+
+export interface EmploymentStatRow {
+  category: string;
+  count: number;
+  percent: string;
+  avg_salary: string;
+}
+
+export interface PartnerEnterpriseRow {
+  name: string;
+  industry: string;
+  cooperation_type: string;
+  departments: string;
+}
+
+export interface EducationMisItem {
+  id: number;
+  title: string;
+  slug: string;
+  description?: string;
+  academicYear: EducationMisYear;
+  pdfUrl: string;
+  overview: {
+    totalStudents: number;
+    totalPersonnel: number;
+    programsCount: number;
+    employmentRate: string;
+    avgGpax: string;
+    partnerCount: number;
+  };
+  students: {
+    total: number;
+    pvchTotal: number;
+    pvsTotal: number;
+    byDepartment: StudentStatRow[];
+  };
+  personnel: {
+    total: number;
+    executives: number;
+    teachers: number;
+    support: number;
+    breakdown: PersonnelStatRow[];
+  };
+  curriculum: {
+    levelsCount: number;
+    departmentsCount: number;
+    programsCount: number;
+    list: CurriculumStatRow[];
+  };
+  admissionsGraduates: AdmissionsGraduatesRow[];
+  achievements: {
+    gpaxAvg: string;
+    gpaxPvch: string;
+    gpaxPvs: string;
+    vnetPassRate: string;
+    vocationalStandardPassRate: string;
+    list: AchievementStatRow[];
+  };
+  employment: {
+    totalRate: string;
+    fieldRate: string;
+    otherRate: string;
+    higherEdRate: string;
+    freelanceRate: string;
+    unemployedRate: string;
+    data: EmploymentStatRow[];
+  };
+  partners: {
+    mouCount: number;
+    dualVocationalCount: number;
+    internStudentsCount: number;
+    internAllowanceAvg: number;
+    enterprises: PartnerEnterpriseRow[];
+  };
+  publishedAt: string;
+  modifiedAt?: string;
+}
+

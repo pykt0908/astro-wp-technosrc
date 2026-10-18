@@ -132,6 +132,20 @@ class Project_Core_REST_API {
             'callback'            => array($this, 'get_sar_years'),
             'permission_callback' => '__return_true',
         ));
+
+        // Educational MIS list endpoint
+        register_rest_route(self::NAMESPACE, '/education-mis', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_education_mis'),
+            'permission_callback' => '__return_true',
+        ));
+
+        // Educational MIS academic years endpoint
+        register_rest_route(self::NAMESPACE, '/education-mis-years', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_education_mis_years'),
+            'permission_callback' => '__return_true',
+        ));
     }
 
     /**
@@ -1191,6 +1205,194 @@ class Project_Core_REST_API {
     public function get_sar_years(WP_REST_Request $request) {
         $terms = get_terms(array(
             'taxonomy'   => 'sar_year',
+            'hide_empty' => false,
+        ));
+
+        $result = array();
+        if (!is_wp_error($terms) && !empty($terms)) {
+            foreach ($terms as $t) {
+                $result[] = array(
+                    'id'    => $t->term_id,
+                    'name'  => $t->name,
+                    'slug'  => $t->slug,
+                    'count' => (int) $t->count,
+                );
+            }
+
+            usort($result, function($a, $b) {
+                return strcmp($b['name'], $a['name']);
+            });
+        }
+
+        return rest_ensure_response($result);
+    }
+
+    /**
+     * Get Educational MIS data formatted for frontend
+     */
+    public function get_education_mis(WP_REST_Request $request) {
+        $year_slug = sanitize_text_field($request->get_param('year'));
+        $search    = sanitize_text_field($request->get_param('search'));
+        $per_page  = absint($request->get_param('per_page')) ?: 20;
+
+        $args = array(
+            'post_type'      => 'education_mis',
+            'post_status'    => 'publish',
+            'posts_per_page' => $per_page,
+            'orderby'        => array('menu_order' => 'ASC', 'date' => 'DESC'),
+        );
+
+        if (!empty($search)) {
+            $args['s'] = $search;
+        }
+
+        if (!empty($year_slug) && $year_slug !== 'all') {
+            $args['tax_query'] = array(
+                array(
+                    'taxonomy' => 'mis_academic_year',
+                    'field'    => 'slug',
+                    'terms'    => $year_slug,
+                ),
+            );
+        }
+
+        $query = new WP_Query($args);
+        $posts = $query->posts;
+
+        $result = array();
+        foreach ($posts as $post) {
+            $post_id = $post->ID;
+
+            // Academic year taxonomy
+            $year_data = null;
+            $terms = get_the_terms($post_id, 'mis_academic_year');
+            if ($terms && !is_wp_error($terms)) {
+                $t = $terms[0];
+                $year_data = array(
+                    'id'   => $t->term_id,
+                    'name' => $t->name,
+                    'slug' => $t->slug,
+                );
+            } else {
+                $yt = get_post_meta($post_id, 'mis_academic_year_text', true) ?: '2568';
+                $year_data = array(
+                    'id'   => 0,
+                    'name' => 'ปีการศึกษา ' . $yt,
+                    'slug' => $yt,
+                );
+            }
+
+            // Helper to decode JSON meta safely
+            $decode_json = function($key) use ($post_id) {
+                $val = get_post_meta($post_id, $key, true);
+                if (empty($val)) return array();
+                $decoded = json_decode($val, true);
+                return is_array($decoded) ? $decoded : array();
+            };
+
+            // Totals & KPI figures
+            $students_total   = (int) get_post_meta($post_id, 'mis_students_total', true);
+            $personnel_total  = (int) get_post_meta($post_id, 'mis_personnel_total', true);
+            $curr_progs_count = (int) get_post_meta($post_id, 'mis_programs_count', true);
+            $emp_rate         = get_post_meta($post_id, 'mis_employment_total_rate', true) ?: '0';
+            $gpax_avg         = get_post_meta($post_id, 'mis_gpax_avg', true) ?: '0.00';
+            $mou_count        = (int) get_post_meta($post_id, 'mis_mou_partners_count', true);
+
+            $result[] = array(
+                'id'           => $post_id,
+                'title'        => $post->post_title,
+                'slug'         => $post->post_name,
+                'description'  => apply_filters('the_content', $post->post_content),
+                'academicYear' => $year_data,
+                'pdfUrl'       => get_post_meta($post_id, 'mis_report_pdf_url', true) ?: '',
+                'overview'     => array(
+                    'totalStudents'   => $students_total,
+                    'totalPersonnel'  => $personnel_total,
+                    'programsCount'   => $curr_progs_count,
+                    'employmentRate'  => $emp_rate,
+                    'avgGpax'         => $gpax_avg,
+                    'partnerCount'    => $mou_count,
+                ),
+                'students' => array(
+                    'total'        => $students_total,
+                    'pvchTotal'    => (int) get_post_meta($post_id, 'mis_students_pvch_total', true),
+                    'pvsTotal'     => (int) get_post_meta($post_id, 'mis_students_pvs_total', true),
+                    'byDepartment' => $decode_json('mis_students_by_dept'),
+                ),
+                'personnel' => array(
+                    'total'       => $personnel_total,
+                    'executives'  => (int) get_post_meta($post_id, 'mis_personnel_executives', true),
+                    'teachers'    => (int) get_post_meta($post_id, 'mis_personnel_teachers', true),
+                    'support'     => (int) get_post_meta($post_id, 'mis_personnel_support', true),
+                    'breakdown'   => $decode_json('mis_personnel_breakdown'),
+                ),
+                'curriculum' => array(
+                    'levelsCount'      => (int) get_post_meta($post_id, 'mis_curriculum_levels_count', true),
+                    'departmentsCount' => (int) get_post_meta($post_id, 'mis_departments_count', true),
+                    'programsCount'    => $curr_progs_count,
+                    'list'             => $decode_json('mis_curriculum_list'),
+                ),
+                'admissionsGraduates' => $decode_json('mis_admissions_graduates'),
+                'achievements' => array(
+                    'gpaxAvg'                     => $gpax_avg,
+                    'gpaxPvch'                    => get_post_meta($post_id, 'mis_gpax_pvch', true) ?: '',
+                    'gpaxPvs'                     => get_post_meta($post_id, 'mis_gpax_pvs', true) ?: '',
+                    'vnetPassRate'                => get_post_meta($post_id, 'mis_vnet_pass_rate', true) ?: '',
+                    'vocationalStandardPassRate'  => get_post_meta($post_id, 'mis_vocational_standard_pass_rate', true) ?: '',
+                    'list'                        => $decode_json('mis_achievements_list'),
+                ),
+                'employment' => array(
+                    'totalRate'      => $emp_rate,
+                    'fieldRate'      => get_post_meta($post_id, 'mis_employed_field_rate', true) ?: '',
+                    'otherRate'      => get_post_meta($post_id, 'mis_employed_other_rate', true) ?: '',
+                    'higherEdRate'   => get_post_meta($post_id, 'mis_higher_education_rate', true) ?: '',
+                    'freelanceRate'  => get_post_meta($post_id, 'mis_freelance_business_rate', true) ?: '',
+                    'unemployedRate' => get_post_meta($post_id, 'mis_unemployed_or_other_rate', true) ?: '',
+                    'data'           => $decode_json('mis_employment_data'),
+                ),
+                'partners' => array(
+                    'mouCount'             => $mou_count,
+                    'dualVocationalCount'  => (int) get_post_meta($post_id, 'mis_dual_vocational_count', true),
+                    'internStudentsCount'  => (int) get_post_meta($post_id, 'mis_intern_students_count', true),
+                    'internAllowanceAvg'   => (int) get_post_meta($post_id, 'mis_intern_allowance_avg', true),
+                    'enterprises'          => $decode_json('mis_partner_enterprises'),
+                ),
+                'publishedAt'  => get_the_date('c', $post_id),
+                'modifiedAt'   => get_the_modified_date('c', $post_id),
+            );
+        }
+
+        // Sort by year numeric descending
+        usort($result, function($a, $b) {
+            $yearA = 0;
+            $yearB = 0;
+            if (!empty($a['academicYear']['name'])) {
+                preg_match('/\d{4}/', $a['academicYear']['name'], $mA);
+                if (!empty($mA[0])) $yearA = (int) $mA[0];
+            }
+            if (!empty($b['academicYear']['name'])) {
+                preg_match('/\d{4}/', $b['academicYear']['name'], $mB);
+                if (!empty($mB[0])) $yearB = (int) $mB[0];
+            }
+            if ($yearB !== $yearA) {
+                return $yearB - $yearA;
+            }
+            return strcmp($b['publishedAt'], $a['publishedAt']);
+        });
+
+        return rest_ensure_response(array(
+            'items'      => $result,
+            'total'      => (int) $query->found_posts,
+            'totalPages' => (int) $query->max_num_pages,
+        ));
+    }
+
+    /**
+     * Get Educational MIS academic years
+     */
+    public function get_education_mis_years(WP_REST_Request $request) {
+        $terms = get_terms(array(
+            'taxonomy'   => 'mis_academic_year',
             'hide_empty' => false,
         ));
 
