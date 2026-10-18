@@ -112,17 +112,19 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
                     )}
                   </div>
 
-                  <!-- Info -->
+                  <!-- Info (Name on top, Position below) -->
                   <div class="min-w-0 flex-1">
-                    <span class="inline-block text-xs font-bold text-[#0047BA] dark:text-blue-400 mb-1">
-                      {leader.position}
-                    </span>
                     <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">
                       {leader.personnel?.name || "ชื่อ–นามสกุล"}
                     </h3>
-                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                      {leader.sub || "ผู้บริหารวิทยาลัย"}
-                    </p>
+                    <div class="text-xs sm:text-sm font-semibold text-[#0047BA] dark:text-blue-400 mt-0.5 truncate">
+                      {leader.position}
+                    </div>
+                    {leader.sub && leader.sub !== leader.position && (
+                      <p class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                        {leader.sub}
+                      </p>
+                    )}
                     {leader.remark && (
                       <span class="inline-block mt-1.5 text-[10px] bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 px-2.5 py-0.5 rounded-full">
                         {leader.remark}
@@ -201,16 +203,18 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
                   )}
                 </div>
 
-                <!-- Position & Name -->
-                <div class="text-xs font-bold leading-snug min-h-[36px] flex items-center justify-center px-1" style={`color: ${div.color};`}>
-                  {div.title}
-                </div>
-                <div class="text-sm font-bold text-slate-900 dark:text-white mt-1 truncate max-w-full">
+                <!-- Name on top, Position below -->
+                <div class="text-base font-bold text-slate-900 dark:text-white truncate max-w-full">
                   {div.head?.personnel?.name || "ชื่อ–นามสกุล"}
                 </div>
-                <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate max-w-full">
-                  {div.head?.sub || "ผู้บริหารฝ่าย"}
+                <div class="text-xs font-semibold leading-snug min-h-[36px] flex items-center justify-center px-1 mt-1" style={`color: ${div.color};`}>
+                  {div.title}
                 </div>
+                {div.head?.sub && div.head.sub !== div.title && (
+                  <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate max-w-full">
+                    {div.head.sub}
+                  </div>
+                )}
 
                 <!-- Action Button to jump to department jobs (borderless) -->
                 <button
@@ -318,9 +322,11 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
                     )}
                   </div>
                   <div class="min-w-0">
-                    <div class="text-xs font-medium text-slate-500 dark:text-slate-400">ผู้บริหารฝ่าย</div>
                     <div class="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">
                       {div.head?.personnel?.name || "ชื่อ–นามสกุล"}
+                    </div>
+                    <div class="text-xs sm:text-sm font-semibold text-[#0047BA] dark:text-blue-400 mt-0.5">
+                      {div.head?.position || "ผู้บริหารฝ่าย"}
                     </div>
                   </div>
                 </div>
@@ -349,17 +355,19 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
                       )}
                     </div>
 
-                    <!-- Job Title & Appointee Info -->
+                    <!-- Name on top, Job & Position below -->
                     <div class="min-w-0 flex-1">
-                      <h4 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-snug">
-                        {job.title}
+                      <h4 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-snug truncate">
+                        {job.personnel?.name || "ชื่อ–นามสกุล"}
                       </h4>
-                      <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5 flex-wrap">
-                        <span class="font-medium text-slate-700 dark:text-slate-300">
-                          {job.personnel?.name || "ชื่อ–นามสกุล"}
-                        </span>
-                        <span>·</span>
-                        <span>{job.position_title || "ผู้รับผิดชอบงาน"}</span>
+                      <p class="text-xs sm:text-sm font-semibold text-[#0047BA] dark:text-blue-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                        <span>{job.title}</span>
+                        {job.position_title && (
+                          <>
+                            <span class="text-slate-300 dark:text-slate-600">·</span>
+                            <span class="font-normal text-slate-500 dark:text-slate-400">{job.position_title}</span>
+                          </>
+                        )}
                       </p>
                       {job.remark && (
                         <span class="inline-block mt-1 text-[10px] bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full">
