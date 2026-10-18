@@ -30,53 +30,47 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
 >
   <div class="py-8 sm:py-12 lg:py-16 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
     <!-- Breadcrumb -->
-    <nav
-      class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6"
-      aria-label="Breadcrumb"
-    >
+    <nav class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6" aria-label="Breadcrumb">
       <a href="/" class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">หน้าแรก</a>
       <span>/</span>
       <a href="/about/" class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">เกี่ยวกับเรา</a>
       <span>/</span>
-      <span class="text-slate-800 dark:text-slate-200 font-semibold" aria-current="page">
-        {settings.page_title}
-      </span>
+      <span class="text-slate-800 dark:text-slate-200 font-semibold" aria-current="page">{settings.page_title}</span>
     </nav>
 
-    <!-- Intro Header -->
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-200 dark:border-slate-800 mb-10">
-      <div>
-        <div class="text-xs font-bold tracking-widest uppercase text-[#0047BA] dark:text-blue-400 mb-2">
-          ADMINISTRATION STRUCTURE
-        </div>
-        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
-          {settings.page_title}
-        </h1>
-        <p class="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
-          {settings.page_description}
-        </p>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-3">
-        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs sm:text-sm text-slate-700 dark:text-slate-300 shadow-sm">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>ปีการศึกษา</span>
-          <strong class="text-slate-900 dark:text-white font-bold">{settings.academic_year}</strong>
+    <!-- Page Title -->
+    <div class="mb-8 sm:mb-12 pb-6 border-b border-slate-200 dark:border-slate-800">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            {settings.page_title}
+          </h1>
+          <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-2 max-w-2xl">
+            {settings.page_description}
+          </p>
         </div>
 
-        {settings.pdf_url && (
-          <a
-            href={settings.pdf_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#0047BA] hover:bg-blue-700 text-white text-xs sm:text-sm font-medium transition-all shadow-sm hover:shadow"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-            <span>ดาวน์โหลดผังฉบับอนุมัติ (PDF)</span>
-          </a>
-        )}
+        <div class="flex flex-wrap items-center gap-3 shrink-0">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs sm:text-sm text-slate-700 dark:text-slate-300 shadow-xs">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>ปีการศึกษา</span>
+            <strong class="text-slate-900 dark:text-white font-bold">{settings.academic_year}</strong>
+          </div>
+
+          {settings.pdf_url && (
+            <a
+              href={settings.pdf_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0047BA] hover:bg-[#003893] text-white text-xs sm:text-sm font-semibold shadow-xs hover:shadow-md transition-all active:scale-98"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              <span>ดาวน์โหลดผัง (PDF)</span>
+            </a>
+          )}
+        </div>
       </div>
     </div>
 
