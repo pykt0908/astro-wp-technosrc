@@ -1122,7 +1122,17 @@ class Project_Core_Post_Types {
             );
 
             foreach ($sample_data as $data) {
-                $existing = get_page_by_title($data['title'], OBJECT, 'personnel');
+                $existing_posts = get_posts(array(
+                    'post_type'              => 'personnel',
+                    'title'                  => $data['title'],
+                    'post_status'            => 'all',
+                    'posts_per_page'         => 1,
+                    'no_found_rows'          => true,
+                    'ignore_sticky_posts'    => true,
+                    'update_post_term_cache' => false,
+                    'update_post_meta_cache' => false,
+                ));
+                $existing = !empty($existing_posts) ? $existing_posts[0] : null;
                 if ($existing) {
                     wp_set_object_terms($existing->ID, $data['category'], 'personnel_category');
                     update_post_meta($existing->ID, 'personnel_position', $data['position']);
