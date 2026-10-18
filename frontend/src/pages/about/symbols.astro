@@ -804,17 +804,13 @@ const tobeVariants = [
         });
       });
 
-      // 2. Direct Blob Downloader to guarantee proper filename and file extension
+      // 2. Native download with toast feedback
       const downloadLinks = document.querySelectorAll('a[download]');
       downloadLinks.forEach((link) => {
-        link.addEventListener('click', (e) => {
-          const href = link.getAttribute('href');
+        link.addEventListener('click', () => {
           const downloadName =
             link.getAttribute('download') ||
-            (href ? href.split('/').pop() : 'download');
-          if (!href || href.startsWith('javascript:')) return;
-
-          e.preventDefault();
+            (link.getAttribute('href') ? link.getAttribute('href').split('/').pop() : 'ไฟล์');
 
           if (toast && toastMsg) {
             toastMsg.textContent = `กำลังดาวน์โหลด ${downloadName}...`;
@@ -825,28 +821,6 @@ const tobeVariants = [
               toast.classList.add('translate-y-20', 'opacity-0');
             }, 2500);
           }
-
-          fetch(href)
-            .then((res) => {
-              if (!res.ok) throw new Error('File fetch failed');
-              return res.blob();
-            })
-            .then((blob) => {
-              const url = window.URL.createObjectURL(blob);
-              const tempA = document.createElement('a');
-              tempA.style.display = 'none';
-              tempA.href = url;
-              tempA.download = downloadName;
-              document.body.appendChild(tempA);
-              tempA.click();
-              setTimeout(() => {
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(tempA);
-              }, 200);
-            })
-            .catch(() => {
-              window.location.href = href;
-            });
         });
       });
 
