@@ -893,15 +893,32 @@ const tocItems = [
                       </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60 font-mono">
-                      {item.employment.data.map((row, idx) => (
-                        <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
-                          <td class="py-3 px-4 text-center text-slate-400 font-sans">{idx + 1}</td>
-                          <td class="py-3 px-4 font-bold text-slate-800 dark:text-slate-200 font-sans">{row.category}</td>
-                          <td class="py-3 px-4 text-right text-slate-600 dark:text-slate-400">{row.count.toLocaleString()}</td>
-                          <td class="py-3 px-4 text-right font-bold text-[#0047BA] dark:text-blue-400">{row.percent}</td>
-                          <td class="py-3 px-4 text-right text-slate-600 dark:text-slate-400">{row.avg_salary}</td>
-                        </tr>
-                      ))}
+                      {(() => {
+                        const totalEmp = item.employment.data.reduce((acc, r) => acc + (r.count || 0), 0);
+                        return (
+                          <>
+                            {item.employment.data.map((row, idx) => {
+                              const calcPct = row.percent || (totalEmp > 0 ? ((row.count / totalEmp) * 100).toFixed(1) + '%' : '0.0%');
+                              return (
+                                <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
+                                  <td class="py-3 px-4 text-center text-slate-400 font-sans">{idx + 1}</td>
+                                  <td class="py-3 px-4 font-bold text-slate-800 dark:text-slate-200 font-sans">{row.category}</td>
+                                  <td class="py-3 px-4 text-right text-slate-600 dark:text-slate-400">{row.count.toLocaleString()}</td>
+                                  <td class="py-3 px-4 text-right font-bold text-[#0047BA] dark:text-blue-400">{calcPct}</td>
+                                  <td class="py-3 px-4 text-right text-slate-600 dark:text-slate-400">{row.avg_salary}</td>
+                                </tr>
+                              );
+                            })}
+                            <tr class="bg-slate-50 dark:bg-slate-800/60 font-bold border-t border-slate-200 dark:border-slate-700">
+                              <td class="py-3 px-4 text-center text-slate-400 font-sans">—</td>
+                              <td class="py-3 px-4 text-slate-900 dark:text-white font-sans">รวมผู้สำเร็จการศึกษาทั้งหมด</td>
+                              <td class="py-3 px-4 text-right text-slate-900 dark:text-white">{totalEmp.toLocaleString()}</td>
+                              <td class="py-3 px-4 text-right text-emerald-600 dark:text-emerald-400">100.0%</td>
+                              <td class="py-3 px-4 text-right text-slate-400 font-sans text-[11px]">—</td>
+                            </tr>
+                          </>
+                        );
+                      })()}
                     </tbody>
                   </table>
                 </div>

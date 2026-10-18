@@ -1261,6 +1261,60 @@ class Project_Core_Custom_Fields {
                         $raw = wp_unslash($_POST[$jkey]);
                         $decoded = json_decode($raw, true);
                         if (is_array($decoded)) {
+                            if ($jkey === 'mis_employment_data') {
+                                $sum_count = 0;
+                                foreach ($decoded as $item) {
+                                    $sum_count += isset($item['count']) ? absint($item['count']) : 0;
+                                }
+                                $clean_emp = array();
+                                $field_pct = null;
+                                $other_pct = null;
+                                $higher_pct = null;
+                                $free_pct = null;
+                                $unemp_pct = null;
+                                $success_cnt = 0;
+
+                                foreach ($decoded as $item) {
+                                    $cnt = isset($item['count']) ? absint($item['count']) : 0;
+                                    $pct_num = ($sum_count > 0) ? ($cnt / $sum_count) * 100 : 0;
+                                    $pct_str = ($sum_count > 0) ? number_format($pct_num, 1) . '%' : '';
+                                    $cat = isset($item['category']) ? sanitize_text_field($item['category']) : '';
+
+                                    if (mb_strpos($cat, 'ตรงสาขา') !== false) {
+                                        $field_pct = number_format($pct_num, 1);
+                                        $success_cnt += $cnt;
+                                    } elseif (mb_strpos($cat, 'ต่างสาขา') !== false || mb_strpos($cat, 'สาขาอื่น') !== false) {
+                                        $other_pct = number_format($pct_num, 1);
+                                        $success_cnt += $cnt;
+                                    } elseif (mb_strpos($cat, 'ศึกษาต่อ') !== false) {
+                                        $higher_pct = number_format($pct_num, 1);
+                                        $success_cnt += $cnt;
+                                    } elseif (mb_strpos($cat, 'อิสระ') !== false || mb_strpos($cat, 'ผู้ประกอบการ') !== false) {
+                                        $free_pct = number_format($pct_num, 1);
+                                        $success_cnt += $cnt;
+                                    } elseif (mb_strpos($cat, 'รอ') !== false || mb_strpos($cat, 'เกณฑ์ทหาร') !== false || mb_strpos($cat, 'อื่น') !== false) {
+                                        $unemp_pct = number_format($pct_num, 1);
+                                    }
+
+                                    $clean_emp[] = array(
+                                        'category'   => $cat,
+                                        'count'      => $cnt,
+                                        'percent'    => $pct_str,
+                                        'avg_salary' => isset($item['avg_salary']) ? sanitize_text_field($item['avg_salary']) : '',
+                                    );
+                                }
+                                $decoded = $clean_emp;
+
+                                if ($sum_count > 0) {
+                                    $total_success = number_format(($success_cnt / $sum_count) * 100, 1);
+                                    update_post_meta($post_id, 'mis_employment_total_rate', $total_success);
+                                    if ($field_pct !== null) update_post_meta($post_id, 'mis_employed_field_rate', $field_pct);
+                                    if ($other_pct !== null) update_post_meta($post_id, 'mis_employed_other_rate', $other_pct);
+                                    if ($higher_pct !== null) update_post_meta($post_id, 'mis_higher_education_rate', $higher_pct);
+                                    if ($free_pct !== null) update_post_meta($post_id, 'mis_freelance_business_rate', $free_pct);
+                                    if ($unemp_pct !== null) update_post_meta($post_id, 'mis_unemployed_or_other_rate', $unemp_pct);
+                                }
+                            }
                             if ($jkey === 'mis_partner_enterprises') {
                                 $clean_partners = array();
                                 foreach ($decoded as $item) {
@@ -2114,18 +2168,29 @@ class Project_Core_Custom_Fields {
                     </div>
                 </div>
 
-                <h4 style="margin: 16px 0 6px;"><?php _e('ข้อมูลสัดส่วนและการประกอบอาชีพของผู้สำเร็จการศึกษา', 'project-core'); ?></h4>
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin: 16px 0 6px;">
+                    <h4 style="margin: 0;"><?php _e('ข้อมูลสัดส่วนและการประกอบอาชีพของผู้สำเร็จการศึกษา', 'project-core'); ?></h4>
+                    <span style="font-size: 12px; color: #0284c7; font-weight: 500;">⚡ กรอกเพียงจำนวนคน (คน) ระบบจะคำนวณร้อยละ (%) และอัปเดตสรุปด้านบนให้อัตโนมัติ</span>
+                </div>
                 <table class="mis-table" id="table-employment-data">
                     <thead>
                         <tr>
                             <th style="width: 40%;"><?php _e('สถานะ / กลุ่มการมีงานทำ', 'project-core'); ?></th>
                             <th style="width: 15%;"><?php _e('จำนวน (คน)', 'project-core'); ?></th>
-                            <th style="width: 15%;"><?php _e('ร้อยละ (%)', 'project-core'); ?></th>
+                            <th style="width: 15%;"><?php _e('ร้อยละ (%) [คำนวณอัตโนมัติ]', 'project-core'); ?></th>
                             <th style="width: 25%;"><?php _e('ฐานเงินเดือนเฉลี่ย (บาท/เดือน)', 'project-core'); ?></th>
                             <th style="width: 5%;"></th>
                         </tr>
                     </thead>
                     <tbody></tbody>
+                    <tfoot>
+                        <tr style="background: #f8fafc; font-weight: bold; border-top: 2px solid #cbd5e1;">
+                            <td style="text-align: right; color: #334155;"><?php _e('รวมผู้สำเร็จการศึกษาทั้งหมด:', 'project-core'); ?></td>
+                            <td id="emp-total-count" style="font-family: monospace; font-size: 13px; color: #0047BA;">0 คน</td>
+                            <td id="emp-total-pct" style="font-family: monospace; font-size: 13px; color: #059669;">100.0%</td>
+                            <td colspan="2" style="font-size: 11px; color: #64748b; font-weight: normal;">(คำนวณสัดส่วนร้อยละให้อัตโนมัติจากจำนวนคน)</td>
+                        </tr>
+                    </tfoot>
                 </table>
                 <button type="button" class="mis-btn-add" id="btn-add-employment-row">＋ <?php _e('เพิ่มแถวข้อมูลการมีงานทำ', 'project-core'); ?></button>
                 <textarea id="mis_employment_data" name="mis_employment_data" style="display:none;"><?php echo esc_textarea($emp_data); ?></textarea>
@@ -2455,6 +2520,70 @@ class Project_Core_Custom_Fields {
             });
             $('#table-achievements-list').on('input change', 'input', saveAchievementsRows);
 
+            // Helper to recalculate employment stats from count inputs
+            function recalculateEmploymentStats() {
+                var total = 0;
+                var $rows = $('#table-employment-data tbody tr');
+                
+                $rows.each(function() {
+                    var cnt = parseInt($(this).find('.r-emp-cnt').val(), 10) || 0;
+                    total += cnt;
+                });
+
+                var fieldRate = 0;
+                var otherRate = 0;
+                var higherEdRate = 0;
+                var freelanceRate = 0;
+                var unemployedRate = 0;
+                var successCount = 0;
+
+                $rows.each(function() {
+                    var $catInput = $(this).find('.r-emp-cat');
+                    var cat = ($catInput.val() || '').trim();
+                    var cnt = parseInt($(this).find('.r-emp-cnt').val(), 10) || 0;
+                    var pct = 0;
+                    if (total > 0) {
+                        pct = (cnt / total) * 100;
+                    }
+                    var pctFormatted = total > 0 ? (pct.toFixed(1) + '%') : '';
+                    $(this).find('.r-emp-pct').val(pctFormatted);
+
+                    // Match category keywords to auto-sync top summary cards
+                    if (cat.indexOf('ตรงสาขา') !== -1) {
+                        fieldRate = pct;
+                        successCount += cnt;
+                    } else if (cat.indexOf('สาขาอื่น') !== -1 || cat.indexOf('ต่างสาขา') !== -1) {
+                        otherRate = pct;
+                        successCount += cnt;
+                    } else if (cat.indexOf('ศึกษาต่อ') !== -1 || cat.indexOf('ปริญญาตรี') !== -1) {
+                        higherEdRate = pct;
+                        successCount += cnt;
+                    } else if (cat.indexOf('อิสระ') !== -1 || cat.indexOf('ผู้ประกอบการ') !== -1 || cat.indexOf('Startup') !== -1) {
+                        freelanceRate = pct;
+                        successCount += cnt;
+                    } else if (cat.indexOf('รอ') !== -1 || cat.indexOf('เกณฑ์ทหาร') !== -1 || cat.indexOf('อื่น') !== -1) {
+                        unemployedRate = pct;
+                    }
+                });
+
+                // Update table summary footer
+                $('#emp-total-count').text(total.toLocaleString() + ' คน');
+                $('#emp-total-pct').text(total > 0 ? '100.0%' : '0.0%');
+
+                // Auto-sync top summary cards if total > 0
+                if (total > 0) {
+                    var totalSuccessRate = (successCount / total) * 100;
+                    if (totalSuccessRate > 0) {
+                        $('input[name="mis_employment_total_rate"]').val(totalSuccessRate.toFixed(1));
+                    }
+                    if (fieldRate > 0) $('input[name="mis_employed_field_rate"]').val(fieldRate.toFixed(1));
+                    if (otherRate > 0) $('input[name="mis_employed_other_rate"]').val(otherRate.toFixed(1));
+                    if (higherEdRate > 0) $('input[name="mis_higher_education_rate"]').val(higherEdRate.toFixed(1));
+                    if (freelanceRate > 0) $('input[name="mis_freelance_business_rate"]').val(freelanceRate.toFixed(1));
+                    if (unemployedRate > 0) $('input[name="mis_unemployed_or_other_rate"]').val(unemployedRate.toFixed(1));
+                }
+            }
+
             // Helper to render employment rows
             function renderEmploymentRows() {
                 var data = [];
@@ -2462,16 +2591,18 @@ class Project_Core_Custom_Fields {
                 var $tbody = $('#table-employment-data tbody').empty();
                 data.forEach(function(row, idx) {
                     var tr = $('<tr>' +
-                        '<td><input type="text" class="r-emp-cat" value="'+(row.category||'')+'" placeholder="กลุ่ม/ประเภท"></td>' +
-                        '<td><input type="number" class="r-emp-cnt" value="'+(row.count||0)+'"></td>' +
-                        '<td><input type="text" class="r-emp-pct" value="'+(row.percent||'')+'" placeholder="60.0%"></td>' +
+                        '<td><input type="text" class="r-emp-cat" value="'+(row.category||'')+'" placeholder="กลุ่ม/ประเภท เช่น มีงานทำตรงสาขาวิชา"></td>' +
+                        '<td><input type="number" class="r-emp-cnt" value="'+(row.count||0)+'" min="0" style="font-weight: bold; color: #0047BA;"></td>' +
+                        '<td><input type="text" class="r-emp-pct" value="'+(row.percent||'')+'" placeholder="คำนวณอัตโนมัติ" readonly style="background: #f8fafc; font-weight: 600; color: #059669; cursor: default;"></td>' +
                         '<td><input type="text" class="r-emp-sal" value="'+(row.avg_salary||'')+'" placeholder="15,000 - 20,000"></td>' +
                         '<td style="text-align:center;"><button type="button" class="mis-btn-remove" data-idx="'+idx+'">ลบ</button></td>' +
                     '</tr>');
                     $tbody.append(tr);
                 });
+                recalculateEmploymentStats();
             }
             function saveEmploymentRows() {
+                recalculateEmploymentStats();
                 var data = [];
                 $('#table-employment-data tbody tr').each(function() {
                     data.push({
