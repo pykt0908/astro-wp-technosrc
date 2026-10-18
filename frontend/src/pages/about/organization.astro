@@ -106,10 +106,13 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
               )}
 
               <div class={`relative ${isDirector ? 'director-wrap' : ''}`}>
-                <!-- Leader Card -->
-                <article class="bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow w-[280px] sm:w-[320px] flex items-center gap-4">
-                  <!-- Photo Container (Square 1:1, no border) -->
-                  <div class="relative w-[88px] h-[88px] aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex-shrink-0">
+                <!-- Leader Card (No border, smaller 64px photo, fixed uniform width) -->
+                <article
+                  class="bg-slate-50/90 dark:bg-slate-800/80 rounded-2xl p-3.5 shadow-sm hover:shadow transition-all flex items-center gap-3.5"
+                  style="width: 320px; max-width: 100%;"
+                >
+                  <!-- Photo Container (Square 1:1, 64px, no border) -->
+                  <div class="relative w-16 h-16 aspect-square rounded-xl overflow-hidden bg-slate-200/80 dark:bg-slate-700/80 flex-shrink-0">
                     {leader.personnel?.photo ? (
                       <img
                         src={leader.personnel.photo}
@@ -129,7 +132,7 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
 
                   <!-- Info -->
                   <div class="min-w-0 flex-1">
-                    <span class="inline-block text-xs font-bold text-[#0047BA] dark:text-blue-400 mb-1">
+                    <span class="inline-block text-xs font-bold text-[#0047BA] dark:text-blue-400 mb-0.5">
                       {leader.position}
                     </span>
                     <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate">
@@ -139,7 +142,7 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
                       {leader.sub || "ผู้บริหารวิทยาลัย"}
                     </p>
                     {leader.remark && (
-                      <span class="inline-block mt-1 text-[10px] bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full border border-amber-200/60 dark:border-amber-800">
+                      <span class="inline-block mt-1 text-[10px] bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full">
                         {leader.remark}
                       </span>
                     )}
@@ -148,11 +151,14 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
 
                 <!-- School Board / Committee (Beside Director on desktop, stacks below on mobile) -->
                 {isDirector && committee && (
-                  <div class="committee-card mt-3 lg:mt-0 lg:absolute lg:left-[calc(100%+40px)] lg:top-1/2 lg:-translate-y-1/2 flex items-center z-10">
+                  <div class="committee-card mt-3 lg:mt-0 lg:absolute lg:left-[calc(100%+2rem)] lg:top-1/2 lg:-translate-y-1/2 flex items-center z-10">
                     <!-- Dashed Connector Line (Desktop) -->
-                    <div class="hidden lg:block w-10 border-t-2 border-dashed border-sky-400 dark:border-sky-600 -ml-10" aria-hidden="true"></div>
+                    <div class="hidden lg:block w-8 border-t-2 border-dashed border-sky-400 dark:border-sky-600 -ml-8" aria-hidden="true"></div>
 
-                    <div class="border border-dashed border-sky-300 dark:border-sky-700/80 bg-sky-50/80 dark:bg-sky-950/40 rounded-2xl p-4 w-[280px] sm:w-[300px] shadow-sm">
+                    <div
+                      class="bg-sky-50 dark:bg-sky-950/50 rounded-2xl p-3.5 shadow-sm"
+                      style="width: 280px; max-width: 100%;"
+                    >
                       <div class="flex items-center gap-2 mb-1">
                         <span class="w-2 h-2 rounded-full bg-sky-500"></span>
                         <div class="text-xs font-bold text-sky-800 dark:text-sky-300">
@@ -186,14 +192,16 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
               <div class="hidden lg:block absolute -top-6 left-1/2 -translate-x-1/2 w-px h-6 bg-slate-300 dark:bg-slate-700" aria-hidden="true"></div>
 
               <article
-                class="w-full h-full bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-all relative overflow-hidden group"
-                style={`border-top: 4px solid ${div.color};`}
+                class="w-full h-full bg-slate-50/90 dark:bg-slate-800/80 hover:bg-slate-100/90 dark:hover:bg-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col items-center text-center shadow-sm hover:shadow transition-all relative overflow-hidden group"
               >
+                <!-- Top Color Accent Bar -->
+                <div class="absolute top-0 left-0 right-0 h-1" style={`background-color: ${div.color};`}></div>
+
                 <!-- Top Color Accent Pip -->
                 <div class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full" style={`background-color: ${div.color};`}></div>
 
-                <!-- Division Head Photo (Square 1:1, no border) -->
-                <div class="relative w-[88px] h-[88px] aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 mb-3 flex-shrink-0">
+                <!-- Division Head Photo (Square 1:1, 64px, no border) -->
+                <div class="relative w-16 h-16 aspect-square rounded-xl overflow-hidden bg-slate-200/80 dark:bg-slate-700/80 mb-3 flex-shrink-0">
                   {div.head?.personnel?.photo ? (
                     <img
                       src={div.head.personnel.photo}
@@ -225,7 +233,7 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
                 <!-- Action Button to jump to department jobs -->
                 <button
                   type="button"
-                  class="mt-4 w-full py-2 px-3 text-xs font-semibold rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-700/60 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors flex items-center justify-center gap-1.5 border border-slate-200 dark:border-slate-600/60"
+                  class="mt-4 w-full py-2 px-3 text-xs font-semibold rounded-xl bg-white hover:bg-slate-200/80 dark:bg-slate-700/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors flex items-center justify-center gap-1.5 shadow-sm"
                   data-select-dept={i}
                   aria-label={`ดูงานในสังกัดของ ${div.title}`}
                 >
@@ -271,10 +279,10 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
             aria-selected={i === 0 ? "true" : "false"}
             tabindex={i === 0 ? "0" : "-1"}
             data-tab-index={i}
-            class={`org-tab-btn px-4 py-3 sm:py-3.5 rounded-2xl text-xs sm:text-sm font-bold text-center transition-all border flex items-center justify-center gap-2 relative ${
+            class={`org-tab-btn px-4 py-3 sm:py-3.5 rounded-2xl text-xs sm:text-sm font-bold text-center transition-all flex items-center justify-center gap-2 relative ${
               i === 0
-                ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 border-slate-900 dark:border-white shadow-sm"
-                : "bg-white text-slate-600 dark:bg-slate-900 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+                ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm"
+                : "bg-slate-100/90 text-slate-600 dark:bg-slate-800/80 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-700"
             }`}
           >
             <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style={`background-color: ${div.color};`}></span>
@@ -312,9 +320,9 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
                   </div>
                 </div>
 
-                <!-- Division Leader Badge (Square 1:1, no border) -->
-                <div class="flex items-center gap-3.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-2.5 pr-5">
-                  <div class="w-[88px] h-[88px] aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex-shrink-0">
+                <!-- Division Leader Badge (Square 1:1, 64px, no border) -->
+                <div class="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-2 pr-4 shadow-sm">
+                  <div class="w-16 h-16 aspect-square rounded-xl overflow-hidden bg-slate-200/80 dark:bg-slate-700/80 flex-shrink-0">
                     {div.head?.personnel?.photo ? (
                       <img
                         src={div.head.personnel.photo}
@@ -342,9 +350,9 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
               <!-- Jobs Grid (2 Columns on Desktop) -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {div.jobs.map((job) => (
-                  <article class="flex items-center gap-4 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors">
-                    <!-- Job Head Avatar (Square 1:1, no border) -->
-                    <div class="w-[88px] h-[88px] aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-800 flex-shrink-0">
+                  <article class="flex items-center gap-3.5 p-3.5 rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 hover:bg-slate-100/90 dark:hover:bg-slate-800/80 transition-colors shadow-sm">
+                    <!-- Job Head Avatar (Square 1:1, 64px, no border) -->
+                    <div class="w-16 h-16 aspect-square rounded-xl overflow-hidden bg-slate-200/80 dark:bg-slate-700/80 flex-shrink-0">
                       {job.personnel?.photo ? (
                         <img
                           src={job.personnel.photo}
@@ -375,7 +383,7 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
                         <span>{job.position_title || "ผู้รับผิดชอบงาน"}</span>
                       </p>
                       {job.remark && (
-                        <span class="inline-block mt-1 text-[10px] bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full border border-amber-200/60 dark:border-amber-800">
+                        <span class="inline-block mt-1 text-[10px] bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full">
                           {job.remark}
                         </span>
                       )}
@@ -421,11 +429,11 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
         btn.setAttribute('tabindex', isSelected ? '0' : '-1');
 
         if (isSelected) {
-          btn.classList.add('bg-slate-900', 'text-white', 'dark:bg-white', 'dark:text-slate-900', 'border-slate-900', 'dark:border-white', 'shadow-sm');
-          btn.classList.remove('bg-white', 'text-slate-600', 'dark:bg-slate-900', 'dark:text-slate-300', 'border-slate-200', 'dark:border-slate-800');
+          btn.classList.add('bg-slate-900', 'text-white', 'dark:bg-white', 'dark:text-slate-900', 'shadow-sm');
+          btn.classList.remove('bg-slate-100/90', 'text-slate-600', 'dark:bg-slate-800/80', 'dark:text-slate-300', 'hover:bg-slate-200/80', 'dark:hover:bg-slate-700');
         } else {
-          btn.classList.remove('bg-slate-900', 'text-white', 'dark:bg-white', 'dark:text-slate-900', 'border-slate-900', 'dark:border-white', 'shadow-sm');
-          btn.classList.add('bg-white', 'text-slate-600', 'dark:bg-slate-900', 'dark:text-slate-300', 'border-slate-200', 'dark:border-slate-800');
+          btn.classList.remove('bg-slate-900', 'text-white', 'dark:bg-white', 'dark:text-slate-900', 'shadow-sm');
+          btn.classList.add('bg-slate-100/90', 'text-slate-600', 'dark:bg-slate-800/80', 'dark:text-slate-300', 'hover:bg-slate-200/80', 'dark:hover:bg-slate-700');
         }
       });
 
