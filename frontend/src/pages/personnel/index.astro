@@ -75,7 +75,7 @@ const categoriesWithCounts = sortedCategories.map((cat) => {
             <button
               type="button"
               data-category-slug="all"
-              class="cat-nav-btn active flex items-center justify-between px-3 py-2 rounded-lg text-xs sm:text-sm text-[#0047BA] dark:text-blue-400 font-semibold bg-blue-50/80 dark:bg-blue-950/50 border-l-2 border-[#0047BA] pl-2.5 cursor-pointer w-full text-left"
+              class="cat-nav-btn active flex items-center justify-between px-3 py-2 rounded-lg text-xs sm:text-sm text-[#0047BA] dark:text-blue-400 font-semibold bg-blue-50/80 dark:bg-blue-950/50 cursor-pointer w-full text-left"
             >
               <span class="truncate">ทั้งหมด</span>
               <span class="cat-nav-badge text-[11px] font-mono px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-900/50 text-[#0047BA] dark:text-blue-300 font-semibold ml-2">
@@ -211,14 +211,14 @@ const categoriesWithCounts = sortedCategories.map((cat) => {
         const badge = btn.querySelector('.cat-nav-badge');
 
         if (btnSlug === slug) {
-          btn.classList.add('active', 'text-[#0047BA]', 'dark:text-blue-400', 'font-semibold', 'bg-blue-50/80', 'dark:bg-blue-950/50', 'border-l-2', 'border-[#0047BA]', 'pl-2.5');
+          btn.classList.add('active', 'text-[#0047BA]', 'dark:text-blue-400', 'font-semibold', 'bg-blue-50/80', 'dark:bg-blue-950/50');
           btn.classList.remove('text-slate-600', 'dark:text-slate-400', 'font-normal');
           if (badge) {
             badge.classList.add('bg-blue-100', 'dark:bg-blue-900/50', 'text-[#0047BA]', 'dark:text-blue-300', 'font-semibold');
             badge.classList.remove('bg-slate-200/60', 'dark:bg-slate-800', 'text-slate-500', 'dark:text-slate-400');
           }
         } else {
-          btn.classList.remove('active', 'text-[#0047BA]', 'dark:text-blue-400', 'font-semibold', 'bg-blue-50/80', 'dark:bg-blue-950/50', 'border-l-2', 'border-[#0047BA]', 'pl-2.5');
+          btn.classList.remove('active', 'text-[#0047BA]', 'dark:text-blue-400', 'font-semibold', 'bg-blue-50/80', 'dark:bg-blue-950/50');
           btn.classList.add('text-slate-600', 'dark:text-slate-400', 'font-normal');
           if (badge) {
             badge.classList.remove('bg-blue-100', 'dark:bg-blue-900/50', 'text-[#0047BA]', 'dark:text-blue-300', 'font-semibold');
