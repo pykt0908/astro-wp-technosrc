@@ -50,24 +50,38 @@ const tocItems = [
         </p>
       </div>
 
-      <!-- Year Selector & PDF Download -->
+      <!-- Year Selector Dropdown & PDF Download -->
       <div class="flex flex-wrap items-center gap-3">
         {yearsList.length > 0 && (
-          <div class="flex items-center gap-1 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700 text-xs sm:text-sm" id="year-selector-tabs">
-            {allMisItems.map((item, idx) => (
-              <button
-                type="button"
-                class={`px-3.5 py-1.5 rounded-lg font-semibold transition-all ${
-                  idx === 0
-                    ? 'bg-[#0047BA] text-white shadow-xs'
-                    : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-                }`}
-                data-year-slug={item.academicYear.slug}
-                data-target-id={`mis-item-${item.id}`}
+          <div class="relative inline-flex items-center">
+            <label for="mis-year-select" class="sr-only">เลือกปีการศึกษา</label>
+            <div class="relative">
+              <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 dark:text-slate-500">
+                <svg class="w-4 h-4 text-[#0047BA] dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <select
+                id="mis-year-select"
+                class="appearance-none pl-10 pr-9 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl text-xs sm:text-sm font-bold shadow-xs hover:border-[#0047BA] dark:hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-[#0047BA]/20 focus:border-[#0047BA] transition-all cursor-pointer"
               >
-                {item.academicYear.name || `ปีการศึกษา ${item.academicYear.slug}`}
-              </button>
-            ))}
+                {allMisItems.map((item, idx) => (
+                  <option
+                    value={`mis-item-${item.id}`}
+                    data-year-slug={item.academicYear.slug}
+                    data-pdf-url={item.pdfUrl || ''}
+                    selected={idx === 0}
+                  >
+                    {item.academicYear.name || `ปีการศึกษา ${item.academicYear.slug}`}
+                  </option>
+                ))}
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 dark:text-slate-500">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
           </div>
         )}
 
@@ -1035,21 +1049,18 @@ const tocItems = [
   <!-- Interactive ScrollSpy & Year Switcher Script -->
   <script is:inline>
     document.addEventListener('DOMContentLoaded', function () {
-      // Academic Year Switcher
-      var yearButtons = document.querySelectorAll('#year-selector-tabs button');
+      // Academic Year Switcher (Dropdown)
+      var yearSelect = document.getElementById('mis-year-select');
       var yearPanels = document.querySelectorAll('.mis-year-panel');
+      var pdfBtn = document.getElementById('btn-download-pdf');
 
-      yearButtons.forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          var targetId = btn.getAttribute('data-target-id');
+      if (yearSelect) {
+        yearSelect.addEventListener('change', function () {
+          var targetId = this.value;
+          var selectedOption = this.options[this.selectedIndex];
+          var pdfUrl = selectedOption ? selectedOption.getAttribute('data-pdf-url') : '';
 
-          yearButtons.forEach(function (b) {
-            b.classList.remove('bg-[#0047BA]', 'text-white', 'shadow-xs');
-            b.classList.add('text-slate-600', 'dark:text-slate-300');
-          });
-          btn.classList.add('bg-[#0047BA]', 'text-white', 'shadow-xs');
-          btn.classList.remove('text-slate-600', 'dark:text-slate-300');
-
+          // Toggle year panels
           yearPanels.forEach(function (panel) {
             if (panel.id === targetId) {
               panel.classList.remove('hidden');
@@ -1058,10 +1069,20 @@ const tocItems = [
             }
           });
 
+          // Update PDF download link if provided
+          if (pdfBtn) {
+            if (pdfUrl) {
+              pdfBtn.setAttribute('href', pdfUrl);
+              pdfBtn.style.display = 'inline-flex';
+            } else {
+              pdfBtn.style.display = 'none';
+            }
+          }
+
           // Refresh active TOC on year switch
           updateActiveToc();
         });
-      });
+      }
 
       // ScrollSpy for Table of Contents
       var tocLinks = document.querySelectorAll('.toc-link');
