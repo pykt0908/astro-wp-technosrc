@@ -1261,6 +1261,19 @@ class Project_Core_Custom_Fields {
                         $raw = wp_unslash($_POST[$jkey]);
                         $decoded = json_decode($raw, true);
                         if (is_array($decoded)) {
+                            if ($jkey === 'mis_partner_enterprises') {
+                                $clean_partners = array();
+                                foreach ($decoded as $item) {
+                                    $clean_partners[] = array(
+                                        'logo_url'         => isset($item['logo_url']) ? esc_url_raw($item['logo_url']) : '',
+                                        'name'             => isset($item['name']) ? sanitize_text_field($item['name']) : '',
+                                        'industry'         => isset($item['industry']) ? sanitize_text_field($item['industry']) : '',
+                                        'cooperation_type' => isset($item['cooperation_type']) ? sanitize_text_field($item['cooperation_type']) : '',
+                                        'departments'      => isset($item['departments']) ? sanitize_text_field($item['departments']) : '',
+                                    );
+                                }
+                                $decoded = $clean_partners;
+                            }
                             update_post_meta($post_id, $jkey, wp_json_encode($decoded, JSON_UNESCAPED_UNICODE));
                         }
                     }
@@ -2143,9 +2156,10 @@ class Project_Core_Custom_Fields {
                 <table class="mis-table" id="table-partner-enterprises">
                     <thead>
                         <tr>
-                            <th style="width: 30%;"><?php _e('ชื่อสถานประกอบการ / องค์กร', 'project-core'); ?></th>
-                            <th style="width: 25%;"><?php _e('ประเภทอุตสาหกรรม / กลุ่มธุรกิจ', 'project-core'); ?></th>
-                            <th style="width: 25%;"><?php _e('รูปแบบความร่วมมือ', 'project-core'); ?></th>
+                            <th style="width: 12%; text-align: center;"><?php _e('โลโก้', 'project-core'); ?></th>
+                            <th style="width: 25%;"><?php _e('ชื่อสถานประกอบการ / องค์กร', 'project-core'); ?></th>
+                            <th style="width: 23%;"><?php _e('ประเภทอุตสาหกรรม / กลุ่มธุรกิจ', 'project-core'); ?></th>
+                            <th style="width: 20%;"><?php _e('รูปแบบความร่วมมือ', 'project-core'); ?></th>
                             <th style="width: 15%;"><?php _e('สาขาวิชาที่ร่วมมือ', 'project-core'); ?></th>
                             <th style="width: 5%;"></th>
                         </tr>
@@ -2491,7 +2505,21 @@ class Project_Core_Custom_Fields {
                 try { data = JSON.parse($('#mis_partner_enterprises').val() || '[]'); } catch(e){}
                 var $tbody = $('#table-partner-enterprises tbody').empty();
                 data.forEach(function(row, idx) {
+                    var logoUrl = row.logo_url || '';
+                    var previewStyle = logoUrl 
+                        ? 'background-image: url(' + logoUrl + '); background-size: contain; background-repeat: no-repeat; background-position: center;' 
+                        : 'background: #f1f5f9; display: flex; align-items: center; justify-content: center;';
+                    var previewContent = logoUrl ? '' : '<span style="color:#94a3b8; font-size:10px;">ไม่มีรูป</span>';
+
                     var tr = $('<tr>' +
+                        '<td style="text-align:center; vertical-align: top; padding: 6px;">' +
+                            '<div class="part-logo-box" style="width: 44px; height: 44px; margin: 0 auto 4px; border: 1px solid #cbd5e1; border-radius: 6px; overflow: hidden; ' + previewStyle + '">' + previewContent + '</div>' +
+                            '<input type="hidden" class="r-part-logo" value="' + (logoUrl) + '">' +
+                            '<div style="display:flex; gap:2px; justify-content:center;">' +
+                                '<button type="button" class="button button-small btn-upload-row-logo" title="เลือก/อัปโหลดโลโก้" style="padding: 0 4px; font-size: 11px;">เลือก</button>' +
+                                '<button type="button" class="button button-small btn-clear-row-logo" title="ลบโลโก้" style="padding: 0 4px; font-size: 11px; ' + (logoUrl ? '' : 'display:none;') + '">✕</button>' +
+                            '</div>' +
+                        '</td>' +
                         '<td><input type="text" class="r-part-name" value="'+(row.name||'')+'" placeholder="ชื่อบริษัท/สถานประกอบการ"></td>' +
                         '<td><input type="text" class="r-part-ind" value="'+(row.industry||'')+'" placeholder="อุตสาหกรรม"></td>' +
                         '<td><input type="text" class="r-part-coop" value="'+(row.cooperation_type||'')+'" placeholder="ทวิภาคี / ฝึกงาน"></td>' +
@@ -2505,6 +2533,7 @@ class Project_Core_Custom_Fields {
                 var data = [];
                 $('#table-partner-enterprises tbody tr').each(function() {
                     data.push({
+                        logo_url: $(this).find('.r-part-logo').val() || '',
                         name: $(this).find('.r-part-name').val(),
                         industry: $(this).find('.r-part-ind').val(),
                         cooperation_type: $(this).find('.r-part-coop').val(),
@@ -2516,7 +2545,7 @@ class Project_Core_Custom_Fields {
             $('#btn-add-partner-row').on('click', function() {
                 var data = [];
                 try { data = JSON.parse($('#mis_partner_enterprises').val() || '[]'); } catch(e){}
-                data.push({ name: '', industry: '', cooperation_type: 'ทวิภาคี (DVE)', departments: '' });
+                data.push({ logo_url: '', name: '', industry: '', cooperation_type: 'ทวิภาคี (DVE)', departments: '' });
                 $('#mis_partner_enterprises').val(JSON.stringify(data));
                 renderPartnerRows();
             });
@@ -2528,6 +2557,51 @@ class Project_Core_Custom_Fields {
                 renderPartnerRows();
             });
             $('#table-partner-enterprises').on('input change', 'input', savePartnerRows);
+
+            // Partner Logo Media Frame
+            $('#table-partner-enterprises').on('click', '.btn-upload-row-logo', function(e) {
+                e.preventDefault();
+                var $btn = $(this);
+                var $tr = $btn.closest('tr');
+                var $input = $tr.find('.r-part-logo');
+                var $box = $tr.find('.part-logo-box');
+                var $clearBtn = $tr.find('.btn-clear-row-logo');
+
+                var frame = wp.media({
+                    title: '<?php echo esc_js(__('เลือกหรืออัปโหลดโลโก้สถานประกอบการ', 'project-core')); ?>',
+                    button: { text: '<?php echo esc_js(__('ใช้รูปนี้เป็นโลโก้', 'project-core')); ?>' },
+                    multiple: false,
+                    library: { type: 'image' }
+                });
+
+                frame.on('select', function() {
+                    var attachment = frame.state().get('selection').first().toJSON();
+                    var url = attachment.sizes && attachment.sizes.thumbnail ? attachment.sizes.thumbnail.url : attachment.url;
+                    $input.val(url);
+                    $box.css({
+                        'background-image': 'url(' + url + ')',
+                        'background-size': 'contain',
+                        'background-repeat': 'no-repeat',
+                        'background-position': 'center'
+                    }).html('');
+                    $clearBtn.show();
+                    savePartnerRows();
+                });
+
+                frame.open();
+            });
+
+            $('#table-partner-enterprises').on('click', '.btn-clear-row-logo', function(e) {
+                e.preventDefault();
+                var $tr = $(this).closest('tr');
+                $tr.find('.r-part-logo').val('');
+                $tr.find('.part-logo-box').css({
+                    'background-image': 'none',
+                    'background': '#f1f5f9'
+                }).html('<span style="color:#94a3b8; font-size:10px;">ไม่มีรูป</span>');
+                $(this).hide();
+                savePartnerRows();
+            });
 
             // Initial renders
             renderStudentRows();

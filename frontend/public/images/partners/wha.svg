@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <rect x="6" y="10" width="40" height="40" rx="8" fill="#003B71"/>
+  <path d="M14 20 L19 38 L25 24 L27 24 L33 38 L38 20" stroke="#00A3E0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- WHA Text -->
+  <text x="54" y="34" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="20" fill="#003B71" letter-spacing="2">WHA</text>
+  <text x="55" y="47" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="9" fill="#00A3E0" letter-spacing="1.5">GROUP</text>
+</svg>

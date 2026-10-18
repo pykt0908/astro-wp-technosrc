@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <!-- CP Ring -->
+  <circle cx="26" cy="30" r="18" fill="#E2231A"/>
+  <circle cx="26" cy="30" r="14" fill="#FFFFFF"/>
+  <text x="18" y="36" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="16" fill="#E2231A">CP</text>
+  <!-- CP ALL Text -->
+  <text x="52" y="37" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="22" fill="#007A3D" letter-spacing="1">CP <tspan fill="#E2231A">ALL</tspan></text>
+</svg>

@@ -281,6 +281,7 @@ export interface EmploymentStatRow {
 }
 
 export interface PartnerEnterpriseRow {
+  logo_url?: string;
   name: string;
   industry: string;
   cooperation_type: string;

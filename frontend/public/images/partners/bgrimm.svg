@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <circle cx="26" cy="30" r="18" fill="#002D72"/>
+  <text x="21" y="37" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="20" fill="#FFFFFF">B</text>
+  <!-- B.GRIMM Text -->
+  <text x="54" y="33" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="16" fill="#002D72" letter-spacing="1">B.GRIMM</text>
+  <text x="55" y="46" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="10" fill="#EAAA00" letter-spacing="2">POWER</text>
+</svg>

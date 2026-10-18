@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <!-- Delta triangle symbol -->
+  <path d="M12 46 L27 14 L42 46 Z" fill="#0072CE"/>
+  <path d="M22 41 L27 28 L32 41 Z" fill="#FFFFFF"/>
+  <!-- DELTA typography -->
+  <text x="50" y="38" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="22" fill="#0072CE" letter-spacing="1.5">DELTA</text>
+  <text x="51" y="49" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="8" fill="#64748B" letter-spacing="1">ELECTRONICS</text>
+</svg>

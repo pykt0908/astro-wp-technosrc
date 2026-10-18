@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <!-- Honda H Emblem -->
+  <g fill="#CC0000">
+    <path d="M12 10 L38 10 C42 10 44 13 43 17 L39 45 C38 48 35 50 32 50 L18 50 C15 50 12 48 11 45 L7 17 C6 13 8 10 12 10 Z" fill="none" stroke="#CC0000" stroke-width="3"/>
+    <!-- H Bars -->
+    <path d="M16 16 L18 44 M34 16 L32 44 M17 31 L33 31" stroke="#CC0000" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <!-- HONDA text -->
+  <text x="56" y="38" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="23" fill="#CC0000" letter-spacing="3">HONDA</text>
+</svg>
