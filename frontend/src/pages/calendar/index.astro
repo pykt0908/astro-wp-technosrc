@@ -1,11 +1,11 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import HomeCalendarSection from '../../components/HomeCalendarSection.astro';
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import HomeCalendarSection from "../../components/HomeCalendarSection.astro";
 import {
   getCollegeEvents,
   getCollegeEventCategories,
   getCollegeAcademicYears,
-} from '../../lib/wordpress';
+} from "../../lib/wordpress";
 
 const [collegeEvents, eventCategories, academicYears] = await Promise.all([
   getCollegeEvents(),

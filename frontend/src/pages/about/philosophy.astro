@@ -87,18 +87,33 @@ const tocItems = [
 
           <nav class="space-y-1" id="toc-nav">
             {
-              tocItems.map((item, index) => (
-                <a
-                  href={`#${item.id}`}
-                  data-target={item.id}
-                  class="toc-link flex items-center justify-between px-3 py-2 rounded-lg text-xs sm:text-sm text-slate-600 dark:text-slate-400 hover:text-[#0047BA] dark:hover:text-blue-400 hover:bg-white dark:hover:bg-slate-800 transition-all font-normal"
-                >
-                  <span class="truncate">{item.label}</span>
-                  <span class="text-[10px] text-slate-400 dark:text-slate-500 font-mono ml-2">
-                    {(index + 1).toString().padStart(2, "0")}
-                  </span>
-                </a>
-              ))
+              tocItems.map((item, index) => {
+                const isActive = index === 0;
+                return (
+                  <a
+                    href={`#${item.id}`}
+                    data-target={item.id}
+                    class:list={[
+                      "toc-link flex items-center justify-between px-3 py-2 rounded-lg text-xs sm:text-sm transition-all",
+                      isActive
+                        ? "text-[#0047BA] dark:text-blue-400 font-semibold bg-blue-50/80 dark:bg-blue-950/50"
+                        : "text-slate-600 dark:text-slate-400 font-normal hover:text-[#0047BA] dark:hover:text-blue-400 hover:bg-white dark:hover:bg-slate-800",
+                    ]}
+                  >
+                    <span class="truncate">{item.label}</span>
+                    <span
+                      class:list={[
+                        "toc-number text-[10px] font-mono ml-2 transition-colors",
+                        isActive
+                          ? "text-[#0047BA] dark:text-blue-400 font-semibold"
+                          : "text-slate-400 dark:text-slate-500 font-normal",
+                      ]}
+                    >
+                      {(index + 1).toString().padStart(2, "0")}
+                    </span>
+                  </a>
+                );
+              })
             }
           </nav>
         </div>
@@ -1283,68 +1298,114 @@ const tocItems = [
 
   <!-- Client-side script for Active TOC Item Highlight on Scroll -->
   <script is:inline>
-    document.addEventListener("DOMContentLoaded", () => {
+    function initPhilosophyToc() {
       const links = document.querySelectorAll(".toc-link");
+      if (!links.length) return;
+
       const sections = Array.from(links)
         .map((link) => {
           const id = link.getAttribute("data-target");
-          return document.getElementById(id);
+          return id ? document.getElementById(id) : null;
         })
         .filter(Boolean);
 
-      if (!sections.length || !("IntersectionObserver" in window)) return;
+      if (!sections.length) return;
 
-      let currentActiveId = null;
+      function updateActiveToc() {
+        let currentSectionId = "";
 
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              currentActiveId = entry.target.id;
-            }
-          });
+        // Check which section is in view
+        sections.forEach((section) => {
+          const rect = section.getBoundingClientRect();
+          if (rect.top <= 220 && rect.bottom >= 100) {
+            currentSectionId = section.getAttribute("id");
+          }
+        });
 
-          if (currentActiveId) {
-            links.forEach((link) => {
-              const isMatch =
-                link.getAttribute("data-target") === currentActiveId;
-              if (isMatch) {
-                link.classList.add(
+        // Top of page fallback
+        if (!currentSectionId && window.scrollY < 350 && sections.length > 0) {
+          currentSectionId = sections[0].getAttribute("id");
+        }
+
+        // Bottom of page fallback
+        if (
+          window.innerHeight + window.scrollY >=
+          document.documentElement.scrollHeight - 60
+        ) {
+          currentSectionId = sections[sections.length - 1].getAttribute("id");
+        }
+
+        if (currentSectionId) {
+          links.forEach((link) => {
+            const isMatch = link.getAttribute("data-target") === currentSectionId;
+            const numSpan = link.querySelector(".toc-number");
+
+            if (isMatch) {
+              link.classList.add(
+                "text-[#0047BA]",
+                "dark:text-blue-400",
+                "font-semibold",
+                "bg-blue-50/80",
+                "dark:bg-blue-950/50"
+              );
+              link.classList.remove(
+                "text-slate-600",
+                "dark:text-slate-400",
+                "font-normal"
+              );
+              if (numSpan) {
+                numSpan.classList.add(
                   "text-[#0047BA]",
                   "dark:text-blue-400",
-                  "font-semibold",
-                  "bg-blue-50/80",
-                  "dark:bg-blue-950/50"
+                  "font-semibold"
                 );
-                link.classList.remove(
-                  "text-slate-600",
-                  "dark:text-slate-400",
-                  "font-normal"
-                );
-              } else {
-                link.classList.remove(
-                  "text-[#0047BA]",
-                  "dark:text-blue-400",
-                  "font-semibold",
-                  "bg-blue-50/80",
-                  "dark:bg-blue-950/50"
-                );
-                link.classList.add(
-                  "text-slate-600",
-                  "dark:text-slate-400",
+                numSpan.classList.remove(
+                  "text-slate-400",
+                  "dark:text-slate-500",
                   "font-normal"
                 );
               }
-            });
-          }
-        },
-        {
-          rootMargin: "-10% 0px -70% 0px",
-          threshold: 0,
-        },
-      );
+            } else {
+              link.classList.remove(
+                "text-[#0047BA]",
+                "dark:text-blue-400",
+                "font-semibold",
+                "bg-blue-50/80",
+                "dark:bg-blue-950/50"
+              );
+              link.classList.add(
+                "text-slate-600",
+                "dark:text-slate-400",
+                "font-normal"
+              );
+              if (numSpan) {
+                numSpan.classList.remove(
+                  "text-[#0047BA]",
+                  "dark:text-blue-400",
+                  "font-semibold"
+                );
+                numSpan.classList.add(
+                  "text-slate-400",
+                  "dark:text-slate-500",
+                  "font-normal"
+                );
+              }
+            }
+          });
+        }
+      }
 
-      sections.forEach((section) => observer.observe(section));
-    });
+      window.addEventListener("scroll", updateActiveToc, { passive: true });
+      window.addEventListener("resize", updateActiveToc, { passive: true });
+
+      updateActiveToc();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initPhilosophyToc);
+    } else {
+      initPhilosophyToc();
+    }
+    document.addEventListener("astro:page-load", initPhilosophyToc);
   </script>
 </BaseLayout>
