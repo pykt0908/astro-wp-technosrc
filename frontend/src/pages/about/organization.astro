@@ -74,235 +74,123 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
       </div>
     </div>
 
-    <!-- Section 1: Chart View -->
-    <section class="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-8 lg:p-10 relative mb-14 overflow-hidden" aria-label="ผังสายการบริหาร">
+    <!-- Mobile scroll hint -->
+    <div class="xl:hidden flex items-center justify-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 mb-3">
+      <span>↔</span>
+      <span>เลื่อนซ้าย-ขวา เพื่อดูผังโครงสร้างการบริหารแบบเต็ม</span>
+    </div>
 
-      <!-- Leaders Vertical Tree Stack -->
-      <div class="flex flex-col items-center">
-        {leaders.map((leader, idx) => {
-          const isDirector = idx === 2; // ผู้อำนวยการ
-          return (
-            <div class="flex flex-col items-center">
-              {idx > 0 && (
-                <div class="w-px h-6 bg-slate-300 dark:bg-slate-700" aria-hidden="true"></div>
-              )}
+    <!-- Section 1: Full Chart View (Unified Org Chart Diagram) -->
+    <section class="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-6 lg:p-8 relative mb-14 overflow-x-auto shadow-xs" aria-label="ผังสายการบริหาร">
+      <div class="min-w-[1100px] xl:min-w-full">
 
-              <div class={`relative ${isDirector ? 'director-wrap' : ''}`}>
-                <!-- Leader Card (No border, no shadow, enlarged 96px photo) -->
-                <article
-                  class="bg-slate-50/90 dark:bg-slate-800/80 hover:bg-slate-100/90 dark:hover:bg-slate-800 rounded-2xl p-4 transition-all flex items-center gap-4"
-                  style="width: 380px; max-width: 100%;"
-                >
-                  <!-- Photo Container (Square 1:1, 96px, no border) -->
-                  <div class="relative w-24 h-24 aspect-square rounded-2xl overflow-hidden bg-slate-200/80 dark:bg-slate-700/80 flex-shrink-0">
-                    {leader.personnel?.photo ? (
-                      <img
-                        src={leader.personnel.photo}
-                        alt={`ภาพ ${leader.personnel.name}`}
-                        class="w-full h-full object-cover object-center"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <svg class="w-full h-full text-slate-400 dark:text-slate-500" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                        <circle cx="50" cy="34" r="20" fill="currentColor" opacity="0.55" />
-                        <path d="M12 100V84c0-22 16-34 38-34s38 12 38 34v16" fill="currentColor" opacity="0.55" />
-                        <path d="m36 57 14 15 14-15-7 43H43Z" fill="#eff4f8" />
-                        <path d="m47 72 6 0 3 25-6 3-6-3Z" fill="#849eb5" />
-                      </svg>
-                    )}
-                  </div>
+        <!-- Leaders Vertical Tree Stack -->
+        <div class="flex flex-col items-center">
+          {leaders.map((leader, idx) => {
+            const isDirector = idx === 2; // ผู้อำนวยการ
+            return (
+              <div class="flex flex-col items-center">
+                {idx > 0 && (
+                  <div class="w-0.5 h-6 bg-slate-300 dark:bg-slate-600" aria-hidden="true"></div>
+                )}
 
-                  <!-- Info (Name on top, Position below) -->
-                  <div class="min-w-0 flex-1">
-                    <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">
-                      {leader.personnel?.name || "ชื่อ–นามสกุล"}
-                    </h3>
-                    <div class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mt-0.5 truncate">
-                      {leader.position}
+                <div class="relative w-[380px] max-w-full">
+                  <!-- Leader Card (No border, no shadow, enlarged 96px photo) -->
+                  <article
+                    class="bg-slate-50/90 dark:bg-slate-800/80 hover:bg-slate-100/90 dark:hover:bg-slate-800 rounded-2xl p-4 transition-all flex items-center gap-4 w-full"
+                  >
+                    <!-- Photo Container (Square 1:1, 96px, no border) -->
+                    <div class="relative w-24 h-24 aspect-square rounded-2xl overflow-hidden bg-slate-200/80 dark:bg-slate-700/80 flex-shrink-0">
+                      {leader.personnel?.photo ? (
+                        <img
+                          src={leader.personnel.photo}
+                          alt={`ภาพ ${leader.personnel.name}`}
+                          class="w-full h-full object-cover object-center"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <svg class="w-full h-full text-slate-400 dark:text-slate-500" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                          <circle cx="50" cy="34" r="20" fill="currentColor" opacity="0.55" />
+                          <path d="M12 100V84c0-22 16-34 38-34s38 12 38 34v16" fill="currentColor" opacity="0.55" />
+                          <path d="m36 57 14 15 14-15-7 43H43Z" fill="#eff4f8" />
+                          <path d="m47 72 6 0 3 25-6 3-6-3Z" fill="#849eb5" />
+                        </svg>
+                      )}
                     </div>
-                    {leader.sub && leader.sub !== leader.position && (
-                      <p class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                        {leader.sub}
-                      </p>
-                    )}
-                    {leader.remark && (
-                      <span class="inline-block mt-1.5 text-[10px] bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 px-2.5 py-0.5 rounded-full">
-                        {leader.remark}
-                      </span>
-                    )}
-                  </div>
-                </article>
 
-                <!-- School Board / Committee (Beside Director on desktop, stacks below on mobile) -->
-                {isDirector && committee && (
-                  <div class="committee-card mt-3 lg:mt-0 lg:absolute lg:left-[calc(100%+2rem)] lg:top-1/2 lg:-translate-y-1/2 flex items-center z-10">
-                    <!-- Dashed Connector Line (Desktop) -->
-                    <div class="hidden lg:block w-8 border-t-2 border-dashed border-sky-400 dark:border-sky-600 -ml-8" aria-hidden="true"></div>
+                    <!-- Info (Name on top, Position below) -->
+                    <div class="min-w-0 flex-1">
+                      <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">
+                        {leader.personnel?.name || "ชื่อ–นามสกุล"}
+                      </h3>
+                      <div class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mt-0.5 truncate">
+                        {leader.position}
+                      </div>
+                      {leader.sub && leader.sub !== leader.position && (
+                        <p class="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                          {leader.sub}
+                        </p>
+                      )}
+                      {leader.remark && (
+                        <span class="inline-block mt-1.5 text-[10px] bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 px-2.5 py-0.5 rounded-full">
+                          {leader.remark}
+                        </span>
+                      )}
+                    </div>
+                  </article>
 
+                  <!-- School Board / Committee (Beside Director with dashed line) -->
+                  {isDirector && committee && (
                     <div
-                      class="bg-sky-50 dark:bg-sky-950/50 rounded-2xl p-4"
-                      style="width: 280px; max-width: 100%;"
+                      class="committee-card absolute flex items-center z-10 whitespace-normal"
+                      style="left: calc(100% + 1.5rem); top: 50%; transform: translateY(-50%); width: 260px;"
                     >
-                      <div class="flex items-center gap-2 mb-1.5">
-                        <span class="w-2 h-2 rounded-full bg-sky-500"></span>
-                        <div class="text-xs font-bold text-sky-800 dark:text-sky-300">
+                      <!-- Dashed Connector Line -->
+                      <div class="border-t-2 border-dashed border-slate-400 dark:border-slate-500 shrink-0" style="width: 1.5rem; margin-left: -1.5rem; margin-right: 0.5rem;" aria-hidden="true"></div>
+
+                      <div
+                        class="bg-slate-50/90 dark:bg-slate-800/80 rounded-2xl p-4 border border-dashed border-slate-300 dark:border-slate-700 w-full"
+                      >
+                        <div class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                           {committee.position || settings.committee_title}
                         </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                          {committee.sub || settings.committee_desc}
+                        </p>
                       </div>
-                      <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                        {committee.sub || settings.committee_desc}
-                      </p>
                     </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
-
-        <!-- Vertical Connector to Branches -->
-        <div class="w-px h-8 bg-slate-300 dark:bg-slate-700" aria-hidden="true"></div>
-      </div>
-
-      <!-- 4 Division Branches (Grid with tree connectors) -->
-      <div class="relative pt-6">
-        <!-- Horizontal tree branch line across top (connecting 4 branches on desktop) -->
-        <div class="hidden lg:block absolute top-0 left-[12.5%] right-[12.5%] h-px bg-slate-300 dark:bg-slate-700" aria-hidden="true"></div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
-          {divisions.map((div, i) => (
-            <div class="relative flex flex-col items-center">
-              <!-- Vertical tree stem connecting from top horizontal line (desktop) -->
-              <div class="hidden lg:block absolute -top-6 left-1/2 -translate-x-1/2 w-px h-6 bg-slate-300 dark:bg-slate-700" aria-hidden="true"></div>
-
-              <article
-                class="w-full h-full bg-slate-50/90 dark:bg-slate-800/80 hover:bg-slate-100/90 dark:hover:bg-slate-800 rounded-2xl p-5 flex flex-col items-center text-center transition-all relative overflow-hidden group"
-              >
-                <!-- Division Head Photo (Square 1:1, 96px, no border) -->
-                <div class="relative w-24 h-24 aspect-square rounded-2xl overflow-hidden bg-slate-200/80 dark:bg-slate-700/80 mb-3.5 flex-shrink-0">
-                  {div.head?.personnel?.photo ? (
-                    <img
-                      src={div.head.personnel.photo}
-                      alt={`ภาพ ${div.head.personnel.name}`}
-                      class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <svg class="w-full h-full text-slate-400 dark:text-slate-500" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                      <circle cx="50" cy="34" r="20" fill="currentColor" opacity="0.55" />
-                      <path d="M12 100V84c0-22 16-34 38-34s38 12 38 34v16" fill="currentColor" opacity="0.55" />
-                      <path d="m36 57 14 15 14-15-7 43H43Z" fill="#eff4f8" />
-                      <path d="m47 72 6 0 3 25-6 3-6-3Z" fill="#849eb5" />
-                    </svg>
                   )}
                 </div>
+              </div>
+            );
+          })}
 
-                <!-- Name on top, Position below (All black text) -->
-                <div class="text-base font-bold text-slate-900 dark:text-white truncate max-w-full">
-                  {div.head?.personnel?.name || "ชื่อ–นามสกุล"}
-                </div>
-                <div class="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 leading-snug min-h-[36px] flex items-center justify-center px-1 mt-1">
-                  {div.title}
-                </div>
-                {div.head?.sub && div.head.sub !== div.title && (
-                  <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate max-w-full">
-                    {div.head.sub}
-                  </div>
-                )}
-
-                <!-- Action Link to jump to division details -->
-                <a
-                  href={`#division-${i}`}
-                  class="mt-4 w-full py-2.5 px-3 text-xs font-semibold rounded-xl bg-slate-200/70 hover:bg-slate-200 dark:bg-slate-700/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors flex items-center justify-center gap-1.5"
-                  aria-label={`ดูงานในสังกัดของ ${div.title}`}
-                >
-                  <span>ดูงานในสังกัด ({div.jobs.length})</span>
-                  <span aria-hidden="true" class="text-slate-400 group-hover:translate-y-0.5 transition-transform">↓</span>
-                </a>
-              </article>
-            </div>
-          ))}
+          <!-- Vertical Connector to Branches -->
+          <div class="w-0.5 h-8 bg-slate-300 dark:bg-slate-600" aria-hidden="true"></div>
         </div>
-      </div>
-    </section>
 
-    <!-- Section 2: Department & Jobs Detail (Continuous Flow by Division) -->
-    <section id="department" class="scroll-mt-24" aria-label="หน่วยงานในสังกัด">
-      <div class="mb-8">
-        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-          หน่วยงานในสังกัด
-        </h2>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-          รายการงานและบุคลากรผู้รับผิดชอบงานในสังกัดแต่ละฝ่าย
-        </p>
-      </div>
+        <!-- 4 Division Branches (Grid of 4 columns with subordinate jobs flowing underneath) -->
+        <div class="relative pt-6">
+          <!-- Horizontal tree branch line across top (connecting 4 branches) -->
+          <div class="absolute top-0 left-[12.5%] right-[12.5%] h-0.5 bg-slate-300 dark:bg-slate-600" aria-hidden="true"></div>
 
-      <!-- Divisions List (Flowing down sequentially) -->
-      <div class="space-y-8 sm:space-y-12">
-        {divisions.map((div, i) => (
-          <div
-            id={`division-${i}`}
-            class="scroll-mt-24 bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 lg:p-10 border-0"
-          >
-            <!-- Division Header -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-8 border-b border-slate-100 dark:border-slate-800/80 gap-4">
-              <div class="flex items-center gap-4">
-                <span class="text-3xl sm:text-4xl font-serif font-black text-slate-300 dark:text-slate-700" aria-hidden="true">
-                  0{i + 1}
-                </span>
-                <div>
-                  <h3 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <span>{div.title}</span>
-                    <span class="text-xs px-2.5 py-0.5 rounded-full font-sans font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                      {div.jobs.length} งาน
-                    </span>
-                  </h3>
-                  <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-                    {div.description || `งานในสังกัด ${div.title}`}
-                  </p>
-                </div>
-              </div>
+          <div class="grid grid-cols-4 gap-4 lg:gap-6 relative">
+            {divisions.map((div) => (
+              <div class="relative flex flex-col items-center">
+                <!-- Vertical tree stem connecting from top horizontal line -->
+                <div class="absolute -top-6 left-1/2 -translate-x-1/2 w-0.5 h-6 bg-slate-300 dark:bg-slate-600" aria-hidden="true"></div>
 
-              <!-- Division Leader Badge (Square 1:1, 96px, no border, no shadow) -->
-              <div class="flex items-center gap-3.5 bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-2.5 pr-5">
-                <div class="w-24 h-24 aspect-square rounded-2xl overflow-hidden bg-slate-200/80 dark:bg-slate-700/80 flex-shrink-0">
-                  {div.head?.personnel?.photo ? (
-                    <img
-                      src={div.head.personnel.photo}
-                      alt={`ภาพ ${div.head.personnel.name}`}
-                      class="w-full h-full object-cover object-center"
-                    />
-                  ) : (
-                    <svg class="w-full h-full text-slate-400 dark:text-slate-500" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                      <circle cx="50" cy="34" r="20" fill="currentColor" opacity="0.55" />
-                      <path d="M12 100V84c0-22 16-34 38-34s38 12 38 34v16" fill="currentColor" opacity="0.55" />
-                      <path d="m36 57 14 15 14-15-7 43H43Z" fill="#eff4f8" />
-                      <path d="m47 72 6 0 3 25-6 3-6-3Z" fill="#849eb5" />
-                    </svg>
-                  )}
-                </div>
-                <div class="min-w-0">
-                  <div class="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">
-                    {div.head?.personnel?.name || "ชื่อ–นามสกุล"}
-                  </div>
-                  <div class="text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-300 mt-0.5">
-                    {div.head?.position || "ผู้บริหารฝ่าย"}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Jobs Grid (2 Columns on Desktop) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {div.jobs.map((job) => (
-                <article class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50/80 dark:bg-slate-800/50 hover:bg-slate-100/90 dark:hover:bg-slate-800/80 transition-colors">
-                  <!-- Job Head Avatar (Square 1:1, 80-96px, no border, no shadow) -->
-                  <div class="w-20 h-20 sm:w-24 sm:h-24 aspect-square rounded-2xl overflow-hidden bg-slate-200/80 dark:bg-slate-700/80 flex-shrink-0">
-                    {job.personnel?.photo ? (
+                <!-- Division Head Card -->
+                <article
+                  class="w-full bg-slate-50/90 dark:bg-slate-800/80 hover:bg-slate-100/90 dark:hover:bg-slate-800 rounded-2xl p-4 flex flex-col items-center text-center transition-all relative overflow-hidden group border-0 shadow-none"
+                >
+                  <!-- Division Head Photo (Square 1:1, 80-96px, no border) -->
+                  <div class="relative w-20 h-20 sm:w-24 sm:h-24 aspect-square rounded-2xl overflow-hidden bg-slate-200/80 dark:bg-slate-700/80 mb-3 flex-shrink-0">
+                    {div.head?.personnel?.photo ? (
                       <img
-                        src={job.personnel.photo}
-                        alt={`ภาพ ${job.personnel.name}`}
-                        class="w-full h-full object-cover object-center"
+                        src={div.head.personnel.photo}
+                        alt={`ภาพ ${div.head.personnel.name}`}
+                        class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
                         loading="lazy"
                       />
                     ) : (
@@ -315,31 +203,80 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
                     )}
                   </div>
 
-                  <!-- Name on top, Job & Position below -->
-                  <div class="min-w-0 flex-1">
-                    <h4 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-snug truncate">
-                      {job.personnel?.name || "ชื่อ–นามสกุล"}
-                    </h4>
-                    <p class="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mt-0.5 flex items-center gap-1.5 flex-wrap">
-                      <span>{job.title}</span>
-                      {job.position_title && (
-                        <>
-                          <span class="text-slate-300 dark:text-slate-600">·</span>
-                          <span class="font-normal text-slate-500 dark:text-slate-400">{job.position_title}</span>
-                        </>
-                      )}
-                    </p>
-                    {job.remark && (
-                      <span class="inline-block mt-1 text-[10px] bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full">
-                        {job.remark}
-                      </span>
-                    )}
+                  <!-- Name on top, Position below (All black text) -->
+                  <div class="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate max-w-full">
+                    {div.head?.personnel?.name || "ชื่อ–นามสกุล"}
+                  </div>
+                  <div class="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 leading-snug mt-1">
+                    {div.title}
+                  </div>
+                  {div.head?.sub && div.head.sub !== div.title && (
+                    <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate max-w-full">
+                      {div.head.sub}
+                    </div>
+                  )}
+                  <div class="mt-2 text-[10px] px-2.5 py-0.5 rounded-full bg-slate-200/80 dark:bg-slate-700/80 text-slate-600 dark:text-slate-300 font-medium">
+                    {div.jobs.length} งานในสังกัด
                   </div>
                 </article>
-              ))}
-            </div>
+
+                <!-- Vertical Connector Line to Jobs -->
+                <div class="w-0.5 h-6 bg-slate-300 dark:bg-slate-600 my-1" aria-hidden="true"></div>
+
+                <!-- Subordinate Jobs (Flowing down vertically directly under division) -->
+                <div class="w-full flex flex-col items-center">
+                  {div.jobs.map((job, jobIdx) => (
+                    <div class="w-full flex flex-col items-center">
+                      {jobIdx > 0 && (
+                        <div class="w-0.5 h-3 bg-slate-300 dark:bg-slate-600" aria-hidden="true"></div>
+                      )}
+                      <article class="w-full bg-slate-50/90 dark:bg-slate-800/60 hover:bg-slate-100/90 dark:hover:bg-slate-800/90 rounded-2xl p-3 flex items-center gap-3 transition-colors text-left group border-0 shadow-none">
+                        <!-- Job Head Avatar (Square 1:1, 48-52px, no border, no shadow) -->
+                        <div class="w-12 h-12 sm:w-13 sm:h-13 aspect-square rounded-xl overflow-hidden bg-slate-200/80 dark:bg-slate-700/80 flex-shrink-0">
+                          {job.personnel?.photo ? (
+                            <img
+                              src={job.personnel.photo}
+                              alt={`ภาพ ${job.personnel.name}`}
+                              class="w-full h-full object-cover object-center"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <svg class="w-full h-full text-slate-400 dark:text-slate-500" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                              <circle cx="50" cy="34" r="20" fill="currentColor" opacity="0.55" />
+                              <path d="M12 100V84c0-22 16-34 38-34s38 12 38 34v16" fill="currentColor" opacity="0.55" />
+                              <path d="m36 57 14 15 14-15-7 43H43Z" fill="#eff4f8" />
+                              <path d="m47 72 6 0 3 25-6 3-6-3Z" fill="#849eb5" />
+                            </svg>
+                          )}
+                        </div>
+
+                        <!-- Name on top, Job & Position below -->
+                        <div class="min-w-0 flex-1">
+                          <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white leading-snug truncate">
+                            {job.personnel?.name || "ชื่อ–นามสกุล"}
+                          </h4>
+                          <div class="text-[11px] sm:text-xs font-semibold text-slate-700 dark:text-slate-300 mt-0.5 leading-snug">
+                            {job.title}
+                          </div>
+                          {job.position_title && (
+                            <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                              {job.position_title}
+                            </div>
+                          )}
+                          {job.remark && (
+                            <span class="inline-block mt-1 text-[9px] bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 px-1.5 py-0.5 rounded-full">
+                              {job.remark}
+                            </span>
+                          )}
+                        </div>
+                      </article>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
     </section>
 
