@@ -37,6 +37,7 @@ class Project_Core_Post_Types {
         add_filter('manage_personnel_posts_columns', array($this, 'set_personnel_columns'));
         add_action('manage_personnel_posts_custom_column', array($this, 'render_personnel_columns'), 10, 2);
         add_action('pre_get_posts', array($this, 'admin_personnel_sort_order'));
+        add_action('pre_get_terms', array($this, 'admin_personnel_category_sort_order'));
         add_action('restrict_manage_posts', array($this, 'filter_personnel_by_category'), 10, 2);
         add_action('pre_get_posts', array($this, 'admin_personnel_filter_query'));
         add_action('admin_menu', array($this, 'register_personnel_admin_menus'));
@@ -1308,6 +1309,23 @@ class Project_Core_Post_Types {
     }
 
     /**
+     * Default sort order by category_order (NUMERIC) ASC in personnel_category admin table
+     */
+    public function admin_personnel_category_sort_order($query) {
+        global $pagenow;
+        if (is_admin() && $pagenow === 'edit-tags.php') {
+            $taxonomies = isset($query->query_vars['taxonomy']) ? (array) $query->query_vars['taxonomy'] : array();
+            if (in_array('personnel_category', $taxonomies, true)) {
+                if (empty($_GET['orderby'])) {
+                    $query->query_vars['meta_key'] = 'category_order';
+                    $query->query_vars['orderby']  = 'meta_value_num';
+                    $query->query_vars['order']    = 'ASC';
+                }
+            }
+        }
+    }
+
+    /**
      * Filter Personnel by category in admin table
      */
     public function filter_personnel_by_category($post_type, $which) {
@@ -1693,10 +1711,18 @@ class Project_Core_Post_Types {
         $categories = get_terms(array(
             'taxonomy'   => 'personnel_category',
             'hide_empty' => false,
-            'orderby'    => 'meta_value_num name',
-            'meta_key'   => 'category_order',
-            'order'      => 'ASC',
         ));
+
+        if (!empty($categories) && !is_wp_error($categories)) {
+            usort($categories, function($a, $b) {
+                $order_a = (int) (get_term_meta($a->term_id, 'category_order', true) ?: 999);
+                $order_b = (int) (get_term_meta($b->term_id, 'category_order', true) ?: 999);
+                if ($order_a === $order_b) {
+                    return $a->term_id - $b->term_id;
+                }
+                return $order_a - $order_b;
+            });
+        }
 
         global $wpdb;
         $total_updated = 0;
@@ -1758,14 +1784,22 @@ class Project_Core_Post_Types {
 
         $nonce = wp_create_nonce('project_core_personnel_dept_reorder_nonce');
 
-        // Fetch categories ordered by category_order ASC
+        // Fetch categories ordered by category_order (NUMERIC) ASC
         $categories = get_terms(array(
             'taxonomy'   => 'personnel_category',
             'hide_empty' => false,
-            'orderby'    => 'meta_value_num name',
-            'meta_key'   => 'category_order',
-            'order'      => 'ASC',
         ));
+
+        if (!empty($categories) && !is_wp_error($categories)) {
+            usort($categories, function($a, $b) {
+                $order_a = (int) (get_term_meta($a->term_id, 'category_order', true) ?: 999);
+                $order_b = (int) (get_term_meta($b->term_id, 'category_order', true) ?: 999);
+                if ($order_a === $order_b) {
+                    return $a->term_id - $b->term_id;
+                }
+                return $order_a - $order_b;
+            });
+        }
 
         // Group staff by category
         $cat_staff_map = array();
