@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('TECHNO_MF_VERSION', '1.0.0');
+define('TECHNO_MF_VERSION', '1.0.3');
 define('TECHNO_MF_DIR', plugin_dir_path(__FILE__));
 define('TECHNO_MF_URL', plugin_dir_url(__FILE__));
 

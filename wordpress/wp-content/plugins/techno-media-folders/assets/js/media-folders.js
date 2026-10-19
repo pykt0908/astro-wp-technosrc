@@ -26,7 +26,7 @@
             $(document).ready(function() {
                 self.setupContext();
                 self.fetchTree(function() {
-                    self.initSidebar();
+                    self.mountLayouts();
                 });
             });
         },
@@ -34,35 +34,28 @@
         setupContext: function() {
             var self = this;
 
-            // In List view
-            if ($('body').hasClass('upload-php') && $('.tablenav').length && !$('.media-frame').length) {
-                var urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.get('mode') === 'list' || !urlParams.has('mode')) {
-                    self.initListViewIntegration();
-                }
+            // List View check
+            if ($('body').hasClass('upload-php') && $('#posts-filter').length && !$('#wp-media-grid').length) {
+                self.initListPageLayout();
             }
 
-            // In Grid view or WP Media Modal
+            // Grid View check on upload.php
+            if ($('#wp-media-grid').length) {
+                self.initGridPageLayout();
+            }
+
+            // Modal frames (e.g. Set Featured Image)
             if (typeof wp !== 'undefined' && wp.media) {
                 if (wp.media.view && wp.media.view.MediaFrame) {
-                    if (wp.media.view.MediaFrame.Manage) {
-                        var origManage = wp.media.view.MediaFrame.Manage.prototype.render;
-                        wp.media.view.MediaFrame.Manage.prototype.render = function() {
-                            var res = origManage.apply(this, arguments);
-                            var frame = this;
-                            setTimeout(function() {
-                                self.initGridSidebar(frame.$el);
-                            }, 50);
-                            return res;
-                        };
-                    }
                     if (wp.media.view.MediaFrame.Select) {
                         var origSelect = wp.media.view.MediaFrame.Select.prototype.render;
                         wp.media.view.MediaFrame.Select.prototype.render = function() {
                             var res = origSelect.apply(this, arguments);
                             var frame = this;
                             setTimeout(function() {
-                                self.initGridSidebar(frame.$el);
+                                if (frame.$el.closest('.media-modal').length) {
+                                    self.initModalLayout(frame.$el);
+                                }
                             }, 50);
                             return res;
                         };
@@ -73,7 +66,9 @@
                             var res = origPost.apply(this, arguments);
                             var frame = this;
                             setTimeout(function() {
-                                self.initGridSidebar(frame.$el);
+                                if (frame.$el.closest('.media-modal').length) {
+                                    self.initModalLayout(frame.$el);
+                                }
                             }, 50);
                             return res;
                         };
@@ -81,30 +76,21 @@
                 }
             }
 
-            // MutationObserver to guarantee detection of .media-frame anytime it mounts
+            // MutationObserver to watch for Grid Frame or Modal Frame mounting
             if (window.MutationObserver) {
                 var observer = new MutationObserver(function() {
-                    var $frames = $('.media-frame');
-                    $frames.each(function() {
+                    if ($('#wp-media-grid').length && !$('.techno-mf-main-layout').length) {
+                        self.initGridPageLayout();
+                    }
+                    $('.media-modal .media-frame').each(function() {
                         var $f = $(this);
                         if (!$f.find('.tmf-sidebar').length) {
-                            self.initGridSidebar($f);
+                            self.initModalLayout($f);
                         }
                     });
                 });
                 observer.observe(document.body, { childList: true, subtree: true });
             }
-
-            // Polling backup for first 3 seconds
-            var checkCount = 0;
-            var checkTimer = setInterval(function() {
-                checkCount++;
-                var $frames = $('.media-frame');
-                if ($frames.length && !$frames.first().find('.tmf-sidebar').length) {
-                    self.initGridSidebar($frames.first());
-                }
-                if (checkCount > 15) clearInterval(checkTimer);
-            }, 200);
 
             // Close context menu on outside click
             $(document).on('click', function(e) {
@@ -114,13 +100,14 @@
             });
         },
 
-        hookMediaFrame: function(frame) {
+        mountLayouts: function() {
             var self = this;
-            setTimeout(function() {
-                if (frame.$el && frame.$el.length) {
-                    self.initGridSidebar(frame.$el);
-                }
-            }, 100);
+            if ($('#wp-media-grid').length) {
+                self.initGridPageLayout();
+            }
+            if ($('body').hasClass('upload-php') && $('#posts-filter').length && !$('#wp-media-grid').length) {
+                self.initListPageLayout();
+            }
         },
 
         fetchTree: function(callback) {
@@ -144,59 +131,80 @@
             });
         },
 
-        initSidebar: function() {
-            var self = this;
-
-            // List View
-            if ($('.techno-mf-list-layout').length) {
-                self.renderTree();
-            }
-
-            // Grid View
-            if ($('.media-frame').length) {
-                self.initGridSidebar($('.media-frame').first());
-            }
-        },
-
-        initListViewIntegration: function() {
+        initListPageLayout: function() {
             var self = this;
             var $form = $('#posts-filter');
-            if (!$form.length || $('.techno-mf-list-layout').length) return;
+            if (!$form.length || $('.techno-mf-main-layout').length) return;
 
-            // Read URL param
             var urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('techno_folder')) {
                 self.currentFolder = urlParams.get('techno_folder');
             }
 
-            var $wrapper = $('<div class="techno-mf-list-layout"></div>');
-            var $sidebar = self.buildSidebarHtml();
-            $form.before($wrapper);
-            $wrapper.append($sidebar);
-
-            var $content = $('<div class="tmf-list-content"></div>');
-            $content.append($form);
-            $wrapper.append($content);
-
-            self.bindSidebarEvents($wrapper);
-            self.renderTree();
-        },
-
-        initGridSidebar: function($frame) {
-            var self = this;
-            if (!$frame || !$frame.length || $frame.find('.tmf-sidebar').length) return;
-
-            $frame.addClass('techno-mf-has-sidebar');
+            var $layout = $('<div class="techno-mf-main-layout"></div>');
             if (self.collapsed) {
-                $frame.addClass('tmf-sidebar-collapsed');
+                $layout.addClass('tmf-sidebar-collapsed');
             }
 
             var $sidebar = self.buildSidebarHtml();
-            $frame.prepend($sidebar);
+            var $content = $('<div class="techno-mf-content"></div>');
 
-            self.bindSidebarEvents($frame);
+            $form.before($layout);
+            $layout.append($sidebar);
+            $layout.append($content);
+            $content.append($form);
+
+            self.bindSidebarEvents($layout);
+            self.renderTree();
+        },
+
+        initGridPageLayout: function() {
+            var self = this;
+            var $grid = $('#wp-media-grid');
+            if (!$grid.length || $grid.find('.techno-mf-main-layout').length) return;
+
+            var $frame = $grid.find('.media-frame');
+            if (!$frame.length) {
+                // If frame is still initializing, retry in 50ms
+                setTimeout(function() {
+                    self.initGridPageLayout();
+                }, 50);
+                return;
+            }
+
+            var $layout = $('<div class="techno-mf-main-layout"></div>');
+            if (self.collapsed) {
+                $layout.addClass('tmf-sidebar-collapsed');
+            }
+
+            var $sidebar = self.buildSidebarHtml();
+            var $content = $('<div class="techno-mf-content"></div>');
+
+            $frame.before($layout);
+            $layout.append($sidebar);
+            $layout.append($content);
+            $content.append($frame);
+
+            self.bindSidebarEvents($layout);
             self.renderTree();
             self.setupDraggableAttachments($frame);
+        },
+
+        initModalLayout: function($modalFrame) {
+            var self = this;
+            if (!$modalFrame || !$modalFrame.length || $modalFrame.find('.tmf-sidebar').length) return;
+
+            $modalFrame.addClass('techno-mf-has-modal-sidebar');
+            if (self.collapsed) {
+                $modalFrame.addClass('tmf-sidebar-collapsed');
+            }
+
+            var $sidebar = self.buildSidebarHtml();
+            $modalFrame.prepend($sidebar);
+
+            self.bindSidebarEvents($modalFrame);
+            self.renderTree();
+            self.setupDraggableAttachments($modalFrame);
         },
 
         buildSidebarHtml: function() {
@@ -374,7 +382,7 @@
                 e.preventDefault();
                 self.collapsed = !self.collapsed;
                 localStorage.setItem('techno_mf_collapsed', self.collapsed);
-                $('.techno-mf-has-sidebar').toggleClass('tmf-sidebar-collapsed', self.collapsed);
+                $('.techno-mf-main-layout, .media-frame.techno-mf-has-modal-sidebar').toggleClass('tmf-sidebar-collapsed', self.collapsed);
                 $(this).find('.dashicons').toggleClass('dashicons-arrow-left-alt2 dashicons-arrow-right-alt2', !self.collapsed);
             });
 
@@ -425,7 +433,7 @@
             $('.tmf-item[data-folder-id="' + folderId + '"]').addClass('tmf-active');
 
             // If List View -> Navigate
-            if ($('body').hasClass('upload-php') && $('.tablenav').length && !$('.media-frame').length) {
+            if ($('body').hasClass('upload-php') && $('#posts-filter').length && !$('#wp-media-grid').length) {
                 var url = new URL(window.location.href);
                 if (folderId === 'all') {
                     url.searchParams.delete('techno_folder');
@@ -437,14 +445,19 @@
             }
 
             // If Grid View -> Filter wp.media query
-            if (typeof wp !== 'undefined' && wp.media && wp.media.frame) {
+            if (typeof wp !== 'undefined' && wp.media) {
+                var frame = wp.media.frame;
                 var library = null;
-                if (wp.media.frame.content && wp.media.frame.content.get && wp.media.frame.content.get()) {
-                    var content = wp.media.frame.content.get();
+
+                if (frame && frame.content && frame.content.get && frame.content.get()) {
+                    var content = frame.content.get();
                     library = content.collection || (content.options && content.options.selection);
                 }
-                if (!library && wp.media.frame.state) {
-                    library = wp.media.frame.state().get('library');
+                if (!library && frame && frame.state && typeof frame.state === 'function') {
+                    var state = frame.state();
+                    if (state && state.get) {
+                        library = state.get('library');
+                    }
                 }
 
                 if (library && library.props) {

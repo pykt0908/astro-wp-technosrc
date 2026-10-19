@@ -12,103 +12,95 @@
     --tmf-border: #dcdcde;
 }
 
-/* Container integration for Grid view (upload.php standalone page) */
-.upload-php .media-frame.mode-grid.techno-mf-has-sidebar {
+/* ==========================================================================
+   Outer Page Layout (upload.php Grid and List modes)
+   ========================================================================== */
+.techno-mf-main-layout {
     display: flex !important;
-    flex-direction: row !important;
-    align-items: stretch !important;
-    min-height: calc(100vh - 150px) !important;
-    position: relative !important;
-    background: #ffffff !important;
-    border: 1px solid var(--tmf-border) !important;
-    box-sizing: border-box !important;
+    gap: 16px !important;
+    align-items: flex-start !important;
     margin-top: 15px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    clear: both !important;
 }
 
-.upload-php .media-frame.mode-grid.techno-mf-has-sidebar .tmf-sidebar {
-    position: relative !important;
-    top: 0 !important;
-    left: 0 !important;
-    bottom: auto !important;
-    min-height: calc(100vh - 150px) !important;
-    border-right: 1px solid var(--tmf-border) !important;
-    flex-shrink: 0 !important;
+.techno-mf-main-layout .tmf-sidebar {
+    width: var(--tmf-sidebar-width);
+    flex-shrink: 0;
+    position: sticky;
+    top: 45px;
+    height: calc(100vh - 120px);
+    max-height: 820px;
+    background: #ffffff;
+    border: 1px solid var(--tmf-border);
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    transition: width 0.2s ease;
+    user-select: none;
+    z-index: 20;
 }
 
-.upload-php .media-frame.mode-grid.techno-mf-has-sidebar .media-frame-content {
-    position: relative !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: auto !important;
-    flex-grow: 1 !important;
-    min-width: 0 !important;
+.techno-mf-main-layout.tmf-sidebar-collapsed .tmf-sidebar {
+    width: 40px;
 }
 
-/* Modal Popup integration (e.g. Set Featured Image modal) */
-.media-modal .media-frame.techno-mf-has-sidebar .tmf-sidebar {
+.techno-mf-main-layout .techno-mf-content {
+    flex-grow: 1;
+    min-width: 0;
+    width: calc(100% - var(--tmf-sidebar-width) - 16px);
+}
+
+.techno-mf-main-layout.tmf-sidebar-collapsed .techno-mf-content {
+    width: calc(100% - 56px);
+}
+
+/* Standalone Grid Mode inside techno-mf-content */
+.techno-mf-content .media-frame.mode-grid {
+    position: relative;
+    width: 100%;
+}
+
+.techno-mf-content .media-frame.mode-grid .media-toolbar.wp-filter {
+    margin-top: 0;
+}
+
+/* ==========================================================================
+   Modal Dialog Layout (e.g. Set Featured Image modal)
+   ========================================================================== */
+.media-modal .media-frame.techno-mf-has-modal-sidebar .tmf-sidebar {
     position: absolute !important;
     top: 50px !important;
     left: 0 !important;
     bottom: 0 !important;
     width: var(--tmf-sidebar-width) !important;
     z-index: 100 !important;
-}
-
-.media-modal .media-frame.techno-mf-has-sidebar .media-frame-content {
-    left: var(--tmf-sidebar-width) !important;
-    width: calc(100% - var(--tmf-sidebar-width)) !important;
-}
-
-.media-modal .media-frame.techno-mf-has-sidebar.tmf-sidebar-collapsed .tmf-sidebar {
-    width: 40px !important;
-}
-
-.media-modal .media-frame.techno-mf-has-sidebar.tmf-sidebar-collapsed .media-frame-content {
-    left: 40px !important;
-    width: calc(100% - 40px) !important;
-}
-
-/* Sidebar integration for List view (upload.php?mode=list) */
-.techno-mf-list-layout {
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-    margin-top: 15px;
-}
-
-.techno-mf-list-layout .tmf-sidebar {
-    flex-shrink: 0;
-    position: sticky;
-    top: 45px;
-    height: calc(100vh - 120px);
-}
-
-.techno-mf-list-layout .tmf-list-content {
-    flex-grow: 1;
-    min-width: 0;
-}
-
-/* Main Sidebar Structure */
-.tmf-sidebar {
-    width: var(--tmf-sidebar-width);
     background: #ffffff;
     border-right: 1px solid var(--tmf-border);
     display: flex;
     flex-direction: column;
-    box-sizing: border-box;
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    z-index: 50;
-    transition: width 0.2s ease;
-    user-select: none;
 }
 
-.tmf-sidebar-collapsed .tmf-sidebar {
-    width: 40px;
+.media-modal .media-frame.techno-mf-has-modal-sidebar .media-frame-content {
+    left: var(--tmf-sidebar-width) !important;
+    width: calc(100% - var(--tmf-sidebar-width)) !important;
 }
 
+.media-modal .media-frame.techno-mf-has-modal-sidebar.tmf-sidebar-collapsed .tmf-sidebar {
+    width: 40px !important;
+}
+
+.media-modal .media-frame.techno-mf-has-modal-sidebar.tmf-sidebar-collapsed .media-frame-content {
+    left: 40px !important;
+    width: calc(100% - 40px) !important;
+}
+
+/* ==========================================================================
+   Sidebar Internal Components
+   ========================================================================== */
 .tmf-sidebar-collapsed .tmf-header,
 .tmf-sidebar-collapsed .tmf-search-box,
 .tmf-sidebar-collapsed .tmf-tree-container,
@@ -120,13 +112,15 @@
 
 /* Sidebar Header */
 .tmf-header {
-    padding: 12px 14px;
+    padding: 10px 12px;
     border-bottom: 1px solid var(--tmf-border);
     background: #f6f7f7;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
 }
 
 .tmf-title {
@@ -155,11 +149,11 @@
     font-weight: 600 !important;
 }
 
-/* Collapse Toggle */
+/* Collapse Toggle Button */
 .tmf-sidebar-toggle {
     position: absolute;
     top: 10px;
-    right: -14px;
+    right: -13px;
     width: 24px;
     height: 24px;
     background: #ffffff;
@@ -172,7 +166,7 @@
     z-index: 60;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     color: #646970;
-    transition: background-color 0.15s;
+    transition: background-color 0.15s, color 0.15s;
 }
 
 .tmf-sidebar-toggle:hover {
@@ -192,6 +186,7 @@
     padding: 8px 12px;
     border-bottom: 1px solid #f0f0f1;
     position: relative;
+    background: #ffffff;
 }
 
 .tmf-search-box input {
@@ -201,12 +196,13 @@
     border-radius: 4px;
     border: 1px solid var(--tmf-border);
     box-sizing: border-box;
+    height: 28px;
 }
 
 .tmf-search-box .dashicons-search {
     position: absolute;
     left: 18px;
-    top: 13px;
+    top: 14px;
     font-size: 15px;
     width: 15px;
     height: 15px;
@@ -219,6 +215,7 @@
     overflow-y: auto;
     overflow-x: hidden;
     padding: 6px 0;
+    background: #ffffff;
 }
 
 /* Folder Items */
@@ -226,7 +223,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 7px 10px 7px 14px;
+    padding: 7px 10px 7px 12px;
     cursor: pointer;
     font-size: 13px;
     color: #2c3338;
@@ -264,6 +261,7 @@
     cursor: pointer;
     color: #8c8f94;
     border-radius: 2px;
+    flex-shrink: 0;
 }
 
 .tmf-expander:hover {
@@ -353,10 +351,10 @@
 
 /* Hierarchy Indentation */
 .tmf-level-0 { padding-left: 10px; }
-.tmf-level-1 { padding-left: 26px; }
-.tmf-level-2 { padding-left: 42px; }
-.tmf-level-3 { padding-left: 58px; }
-.tmf-level-4 { padding-left: 74px; }
+.tmf-level-1 { padding-left: 24px; }
+.tmf-level-2 { padding-left: 38px; }
+.tmf-level-3 { padding-left: 52px; }
+.tmf-level-4 { padding-left: 66px; }
 
 /* Separator */
 .tmf-separator {
@@ -417,22 +415,6 @@
     outline: 2px dashed var(--tmf-primary) !important;
     outline-offset: -2px;
     border-left-color: var(--tmf-primary) !important;
-}
-
-/* Dragging media helper */
-.tmf-drag-helper {
-    background: var(--tmf-primary);
-    color: #ffffff;
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
-    z-index: 999999;
-    pointer-events: none;
-    display: flex;
-    align-items: center;
-    gap: 6px;
 }
 
 /* Toast Notification */
