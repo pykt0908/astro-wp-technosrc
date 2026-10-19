@@ -1184,6 +1184,15 @@ class Project_Core_Custom_Fields {
                         update_post_meta($post_id, $key, call_user_func($sanitizer, $_POST[$key]));
                     }
                 }
+
+                // If personnel_department matches a personnel_category term, auto-assign the taxonomy term
+                if (!empty($_POST['personnel_department'])) {
+                    $dept_val = sanitize_text_field($_POST['personnel_department']);
+                    $matched_term = get_term_by('name', $dept_val, 'personnel_category');
+                    if ($matched_term && !is_wp_error($matched_term)) {
+                        wp_set_object_terms($post_id, (int)$matched_term->term_id, 'personnel_category');
+                    }
+                }
             }
         }
 
@@ -1476,6 +1485,45 @@ class Project_Core_Custom_Fields {
         $education  = get_post_meta($post->ID, 'personnel_education', true);
         $email      = get_post_meta($post->ID, 'personnel_email', true);
         $phone      = get_post_meta($post->ID, 'personnel_phone', true);
+
+        // Fetch categories from personnel_category taxonomy
+        $personnel_cats = get_terms(array(
+            'taxonomy'   => 'personnel_category',
+            'hide_empty' => false,
+            'orderby'    => 'meta_value_num name',
+            'meta_key'   => 'category_order',
+            'order'      => 'ASC',
+        ));
+
+        // Fetch divisions from org_unit
+        $divisions = get_posts(array(
+            'post_type'      => 'org_unit',
+            'posts_per_page' => -1,
+            'post_status'    => 'publish',
+            'meta_query'     => array(
+                array(
+                    'key'   => '_org_unit_type',
+                    'value' => 'division',
+                ),
+            ),
+            'meta_key'       => '_org_unit_order',
+            'orderby'        => 'meta_value_num',
+            'order'          => 'ASC',
+        ));
+
+        // Determine if current department is custom
+        $known_options = array();
+        if (!empty($personnel_cats) && !is_wp_error($personnel_cats)) {
+            foreach ($personnel_cats as $cat) {
+                $known_options[] = $cat->name;
+            }
+        }
+        if (!empty($divisions)) {
+            foreach ($divisions as $div) {
+                $known_options[] = $div->post_title;
+            }
+        }
+        $is_custom = (!empty($department) && !in_array($department, $known_options, true));
         ?>
         <table class="form-table" style="margin-top: 0;">
             <tr>
@@ -1493,10 +1541,41 @@ class Project_Core_Custom_Fields {
                 </td>
             </tr>
             <tr>
-                <th scope="row"><label for="personnel_department"><?php _e('ฝ่ายงาน / แผนกวิชา', 'project-core'); ?></label></th>
+                <th scope="row"><label for="personnel_department_select"><?php _e('ฝ่ายงาน / แผนกวิชา', 'project-core'); ?></label></th>
                 <td>
-                    <input type="text" id="personnel_department" name="personnel_department" value="<?php echo esc_attr($department); ?>" class="large-text" style="max-width: 450px;" placeholder="เช่น ที่ปรึกษาสถานศึกษา, ผู้บริหารสถานศึกษา, สาขาวิชาการบัญชี" />
-                    <p class="description"><?php _e('สังกัดฝ่ายงานหรือแผนกสาขาวิชา', 'project-core'); ?></p>
+                    <select id="personnel_department_select" class="regular-text" style="max-width: 450px; width: 100%;">
+                        <option value="">-- <?php _e('เลือกกลุ่ม / ฝ่ายงาน / แผนกวิชา', 'project-core'); ?> --</option>
+                        <?php if (!empty($personnel_cats) && !is_wp_error($personnel_cats)): ?>
+                            <optgroup label="<?php esc_attr_e('กลุ่มบุคลากร / สาขาวิชา', 'project-core'); ?>">
+                                <?php foreach ($personnel_cats as $cat): ?>
+                                    <option value="<?php echo esc_attr($cat->name); ?>" <?php selected($department, $cat->name); ?>>
+                                        <?php echo esc_html($cat->name); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </optgroup>
+                        <?php endif; ?>
+                        <?php if (!empty($divisions)): ?>
+                            <optgroup label="<?php esc_attr_e('ฝ่ายงาน (โครงสร้างการบริหาร)', 'project-core'); ?>">
+                                <?php foreach ($divisions as $div): ?>
+                                    <option value="<?php echo esc_attr($div->post_title); ?>" <?php selected($department, $div->post_title); ?>>
+                                        <?php echo esc_html($div->post_title); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </optgroup>
+                        <?php endif; ?>
+                        <option value="__custom__" <?php selected($is_custom, true); ?>>
+                            <?php _e('✏️ กำหนดเอง / ระบุข้อความอื่น...', 'project-core'); ?>
+                        </option>
+                    </select>
+
+                    <div id="personnel_department_custom_wrap" style="<?php echo ($is_custom ? 'margin-top:8px;' : 'display:none; margin-top:8px;'); ?>">
+                        <input type="text" id="personnel_department" name="personnel_department" value="<?php echo esc_attr($department); ?>" class="large-text" style="max-width: 450px;" placeholder="<?php esc_attr_e('เช่น ที่ปรึกษาสถานศึกษา, ผู้บริหารสถานศึกษา, สาขาวิชาการบัญชี', 'project-core'); ?>" />
+                    </div>
+
+                    <p class="description">
+                        <?php _e('เลือกจากกลุ่มที่สร้างไว้แล้วในระบบ หรือเลือก "กำหนดเอง" เพื่อพิมพ์ข้อความใหม่', 'project-core'); ?>
+                        | <a href="<?php echo admin_url('edit-tags.php?taxonomy=personnel_category&post_type=personnel'); ?>" target="_blank"><?php _e('+ จัดการกลุ่มบุคลากร', 'project-core'); ?></a>
+                    </p>
                 </td>
             </tr>
             <tr>
@@ -1522,6 +1601,34 @@ class Project_Core_Custom_Fields {
         <p style="background: #f0f7ff; border-left: 4px solid #0047BA; padding: 10px 14px; margin-top: 15px; border-radius: 2px;">
             <strong>💡 คำแนะนำรูปถ่าย:</strong> กำหนดรูปถ่ายของบุคลากรที่ช่อง <strong>"รูปประจำเรื่อง" (Featured Image)</strong> ทางขวามือ (แนะนำอัตราส่วนรูปแนวตั้ง 3:4 หรือ 4:5 เพื่อความสวยงาม) และกำหนด <strong>"ลำดับ" (Menu Order)</strong> ได้ที่กล่องคุณลักษณะของหน้า หรือลากสลับลำดับในหน้ารายการบุคลากรทั้งหมด
         </p>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var select = document.getElementById('personnel_department_select');
+            var input = document.getElementById('personnel_department');
+            var wrap = document.getElementById('personnel_department_custom_wrap');
+            if (!select || !input || !wrap) return;
+
+            select.addEventListener('change', function() {
+                if (this.value === '__custom__') {
+                    wrap.style.display = 'block';
+                    input.focus();
+                } else {
+                    wrap.style.display = 'none';
+                    input.value = this.value;
+                }
+            });
+
+            var form = select.closest('form');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    if (select.value && select.value !== '__custom__') {
+                        input.value = select.value;
+                    }
+                });
+            }
+        });
+        </script>
         <?php
     }
 
