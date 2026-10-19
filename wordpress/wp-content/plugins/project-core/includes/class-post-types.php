@@ -1099,6 +1099,11 @@ class Project_Core_Post_Types {
             return;
         }
 
+        // Only run initial seeding once
+        if (get_option('project_core_personnel_initial_seed_done')) {
+            return;
+        }
+
         // 11 College Categories matching organizational structure
         $categories = array(
             'advisory'         => array('name' => 'ที่ปรึกษาสถานศึกษา', 'desc' => 'คณะที่ปรึกษาและผู้รับใบอนุญาตวิทยาลัย', 'order' => 1),
@@ -1129,10 +1134,10 @@ class Project_Core_Post_Types {
             }
         }
 
-        // Seed or update sample staff
+        // Seed sample staff ONLY if personnel table is completely empty
         $count = wp_count_posts('personnel');
-        if (isset($count->publish) && (int)$count->publish <= 11) {
-            // Ensure advisory staff exist
+        $total_posts = isset($count->publish) ? (int)$count->publish : 0;
+        if ($total_posts === 0) {
             $sample_data = array(
                 array(
                     'title'      => 'นางหนึ่งฤทัย อินทเศียร',
@@ -1203,34 +1208,30 @@ class Project_Core_Post_Types {
                     'update_post_meta_cache' => false,
                 ));
                 $existing = !empty($existing_posts) ? $existing_posts[0] : null;
+                // Never overwrite existing data
                 if ($existing) {
-                    wp_set_object_terms($existing->ID, $data['category'], 'personnel_category');
-                    update_post_meta($existing->ID, 'personnel_position', $data['position']);
-                    update_post_meta($existing->ID, 'personnel_nickname', $data['nickname']);
-                    update_post_meta($existing->ID, 'personnel_department', $data['department']);
-                    update_post_meta($existing->ID, 'personnel_education', $data['education']);
-                    update_post_meta($existing->ID, 'personnel_email', $data['email']);
-                    update_post_meta($existing->ID, 'personnel_phone', $data['phone']);
-                    wp_update_post(array('ID' => $existing->ID, 'menu_order' => $data['order']));
-                } else {
-                    $pid = wp_insert_post(array(
-                        'post_title'   => $data['title'],
-                        'post_type'    => 'personnel',
-                        'post_status'  => 'publish',
-                        'menu_order'   => $data['order'],
-                    ));
-                    if ($pid && !is_wp_error($pid)) {
-                        wp_set_object_terms($pid, $data['category'], 'personnel_category');
-                        update_post_meta($pid, 'personnel_position', $data['position']);
-                        update_post_meta($pid, 'personnel_nickname', $data['nickname']);
-                        update_post_meta($pid, 'personnel_department', $data['department']);
-                        update_post_meta($pid, 'personnel_education', $data['education']);
-                        update_post_meta($pid, 'personnel_email', $data['email']);
-                        update_post_meta($pid, 'personnel_phone', $data['phone']);
-                    }
+                    continue;
+                }
+
+                $pid = wp_insert_post(array(
+                    'post_title'   => $data['title'],
+                    'post_type'    => 'personnel',
+                    'post_status'  => 'publish',
+                    'menu_order'   => $data['order'],
+                ));
+                if ($pid && !is_wp_error($pid)) {
+                    wp_set_object_terms($pid, $data['category'], 'personnel_category');
+                    update_post_meta($pid, 'personnel_position', $data['position']);
+                    update_post_meta($pid, 'personnel_nickname', $data['nickname']);
+                    update_post_meta($pid, 'personnel_department', $data['department']);
+                    update_post_meta($pid, 'personnel_education', $data['education']);
+                    update_post_meta($pid, 'personnel_email', $data['email']);
+                    update_post_meta($pid, 'personnel_phone', $data['phone']);
                 }
             }
         }
+
+        update_option('project_core_personnel_initial_seed_done', 1);
     }
 
     /**
