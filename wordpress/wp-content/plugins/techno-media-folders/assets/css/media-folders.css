@@ -478,6 +478,176 @@ body.tmf-is-dragging .uploader-window {
     background: #d63638;
 }
 
+/* WordPress Theme Modal Dialog */
+.tmf-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 9999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+    animation: tmfFadeIn 0.15s ease-out;
+}
+
+.tmf-modal-dialog {
+    background: #ffffff;
+    width: 440px;
+    max-width: 90vw;
+    border-radius: 6px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    border: 1px solid #c3c4c7;
+    animation: tmfScaleIn 0.15s ease-out;
+}
+
+.tmf-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    background: #f6f7f7;
+    border-bottom: 1px solid #dcdcde;
+}
+
+.tmf-modal-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1d2327;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.4;
+}
+
+.tmf-modal-title .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+    color: var(--tmf-primary);
+}
+
+.tmf-color-danger {
+    color: #d63638 !important;
+}
+
+.tmf-modal-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #646970;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s, background-color 0.15s;
+}
+
+.tmf-modal-close:hover {
+    color: #d63638;
+    background: #f0f0f1;
+}
+
+.tmf-modal-close .dashicons {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+}
+
+.tmf-modal-body {
+    padding: 20px 22px;
+}
+
+.tmf-modal-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1d2327;
+    margin-bottom: 8px;
+}
+
+.tmf-modal-input {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+    border: 1px solid #8c8f94 !important;
+    border-radius: 4px !important;
+    outline: none !important;
+    line-height: 1.4 !important;
+    height: 38px !important;
+    box-shadow: 0 0 0 transparent !important;
+    transition: border-color 0.15s, box-shadow 0.15s !important;
+}
+
+.tmf-modal-input:focus {
+    border-color: var(--tmf-primary) !important;
+    box-shadow: 0 0 0 1px var(--tmf-primary) !important;
+}
+
+.tmf-modal-input.tmf-input-error {
+    border-color: #d63638 !important;
+    box-shadow: 0 0 0 1px #d63638 !important;
+}
+
+.tmf-modal-message {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: #2c3338;
+    white-space: pre-line;
+}
+
+.tmf-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 12px 18px;
+    background: #f6f7f7;
+    border-top: 1px solid #dcdcde;
+}
+
+.tmf-modal-footer .button {
+    height: 32px !important;
+    line-height: 30px !important;
+    padding: 0 14px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+}
+
+.tmf-btn-danger {
+    background: #d63638 !important;
+    border-color: #d63638 !important;
+    color: #ffffff !important;
+    text-shadow: none !important;
+}
+
+.tmf-btn-danger:hover,
+.tmf-btn-danger:focus {
+    background: #b32d2e !important;
+    border-color: #b32d2e !important;
+    color: #ffffff !important;
+}
+
+@keyframes tmfFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes tmfScaleIn {
+    from { opacity: 0; transform: scale(0.96) translateY(-4px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
 /* Attachment Details Field in Modal */
 .techno-attachment-folder-select {
     width: 100%;
@@ -486,3 +656,4 @@ body.tmf-is-dragging .uploader-window {
     font-size: 13px;
     border: 1px solid #8c8f94;
 }
+

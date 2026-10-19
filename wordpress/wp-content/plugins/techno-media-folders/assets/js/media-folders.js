@@ -222,7 +222,7 @@
             var $header = $('<div class="tmf-header"></div>');
             $header.append(
                 '<h3 class="tmf-title"><span class="dashicons dashicons-portfolio"></span> ' + i18n.folders + '</h3>' +
-                '<button type="button" class="button button-secondary tmf-btn-new-folder">' + i18n.newFolder + '</button>'
+                '<button type="button" class="button button-secondary tmf-btn-new-folder" id="tmf-btn-new-folder">' + i18n.newFolder + '</button>'
             );
             $sidebar.append($header);
 
@@ -525,6 +525,11 @@
                 $('.tmf-droppable-hover').removeClass('tmf-droppable-hover');
             });
 
+            // Dismiss stuck WordPress uploader-window on click
+            $(document).on('click', '.uploader-window', function() {
+                $(this).hide();
+            });
+
             // Initial pass for currently rendered items
             setTimeout(function() {
                 $('.attachments .attachment, #the-list tr').attr('draggable', 'true');
@@ -558,78 +563,240 @@
             });
         },
 
+        openInputModal: function(options) {
+            var self = this;
+            var title = options.title || i18n.newFolder;
+            var label = options.label || i18n.enterFolderName;
+            var value = options.value || '';
+            var placeholder = options.placeholder || '';
+            var confirmText = options.confirmText || 'ตกลง';
+            var cancelText = options.cancelText || 'ยกเลิก';
+
+            $('#tmf-modal-container').remove();
+
+            var html = '<div id="tmf-modal-container" class="tmf-modal-backdrop">' +
+                '<div class="tmf-modal-dialog" role="dialog" aria-modal="true">' +
+                    '<div class="tmf-modal-header">' +
+                        '<h3 class="tmf-modal-title"><span class="dashicons dashicons-category"></span> ' + escapeHtml(title) + '</h3>' +
+                        '<button type="button" class="tmf-modal-close" aria-label="Close"><span class="dashicons dashicons-no-alt"></span></button>' +
+                    '</div>' +
+                    '<form class="tmf-modal-form">' +
+                        '<div class="tmf-modal-body">' +
+                            (label ? '<label class="tmf-modal-label">' + escapeHtml(label) + '</label>' : '') +
+                            '<input type="text" class="tmf-modal-input regular-text" value="' + escapeHtml(value) + '" placeholder="' + escapeHtml(placeholder) + '" autofocus autocomplete="off" />' +
+                        '</div>' +
+                        '<div class="tmf-modal-footer">' +
+                            '<button type="button" class="button button-secondary tmf-modal-cancel">' + escapeHtml(cancelText) + '</button>' +
+                            '<button type="submit" class="button button-primary tmf-modal-submit">' + escapeHtml(confirmText) + '</button>' +
+                        '</div>' +
+                    '</form>' +
+                '</div>' +
+            '</div>';
+
+            $('body').append(html);
+            var $container = $('#tmf-modal-container');
+            var $input = $container.find('.tmf-modal-input');
+
+            // Focus and select input
+            setTimeout(function() {
+                $input.focus().select();
+            }, 60);
+
+            function closeModal() {
+                $container.fadeOut(120, function() {
+                    $container.remove();
+                });
+                $(document).off('keydown.tmfModal');
+            }
+
+            $container.on('click', '.tmf-modal-close, .tmf-modal-cancel', function(e) {
+                e.preventDefault();
+                closeModal();
+            });
+
+            $container.on('click', function(e) {
+                if ($(e.target).is('#tmf-modal-container')) {
+                    closeModal();
+                }
+            });
+
+            $container.find('.tmf-modal-form').on('submit', function(e) {
+                e.preventDefault();
+                var newVal = $input.val().trim();
+                if (!newVal) {
+                    $input.addClass('tmf-input-error').focus();
+                    return;
+                }
+                closeModal();
+                if (typeof options.onConfirm === 'function') {
+                    options.onConfirm(newVal);
+                }
+            });
+
+            $(document).on('keydown.tmfModal', function(e) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+        },
+
+        openConfirmModal: function(options) {
+            var self = this;
+            var title = options.title || 'ยืนยันการดำเนินการ';
+            var message = options.message || '';
+            var confirmText = options.confirmText || 'ยืนยันการลบ';
+            var cancelText = options.cancelText || 'ยกเลิก';
+            var isDanger = options.isDanger !== false;
+
+            $('#tmf-modal-container').remove();
+
+            var html = '<div id="tmf-modal-container" class="tmf-modal-backdrop">' +
+                '<div class="tmf-modal-dialog tmf-modal-confirm-dialog" role="dialog" aria-modal="true">' +
+                    '<div class="tmf-modal-header">' +
+                        '<h3 class="tmf-modal-title">' +
+                            (isDanger ? '<span class="dashicons dashicons-warning tmf-color-danger"></span> ' : '<span class="dashicons dashicons-info"></span> ') +
+                            escapeHtml(title) +
+                        '</h3>' +
+                        '<button type="button" class="tmf-modal-close" aria-label="Close"><span class="dashicons dashicons-no-alt"></span></button>' +
+                    '</div>' +
+                    '<div class="tmf-modal-body">' +
+                        '<p class="tmf-modal-message">' + escapeHtml(message) + '</p>' +
+                    '</div>' +
+                    '<div class="tmf-modal-footer">' +
+                        '<button type="button" class="button button-secondary tmf-modal-cancel">' + escapeHtml(cancelText) + '</button>' +
+                        '<button type="button" class="button ' + (isDanger ? 'tmf-btn-danger' : 'button-primary') + ' tmf-modal-confirm-btn">' + escapeHtml(confirmText) + '</button>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+
+            $('body').append(html);
+            var $container = $('#tmf-modal-container');
+
+            function closeModal() {
+                $container.fadeOut(120, function() {
+                    $container.remove();
+                });
+                $(document).off('keydown.tmfModal');
+            }
+
+            $container.on('click', '.tmf-modal-close, .tmf-modal-cancel', function(e) {
+                e.preventDefault();
+                closeModal();
+            });
+
+            $container.on('click', function(e) {
+                if ($(e.target).is('#tmf-modal-container')) {
+                    closeModal();
+                }
+            });
+
+            $container.on('click', '.tmf-modal-confirm-btn', function(e) {
+                e.preventDefault();
+                closeModal();
+                if (typeof options.onConfirm === 'function') {
+                    options.onConfirm();
+                }
+            });
+
+            $(document).on('keydown.tmfModal', function(e) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                } else if (e.key === 'Enter') {
+                    $container.find('.tmf-modal-confirm-btn').trigger('click');
+                }
+            });
+        },
+
         promptCreateFolder: function(parentId) {
             var self = this;
-            var name = prompt(i18n.enterFolderName);
-            if (!name || !name.trim()) return;
-
-            $.ajax({
-                url: ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'techno_mf_create_folder',
-                    nonce: nonce,
-                    name: name.trim(),
-                    parent: parentId || 0
-                },
-                success: function(res) {
-                    if (res.success) {
-                        self.showToast('✓ สร้างโฟลเดอร์ "' + res.data.name + '" เรียบร้อยแล้ว', 'success');
-                        self.fetchTree();
-                    } else {
-                        alert(res.data ? res.data.message : 'เกิดข้อผิดพลาด');
-                    }
+            var isSub = parentId && parentId !== 0 && parentId !== '0';
+            self.openInputModal({
+                title: isSub ? 'สร้างโฟลเดอร์ย่อย' : 'สร้างโฟลเดอร์ใหม่',
+                label: 'กรุณาระบุชื่อโฟลเดอร์:',
+                placeholder: 'เช่น เอกสารสำคัญ, กิจกรรม 2567...',
+                confirmText: 'สร้างโฟลเดอร์',
+                onConfirm: function(name) {
+                    $.ajax({
+                        url: ajaxUrl,
+                        type: 'POST',
+                        data: {
+                            action: 'techno_mf_create_folder',
+                            nonce: nonce,
+                            name: name,
+                            parent: parentId || 0
+                        },
+                        success: function(res) {
+                            if (res.success) {
+                                self.showToast('✓ สร้างโฟลเดอร์ "' + res.data.name + '" เรียบร้อยแล้ว', 'success');
+                                self.fetchTree();
+                            } else {
+                                self.showToast(res.data ? res.data.message : 'เกิดข้อผิดพลาด', 'error');
+                            }
+                        }
+                    });
                 }
             });
         },
 
         promptRenameFolder: function(folderId, currentName) {
             var self = this;
-            var name = prompt(i18n.enterNewName, currentName);
-            if (!name || !name.trim() || name.trim() === currentName) return;
-
-            $.ajax({
-                url: ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'techno_mf_rename_folder',
-                    nonce: nonce,
-                    id: folderId,
-                    name: name.trim()
-                },
-                success: function(res) {
-                    if (res.success) {
-                        self.showToast('✓ เปลี่ยนชื่อโฟลเดอร์เรียบร้อยแล้ว', 'success');
-                        self.fetchTree();
-                    } else {
-                        alert(res.data ? res.data.message : 'เกิดข้อผิดพลาด');
-                    }
+            self.openInputModal({
+                title: 'เปลี่ยนชื่อโฟลเดอร์',
+                label: 'ระบุชื่อโฟลเดอร์ใหม่:',
+                value: currentName,
+                confirmText: 'บันทึก',
+                onConfirm: function(name) {
+                    if (name === currentName) return;
+                    $.ajax({
+                        url: ajaxUrl,
+                        type: 'POST',
+                        data: {
+                            action: 'techno_mf_rename_folder',
+                            nonce: nonce,
+                            id: folderId,
+                            name: name
+                        },
+                        success: function(res) {
+                            if (res.success) {
+                                self.showToast('✓ เปลี่ยนชื่อโฟลเดอร์เรียบร้อยแล้ว', 'success');
+                                self.fetchTree();
+                            } else {
+                                self.showToast(res.data ? res.data.message : 'เกิดข้อผิดพลาด', 'error');
+                            }
+                        }
+                    });
                 }
             });
         },
 
         confirmDeleteFolder: function(folderId, folderName) {
             var self = this;
-            if (!confirm(i18n.confirmDelete)) return;
-
-            $.ajax({
-                url: ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'techno_mf_delete_folder',
-                    nonce: nonce,
-                    id: folderId
-                },
-                success: function(res) {
-                    if (res.success) {
-                        self.showToast('✓ ลบโฟลเดอร์เรียบร้อยแล้ว', 'success');
-                        if (self.currentFolder == folderId) {
-                            self.selectFolder('all');
+            self.openConfirmModal({
+                title: 'ยืนยันการลบโฟลเดอร์',
+                message: 'คุณต้องการลบโฟลเดอร์ "' + folderName + '" ใช่หรือไม่?\n(ไฟล์และรูปภาพในโฟลเดอร์จะไม่ถูกลบ แต่จะกลับไปอยู่ที่ "ยังไม่มีโฟลเดอร์")',
+                confirmText: '🗑️ ยืนยันการลบ',
+                isDanger: true,
+                onConfirm: function() {
+                    $.ajax({
+                        url: ajaxUrl,
+                        type: 'POST',
+                        data: {
+                            action: 'techno_mf_delete_folder',
+                            nonce: nonce,
+                            id: folderId
+                        },
+                        success: function(res) {
+                            if (res.success) {
+                                self.showToast('✓ ลบโฟลเดอร์เรียบร้อยแล้ว', 'success');
+                                if (self.currentFolder == folderId) {
+                                    self.selectFolder('all');
+                                }
+                                self.fetchTree();
+                            } else {
+                                self.showToast(res.data ? res.data.message : 'เกิดข้อผิดพลาด', 'error');
+                            }
                         }
-                        self.fetchTree();
-                    } else {
-                        alert(res.data ? res.data.message : 'เกิดข้อผิดพลาด');
-                    }
+                    });
                 }
             });
         },
