@@ -39,6 +39,9 @@ class Project_Core_Organization {
         // REST API Routes
         add_action('rest_api_init', array($this, 'register_rest_routes'));
 
+        // Admin Save All Action
+        add_action('admin_post_project_core_save_organization_all', array($this, 'handle_save_organization_all'));
+
         // Admin Seed Action
         add_action('admin_post_project_core_seed_organization', array($this, 'handle_seed_action'));
 
@@ -129,8 +132,8 @@ class Project_Core_Organization {
 
         add_submenu_page(
             'project-core-organization',
-            __('ผังและภาพรวมโครงสร้าง', 'project-core'),
-            __('ผังและภาพรวมโครงสร้าง', 'project-core'),
+            __('จัดการโครงสร้าง (หน้าเดียว)', 'project-core'),
+            __('จัดการโครงสร้าง (หน้าเดียว)', 'project-core'),
             'manage_options',
             'project-core-organization',
             array($this, 'render_overview_page')
@@ -138,16 +141,16 @@ class Project_Core_Organization {
 
         add_submenu_page(
             'project-core-organization',
-            __('ตำแหน่งในโครงสร้าง', 'project-core'),
-            __('ตำแหน่งในโครงสร้าง', 'project-core'),
+            __('ตำแหน่งทั้งหมด (ขั้นสูง)', 'project-core'),
+            __('ตำแหน่งทั้งหมด (ขั้นสูง)', 'project-core'),
             'manage_options',
             'edit.php?post_type=org_position'
         );
 
         add_submenu_page(
             'project-core-organization',
-            __('หน่วยงาน (ฝ่าย/งาน)', 'project-core'),
-            __('หน่วยงาน (ฝ่าย/งาน)', 'project-core'),
+            __('หน่วยงานทั้งหมด (ขั้นสูง)', 'project-core'),
+            __('หน่วยงานทั้งหมด (ขั้นสูง)', 'project-core'),
             'manage_options',
             'edit.php?post_type=org_unit'
         );
@@ -662,95 +665,502 @@ class Project_Core_Organization {
 
 
     /**
-     * Render Overview Page
+     * Render Overview Page (All-in-One Table Manager)
      */
     public function render_overview_page() {
         $data = $this->get_structure_data();
+
+        // Fetch all published personnel for dropdowns
+        $all_personnel = get_posts(array(
+            'post_type'      => 'personnel',
+            'posts_per_page' => -1,
+            'post_status'    => 'publish',
+            'orderby'        => 'title',
+            'order'          => 'ASC',
+        ));
         ?>
-        <div class="wrap">
-            <h1 style="display:flex; align-items:center; justify-content:space-between;">
-                <span><?php _e('ผังและภาพรวมโครงสร้างการบริหาร', 'project-core'); ?></span>
+        <div class="wrap" style="max-width:1200px;">
+            <!-- Page Header -->
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:15px; padding-bottom:15px; border-bottom:1px solid #ccd0d4;">
                 <div>
-                    <a href="<?php echo admin_url('post-new.php?post_type=org_position'); ?>" class="page-title-action"><?php _e('+ เพิ่มตำแหน่งใหม่', 'project-core'); ?></a>
-                    <a href="<?php echo admin_url('post-new.php?post_type=org_unit'); ?>" class="page-title-action"><?php _e('+ เพิ่มหน่วยงานใหม่', 'project-core'); ?></a>
+                    <h1 style="font-size:24px; font-weight:700; margin:0; display:flex; align-items:center; gap:8px;">
+                        <span class="dashicons dashicons-networking" style="font-size:28px; width:28px; height:28px; color:#0047BA;"></span>
+                        <?php _e('จัดการโครงสร้างการบริหาร (All-in-One Manager)', 'project-core'); ?>
+                    </h1>
+                    <p style="margin:4px 0 0; color:#64748b; font-size:13px;">
+                        <?php _e('กำหนดผู้บริหารระดับนโยบาย ผู้บริหาร 4 ฝ่าย และผู้รับผิดชอบงานทั้งหมดได้ในหน้าเดียว โดยไม่ต้องกดเข้าออกทีละ Post', 'project-core'); ?>
+                    </p>
                 </div>
-            </h1>
-
-            <div style="background:#fff; border:1px solid #ccd0d4; border-radius:8px; padding:20px; margin-top:20px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:15px; margin-bottom:20px;">
-                    <div>
-                        <h2 style="margin:0 0 5px;"><?php echo esc_html($data['settings']['page_title']); ?> (ปีการศึกษา <?php echo esc_html($data['settings']['academic_year']); ?>)</h2>
-                        <p style="margin:0; color:#64748b;"><?php echo esc_html($data['settings']['page_description']); ?></p>
-                    </div>
-                    <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" onsubmit="return confirm('ต้องการรีเซ็ต/ติดตั้งข้อมูลโครงสร้างเริ่มต้น 4 ฝ่ายและ 23 งานหรือไม่?');">
-                        <?php wp_nonce_field('project_core_seed_org', 'seed_nonce'); ?>
-                        <input type="hidden" name="action" value="project_core_seed_organization">
-                        <button type="submit" class="button button-secondary">
-                            ⚡ <?php _e('ติดตั้ง/รีเซ็ตข้อมูลเริ่มต้น (4 ฝ่าย 23 งาน)', 'project-core'); ?>
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Leaders overview -->
-                <h3 style="color:#0047BA; margin-top:0;">1. ผู้บริหารระดับนโยบาย</h3>
-                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:15px; margin-bottom:25px;">
-                    <?php foreach ($data['leaders'] as $leader): ?>
-                        <div style="border:1px solid #e2e8f0; border-radius:8px; padding:15px; background:#f8fafc; display:flex; gap:12px; align-items:center;">
-                            <?php if (!empty($leader['personnel']['photo'])): ?>
-                                <img src="<?php echo esc_url($leader['personnel']['photo']); ?>" style="width:50px; height:60px; object-fit:cover; border-radius:6px;">
-                            <?php else: ?>
-                                <div style="width:50px; height:60px; background:#cbd5e1; border-radius:6px; display:flex; align-items:center; justify-content:center; color:#64748b; font-size:11px;">ไม่มีรูป</div>
-                            <?php endif; ?>
-                            <div>
-                                <div style="font-size:11px; font-weight:bold; color:#0047BA;"><?php echo esc_html($leader['position']); ?></div>
-                                <div style="font-size:14px; font-weight:bold;"><?php echo esc_html($leader['personnel']['name']); ?></div>
-                                <div style="font-size:11px; color:#64748b;"><?php echo esc_html($leader['personnel']['sub'] ?: 'ผู้บริหารวิทยาลัย'); ?></div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-
-                <!-- Divisions overview -->
-                <h3 style="color:#0047BA;">2. ผู้บริหารและงานในสังกัด 4 ฝ่าย</h3>
-                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px;">
-                    <?php foreach ($data['divisions'] as $div): ?>
-                        <div style="border:1px solid #e2e8f0; border-radius:8px; overflow:hidden; background:#fff;">
-                            <div style="background:<?php echo esc_attr($div['color']); ?>; color:#fff; padding:12px 15px; font-weight:bold; font-size:14px;">
-                                <?php echo esc_html($div['title']); ?>
-                            </div>
-                            <div style="padding:15px;">
-                                <div style="display:flex; gap:10px; align-items:center; margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid #f1f5f9;">
-                                    <?php if (!empty($div['head']['personnel']['photo'])): ?>
-                                        <img src="<?php echo esc_url($div['head']['personnel']['photo']); ?>" style="width:40px; height:48px; object-fit:cover; border-radius:4px;">
-                                    <?php else: ?>
-                                        <div style="width:40px; height:48px; background:#e2e8f0; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:10px;">รูปแทน</div>
-                                    <?php endif; ?>
-                                    <div>
-                                        <div style="font-size:10px; color:#64748b;"><?php echo esc_html($div['head']['position'] ?: 'ผู้บริหารฝ่าย'); ?></div>
-                                        <div style="font-size:13px; font-weight:bold;"><?php echo esc_html($div['head']['personnel']['name'] ?: 'ชื่อ–นามสกุล'); ?></div>
-                                    </div>
-                                </div>
-                                
-                                <div style="font-size:11px; font-weight:bold; color:#475569; margin-bottom:6px;">
-                                    งานในสังกัด (<?php echo count($div['jobs']); ?> งาน):
-                                </div>
-                                <ul style="margin:0; padding-left:18px; font-size:12px; color:#64748b; line-height:1.6;">
-                                    <?php foreach ($div['jobs'] as $job): ?>
-                                        <li>
-                                            <strong><?php echo esc_html($job['title']); ?></strong>
-                                            <?php if (!empty($job['personnel']['name']) && $job['personnel']['name'] !== 'ชื่อ–นามสกุล'): ?>
-                                                — <span style="color:#0f172a;"><?php echo esc_html($job['personnel']['name']); ?></span>
-                                            <?php endif; ?>
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
+                <div style="display:flex; gap:8px;">
+                    <button type="submit" form="org_manager_form" class="button button-primary button-large" style="font-weight:600; padding:4px 18px;">
+                        💾 <?php _e('บันทึกการเปลี่ยนแปลงทั้งหมด', 'project-core'); ?>
+                    </button>
+                    <a href="<?php echo admin_url('post-new.php?post_type=personnel'); ?>" target="_blank" class="button button-secondary button-large">
+                        + <?php _e('เพิ่มบุคลากรใหม่', 'project-core'); ?>
+                    </a>
                 </div>
             </div>
+
+            <!-- Notice messages -->
+            <?php if (isset($_GET['saved']) && $_GET['saved'] == '1'): ?>
+                <div class="notice notice-success is-dismissible" style="margin-bottom:20px;">
+                    <p><strong>✓ <?php _e('บันทึกข้อมูลโครงสร้างการบริหารและผู้รับผิดชอบงานเรียบร้อยแล้ว', 'project-core'); ?></strong></p>
+                </div>
+            <?php endif; ?>
+
+            <?php if (isset($_GET['seeded']) && $_GET['seeded'] == '1'): ?>
+                <div class="notice notice-info is-dismissible" style="margin-bottom:20px;">
+                    <p><strong>✓ <?php _e('ติดตั้ง/รีเซ็ตข้อมูลโครงสร้างเริ่มต้น 4 ฝ่ายและ 23 งานเรียบร้อยแล้ว', 'project-core'); ?></strong></p>
+                </div>
+            <?php endif; ?>
+
+            <!-- Main Form -->
+            <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" id="org_manager_form">
+                <?php wp_nonce_field('project_core_save_org_all', 'org_all_nonce'); ?>
+                <input type="hidden" name="action" value="project_core_save_organization_all">
+                <input type="hidden" name="deleted_job_ids" id="deleted_job_ids" value="">
+
+                <!-- Section 1: Policy Leaders & Committee -->
+                <div class="postbox" style="margin-bottom:25px; border-radius:8px; overflow:hidden; border:1px solid #c3c4c7; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                    <div class="postbox-header" style="background:#f8fafc; padding:12px 18px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+                        <h2 style="font-size:15px; font-weight:700; color:#0f172a; margin:0;">
+                            1. <?php _e('ผู้บริหารระดับนโยบาย และ คณะกรรมการสถานศึกษา', 'project-core'); ?>
+                        </h2>
+                        <span style="font-size:12px; color:#64748b;">(3 ผู้บริหาร + คณะกรรมการ)</span>
+                    </div>
+                    <div class="inside" style="padding:0; margin:0;">
+                        <table class="wp-list-table widefat fixed striped" style="border:none;">
+                            <thead>
+                                <tr>
+                                    <th style="width:28%;"><?php _e('ตำแหน่ง', 'project-core'); ?></th>
+                                    <th style="width:40%;"><?php _e('ผู้ดำรงตำแหน่ง (เลือกบุคลากร)', 'project-core'); ?></th>
+                                    <th style="width:32%;"><?php _e('ข้อความกำกับสถานะพิเศษ (ถ้ามี)', 'project-core'); ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php 
+                                $policy_items = $data['leaders'];
+                                if ($data['committee']) {
+                                    $policy_items[] = $data['committee'];
+                                }
+                                foreach ($policy_items as $leader): 
+                                    $p_id = !empty($leader['personnel']['id']) ? intval($leader['personnel']['id']) : 0;
+                                ?>
+                                    <tr>
+                                        <td>
+                                            <input type="text" name="leaders[<?php echo esc_attr($leader['id']); ?>][position]" value="<?php echo esc_attr($leader['position']); ?>" class="regular-text" style="width:95%; font-weight:600;" required>
+                                        </td>
+                                        <td>
+                                            <select name="leaders[<?php echo esc_attr($leader['id']); ?>][personnel_id]" class="regular-text" style="width:95%;">
+                                                <option value="0"><?php _e('-- ยังไม่มีผู้ดำรงตำแหน่ง / ว่าง --', 'project-core'); ?></option>
+                                                <?php foreach ($all_personnel as $p): ?>
+                                                    <?php 
+                                                    $pos_meta = get_post_meta($p->ID, 'personnel_position', true);
+                                                    $label = $p->post_title . ($pos_meta ? ' (' . $pos_meta . ')' : '');
+                                                    ?>
+                                                    <option value="<?php echo esc_attr($p->ID); ?>" <?php selected($p_id, $p->ID); ?>>
+                                                        <?php echo esc_html($label); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="text" name="leaders[<?php echo esc_attr($leader['id']); ?>][remark]" value="<?php echo esc_attr($leader['remark']); ?>" class="regular-text" style="width:95%;" placeholder="<?php _e('เช่น รักษาการในตำแหน่ง (ถ้ามี)', 'project-core'); ?>">
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Section 2: 4 Divisions & Subordinate Jobs -->
+                <div style="margin-bottom:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <div>
+                            <h2 style="font-size:18px; font-weight:700; margin:0; color:#0f172a;">
+                                2. <?php _e('ผู้บริหาร 4 ฝ่ายหลัก และงานในสังกัด', 'project-core'); ?>
+                            </h2>
+                            <p style="margin:4px 0 0; color:#64748b; font-size:12px;">
+                                <?php _e('สามารถแก้ไขชื่อฝ่าย ชื่องาน เลือกบุคลากรผู้รับผิดชอบ และเพิ่มหรือลบงานในสังกัดได้ทันที', 'project-core'); ?>
+                            </p>
+                        </div>
+                    </div>
+
+                    <?php foreach ($data['divisions'] as $d_idx => $div): 
+                        $head_p_id = !empty($div['head']['personnel']['id']) ? intval($div['head']['personnel']['id']) : 0;
+                        $head_pos_id = !empty($div['head']['id']) ? intval($div['head']['id']) : 0;
+                        $div_color = !empty($div['color']) ? $div['color'] : '#278bb4';
+                    ?>
+                        <div class="postbox" style="margin-bottom:25px; border-radius:8px; overflow:hidden; border:1px solid #c3c4c7; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                            <!-- Division Header Bar -->
+                            <div style="background:#f8fafc; border-bottom:2px solid <?php echo esc_attr($div_color); ?>; padding:15px 18px;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                                    <div style="display:flex; align-items:center; gap:10px; flex:1; min-width:280px;">
+                                        <span style="display:inline-block; width:14px; height:14px; border-radius:4px; background:<?php echo esc_attr($div_color); ?>;"></span>
+                                        <input type="text" name="divisions[<?php echo esc_attr($div['id']); ?>][title]" value="<?php echo esc_attr($div['title']); ?>" style="font-size:16px; font-weight:700; color:#0f172a; width:320px; border:1px solid #cbd5e1; border-radius:4px; padding:4px 8px;" required>
+                                        <span style="font-size:12px; color:#64748b; background:#e2e8f0; padding:2px 8px; border-radius:12px;">
+                                            ฝ่ายที่ <?php echo ($d_idx + 1); ?>
+                                        </span>
+                                    </div>
+                                    <div style="display:flex; align-items:center; gap:8px; flex:1.2; min-width:320px; justify-content:flex-end;">
+                                        <label style="font-size:12px; font-weight:600; color:#334155; white-space:nowrap;">
+                                            👤 <?php _e('ผู้บริหารฝ่าย:', 'project-core'); ?>
+                                        </label>
+                                        <input type="hidden" name="divisions[<?php echo esc_attr($div['id']); ?>][head_pos_id]" value="<?php echo esc_attr($head_pos_id); ?>">
+                                        <select name="divisions[<?php echo esc_attr($div['id']); ?>][head_personnel_id]" style="max-width:260px; font-size:12px;">
+                                            <option value="0"><?php _e('-- ยังไม่มีผู้บริหารฝ่าย --', 'project-core'); ?></option>
+                                            <?php foreach ($all_personnel as $p): ?>
+                                                <?php 
+                                                $pos_meta = get_post_meta($p->ID, 'personnel_position', true);
+                                                $label = $p->post_title . ($pos_meta ? ' (' . $pos_meta . ')' : '');
+                                                ?>
+                                                <option value="<?php echo esc_attr($p->ID); ?>" <?php selected($head_p_id, $p->ID); ?>>
+                                                    <?php echo esc_html($label); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <input type="text" name="divisions[<?php echo esc_attr($div['id']); ?>][head_remark]" value="<?php echo esc_attr($div['head']['remark']); ?>" placeholder="<?php _e('หมายเหตุ (ถ้ามี)', 'project-core'); ?>" style="width:140px; font-size:12px;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Jobs Table -->
+                            <div class="inside" style="padding:0; margin:0;">
+                                <table class="wp-list-table widefat fixed striped" id="jobs_table_<?php echo esc_attr($div['id']); ?>" style="border:none;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width:6%; text-align:center;"><?php _e('#', 'project-core'); ?></th>
+                                            <th style="width:36%;"><?php _e('ชื่องานในสังกัด', 'project-core'); ?></th>
+                                            <th style="width:34%;"><?php _e('ผู้รับผิดชอบงาน (บุคลากร)', 'project-core'); ?></th>
+                                            <th style="width:16%;"><?php _e('หมายเหตุ', 'project-core'); ?></th>
+                                            <th style="width:8%; text-align:center;"><?php _e('จัดการ', 'project-core'); ?></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="jobs_tbody_<?php echo esc_attr($div['id']); ?>">
+                                        <?php foreach ($div['jobs'] as $j_idx => $job): 
+                                            $job_p_id = !empty($job['personnel']['id']) ? intval($job['personnel']['id']) : 0;
+                                        ?>
+                                            <tr id="job_row_<?php echo esc_attr($job['id']); ?>">
+                                                <td style="text-align:center; color:#94a3b8; font-weight:600;">
+                                                    <?php echo ($j_idx + 1); ?>
+                                                </td>
+                                                <td>
+                                                    <input type="text" name="divisions[<?php echo esc_attr($div['id']); ?>][jobs][<?php echo esc_attr($job['id']); ?>][title]" value="<?php echo esc_attr($job['title']); ?>" class="regular-text" style="width:96%; font-weight:600;" required>
+                                                </td>
+                                                <td>
+                                                    <select name="divisions[<?php echo esc_attr($div['id']); ?>][jobs][<?php echo esc_attr($job['id']); ?>][personnel_id]" class="regular-text" style="width:96%;">
+                                                        <option value="0"><?php _e('-- ยังไม่มีผู้รับผิดชอบ / ว่าง --', 'project-core'); ?></option>
+                                                        <?php foreach ($all_personnel as $p): ?>
+                                                            <?php 
+                                                            $pos_meta = get_post_meta($p->ID, 'personnel_position', true);
+                                                            $label = $p->post_title . ($pos_meta ? ' (' . $pos_meta . ')' : '');
+                                                            ?>
+                                                            <option value="<?php echo esc_attr($p->ID); ?>" <?php selected($job_p_id, $p->ID); ?>>
+                                                                <?php echo esc_html($label); ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input type="text" name="divisions[<?php echo esc_attr($div['id']); ?>][jobs][<?php echo esc_attr($job['id']); ?>][remark]" value="<?php echo esc_attr($job['remark']); ?>" class="regular-text" style="width:96%;" placeholder="<?php _e('เช่น รักษาการ', 'project-core'); ?>">
+                                                </td>
+                                                <td style="text-align:center;">
+                                                    <button type="button" class="button button-link-delete" onclick="deleteJobRow(this, '<?php echo esc_attr($job['id']); ?>')" title="<?php _e('ลบงานนี้', 'project-core'); ?>" style="color:#d63638; text-decoration:none; font-size:14px; cursor:pointer;">
+                                                        ✕ <?php _e('ลบ', 'project-core'); ?>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="5" style="padding:10px 15px; background:#fbfcfe;">
+                                                <button type="button" class="button button-secondary button-small" onclick="addNewJobRow('<?php echo esc_attr($div['id']); ?>')">
+                                                    + <?php _e('เพิ่มงานในฝ่ายนี้', 'project-core'); ?>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <!-- Sticky Bottom Bar -->
+                <div style="position:sticky; bottom:0; background:#fff; border-top:2px solid #0047BA; padding:15px 20px; margin:30px -20px 0 -20px; box-shadow:0 -4px 15px rgba(0,0,0,0.08); z-index:99; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                    <div style="font-size:13px; color:#475569; display:flex; align-items:center; gap:8px;">
+                        <span class="dashicons dashicons-yes-alt" style="color:#10b981; font-size:20px; width:20px; height:20px;"></span>
+                        <span>แก้ไขข้อมูลเสร็จแล้ว กดปุ่ม <strong>"บันทึกข้อมูลโครงสร้างทั้งหมด"</strong> เพื่ออัปเดตหน้าเว็บไซต์ทันที</span>
+                    </div>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <button type="submit" class="button button-primary button-hero" style="font-size:15px; padding:6px 28px; height:auto; line-height:28px; font-weight:700;">
+                            💾 <?php _e('บันทึกข้อมูลโครงสร้างทั้งหมด', 'project-core'); ?>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Reset / Restore Default Data Section -->
+            <div style="margin-top:40px; padding:18px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                <div>
+                    <strong style="color:#334155; font-size:13px;"><?php _e('ต้องการติดตั้งหรือกู้คืนโครงสร้างเริ่มต้น?', 'project-core'); ?></strong>
+                    <p style="margin:2px 0 0; color:#64748b; font-size:12px;"><?php _e('ระบบจะสร้างข้อมูล 3 ผู้บริหาร, คณะกรรมการ, 4 ฝ่าย และ 23 งานมาตรฐานให้โดยอัตโนมัติ', 'project-core'); ?></p>
+                </div>
+                <form method="post" action="<?php echo admin_url('admin-post.php'); ?>" onsubmit="return confirm('คำเตือน: คุณต้องการรีเซ็ตหรือติดตั้งข้อมูลโครงสร้างเริ่มต้น 4 ฝ่ายและ 23 งานหรือไม่?');">
+                    <?php wp_nonce_field('project_core_seed_org', 'seed_nonce'); ?>
+                    <input type="hidden" name="action" value="project_core_seed_organization">
+                    <button type="submit" class="button button-secondary">
+                        ⚡ <?php _e('ติดตั้ง/รีเซ็ตข้อมูลเริ่มต้น (4 ฝ่าย 23 งาน)', 'project-core'); ?>
+                    </button>
+                </form>
+            </div>
         </div>
+
+        <!-- Dynamic JS Helpers for Adding & Deleting Jobs -->
+        <script>
+        (function() {
+            var personnelOptionsHtml = '<option value="0"><?php echo esc_js(__('-- ยังไม่มีผู้รับผิดชอบ / ว่าง --', 'project-core')); ?></option>';
+            <?php foreach ($all_personnel as $p): ?>
+                <?php 
+                $pos_meta = get_post_meta($p->ID, 'personnel_position', true);
+                $label = $p->post_title . ($pos_meta ? ' (' . $pos_meta . ')' : '');
+                ?>
+                personnelOptionsHtml += '<option value="<?php echo esc_js($p->ID); ?>"><?php echo esc_js($label); ?></option>';
+            <?php endforeach; ?>
+
+            window.addNewJobRow = function(divId) {
+                var tbody = document.getElementById('jobs_tbody_' + divId);
+                if (!tbody) return;
+
+                var timestamp = Date.now();
+                var rowCount = tbody.querySelectorAll('tr').length + 1;
+                var newRow = document.createElement('tr');
+                newRow.id = 'job_row_new_' + timestamp;
+
+                newRow.innerHTML = 
+                    '<td style="text-align:center; color:#10b981; font-weight:700;">+</td>' +
+                    '<td>' +
+                        '<input type="text" name="divisions[' + divId + '][jobs][new_' + timestamp + '][title]" value="" placeholder="<?php echo esc_js(__('ระบุชื่องานใหม่...', 'project-core')); ?>" class="regular-text" style="width:96%; font-weight:600; border-color:#10b981;" required>' +
+                    '</td>' +
+                    '<td>' +
+                        '<select name="divisions[' + divId + '][jobs][new_' + timestamp + '][personnel_id]" class="regular-text" style="width:96%;">' +
+                            personnelOptionsHtml +
+                        '</select>' +
+                    '</td>' +
+                    '<td>' +
+                        '<input type="text" name="divisions[' + divId + '][jobs][new_' + timestamp + '][remark]" value="" class="regular-text" style="width:96%;" placeholder="<?php echo esc_js(__('เช่น รักษาการ', 'project-core')); ?>">' +
+                    '</td>' +
+                    '<td style="text-align:center;">' +
+                        '<button type="button" class="button button-link-delete" onclick="deleteJobRow(this, \'\')" style="color:#d63638; text-decoration:none; font-size:14px; cursor:pointer;">' +
+                            '✕ <?php echo esc_js(__('ลบ', 'project-core')); ?>' +
+                        '</button>' +
+                    '</td>';
+
+                tbody.appendChild(newRow);
+                var input = newRow.querySelector('input[type="text"]');
+                if (input) input.focus();
+            };
+
+            window.deleteJobRow = function(btn, jobId) {
+                if (!confirm('<?php echo esc_js(__('ยืนยันที่จะลบงานนี้ออกจากโครงสร้างหรือไม่?', 'project-core')); ?>')) {
+                    return;
+                }
+
+                if (jobId && !jobId.toString().startsWith('new_')) {
+                    var deletedInput = document.getElementById('deleted_job_ids');
+                    if (deletedInput) {
+                        var current = deletedInput.value ? deletedInput.value.split(',') : [];
+                        current.push(jobId);
+                        deletedInput.value = current.join(',');
+                    }
+                }
+
+                var row = btn.closest('tr');
+                if (row) {
+                    row.remove();
+                }
+            };
+        })();
+        </script>
         <?php
+    }
+
+    /**
+     * Handle Save All Organization Structure
+     */
+    public function handle_save_organization_all() {
+        if (!current_user_can('manage_options') || !check_admin_referer('project_core_save_org_all', 'org_all_nonce')) {
+            wp_die('Unauthorized');
+        }
+
+        // 1. Save Leaders & Committee
+        if (!empty($_POST['leaders']) && is_array($_POST['leaders'])) {
+            foreach ($_POST['leaders'] as $leader_id => $ldata) {
+                $leader_id = intval($leader_id);
+                if (!$leader_id) continue;
+
+                if (!empty($ldata['position'])) {
+                    wp_update_post(array(
+                        'ID'         => $leader_id,
+                        'post_title' => sanitize_text_field($ldata['position']),
+                    ));
+                }
+
+                $person_id = isset($ldata['personnel_id']) ? intval($ldata['personnel_id']) : 0;
+                $remark    = isset($ldata['remark']) ? sanitize_text_field($ldata['remark']) : '';
+
+                update_post_meta($leader_id, '_org_personnel_id', $person_id);
+                update_post_meta($leader_id, '_org_position_remark', $remark);
+                update_post_meta($leader_id, '_org_position_status', ($person_id > 0) ? 'active' : 'vacant');
+            }
+        }
+
+        // 2. Save Divisions & Jobs
+        if (!empty($_POST['divisions']) && is_array($_POST['divisions'])) {
+            foreach ($_POST['divisions'] as $div_id => $ddata) {
+                $div_id = intval($div_id);
+                if (!$div_id) continue;
+
+                // Update Division Unit Title
+                if (!empty($ddata['title'])) {
+                    wp_update_post(array(
+                        'ID'         => $div_id,
+                        'post_title' => sanitize_text_field($ddata['title']),
+                    ));
+                }
+
+                // Update Division Head Position
+                if (!empty($ddata['head_pos_id'])) {
+                    $head_pos_id = intval($ddata['head_pos_id']);
+                    $head_person = isset($ddata['head_personnel_id']) ? intval($ddata['head_personnel_id']) : 0;
+                    $head_remark = isset($ddata['head_remark']) ? sanitize_text_field($ddata['head_remark']) : '';
+
+                    update_post_meta($head_pos_id, '_org_personnel_id', $head_person);
+                    update_post_meta($head_pos_id, '_org_position_remark', $head_remark);
+                    update_post_meta($head_pos_id, '_org_position_status', ($head_person > 0) ? 'active' : 'vacant');
+                }
+
+                // Update Jobs
+                if (!empty($ddata['jobs']) && is_array($ddata['jobs'])) {
+                    $order = 1;
+                    foreach ($ddata['jobs'] as $key => $jdata) {
+                        $title = isset($jdata['title']) ? sanitize_text_field($jdata['title']) : '';
+                        if (empty($title)) continue;
+
+                        $person_id = isset($jdata['personnel_id']) ? intval($jdata['personnel_id']) : 0;
+                        $remark    = isset($jdata['remark']) ? sanitize_text_field($jdata['remark']) : '';
+
+                        if (is_numeric($key) && intval($key) > 0) {
+                            // Existing Job Unit
+                            $job_unit_id = intval($key);
+                            wp_update_post(array(
+                                'ID'         => $job_unit_id,
+                                'post_title' => $title,
+                                'menu_order' => $order,
+                            ));
+                            update_post_meta($job_unit_id, '_org_unit_order', $order);
+
+                            // Find or create associated Org Position
+                            $existing_pos = get_posts(array(
+                                'post_type'      => 'org_position',
+                                'posts_per_page' => 1,
+                                'post_status'    => 'any',
+                                'meta_query'     => array(
+                                    array(
+                                        'key'   => '_org_unit_id',
+                                        'value' => $job_unit_id,
+                                    ),
+                                ),
+                            ));
+
+                            if (!empty($existing_pos)) {
+                                $jpos_id = $existing_pos[0]->ID;
+                                wp_update_post(array(
+                                    'ID'         => $jpos_id,
+                                    'post_title' => 'หัวหน้า' . $title,
+                                    'menu_order' => $order,
+                                ));
+                            } else {
+                                $jpos_id = wp_insert_post(array(
+                                    'post_title'  => 'หัวหน้า' . $title,
+                                    'post_type'   => 'org_position',
+                                    'post_status' => 'publish',
+                                    'menu_order'  => $order,
+                                ));
+                                update_post_meta($jpos_id, '_org_unit_id', $job_unit_id);
+                                update_post_meta($jpos_id, '_org_position_type', 'job_head');
+                            }
+
+                            update_post_meta($jpos_id, '_org_personnel_id', $person_id);
+                            update_post_meta($jpos_id, '_org_position_remark', $remark);
+                            update_post_meta($jpos_id, '_org_position_order', $order);
+                            update_post_meta($jpos_id, '_org_position_status', ($person_id > 0) ? 'active' : 'vacant');
+
+                        } else {
+                            // New Job Unit
+                            $new_unit_id = wp_insert_post(array(
+                                'post_title'  => $title,
+                                'post_type'   => 'org_unit',
+                                'post_status' => 'publish',
+                                'menu_order'  => $order,
+                            ));
+
+                            if ($new_unit_id && !is_wp_error($new_unit_id)) {
+                                update_post_meta($new_unit_id, '_org_unit_type', 'job');
+                                update_post_meta($new_unit_id, '_org_unit_parent', $div_id);
+                                update_post_meta($new_unit_id, '_org_unit_order', $order);
+
+                                // Create associated Org Position
+                                $new_pos_id = wp_insert_post(array(
+                                    'post_title'  => 'หัวหน้า' . $title,
+                                    'post_type'   => 'org_position',
+                                    'post_status' => 'publish',
+                                    'menu_order'  => $order,
+                                ));
+
+                                if ($new_pos_id && !is_wp_error($new_pos_id)) {
+                                    update_post_meta($new_pos_id, '_org_position_type', 'job_head');
+                                    update_post_meta($new_pos_id, '_org_unit_id', $new_unit_id);
+                                    update_post_meta($new_pos_id, '_org_personnel_id', $person_id);
+                                    update_post_meta($new_pos_id, '_org_position_remark', $remark);
+                                    update_post_meta($new_pos_id, '_org_position_order', $order);
+                                    update_post_meta($new_pos_id, '_org_position_status', ($person_id > 0) ? 'active' : 'vacant');
+                                }
+                            }
+                        }
+                        $order++;
+                    }
+                }
+            }
+        }
+
+        // 3. Process Deleted Jobs
+        if (!empty($_POST['deleted_job_ids'])) {
+            $del_list = array_filter(array_map('intval', explode(',', $_POST['deleted_job_ids'])));
+            foreach ($del_list as $del_id) {
+                if (!$del_id) continue;
+                $positions = get_posts(array(
+                    'post_type'      => 'org_position',
+                    'posts_per_page' => -1,
+                    'post_status'    => 'any',
+                    'meta_query'     => array(
+                        array(
+                            'key'   => '_org_unit_id',
+                            'value' => $del_id,
+                        ),
+                    ),
+                ));
+                foreach ($positions as $p) {
+                    wp_delete_post($p->ID, true);
+                }
+                wp_delete_post($del_id, true);
+            }
+        }
+
+        wp_safe_redirect(admin_url('admin.php?page=project-core-organization&saved=1'));
+        exit;
     }
 
     /**
