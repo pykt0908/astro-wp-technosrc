@@ -75,11 +75,11 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
     </div>
 
     <!-- Section 1: Full Chart View (Responsive Org Chart Diagram) -->
-    <section class="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-6 lg:p-8 relative mb-14 shadow-xs" aria-label="ผังสายการบริหาร">
+    <section class="bg-white dark:bg-slate-900 rounded-3xl p-4 sm:p-6 lg:p-8 relative mb-14 shadow-xs overflow-x-clip" aria-label="ผังสายการบริหาร">
       <div class="w-full">
 
         <!-- Leaders Vertical Tree Stack -->
-        <div class="flex flex-col items-center">
+        <div class="flex flex-col items-center w-full">
           {leaders.map((leader, idx) => {
             const isDirector = idx === 2; // ผู้อำนวยการ
             return (
@@ -88,12 +88,12 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
                   <div class="w-0.5 h-6 bg-slate-300 dark:bg-slate-600" aria-hidden="true"></div>
                 )}
 
-                <div class="relative w-full max-w-sm sm:max-w-md">
-                  <!-- Leader Card (No border, no shadow, enlarged 96px photo) -->
+                <div class="org-leader-box">
+                  <!-- Leader Card (No border, no shadow, enlarged photo) -->
                   <article
                     class="bg-slate-50/90 dark:bg-slate-800/80 hover:bg-slate-100/90 dark:hover:bg-slate-800 rounded-2xl p-4 transition-all flex items-center gap-4 w-full"
                   >
-                    <!-- Photo Container (Square 1:1, 96px, no border) -->
+                    <!-- Photo Container (Square 1:1, 80-96px, no border) -->
                     <div class="relative w-20 h-20 sm:w-24 sm:h-24 aspect-square rounded-2xl overflow-hidden bg-slate-200/80 dark:bg-slate-700/80 flex-shrink-0">
                       {leader.personnel?.photo ? (
                         <img
@@ -130,19 +130,10 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
 
                   <!-- School Board / Committee (Desktop: Beside Director with dashed line) -->
                   {isDirector && committee && (
-                    <div
-                      class="committee-card hidden lg:flex absolute items-center z-10 whitespace-normal"
-                      style="left: calc(100% + 1.5rem); top: 50%; transform: translateY(-50%); width: 240px;"
-                    >
-                      <!-- Dashed Connector Line -->
-                      <div class="border-t-2 border-dashed border-slate-400 dark:border-slate-500 shrink-0" style="width: 1.5rem; margin-left: -1.5rem; margin-right: 0.5rem;" aria-hidden="true"></div>
-
-                      <div
-                        class="bg-slate-50/90 dark:bg-slate-800/80 rounded-2xl p-4 border border-dashed border-slate-300 dark:border-slate-700 w-full text-center"
-                      >
-                        <div class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
-                          {committee.position || settings.committee_title}
-                        </div>
+                    <div class="org-committee-desktop">
+                      <div class="org-committee-connector" aria-hidden="true"></div>
+                      <div class="org-committee-inner">
+                        {committee.position || settings.committee_title}
                       </div>
                     </div>
                   )}
@@ -150,12 +141,10 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
 
                 <!-- School Board / Committee (Mobile: Under Director with vertical dashed line) -->
                 {isDirector && committee && (
-                  <div class="lg:hidden w-full flex flex-col items-center mt-1">
-                    <div class="w-0.5 h-4 border-l-2 border-dashed border-slate-400 dark:border-slate-500" aria-hidden="true"></div>
-                    <div class="bg-slate-50/90 dark:bg-slate-800/80 rounded-xl px-4 py-2.5 border border-dashed border-slate-300 dark:border-slate-700 text-center w-full max-w-[260px]">
-                      <div class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
-                        {committee.position || settings.committee_title}
-                      </div>
+                  <div class="org-committee-mobile">
+                    <div class="org-committee-mobile-stem" aria-hidden="true"></div>
+                    <div class="org-committee-inner">
+                      {committee.position || settings.committee_title}
                     </div>
                   </div>
                 )}
@@ -170,13 +159,13 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
         <!-- 4 Division Branches (Grid on Desktop, Responsive Stack on Mobile/Tablet) -->
         <div class="relative pt-2 lg:pt-6">
           <!-- Horizontal tree branch line across top (connecting 4 branches on desktop only) -->
-          <div class="hidden lg:block absolute top-0 left-[12.5%] right-[12.5%] h-0.5 bg-slate-300 dark:bg-slate-600" aria-hidden="true"></div>
+          <div class="org-tree-branch bg-slate-300 dark:bg-slate-600" aria-hidden="true"></div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-6 relative">
+          <div class="org-divisions-grid">
             {divisions.map((div) => (
               <div class="relative flex flex-col items-center w-full">
                 <!-- Vertical tree stem connecting from top horizontal line (desktop only) -->
-                <div class="hidden lg:block absolute -top-6 left-1/2 -translate-x-1/2 w-0.5 h-6 bg-slate-300 dark:bg-slate-600" aria-hidden="true"></div>
+                <div class="org-tree-stem bg-slate-300 dark:bg-slate-600" aria-hidden="true"></div>
 
                 <!-- Division Head Card -->
                 <article
@@ -281,3 +270,130 @@ const formattedUpdated = formatThaiDate(settings.updated_at);
     </div>
   </div>
 </BaseLayout>
+
+<style>
+  .org-leader-box {
+    position: relative;
+    width: 100%;
+    max-width: 380px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Committee Card - Desktop */
+  .org-committee-desktop {
+    display: none;
+  }
+  .org-committee-mobile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-top: 0.25rem;
+  }
+
+  @media (min-width: 1024px) {
+    .org-committee-desktop {
+      display: flex;
+      align-items: center;
+      position: absolute;
+      left: calc(100% + 1.5rem);
+      top: 50%;
+      transform: translateY(-50%);
+      width: 240px;
+      z-index: 10;
+    }
+    .org-committee-mobile {
+      display: none !important;
+    }
+  }
+
+  .org-committee-connector {
+    border-top: 2px dashed #94a3b8;
+    width: 1.5rem;
+    margin-left: -1.5rem;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+  }
+  :global(.dark) .org-committee-connector {
+    border-top-color: #64748b;
+  }
+
+  .org-committee-mobile-stem {
+    width: 2px;
+    height: 1rem;
+    border-left: 2px dashed #94a3b8;
+  }
+  :global(.dark) .org-committee-mobile-stem {
+    border-left-color: #64748b;
+  }
+
+  .org-committee-inner {
+    background-color: rgba(248, 250, 252, 0.9);
+    border: 1px dashed #cbd5e1;
+    border-radius: 1rem;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    max-width: 260px;
+    text-align: center;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  :global(.dark) .org-committee-inner {
+    background-color: rgba(30, 41, 59, 0.8);
+    border-color: #334155;
+    color: #ffffff;
+  }
+
+  /* Tree Branch & Stem */
+  .org-tree-branch {
+    display: none;
+  }
+  .org-tree-stem {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .org-tree-branch {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 12.5%;
+      right: 12.5%;
+      height: 2px;
+    }
+    .org-tree-stem {
+      display: block;
+      position: absolute;
+      top: -1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 1.5rem;
+    }
+  }
+
+  /* Divisions Grid */
+  .org-divisions-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    position: relative;
+    width: 100%;
+  }
+
+  @media (min-width: 640px) {
+    .org-divisions-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .org-divisions-grid {
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+    }
+  }
+</style>
