@@ -1403,6 +1403,36 @@ class Project_Core_Post_Types {
                     padding: 12px 24px; background: #007017; color: #ffffff; font-weight: 600;
                     border-radius: 6px; box-shadow: 0 6px 22px rgba(0,0,0,0.25); font-size: 14px;
                 }
+                a#btn-personnel-dept-reorder.page-title-action {
+                    background: #0047BA !important;
+                    color: #ffffff !important;
+                    border-color: #0047BA !important;
+                    font-weight: 600 !important;
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    gap: 6px !important;
+                    vertical-align: top !important;
+                    height: 30px !important;
+                    line-height: 28px !important;
+                    padding: 0 12px !important;
+                    margin-left: 8px !important;
+                    box-sizing: border-box !important;
+                    border-radius: 4px !important;
+                    font-size: 13px !important;
+                    text-decoration: none !important;
+                    box-shadow: 0 1px 2px rgba(0, 71, 186, 0.2);
+                }
+                a#btn-personnel-dept-reorder.page-title-action:hover {
+                    background: #00368d !important;
+                    border-color: #00368d !important;
+                    color: #ffffff !important;
+                }
+                a#btn-personnel-dept-reorder.page-title-action svg {
+                    display: inline-block;
+                    vertical-align: middle;
+                    flex-shrink: 0;
+                }
             </style>
             <div id="personnel-reorder-notice">✓ บันทึกลำดับบุคลากรเรียบร้อยแล้ว</div>
             <script>
@@ -1410,7 +1440,7 @@ class Project_Core_Post_Types {
                 // Add quick link to "จัดลำดับตามฝ่าย" next to "เพิ่มบุคลากรใหม่"
                 var $addNew = $('a.page-title-action');
                 if ($addNew.length && !$('#btn-personnel-dept-reorder').length) {
-                    $addNew.after('<a id="btn-personnel-dept-reorder" href="<?php echo esc_url(admin_url('edit.php?post_type=personnel&page=personnel-reorder')); ?>" class="page-title-action" style="background:#0047BA;color:#fff;border-color:#0047BA;font-weight:600;display:inline-flex;align-items:center;gap:4px;"><span class="dashicons dashicons-sort" style="font-size:16px;line-height:1.6;width:16px;height:16px;"></span> จัดลำดับตามฝ่าย</a>');
+                    $addNew.after('<a id="btn-personnel-dept-reorder" href="<?php echo esc_url(admin_url('edit.php?post_type=personnel&page=personnel-reorder')); ?>" class="page-title-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 15l5 5 5-5"/><path d="M7 9l5-5 5 5"/></svg><span>จัดลำดับตามฝ่าย</span></a>');
                 }
 
                 var $tbody = $('#the-list');
@@ -2126,6 +2156,35 @@ class Project_Core_Post_Types {
                     color: #ffffff;
                     border-color: #0f172a;
                 }
+                .btn-manual-save {
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    gap: 6px !important;
+                    height: 32px !important;
+                    line-height: 30px !important;
+                    padding: 0 14px !important;
+                    font-size: 13px !important;
+                    font-weight: 600 !important;
+                    color: #0047BA !important;
+                    border: 1px solid #0047BA !important;
+                    background: #ffffff !important;
+                    border-radius: 6px !important;
+                    white-space: nowrap !important;
+                    box-sizing: border-box !important;
+                    cursor: pointer;
+                    transition: all 0.15s ease;
+                }
+                .btn-manual-save:hover {
+                    background: #0047BA !important;
+                    color: #ffffff !important;
+                    border-color: #0047BA !important;
+                }
+                .btn-manual-save svg {
+                    display: inline-block;
+                    vertical-align: middle;
+                    flex-shrink: 0;
+                }
                 /* Floating Toast */
                 #personnel-dept-toast {
                     position: fixed;
@@ -2217,8 +2276,10 @@ class Project_Core_Post_Types {
                                 <div class="dept-card-actions">
                                     <?php if (!empty($staff_list)): ?>
                                         <button type="button" class="button btn-manual-save" data-term-id="<?php echo (int)$cat->term_id; ?>">
-                                            <span class="dashicons dashicons-saved" style="vertical-align:middle;"></span>
-                                            <?php _e('บันทึกฝ่ายนี้', 'project-core'); ?>
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+                                                <path d="M20 6L9 17l-5-5"/>
+                                            </svg>
+                                            <span><?php _e('บันทึกฝ่ายนี้', 'project-core'); ?></span>
                                         </button>
                                     <?php endif; ?>
                                 </div>
