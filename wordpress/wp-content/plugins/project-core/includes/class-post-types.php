@@ -1853,531 +1853,172 @@ class Project_Core_Post_Types {
         ));
         $total_personnel_count += count($unassigned_posts);
         ?>
-        <div class="wrap personnel-dept-reorder-wrap">
-            <style>
-                .personnel-dept-reorder-wrap {
-                    max-width: 1280px;
-                    margin: 20px auto 40px auto;
-                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-                }
-                .reorder-header-box {
-                    background: linear-gradient(135deg, #002D72 0%, #0047BA 100%);
-                    color: #ffffff;
-                    padding: 24px 28px;
-                    border-radius: 14px;
-                    box-shadow: 0 8px 24px rgba(0, 45, 114, 0.16);
-                    margin-bottom: 24px;
-                    display: flex;
-                    flex-wrap: wrap;
-                    align-items: center;
-                    justify-content: space-between;
-                    gap: 16px;
-                }
-                .reorder-header-box h1 {
-                    color: #ffffff !important;
-                    font-size: 24px;
-                    font-weight: 700;
-                    margin: 0 0 6px 0;
-                    padding: 0;
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                }
-                .reorder-header-box p {
-                    color: rgba(255, 255, 255, 0.85);
-                    font-size: 14px;
-                    margin: 0;
-                    line-height: 1.5;
-                }
-                .reorder-header-actions {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 8px;
-                }
-                .reorder-header-actions .button {
-                    border-radius: 8px;
-                    font-weight: 600;
-                    height: 38px;
-                    line-height: 36px;
-                    padding: 0 16px;
-                }
-                .btn-white {
-                    background: #ffffff !important;
-                    color: #002D72 !important;
-                    border: none !important;
-                }
-                .btn-white:hover {
-                    background: #f1f5f9 !important;
-                    color: #0047BA !important;
-                }
-                .btn-trans {
-                    background: rgba(255, 255, 255, 0.15) !important;
-                    color: #ffffff !important;
-                    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-                }
-                .btn-trans:hover {
-                    background: rgba(255, 255, 255, 0.25) !important;
-                }
-                /* Pills Filter Bar */
-                .dept-pills-bar {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 8px;
-                    margin-bottom: 24px;
-                    background: #ffffff;
-                    padding: 12px 16px;
-                    border-radius: 12px;
-                    border: 1px solid #e2e8f0;
-                    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
-                }
-                .dept-pill {
-                    border: 1px solid #e2e8f0;
-                    background: #f8fafc;
-                    color: #334155;
-                    padding: 7px 16px;
-                    border-radius: 20px;
-                    font-size: 13px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 8px;
-                    transition: all 0.15s ease;
-                }
-                .dept-pill:hover {
-                    background: #e2e8f0;
-                    color: #0f172a;
-                }
-                .dept-pill.active {
-                    background: #0047BA;
-                    color: #ffffff;
-                    border-color: #0047BA;
-                    box-shadow: 0 4px 12px rgba(0, 71, 186, 0.25);
-                }
-                .dept-pill .pill-badge {
-                    background: rgba(0, 0, 0, 0.08);
-                    padding: 2px 8px;
-                    border-radius: 10px;
-                    font-size: 11px;
-                    font-weight: 700;
-                }
-                .dept-pill.active .pill-badge {
-                    background: rgba(255, 255, 255, 0.25);
-                    color: #ffffff;
-                }
-                /* Department Section Cards */
-                .dept-cards-container {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 24px;
-                }
-                .dept-section-card {
-                    background: #ffffff;
-                    border-radius: 14px;
-                    border: 1px solid #e2e8f0;
-                    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
-                    overflow: hidden;
-                    transition: all 0.2s ease;
-                }
-                .dept-card-header {
-                    background: #f8fafc;
-                    border-bottom: 1px solid #e2e8f0;
-                    padding: 14px 20px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    flex-wrap: wrap;
-                    gap: 12px;
-                }
-                .dept-card-title {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                }
-                .dept-order-tag {
-                    background: #e0f2fe;
-                    color: #0369a1;
-                    font-size: 11px;
-                    font-weight: 700;
-                    padding: 3px 8px;
-                    border-radius: 6px;
-                }
-                .dept-card-title h3 {
-                    margin: 0;
-                    font-size: 16px;
-                    font-weight: 700;
-                    color: #0f172a;
-                }
-                .dept-staff-count {
-                    font-size: 12px;
-                    color: #64748b;
-                    background: #f1f5f9;
-                    padding: 2px 8px;
-                    border-radius: 10px;
-                    font-weight: 600;
-                }
-                .dept-card-actions {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                }
-                .dept-card-body {
-                    padding: 16px 20px;
-                }
-                .dept-empty-state {
-                    text-align: center;
-                    padding: 30px 20px;
-                    color: #94a3b8;
-                }
-                .dept-empty-state p {
-                    margin: 0 0 10px 0;
-                    font-size: 14px;
-                }
-                /* Sortable List */
-                .personnel-dept-list {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 8px;
-                }
-                .personnel-dept-row {
-                    display: flex;
-                    align-items: center;
-                    background: #ffffff;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 10px;
-                    padding: 10px 14px;
-                    gap: 12px;
-                    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
-                }
-                .personnel-dept-row:hover {
-                    background: #f8fafc;
-                    border-color: #cbd5e1;
-                }
-                .personnel-dept-row.row-just-moved {
-                    background: #ecfdf5 !important;
-                    border-color: #10b981 !important;
-                }
-                .personnel-dept-row.ui-sortable-helper {
-                    background: #ffffff !important;
-                    box-shadow: 0 12px 32px rgba(0, 45, 114, 0.2) !important;
-                    border: 2px solid #0047BA !important;
-                    cursor: grabbing !important;
-                }
-                .personnel-dept-row.ui-sortable-placeholder {
-                    background: #eff6ff !important;
-                    border: 2px dashed #0047BA !important;
-                    visibility: visible !important;
-                    height: 60px !important;
-                    border-radius: 10px;
-                }
-                .col-drag {
-                    cursor: grab;
-                    color: #94a3b8;
-                    display: flex;
-                    align-items: center;
-                    padding: 4px;
-                }
-                .col-drag:hover {
-                    color: #0047BA;
-                }
-                .col-order {
-                    min-width: 38px;
-                    text-align: center;
-                }
-                .order-badge {
-                    display: inline-block;
-                    background: #002D72;
-                    color: #ffffff;
-                    font-size: 12px;
-                    font-weight: 700;
-                    padding: 3px 8px;
-                    border-radius: 6px;
-                    min-width: 22px;
-                }
-                .col-avatar {
-                    width: 44px;
-                    height: 56px;
-                    border-radius: 8px;
-                    overflow: hidden;
-                    background: #f1f5f9;
-                    flex-shrink: 0;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    border: 1px solid #e2e8f0;
-                }
-                .col-avatar img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                    display: block;
-                }
-                .avatar-placeholder {
-                    color: #94a3b8;
-                    font-size: 24px;
-                }
-                .col-info {
-                    flex: 1;
-                    min-width: 0;
-                }
-                .person-name {
-                    font-size: 14px;
-                    color: #0f172a;
-                    margin-bottom: 4px;
-                }
-                .person-name strong {
-                    font-weight: 700;
-                }
-                .person-nickname {
-                    color: #64748b;
-                    font-size: 12px;
-                    font-weight: normal;
-                    margin-left: 4px;
-                }
-                .person-position {
-                    display: flex;
-                    gap: 6px;
-                }
-                .pos-badge {
-                    background: #002D72;
-                    color: #ffffff;
-                    font-size: 11px;
-                    font-weight: 600;
-                    padding: 2px 8px;
-                    border-radius: 6px;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    max-width: 280px;
-                }
-                .col-actions {
-                    display: flex;
-                    align-items: center;
-                    gap: 4px;
-                    flex-shrink: 0;
-                }
-                .btn-ctrl {
-                    background: #f1f5f9;
-                    border: 1px solid #e2e8f0;
-                    color: #334155;
-                    border-radius: 6px;
-                    padding: 5px 9px;
-                    font-size: 11px;
-                    font-weight: 600;
-                    cursor: pointer;
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 2px;
-                    transition: all 0.1s ease;
-                }
-                .btn-ctrl:hover {
-                    background: #0047BA;
-                    color: #ffffff;
-                    border-color: #0047BA;
-                }
-                .btn-ctrl .dashicons {
-                    font-size: 14px;
-                    width: 14px;
-                    height: 14px;
-                    line-height: 14px;
-                }
-                .btn-ctrl.btn-edit {
-                    text-decoration: none;
-                    background: #ffffff;
-                }
-                .btn-ctrl.btn-edit:hover {
-                    background: #0f172a;
-                    color: #ffffff;
-                    border-color: #0f172a;
-                }
-                .btn-manual-save {
-                    display: inline-flex !important;
-                    align-items: center !important;
-                    justify-content: center !important;
-                    gap: 6px !important;
-                    height: 32px !important;
-                    line-height: 30px !important;
-                    padding: 0 14px !important;
-                    font-size: 13px !important;
-                    font-weight: 600 !important;
-                    color: #0047BA !important;
-                    border: 1px solid #0047BA !important;
-                    background: #ffffff !important;
-                    border-radius: 6px !important;
-                    white-space: nowrap !important;
-                    box-sizing: border-box !important;
-                    cursor: pointer;
-                    transition: all 0.15s ease;
-                }
-                .btn-manual-save:hover {
-                    background: #0047BA !important;
-                    color: #ffffff !important;
-                    border-color: #0047BA !important;
-                }
-                .btn-manual-save svg {
-                    display: inline-block;
-                    vertical-align: middle;
-                    flex-shrink: 0;
-                }
-                /* Floating Toast */
-                #personnel-dept-toast {
-                    position: fixed;
-                    top: 45px;
-                    right: 30px;
-                    z-index: 999999;
-                    background: #007017;
-                    color: #ffffff;
-                    padding: 12px 24px;
-                    font-weight: 600;
-                    font-size: 14px;
-                    border-radius: 8px;
-                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-                    display: none;
-                }
-            </style>
+        <div class="wrap">
+            <h1 class="wp-heading-inline"><?php _e('จัดลำดับบุคลากรตามฝ่าย / แผนก', 'project-core'); ?></h1>
+            <a href="<?php echo admin_url('edit.php?post_type=personnel'); ?>" class="page-title-action"><?php _e('บุคลากรทั้งหมด', 'project-core'); ?></a>
+            <a href="<?php echo admin_url('post-new.php?post_type=personnel'); ?>" class="page-title-action"><?php _e('เพิ่มบุคลากรใหม่', 'project-core'); ?></a>
+            <a href="<?php echo admin_url('edit-tags.php?taxonomy=personnel_category&post_type=personnel'); ?>" class="page-title-action"><?php _e('จัดลำดับกลุ่ม/ฝ่าย', 'project-core'); ?></a>
+            <button type="button" id="btn-auto-index-all" class="page-title-action" style="cursor: pointer;"><?php _e('⚡ จัดระเบียบทุกฝ่ายอัตโนมัติ', 'project-core'); ?></button>
+            <hr class="wp-header-end">
 
-            <div id="personnel-dept-toast">✓ บันทึกการจัดลำดับเรียบร้อยแล้ว</div>
-
-            <!-- Header Banner -->
-            <div class="reorder-header-box">
-                <div>
-                    <h1>
-                        <span class="dashicons dashicons-sort"></span>
-                        <?php _e('จัดลำดับบุคลากรตามฝ่าย / แผนก', 'project-core'); ?>
-                    </h1>
-                    <p>
-                        <?php _e('จัดเรียงลำดับบุคลากรภายในแต่ละฝ่าย โดยสามารถลากวาง (Drag & Drop) หรือกดปุ่ม ⬆️ / ⬇️ เพื่อเลื่อนตำแหน่ง ระบบจะบันทึกอัตโนมัติและแสดงผลตามลำดับนี้บนหน้าเว็บไซต์ทันที', 'project-core'); ?>
-                    </p>
-                </div>
-                <div class="reorder-header-actions">
-                    <a href="<?php echo admin_url('edit.php?post_type=personnel'); ?>" class="button btn-white">
-                        <span class="dashicons dashicons-list-view" style="vertical-align:middle; font-size:16px;"></span>
-                        <?php _e('บุคลากรทั้งหมด', 'project-core'); ?>
-                    </a>
-                    <a href="<?php echo admin_url('post-new.php?post_type=personnel'); ?>" class="button btn-white">
-                        <span class="dashicons dashicons-plus-alt2" style="vertical-align:middle; font-size:16px;"></span>
-                        <?php _e('เพิ่มบุคลากรใหม่', 'project-core'); ?>
-                    </a>
-                    <a href="<?php echo admin_url('edit-tags.php?taxonomy=personnel_category&post_type=personnel'); ?>" class="button btn-trans">
-                        <span class="dashicons dashicons-category" style="vertical-align:middle; font-size:16px;"></span>
-                        <?php _e('จัดลำดับกลุ่ม/ฝ่าย', 'project-core'); ?>
-                    </a>
-                    <button type="button" id="btn-auto-index-all" class="button btn-trans" title="จัดเรียงลำดับให้เรียบร้อยทุกฝ่าย">
-                        <span class="dashicons dashicons-update" style="vertical-align:middle; font-size:16px;"></span>
-                        <?php _e('⚡ จัดระเบียบทุกฝ่ายอัตโนมัติ', 'project-core'); ?>
-                    </button>
-                </div>
+            <!-- Toast Save Notice -->
+            <div id="personnel-dept-toast" class="notice notice-success is-dismissible" style="display:none; margin: 15px 0;">
+                <p id="personnel-toast-text">✓ บันทึกการจัดลำดับเรียบร้อยแล้ว</p>
             </div>
 
-            <!-- Department Filter Pills -->
-            <div class="dept-pills-bar" role="tablist">
-                <button type="button" class="dept-pill active" data-target="all">
-                    🏢 <?php _e('แสดงทุกฝ่าย', 'project-core'); ?>
-                    <span class="pill-badge"><?php echo (int)$total_personnel_count; ?></span>
-                </button>
+            <!-- Help Notice -->
+            <div class="notice notice-info inline" style="margin: 15px 0 20px 0;">
+                <p>
+                    <strong>💡 <?php _e('วิธีจัดลำดับ:', 'project-core'); ?></strong>
+                    <?php _e('สามารถคลิกค้างแล้วลากแถวเพื่อสลับตำแหน่ง (Drag & Drop) หรือกดปุ่ม <strong>⬆️ ขึ้น / ⬇️ ลง / 🔝 บนสุด / 🔻 ล่างสุด</strong> ระบบจะบันทึกลำดับให้อัตโนมัติทันที และนำไปแสดงผลเรียงตามนี้บนหน้าเว็บไซต์', 'project-core'); ?>
+                </p>
+            </div>
+
+            <!-- Native WordPress Nav Tabs -->
+            <nav class="nav-tab-wrapper wp-clearfix" style="margin-bottom: 20px;">
+                <a href="#all" class="nav-tab nav-tab-active dept-tab" data-target="all">
+                    <?php _e('แสดงทุกฝ่าย', 'project-core'); ?>
+                    <span class="count" style="color:#646970;">(<?php echo (int)$total_personnel_count; ?>)</span>
+                </a>
                 <?php if (!empty($categories) && !is_wp_error($categories)): ?>
                     <?php foreach ($categories as $cat):
                         $c_count = isset($cat_staff_map[$cat->term_id]) ? count($cat_staff_map[$cat->term_id]) : 0;
                     ?>
-                        <button type="button" class="dept-pill" data-target="dept-<?php echo (int)$cat->term_id; ?>">
-                            📁 <?php echo esc_html($cat->name); ?>
-                            <span class="pill-badge"><?php echo (int)$c_count; ?></span>
-                        </button>
+                        <a href="#dept-<?php echo (int)$cat->term_id; ?>" class="nav-tab dept-tab" data-target="dept-<?php echo (int)$cat->term_id; ?>">
+                            <?php echo esc_html($cat->name); ?>
+                            <span class="count" style="color:#646970;">(<?php echo (int)$c_count; ?>)</span>
+                        </a>
                     <?php endforeach; ?>
                 <?php endif; ?>
                 <?php if (!empty($unassigned_posts)): ?>
-                    <button type="button" class="dept-pill" data-target="dept-unassigned">
-                        ⚠️ <?php _e('ยังไม่ระบุฝ่าย', 'project-core'); ?>
-                        <span class="pill-badge"><?php echo count($unassigned_posts); ?></span>
-                    </button>
+                    <a href="#dept-unassigned" class="nav-tab dept-tab" data-target="dept-unassigned" style="color:#b32d2e;">
+                        <?php _e('⚠️ ยังไม่ระบุฝ่าย', 'project-core'); ?>
+                        <span class="count">(<?php echo count($unassigned_posts); ?>)</span>
+                    </a>
                 <?php endif; ?>
-            </div>
+            </nav>
 
-            <!-- Cards Container -->
+            <style>
+                .personnel-dept-table tbody tr {
+                    cursor: grab;
+                    transition: background-color 0.15s ease;
+                }
+                .personnel-dept-table tbody tr:hover {
+                    background-color: #f0f6fc !important;
+                }
+                .personnel-dept-table tbody tr.ui-sortable-helper {
+                    background-color: #ffffff !important;
+                    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.18) !important;
+                    display: table !important;
+                    cursor: grabbing !important;
+                    border: 1px solid #2271b1 !important;
+                }
+                .personnel-dept-table tbody tr.ui-sortable-placeholder {
+                    background-color: #f0f6fc !important;
+                    visibility: visible !important;
+                    outline: 2px dashed #2271b1 !important;
+                    height: 54px !important;
+                }
+                tr.row-just-moved {
+                    background-color: #edfaef !important;
+                    transition: background-color 0.8s ease;
+                }
+                .dept-btn-group {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 3px;
+                }
+            </style>
+
+            <!-- Cards Container: Postboxes with Native WP Tables -->
             <div class="dept-cards-container">
                 <?php if (!empty($categories) && !is_wp_error($categories)): ?>
                     <?php foreach ($categories as $cat):
                         $staff_list = isset($cat_staff_map[$cat->term_id]) ? $cat_staff_map[$cat->term_id] : array();
                         $cat_order = (int) get_term_meta($cat->term_id, 'category_order', true) ?: 99;
                     ?>
-                        <div class="dept-section-card" id="dept-<?php echo (int)$cat->term_id; ?>" data-term-id="<?php echo (int)$cat->term_id; ?>">
-                            <div class="dept-card-header">
-                                <div class="dept-card-title">
-                                    <span class="dept-order-tag">#<?php echo (int)$cat_order; ?></span>
-                                    <h3><?php echo esc_html($cat->name); ?></h3>
-                                    <span class="dept-staff-count"><?php echo count($staff_list); ?> ท่าน</span>
-                                </div>
-                                <div class="dept-card-actions">
+                        <div class="postbox dept-section-card" id="dept-<?php echo (int)$cat->term_id; ?>" data-term-id="<?php echo (int)$cat->term_id; ?>" style="margin-bottom: 22px;">
+                            <div class="postbox-header" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; border-bottom: 1px solid #dcdcde; background: #f6f7f7;">
+                                <h2 class="hndle" style="margin: 0; padding: 0; font-size: 14px; font-weight: 600; cursor: default; display: flex; align-items: center; gap: 8px;">
+                                    <span class="dashicons dashicons-category" style="color: #2271b1;"></span>
+                                    <span><?php echo esc_html($cat->name); ?></span>
+                                    <span style="font-weight: normal; font-size: 12px; color: #646970;">
+                                        (<?php printf(__('ลำดับกลุ่มที่ #%d | บุคลากร %d ท่าน', 'project-core'), (int)$cat_order, count($staff_list)); ?>)
+                                    </span>
+                                </h2>
+                                <div class="handle-actions">
                                     <?php if (!empty($staff_list)): ?>
-                                        <button type="button" class="button btn-manual-save" data-term-id="<?php echo (int)$cat->term_id; ?>">
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
-                                                <path d="M20 6L9 17l-5-5"/>
-                                            </svg>
-                                            <span><?php _e('บันทึกฝ่ายนี้', 'project-core'); ?></span>
+                                        <button type="button" class="button button-secondary btn-manual-save" data-term-id="<?php echo (int)$cat->term_id; ?>" style="display: inline-flex; align-items: center; gap: 4px;">
+                                            <span class="dashicons dashicons-saved" style="font-size: 16px; width: 16px; height: 16px; line-height: 16px;"></span>
+                                            <?php _e('บันทึกลำดับฝ่ายนี้', 'project-core'); ?>
                                         </button>
                                     <?php endif; ?>
                                 </div>
                             </div>
-                            <div class="dept-card-body">
+                            <div class="inside" style="margin: 0; padding: 0;">
                                 <?php if (empty($staff_list)): ?>
-                                    <div class="dept-empty-state">
-                                        <p><?php _e('ยังไม่มีบุคลากรในฝ่ายนี้', 'project-core'); ?></p>
+                                    <div style="padding: 24px; text-align: center; color: #646970;">
+                                        <p style="margin: 0 0 10px 0; font-size: 13px;"><?php _e('ยังไม่มีบุคลากรในฝ่ายนี้', 'project-core'); ?></p>
                                         <a href="<?php echo admin_url('post-new.php?post_type=personnel'); ?>" class="button button-small">
                                             + <?php _e('เพิ่มบุคลากรเข้าฝ่ายนี้', 'project-core'); ?>
                                         </a>
                                     </div>
                                 <?php else: ?>
-                                    <div class="personnel-dept-list" data-term-id="<?php echo (int)$cat->term_id; ?>" data-term-name="<?php echo esc_attr($cat->name); ?>">
-                                        <?php foreach ($staff_list as $idx => $p):
-                                            $thumb_url = get_the_post_thumbnail_url($p->ID, 'thumbnail');
-                                            $nickname = get_post_meta($p->ID, 'personnel_nickname', true);
-                                            $position = get_post_meta($p->ID, 'personnel_position', true);
-                                        ?>
-                                            <div class="personnel-dept-row" data-post-id="<?php echo (int)$p->ID; ?>">
-                                                <div class="col-drag" title="ลากเพื่อสลับตำแหน่ง">
-                                                    <span class="dashicons dashicons-menu"></span>
-                                                </div>
-                                                <div class="col-order">
-                                                    <span class="order-badge">#<?php echo (int)($idx + 1); ?></span>
-                                                </div>
-                                                <div class="col-avatar">
-                                                    <?php if ($thumb_url): ?>
-                                                        <img src="<?php echo esc_url($thumb_url); ?>" alt="<?php echo esc_attr($p->post_title); ?>" />
-                                                    <?php else: ?>
-                                                        <div class="avatar-placeholder"><span class="dashicons dashicons-admin-users"></span></div>
-                                                    <?php endif; ?>
-                                                </div>
-                                                <div class="col-info">
-                                                    <div class="person-name">
-                                                        <strong><?php echo esc_html($p->post_title); ?></strong>
-                                                        <?php if (!empty($nickname)): ?>
-                                                            <span class="person-nickname">(<?php echo esc_html($nickname); ?>)</span>
+                                    <table class="wp-list-table widefat fixed striped table-view-list personnel-dept-table" data-term-id="<?php echo (int)$cat->term_id; ?>" data-term-name="<?php echo esc_attr($cat->name); ?>" style="border: none; box-shadow: none;">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" style="width: 36px; text-align: center;"></th>
+                                                <th scope="col" style="width: 60px; text-align: center;"><?php _e('ลำดับ', 'project-core'); ?></th>
+                                                <th scope="col" style="width: 58px; text-align: center;"><?php _e('รูปถ่าย', 'project-core'); ?></th>
+                                                <th scope="col" style="width: 28%;"><?php _e('ชื่อ - นามสกุล', 'project-core'); ?></th>
+                                                <th scope="col"><?php _e('ตำแหน่ง / หน้าที่รับผิดชอบ', 'project-core'); ?></th>
+                                                <th scope="col" style="width: 240px; text-align: right;"><?php _e('การจัดการลำดับ', 'project-core'); ?></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="personnel-dept-list ui-sortable" data-term-id="<?php echo (int)$cat->term_id; ?>" data-term-name="<?php echo esc_attr($cat->name); ?>">
+                                            <?php foreach ($staff_list as $idx => $p):
+                                                $thumb_url = get_the_post_thumbnail_url($p->ID, 'thumbnail');
+                                                $nickname = get_post_meta($p->ID, 'personnel_nickname', true);
+                                                $position = get_post_meta($p->ID, 'personnel_position', true);
+                                            ?>
+                                                <tr class="personnel-dept-row" data-post-id="<?php echo (int)$p->ID; ?>">
+                                                    <td class="col-drag" style="text-align: center; vertical-align: middle; cursor: grab;" title="<?php esc_attr_e('คลิกค้างแล้วลากเพื่อสลับตำแหน่ง', 'project-core'); ?>">
+                                                        <span class="dashicons dashicons-menu" style="color: #8c8f94; font-size: 18px;"></span>
+                                                    </td>
+                                                    <td class="col-order" style="text-align: center; vertical-align: middle;">
+                                                        <span class="order-badge" style="display: inline-block; min-width: 28px; text-align: center; padding: 2px 7px; background: #2271b1; color: #ffffff; border-radius: 4px; font-weight: 700; font-size: 12px;">#<?php echo (int)($idx + 1); ?></span>
+                                                    </td>
+                                                    <td class="col-avatar" style="text-align: center; vertical-align: middle;">
+                                                        <?php if ($thumb_url): ?>
+                                                            <img src="<?php echo esc_url($thumb_url); ?>" alt="<?php echo esc_attr($p->post_title); ?>" style="width: 36px; height: 46px; object-fit: cover; border-radius: 3px; border: 1px solid #c3c4c7; display: inline-block; vertical-align: middle;" />
+                                                        <?php else: ?>
+                                                            <span class="dashicons dashicons-admin-users" style="font-size: 32px; width: 32px; height: 32px; color: #c3c4c7; vertical-align: middle;"></span>
                                                         <?php endif; ?>
-                                                    </div>
-                                                    <div class="person-position">
-                                                        <span class="pos-badge"><?php echo esc_html($position ?: 'บุคลากร'); ?></span>
-                                                    </div>
-                                                </div>
-                                                <div class="col-actions">
-                                                    <button type="button" class="btn-ctrl btn-move-top" title="ขึ้นบนสุด">
-                                                        <span class="dashicons dashicons-arrow-up-alt"></span> บนสุด
-                                                    </button>
-                                                    <button type="button" class="btn-ctrl btn-move-up" title="เลื่อนขึ้น 1 ตำแหน่ง">
-                                                        <span class="dashicons dashicons-arrow-up"></span> ขึ้น
-                                                    </button>
-                                                    <button type="button" class="btn-ctrl btn-move-down" title="เลื่อนลง 1 ตำแหน่ง">
-                                                        <span class="dashicons dashicons-arrow-down"></span> ลง
-                                                    </button>
-                                                    <button type="button" class="btn-ctrl btn-move-bottom" title="ลงล่างสุด">
-                                                        <span class="dashicons dashicons-arrow-down-alt"></span> ล่างสุด
-                                                    </button>
-                                                    <a href="<?php echo get_edit_post_link($p->ID); ?>" target="_blank" class="btn-ctrl btn-edit" title="แก้ไขข้อมูลบุคลากร">
-                                                        <span class="dashicons dashicons-edit"></span> แก้ไข
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    </div>
+                                                    </td>
+                                                    <td class="col-info" style="vertical-align: middle;">
+                                                        <strong><a href="<?php echo get_edit_post_link($p->ID); ?>" class="row-title" style="font-size: 13px;"><?php echo esc_html($p->post_title); ?></a></strong>
+                                                        <?php if (!empty($nickname)): ?>
+                                                            <span style="color: #646970; font-size: 12px; margin-left: 4px;">(<?php echo esc_html($nickname); ?>)</span>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td class="col-position" style="vertical-align: middle;">
+                                                        <span style="display: inline-block; padding: 2px 8px; background: #f0f0f1; border: 1px solid #dcdcde; border-radius: 3px; font-size: 12px; color: #2c3338;">
+                                                            <?php echo esc_html($position ?: 'บุคลากร'); ?>
+                                                        </span>
+                                                    </td>
+                                                    <td class="col-actions" style="text-align: right; vertical-align: middle; white-space: nowrap;">
+                                                        <div class="dept-btn-group">
+                                                            <button type="button" class="button button-small btn-ctrl btn-move-top" title="<?php esc_attr_e('ขึ้นบนสุด', 'project-core'); ?>">🔝 บนสุด</button>
+                                                            <button type="button" class="button button-small btn-ctrl btn-move-up" title="<?php esc_attr_e('เลื่อนขึ้น 1 ตำแหน่ง', 'project-core'); ?>">⬆️ ขึ้น</button>
+                                                            <button type="button" class="button button-small btn-ctrl btn-move-down" title="<?php esc_attr_e('เลื่อนลง 1 ตำแหน่ง', 'project-core'); ?>">⬇️ ลง</button>
+                                                            <button type="button" class="button button-small btn-ctrl btn-move-bottom" title="<?php esc_attr_e('ลงล่างสุด', 'project-core'); ?>">🔻 ล่างสุด</button>
+                                                            <a href="<?php echo get_edit_post_link($p->ID); ?>" target="_blank" class="button button-small" title="<?php esc_attr_e('แก้ไขข้อมูลบุคลากร', 'project-core'); ?>">✏️</a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -2385,54 +2026,66 @@ class Project_Core_Post_Types {
                 <?php endif; ?>
 
                 <?php if (!empty($unassigned_posts)): ?>
-                    <div class="dept-section-card" id="dept-unassigned" data-term-id="0">
-                        <div class="dept-card-header">
-                            <div class="dept-card-title">
-                                <span class="dept-order-tag" style="background:#fee2e2;color:#b91c1c;">⚠️ ยังไม่ระบุฝ่าย</span>
-                                <h3><?php _e('บุคลากรที่ยังไม่ได้จัดกลุ่มฝ่าย', 'project-core'); ?></h3>
-                                <span class="dept-staff-count"><?php echo count($unassigned_posts); ?> ท่าน</span>
-                            </div>
+                    <div class="postbox dept-section-card" id="dept-unassigned" data-term-id="0" style="margin-bottom: 22px; border-color: #d63638;">
+                        <div class="postbox-header" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; border-bottom: 1px solid #d63638; background: #fcf0f1;">
+                            <h2 class="hndle" style="margin: 0; padding: 0; font-size: 14px; font-weight: 600; color: #b32d2e; display: flex; align-items: center; gap: 8px;">
+                                <span class="dashicons dashicons-warning" style="color: #d63638;"></span>
+                                <span><?php _e('บุคลากรที่ยังไม่ได้จัดกลุ่มฝ่าย', 'project-core'); ?></span>
+                                <span style="font-weight: normal; font-size: 12px; color: #646970;">(<?php echo count($unassigned_posts); ?> ท่าน)</span>
+                            </h2>
                         </div>
-                        <div class="dept-card-body">
-                            <div class="personnel-dept-list" data-term-id="0" data-term-name="ยังไม่ระบุฝ่าย">
-                                <?php foreach ($unassigned_posts as $idx => $p):
-                                    $thumb_url = get_the_post_thumbnail_url($p->ID, 'thumbnail');
-                                    $nickname = get_post_meta($p->ID, 'personnel_nickname', true);
-                                    $position = get_post_meta($p->ID, 'personnel_position', true);
-                                ?>
-                                    <div class="personnel-dept-row" data-post-id="<?php echo (int)$p->ID; ?>">
-                                        <div class="col-drag" title="ลากเพื่อสลับตำแหน่ง">
-                                            <span class="dashicons dashicons-menu"></span>
-                                        </div>
-                                        <div class="col-order">
-                                            <span class="order-badge" style="background:#64748b;">#<?php echo (int)($idx + 1); ?></span>
-                                        </div>
-                                        <div class="col-avatar">
-                                            <?php if ($thumb_url): ?>
-                                                <img src="<?php echo esc_url($thumb_url); ?>" alt="<?php echo esc_attr($p->post_title); ?>" />
-                                            <?php else: ?>
-                                                <div class="avatar-placeholder"><span class="dashicons dashicons-admin-users"></span></div>
-                                            <?php endif; ?>
-                                        </div>
-                                        <div class="col-info">
-                                            <div class="person-name">
-                                                <strong><?php echo esc_html($p->post_title); ?></strong>
-                                                <?php if (!empty($nickname)): ?>
-                                                    <span class="person-nickname">(<?php echo esc_html($nickname); ?>)</span>
+                        <div class="inside" style="margin: 0; padding: 0;">
+                            <table class="wp-list-table widefat fixed striped table-view-list" style="border: none; box-shadow: none;">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" style="width: 36px; text-align: center;"></th>
+                                        <th scope="col" style="width: 60px; text-align: center;"><?php _e('ลำดับ', 'project-core'); ?></th>
+                                        <th scope="col" style="width: 58px; text-align: center;"><?php _e('รูปถ่าย', 'project-core'); ?></th>
+                                        <th scope="col" style="width: 35%;"><?php _e('ชื่อ - นามสกุล', 'project-core'); ?></th>
+                                        <th scope="col"><?php _e('ตำแหน่ง', 'project-core'); ?></th>
+                                        <th scope="col" style="width: 140px; text-align: right;"><?php _e('การจัดการ', 'project-core'); ?></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($unassigned_posts as $idx => $p):
+                                        $thumb_url = get_the_post_thumbnail_url($p->ID, 'thumbnail');
+                                        $nickname = get_post_meta($p->ID, 'personnel_nickname', true);
+                                        $position = get_post_meta($p->ID, 'personnel_position', true);
+                                    ?>
+                                        <tr class="personnel-dept-row" data-post-id="<?php echo (int)$p->ID; ?>">
+                                            <td style="text-align: center; vertical-align: middle;">
+                                                <span class="dashicons dashicons-menu" style="color: #c3c4c7;"></span>
+                                            </td>
+                                            <td style="text-align: center; vertical-align: middle;">
+                                                <span style="display: inline-block; min-width: 28px; text-align: center; padding: 2px 7px; background: #646970; color: #ffffff; border-radius: 4px; font-weight: 700; font-size: 12px;">#<?php echo (int)($idx + 1); ?></span>
+                                            </td>
+                                            <td style="text-align: center; vertical-align: middle;">
+                                                <?php if ($thumb_url): ?>
+                                                    <img src="<?php echo esc_url($thumb_url); ?>" alt="<?php echo esc_attr($p->post_title); ?>" style="width: 36px; height: 46px; object-fit: cover; border-radius: 3px; border: 1px solid #c3c4c7; display: inline-block; vertical-align: middle;" />
+                                                <?php else: ?>
+                                                    <span class="dashicons dashicons-admin-users" style="font-size: 32px; width: 32px; height: 32px; color: #c3c4c7; vertical-align: middle;"></span>
                                                 <?php endif; ?>
-                                            </div>
-                                            <div class="person-position">
-                                                <span class="pos-badge" style="background:#64748b;"><?php echo esc_html($position ?: 'บุคลากร'); ?></span>
-                                            </div>
-                                        </div>
-                                        <div class="col-actions">
-                                            <a href="<?php echo get_edit_post_link($p->ID); ?>" target="_blank" class="btn-ctrl btn-edit">
-                                                <span class="dashicons dashicons-edit"></span> กำหนดฝ่าย
-                                            </a>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
+                                            </td>
+                                            <td style="vertical-align: middle;">
+                                                <strong><a href="<?php echo get_edit_post_link($p->ID); ?>" class="row-title" style="font-size: 13px;"><?php echo esc_html($p->post_title); ?></a></strong>
+                                                <?php if (!empty($nickname)): ?>
+                                                    <span style="color: #646970; font-size: 12px; margin-left: 4px;">(<?php echo esc_html($nickname); ?>)</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td style="vertical-align: middle;">
+                                                <span style="display: inline-block; padding: 2px 8px; background: #f0f0f1; border: 1px solid #dcdcde; border-radius: 3px; font-size: 12px; color: #2c3338;">
+                                                    <?php echo esc_html($position ?: 'บุคลากร'); ?>
+                                                </span>
+                                            </td>
+                                            <td style="text-align: right; vertical-align: middle;">
+                                                <a href="<?php echo get_edit_post_link($p->ID); ?>" target="_blank" class="button button-small">
+                                                    <span class="dashicons dashicons-edit" style="vertical-align: middle; font-size: 14px; width: 14px; height: 14px; line-height: 14px;"></span> <?php _e('กำหนดฝ่าย', 'project-core'); ?>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -2443,16 +2096,18 @@ class Project_Core_Post_Types {
                 var nonce = '<?php echo esc_js($nonce); ?>';
 
                 function showToast(msg) {
-                    $('#personnel-dept-toast').text(msg || '✓ บันทึกลำดับเรียบร้อยแล้ว').stop(true, true).fadeIn(200);
+                    $('#personnel-toast-text').text(msg || '✓ บันทึกลำดับเรียบร้อยแล้ว');
+                    $('#personnel-dept-toast').stop(true, true).slideDown(150);
                     setTimeout(function() {
-                        $('#personnel-dept-toast').fadeOut(400);
-                    }, 2800);
+                        $('#personnel-dept-toast').slideUp(300);
+                    }, 3000);
                 }
 
                 // 1. Department Tabs Filter
-                $('.dept-pill').on('click', function() {
-                    $('.dept-pill').removeClass('active');
-                    $(this).addClass('active');
+                $('.nav-tab.dept-tab').on('click', function(e) {
+                    e.preventDefault();
+                    $('.nav-tab.dept-tab').removeClass('nav-tab-active');
+                    $(this).addClass('nav-tab-active');
 
                     var target = $(this).data('target');
                     if (target === 'all') {
@@ -2464,12 +2119,12 @@ class Project_Core_Post_Types {
                 });
 
                 // 2. Update numbers and trigger save for a list
-                function saveListOrder($list, $highlightRow) {
-                    var termId = $list.data('term-id');
-                    var termName = $list.data('term-name') || 'ฝ่ายนี้';
+                function saveListOrder($tbody, $highlightRow) {
+                    var termId = $tbody.data('term-id');
+                    var termName = $tbody.data('term-name') || 'ฝ่ายนี้';
                     var postIds = [];
 
-                    $list.find('.personnel-dept-row').each(function(index) {
+                    $tbody.find('tr.personnel-dept-row').each(function(index) {
                         $(this).find('.order-badge').text('#' + (index + 1));
                         postIds.push($(this).data('post-id'));
                     });
@@ -2502,25 +2157,33 @@ class Project_Core_Post_Types {
 
                 // 3. Make each department list Sortable
                 $('.personnel-dept-list').each(function() {
-                    var $list = $(this);
-                    $list.sortable({
-                        items: '.personnel-dept-row',
-                        handle: '.col-drag, .order-badge, .col-avatar',
+                    var $tbody = $(this);
+                    $tbody.sortable({
+                        items: 'tr.personnel-dept-row',
+                        handle: '.col-drag, .col-order, .col-avatar',
                         cancel: 'button, a, input',
                         axis: 'y',
                         cursor: 'grabbing',
                         opacity: 0.88,
                         placeholder: 'ui-sortable-placeholder',
+                        helper: function(e, tr) {
+                            var $originals = tr.children();
+                            var $helper = tr.clone();
+                            $helper.children().each(function(index) {
+                                $(this).width($originals.eq(index).width());
+                            });
+                            return $helper;
+                        },
                         update: function(event, ui) {
-                            saveListOrder($list, ui.item);
+                            saveListOrder($tbody, ui.item);
                         }
                     });
                 });
 
                 // 4. Quick Action Buttons
                 $(document).on('click', '.btn-move-up', function() {
-                    var $row = $(this).closest('.personnel-dept-row');
-                    var $prev = $row.prev('.personnel-dept-row');
+                    var $row = $(this).closest('tr.personnel-dept-row');
+                    var $prev = $row.prev('tr.personnel-dept-row');
                     if ($prev.length) {
                         $row.insertBefore($prev);
                         saveListOrder($row.closest('.personnel-dept-list'), $row);
@@ -2528,8 +2191,8 @@ class Project_Core_Post_Types {
                 });
 
                 $(document).on('click', '.btn-move-down', function() {
-                    var $row = $(this).closest('.personnel-dept-row');
-                    var $next = $row.next('.personnel-dept-row');
+                    var $row = $(this).closest('tr.personnel-dept-row');
+                    var $next = $row.next('tr.personnel-dept-row');
                     if ($next.length) {
                         $row.insertAfter($next);
                         saveListOrder($row.closest('.personnel-dept-list'), $row);
@@ -2537,26 +2200,26 @@ class Project_Core_Post_Types {
                 });
 
                 $(document).on('click', '.btn-move-top', function() {
-                    var $row = $(this).closest('.personnel-dept-row');
-                    var $list = $row.closest('.personnel-dept-list');
-                    $list.prepend($row);
-                    saveListOrder($list, $row);
+                    var $row = $(this).closest('tr.personnel-dept-row');
+                    var $tbody = $row.closest('.personnel-dept-list');
+                    $tbody.prepend($row);
+                    saveListOrder($tbody, $row);
                 });
 
                 $(document).on('click', '.btn-move-bottom', function() {
-                    var $row = $(this).closest('.personnel-dept-row');
-                    var $list = $row.closest('.personnel-dept-list');
-                    $list.append($row);
-                    saveListOrder($list, $row);
+                    var $row = $(this).closest('tr.personnel-dept-row');
+                    var $tbody = $row.closest('.personnel-dept-list');
+                    $tbody.append($row);
+                    saveListOrder($tbody, $row);
                 });
 
                 // Manual Save button
                 $('.btn-manual-save').on('click', function() {
                     var termId = $(this).data('term-id');
                     var $card = $('#dept-' + termId);
-                    var $list = $card.find('.personnel-dept-list');
-                    if ($list.length) {
-                        saveListOrder($list);
+                    var $tbody = $card.find('.personnel-dept-list');
+                    if ($tbody.length) {
+                        saveListOrder($tbody);
                     }
                 });
 
@@ -2576,7 +2239,7 @@ class Project_Core_Post_Types {
                             nonce: nonce
                         },
                         success: function(res) {
-                            $btn.prop('disabled', false).html('<span class="dashicons dashicons-update" style="vertical-align:middle; font-size:16px;"></span> ⚡ จัดระเบียบทุกฝ่ายอัตโนมัติ');
+                            $btn.prop('disabled', false).text('⚡ จัดระเบียบทุกฝ่ายอัตโนมัติ');
                             if (res.success) {
                                 showToast('✓ จัดระเบียบลำดับทุกฝ่ายเรียบร้อยแล้ว (' + res.data.updated + ' รายการ)');
                                 setTimeout(function() {
@@ -2585,7 +2248,7 @@ class Project_Core_Post_Types {
                             }
                         },
                         error: function() {
-                            $btn.prop('disabled', false).html('<span class="dashicons dashicons-update" style="vertical-align:middle; font-size:16px;"></span> ⚡ จัดระเบียบทุกฝ่ายอัตโนมัติ');
+                            $btn.prop('disabled', false).text('⚡ จัดระเบียบทุกฝ่ายอัตโนมัติ');
                             alert('เกิดข้อผิดพลาดในการบันทึก กรุณาลองใหม่อีกครั้ง');
                         }
                     });
