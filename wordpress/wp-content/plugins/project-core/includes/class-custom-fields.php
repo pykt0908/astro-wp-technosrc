@@ -1177,6 +1177,7 @@ class Project_Core_Custom_Fields {
                     'personnel_education'  => 'sanitize_text_field',
                     'personnel_email'       => 'sanitize_email',
                     'personnel_phone'       => 'sanitize_text_field',
+                    'personnel_dept_order'  => 'absint',
                 );
 
                 foreach ($personnel_keys as $key => $sanitizer) {
@@ -1598,8 +1599,13 @@ class Project_Core_Custom_Fields {
                 </td>
             </tr>
         </table>
-        <p style="background: #f0f7ff; border-left: 4px solid #0047BA; padding: 10px 14px; margin-top: 15px; border-radius: 2px;">
-            <strong>💡 คำแนะนำรูปถ่าย:</strong> กำหนดรูปถ่ายของบุคลากรที่ช่อง <strong>"รูปประจำเรื่อง" (Featured Image)</strong> ทางขวามือ (แนะนำอัตราส่วนรูปแนวตั้ง 3:4 หรือ 4:5 เพื่อความสวยงาม) และกำหนด <strong>"ลำดับ" (Menu Order)</strong> ได้ที่กล่องคุณลักษณะของหน้า หรือลากสลับลำดับในหน้ารายการบุคลากรทั้งหมด
+        <p style="background: #f0f7ff; border-left: 4px solid #0047BA; padding: 12px 16px; margin-top: 15px; border-radius: 4px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <span>
+                <strong>💡 คำแนะนำรูปถ่าย:</strong> กำหนดรูปถ่ายของบุคลากรที่ช่อง <strong>"รูปประจำเรื่อง" (Featured Image)</strong> ทางขวามือ (แนะนำอัตราส่วนรูปแนวตั้ง 3:4 เพื่อความสวยงาม) และสามารถจัดเรียงลำดับบุคลากรภายในแต่ละฝ่ายได้ง่ายๆ ที่เมนู <strong>จัดลำดับตามฝ่าย</strong>
+            </span>
+            <a href="<?php echo admin_url('edit.php?post_type=personnel&page=personnel-reorder'); ?>" class="button button-secondary" target="_blank" style="font-weight: 600; color: #0047BA; border-color: #0047BA;">
+                🔀 จัดลำดับบุคลากรตามฝ่าย
+            </a>
         </p>
 
         <script>

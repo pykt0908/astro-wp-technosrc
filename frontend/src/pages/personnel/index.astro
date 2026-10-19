@@ -26,7 +26,14 @@ const categoriesWithCounts = sortedCategories.map((cat) => {
   return {
     ...cat,
     count: staff.length,
-    personnel: staff.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
+    personnel: staff.sort((a, b) => {
+      const orderA = typeof a.dept_order === 'number' && a.dept_order > 0 ? a.dept_order : (a.order ?? 0);
+      const orderB = typeof b.dept_order === 'number' && b.dept_order > 0 ? b.dept_order : (b.order ?? 0);
+      if (orderA === orderB) {
+        return a.id - b.id;
+      }
+      return orderA - orderB;
+    }),
   };
 });
 ---

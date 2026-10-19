@@ -39,10 +39,13 @@ class Project_Core_Post_Types {
         add_action('pre_get_posts', array($this, 'admin_personnel_sort_order'));
         add_action('restrict_manage_posts', array($this, 'filter_personnel_by_category'), 10, 2);
         add_action('pre_get_posts', array($this, 'admin_personnel_filter_query'));
+        add_action('admin_menu', array($this, 'register_personnel_admin_menus'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_personnel_list_scripts'));
         add_action('admin_footer', array($this, 'render_personnel_reorder_script'));
         add_action('wp_ajax_project_core_reorder_personnel', array($this, 'ajax_reorder_personnel'));
         add_action('wp_ajax_project_core_reorder_personnel_categories', array($this, 'ajax_reorder_personnel_categories'));
+        add_action('wp_ajax_project_core_reorder_dept_personnel', array($this, 'ajax_reorder_dept_personnel'));
+        add_action('wp_ajax_project_core_auto_index_personnel', array($this, 'ajax_auto_index_personnel'));
 
         // SAR Reports Admin Columns & Filters
         add_filter('manage_sar_report_posts_columns', array($this, 'set_sar_report_columns'));
@@ -1361,6 +1364,9 @@ class Project_Core_Post_Types {
                 wp_enqueue_script('jquery');
                 wp_enqueue_script('jquery-ui-sortable');
             }
+        } elseif (isset($_GET['page']) && $_GET['page'] === 'personnel-reorder') {
+            wp_enqueue_script('jquery');
+            wp_enqueue_script('jquery-ui-sortable');
         }
     }
 
@@ -1401,6 +1407,12 @@ class Project_Core_Post_Types {
             <div id="personnel-reorder-notice">✓ บันทึกลำดับบุคลากรเรียบร้อยแล้ว</div>
             <script>
             jQuery(function($) {
+                // Add quick link to "จัดลำดับตามฝ่าย" next to "เพิ่มบุคลากรใหม่"
+                var $addNew = $('a.page-title-action');
+                if ($addNew.length && !$('#btn-personnel-dept-reorder').length) {
+                    $addNew.after('<a id="btn-personnel-dept-reorder" href="<?php echo esc_url(admin_url('edit.php?post_type=personnel&page=personnel-reorder')); ?>" class="page-title-action" style="background:#0047BA;color:#fff;border-color:#0047BA;font-weight:600;display:inline-flex;align-items:center;gap:4px;"><span class="dashicons dashicons-sort" style="font-size:16px;line-height:1.6;width:16px;height:16px;"></span> จัดลำดับตามฝ่าย</a>');
+                }
+
                 var $tbody = $('#the-list');
                 if (!$tbody.length) return;
                 function showNotice(msg) {
@@ -1434,13 +1446,15 @@ class Project_Core_Post_Types {
                             if (rowId && rowId.indexOf('post-') === 0) postIds.push(rowId.replace('post-', ''));
                         });
                         if (!postIds.length) return;
+                        var catSlug = new URLSearchParams(window.location.search).get('personnel_category') || '';
                         $.ajax({
                             url: ajaxurl,
                             type: 'POST',
                             data: {
                                 action: 'project_core_reorder_personnel',
                                 nonce: '<?php echo esc_js($nonce); ?>',
-                                post_ids: postIds
+                                post_ids: postIds,
+                                cat_slug: catSlug
                             },
                             success: function(res) {
                                 if (res.success) showNotice('✓ บันทึกลำดับบุคลากรเรียบร้อยแล้ว (' + postIds.length + ' ท่าน)');
@@ -1536,6 +1550,23 @@ class Project_Core_Post_Types {
     /**
      * AJAX handler to save personnel menu_order
      */
+    /**
+     * Register Personnel submenu for Department Reordering
+     */
+    public function register_personnel_admin_menus() {
+        add_submenu_page(
+            'edit.php?post_type=personnel',
+            __('จัดลำดับบุคลากรตามฝ่าย', 'project-core'),
+            __('จัดลำดับตามฝ่าย', 'project-core'),
+            'edit_others_posts',
+            'personnel-reorder',
+            array($this, 'render_personnel_reorder_page')
+        );
+    }
+
+    /**
+     * AJAX handler to save personnel menu_order (enhanced for category filter offset)
+     */
     public function ajax_reorder_personnel() {
         check_ajax_referer('project_core_personnel_reorder_nonce', 'nonce');
 
@@ -1548,9 +1579,21 @@ class Project_Core_Post_Types {
             wp_send_json_error(array('message' => 'No post IDs received.'));
         }
 
+        $cat_slug = isset($_POST['cat_slug']) ? sanitize_text_field($_POST['cat_slug']) : '';
+        $cat_offset = 0;
+        if (!empty($cat_slug)) {
+            $term = get_term_by('slug', $cat_slug, 'personnel_category');
+            if ($term && !is_wp_error($term)) {
+                $cat_order = (int) get_term_meta($term->term_id, 'category_order', true) ?: 1;
+                $cat_offset = $cat_order * 100;
+            }
+        }
+
         global $wpdb;
         foreach ($post_ids as $order_index => $post_id) {
-            $menu_order = $order_index + 1;
+            $dept_order = $order_index + 1;
+            update_post_meta($post_id, 'personnel_dept_order', $dept_order);
+            $menu_order = $cat_offset > 0 ? ($cat_offset + $dept_order) : $dept_order;
             $wpdb->update(
                 $wpdb->posts,
                 array('menu_order' => $menu_order),
@@ -1562,6 +1605,900 @@ class Project_Core_Post_Types {
         }
 
         wp_send_json_success(array('updated' => count($post_ids)));
+    }
+
+    /**
+     * AJAX handler to save personnel order within a specific department
+     */
+    public function ajax_reorder_dept_personnel() {
+        check_ajax_referer('project_core_personnel_dept_reorder_nonce', 'nonce');
+
+        if (!current_user_can('edit_others_posts')) {
+            wp_send_json_error(array('message' => 'Permission denied.'));
+        }
+
+        $term_id = isset($_POST['term_id']) ? intval($_POST['term_id']) : 0;
+        $post_ids = isset($_POST['post_ids']) ? array_map('intval', (array) $_POST['post_ids']) : array();
+
+        if (empty($post_ids)) {
+            wp_send_json_error(array('message' => 'No post IDs received.'));
+        }
+
+        $cat_order = 99;
+        if ($term_id > 0) {
+            $cat_order = (int) get_term_meta($term_id, 'category_order', true) ?: 99;
+        }
+
+        global $wpdb;
+        foreach ($post_ids as $index => $post_id) {
+            $dept_order = $index + 1;
+            update_post_meta($post_id, 'personnel_dept_order', $dept_order);
+            $menu_order = ($cat_order * 100) + $dept_order;
+            $wpdb->update(
+                $wpdb->posts,
+                array('menu_order' => $menu_order),
+                array('ID' => $post_id),
+                array('%d'),
+                array('%d')
+            );
+            clean_post_cache($post_id);
+        }
+
+        wp_send_json_success(array(
+            'updated' => count($post_ids),
+            'term_id' => $term_id,
+        ));
+    }
+
+    /**
+     * AJAX handler to auto-index all personnel across all departments
+     */
+    public function ajax_auto_index_personnel() {
+        check_ajax_referer('project_core_personnel_dept_reorder_nonce', 'nonce');
+
+        if (!current_user_can('edit_others_posts')) {
+            wp_send_json_error(array('message' => 'Permission denied.'));
+        }
+
+        $categories = get_terms(array(
+            'taxonomy'   => 'personnel_category',
+            'hide_empty' => false,
+            'orderby'    => 'meta_value_num name',
+            'meta_key'   => 'category_order',
+            'order'      => 'ASC',
+        ));
+
+        global $wpdb;
+        $total_updated = 0;
+
+        if (!empty($categories) && !is_wp_error($categories)) {
+            foreach ($categories as $cat) {
+                $cat_order = (int) get_term_meta($cat->term_id, 'category_order', true) ?: 99;
+                $posts = get_posts(array(
+                    'post_type'      => 'personnel',
+                    'posts_per_page' => -1,
+                    'post_status'    => array('publish', 'draft'),
+                    'orderby'        => 'menu_order',
+                    'order'          => 'ASC',
+                    'tax_query'      => array(
+                        array(
+                            'taxonomy' => 'personnel_category',
+                            'field'    => 'term_id',
+                            'terms'    => $cat->term_id,
+                        ),
+                    ),
+                ));
+
+                usort($posts, function($a, $b) {
+                    $order_a = get_post_meta($a->ID, 'personnel_dept_order', true);
+                    $order_b = get_post_meta($b->ID, 'personnel_dept_order', true);
+                    $val_a = ($order_a !== '' && $order_a !== false) ? (int)$order_a : (int)$a->menu_order;
+                    $val_b = ($order_b !== '' && $order_b !== false) ? (int)$order_b : (int)$b->menu_order;
+                    if ($val_a === $val_b) return $a->ID - $b->ID;
+                    return $val_a - $val_b;
+                });
+
+                foreach ($posts as $idx => $p) {
+                    $dept_order = $idx + 1;
+                    update_post_meta($p->ID, 'personnel_dept_order', $dept_order);
+                    $menu_order = ($cat_order * 100) + $dept_order;
+                    $wpdb->update(
+                        $wpdb->posts,
+                        array('menu_order' => $menu_order),
+                        array('ID' => $p->ID),
+                        array('%d'),
+                        array('%d')
+                    );
+                    clean_post_cache($p->ID);
+                    $total_updated++;
+                }
+            }
+        }
+
+        wp_send_json_success(array('updated' => $total_updated));
+    }
+
+    /**
+     * Render the dedicated Department Personnel Ordering page
+     */
+    public function render_personnel_reorder_page() {
+        if (!current_user_can('edit_others_posts')) {
+            wp_die(__('คุณไม่มีสิทธิ์เข้าถึงหน้านี้', 'project-core'));
+        }
+
+        $nonce = wp_create_nonce('project_core_personnel_dept_reorder_nonce');
+
+        // Fetch categories ordered by category_order ASC
+        $categories = get_terms(array(
+            'taxonomy'   => 'personnel_category',
+            'hide_empty' => false,
+            'orderby'    => 'meta_value_num name',
+            'meta_key'   => 'category_order',
+            'order'      => 'ASC',
+        ));
+
+        // Group staff by category
+        $cat_staff_map = array();
+        $total_personnel_count = 0;
+
+        if (!empty($categories) && !is_wp_error($categories)) {
+            foreach ($categories as $cat) {
+                $posts = get_posts(array(
+                    'post_type'      => 'personnel',
+                    'posts_per_page' => -1,
+                    'post_status'    => array('publish', 'draft'),
+                    'orderby'        => 'menu_order',
+                    'order'          => 'ASC',
+                    'tax_query'      => array(
+                        array(
+                            'taxonomy' => 'personnel_category',
+                            'field'    => 'term_id',
+                            'terms'    => $cat->term_id,
+                        ),
+                    ),
+                ));
+
+                // Sort inside category by personnel_dept_order if present, else menu_order
+                usort($posts, function($a, $b) {
+                    $order_a = get_post_meta($a->ID, 'personnel_dept_order', true);
+                    $order_b = get_post_meta($b->ID, 'personnel_dept_order', true);
+                    $val_a = ($order_a !== '' && $order_a !== false) ? (int)$order_a : (int)$a->menu_order;
+                    $val_b = ($order_b !== '' && $order_b !== false) ? (int)$order_b : (int)$b->menu_order;
+                    if ($val_a === $val_b) return $a->ID - $b->ID;
+                    return $val_a - $val_b;
+                });
+
+                $cat_staff_map[$cat->term_id] = $posts;
+                $total_personnel_count += count($posts);
+            }
+        }
+
+        // Check unassigned personnel
+        $unassigned_posts = get_posts(array(
+            'post_type'      => 'personnel',
+            'posts_per_page' => -1,
+            'post_status'    => array('publish', 'draft'),
+            'orderby'        => 'menu_order',
+            'order'          => 'ASC',
+            'tax_query'      => array(
+                array(
+                    'taxonomy' => 'personnel_category',
+                    'operator' => 'NOT EXISTS',
+                ),
+            ),
+        ));
+        $total_personnel_count += count($unassigned_posts);
+        ?>
+        <div class="wrap personnel-dept-reorder-wrap">
+            <style>
+                .personnel-dept-reorder-wrap {
+                    max-width: 1280px;
+                    margin: 20px auto 40px auto;
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+                }
+                .reorder-header-box {
+                    background: linear-gradient(135deg, #002D72 0%, #0047BA 100%);
+                    color: #ffffff;
+                    padding: 24px 28px;
+                    border-radius: 14px;
+                    box-shadow: 0 8px 24px rgba(0, 45, 114, 0.16);
+                    margin-bottom: 24px;
+                    display: flex;
+                    flex-wrap: wrap;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 16px;
+                }
+                .reorder-header-box h1 {
+                    color: #ffffff !important;
+                    font-size: 24px;
+                    font-weight: 700;
+                    margin: 0 0 6px 0;
+                    padding: 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                .reorder-header-box p {
+                    color: rgba(255, 255, 255, 0.85);
+                    font-size: 14px;
+                    margin: 0;
+                    line-height: 1.5;
+                }
+                .reorder-header-actions {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                }
+                .reorder-header-actions .button {
+                    border-radius: 8px;
+                    font-weight: 600;
+                    height: 38px;
+                    line-height: 36px;
+                    padding: 0 16px;
+                }
+                .btn-white {
+                    background: #ffffff !important;
+                    color: #002D72 !important;
+                    border: none !important;
+                }
+                .btn-white:hover {
+                    background: #f1f5f9 !important;
+                    color: #0047BA !important;
+                }
+                .btn-trans {
+                    background: rgba(255, 255, 255, 0.15) !important;
+                    color: #ffffff !important;
+                    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+                }
+                .btn-trans:hover {
+                    background: rgba(255, 255, 255, 0.25) !important;
+                }
+                /* Pills Filter Bar */
+                .dept-pills-bar {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                    margin-bottom: 24px;
+                    background: #ffffff;
+                    padding: 12px 16px;
+                    border-radius: 12px;
+                    border: 1px solid #e2e8f0;
+                    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+                }
+                .dept-pill {
+                    border: 1px solid #e2e8f0;
+                    background: #f8fafc;
+                    color: #334155;
+                    padding: 7px 16px;
+                    border-radius: 20px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.15s ease;
+                }
+                .dept-pill:hover {
+                    background: #e2e8f0;
+                    color: #0f172a;
+                }
+                .dept-pill.active {
+                    background: #0047BA;
+                    color: #ffffff;
+                    border-color: #0047BA;
+                    box-shadow: 0 4px 12px rgba(0, 71, 186, 0.25);
+                }
+                .dept-pill .pill-badge {
+                    background: rgba(0, 0, 0, 0.08);
+                    padding: 2px 8px;
+                    border-radius: 10px;
+                    font-size: 11px;
+                    font-weight: 700;
+                }
+                .dept-pill.active .pill-badge {
+                    background: rgba(255, 255, 255, 0.25);
+                    color: #ffffff;
+                }
+                /* Department Section Cards */
+                .dept-cards-container {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 24px;
+                }
+                .dept-section-card {
+                    background: #ffffff;
+                    border-radius: 14px;
+                    border: 1px solid #e2e8f0;
+                    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+                    overflow: hidden;
+                    transition: all 0.2s ease;
+                }
+                .dept-card-header {
+                    background: #f8fafc;
+                    border-bottom: 1px solid #e2e8f0;
+                    padding: 14px 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                    gap: 12px;
+                }
+                .dept-card-title {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                }
+                .dept-order-tag {
+                    background: #e0f2fe;
+                    color: #0369a1;
+                    font-size: 11px;
+                    font-weight: 700;
+                    padding: 3px 8px;
+                    border-radius: 6px;
+                }
+                .dept-card-title h3 {
+                    margin: 0;
+                    font-size: 16px;
+                    font-weight: 700;
+                    color: #0f172a;
+                }
+                .dept-staff-count {
+                    font-size: 12px;
+                    color: #64748b;
+                    background: #f1f5f9;
+                    padding: 2px 8px;
+                    border-radius: 10px;
+                    font-weight: 600;
+                }
+                .dept-card-actions {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                .dept-card-body {
+                    padding: 16px 20px;
+                }
+                .dept-empty-state {
+                    text-align: center;
+                    padding: 30px 20px;
+                    color: #94a3b8;
+                }
+                .dept-empty-state p {
+                    margin: 0 0 10px 0;
+                    font-size: 14px;
+                }
+                /* Sortable List */
+                .personnel-dept-list {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                }
+                .personnel-dept-row {
+                    display: flex;
+                    align-items: center;
+                    background: #ffffff;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 10px;
+                    padding: 10px 14px;
+                    gap: 12px;
+                    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+                }
+                .personnel-dept-row:hover {
+                    background: #f8fafc;
+                    border-color: #cbd5e1;
+                }
+                .personnel-dept-row.row-just-moved {
+                    background: #ecfdf5 !important;
+                    border-color: #10b981 !important;
+                }
+                .personnel-dept-row.ui-sortable-helper {
+                    background: #ffffff !important;
+                    box-shadow: 0 12px 32px rgba(0, 45, 114, 0.2) !important;
+                    border: 2px solid #0047BA !important;
+                    cursor: grabbing !important;
+                }
+                .personnel-dept-row.ui-sortable-placeholder {
+                    background: #eff6ff !important;
+                    border: 2px dashed #0047BA !important;
+                    visibility: visible !important;
+                    height: 60px !important;
+                    border-radius: 10px;
+                }
+                .col-drag {
+                    cursor: grab;
+                    color: #94a3b8;
+                    display: flex;
+                    align-items: center;
+                    padding: 4px;
+                }
+                .col-drag:hover {
+                    color: #0047BA;
+                }
+                .col-order {
+                    min-width: 38px;
+                    text-align: center;
+                }
+                .order-badge {
+                    display: inline-block;
+                    background: #002D72;
+                    color: #ffffff;
+                    font-size: 12px;
+                    font-weight: 700;
+                    padding: 3px 8px;
+                    border-radius: 6px;
+                    min-width: 22px;
+                }
+                .col-avatar {
+                    width: 44px;
+                    height: 56px;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    background: #f1f5f9;
+                    flex-shrink: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border: 1px solid #e2e8f0;
+                }
+                .col-avatar img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    display: block;
+                }
+                .avatar-placeholder {
+                    color: #94a3b8;
+                    font-size: 24px;
+                }
+                .col-info {
+                    flex: 1;
+                    min-width: 0;
+                }
+                .person-name {
+                    font-size: 14px;
+                    color: #0f172a;
+                    margin-bottom: 4px;
+                }
+                .person-name strong {
+                    font-weight: 700;
+                }
+                .person-nickname {
+                    color: #64748b;
+                    font-size: 12px;
+                    font-weight: normal;
+                    margin-left: 4px;
+                }
+                .person-position {
+                    display: flex;
+                    gap: 6px;
+                }
+                .pos-badge {
+                    background: #002D72;
+                    color: #ffffff;
+                    font-size: 11px;
+                    font-weight: 600;
+                    padding: 2px 8px;
+                    border-radius: 6px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    max-width: 280px;
+                }
+                .col-actions {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                    flex-shrink: 0;
+                }
+                .btn-ctrl {
+                    background: #f1f5f9;
+                    border: 1px solid #e2e8f0;
+                    color: #334155;
+                    border-radius: 6px;
+                    padding: 5px 9px;
+                    font-size: 11px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 2px;
+                    transition: all 0.1s ease;
+                }
+                .btn-ctrl:hover {
+                    background: #0047BA;
+                    color: #ffffff;
+                    border-color: #0047BA;
+                }
+                .btn-ctrl .dashicons {
+                    font-size: 14px;
+                    width: 14px;
+                    height: 14px;
+                    line-height: 14px;
+                }
+                .btn-ctrl.btn-edit {
+                    text-decoration: none;
+                    background: #ffffff;
+                }
+                .btn-ctrl.btn-edit:hover {
+                    background: #0f172a;
+                    color: #ffffff;
+                    border-color: #0f172a;
+                }
+                /* Floating Toast */
+                #personnel-dept-toast {
+                    position: fixed;
+                    top: 45px;
+                    right: 30px;
+                    z-index: 999999;
+                    background: #007017;
+                    color: #ffffff;
+                    padding: 12px 24px;
+                    font-weight: 600;
+                    font-size: 14px;
+                    border-radius: 8px;
+                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+                    display: none;
+                }
+            </style>
+
+            <div id="personnel-dept-toast">✓ บันทึกการจัดลำดับเรียบร้อยแล้ว</div>
+
+            <!-- Header Banner -->
+            <div class="reorder-header-box">
+                <div>
+                    <h1>
+                        <span class="dashicons dashicons-sort"></span>
+                        <?php _e('จัดลำดับบุคลากรตามฝ่าย / แผนก', 'project-core'); ?>
+                    </h1>
+                    <p>
+                        <?php _e('จัดเรียงลำดับบุคลากรภายในแต่ละฝ่าย โดยสามารถลากวาง (Drag & Drop) หรือกดปุ่ม ⬆️ / ⬇️ เพื่อเลื่อนตำแหน่ง ระบบจะบันทึกอัตโนมัติและแสดงผลตามลำดับนี้บนหน้าเว็บไซต์ทันที', 'project-core'); ?>
+                    </p>
+                </div>
+                <div class="reorder-header-actions">
+                    <a href="<?php echo admin_url('edit.php?post_type=personnel'); ?>" class="button btn-white">
+                        <span class="dashicons dashicons-list-view" style="vertical-align:middle; font-size:16px;"></span>
+                        <?php _e('บุคลากรทั้งหมด', 'project-core'); ?>
+                    </a>
+                    <a href="<?php echo admin_url('post-new.php?post_type=personnel'); ?>" class="button btn-white">
+                        <span class="dashicons dashicons-plus-alt2" style="vertical-align:middle; font-size:16px;"></span>
+                        <?php _e('เพิ่มบุคลากรใหม่', 'project-core'); ?>
+                    </a>
+                    <a href="<?php echo admin_url('edit-tags.php?taxonomy=personnel_category&post_type=personnel'); ?>" class="button btn-trans">
+                        <span class="dashicons dashicons-category" style="vertical-align:middle; font-size:16px;"></span>
+                        <?php _e('จัดลำดับกลุ่ม/ฝ่าย', 'project-core'); ?>
+                    </a>
+                    <button type="button" id="btn-auto-index-all" class="button btn-trans" title="จัดเรียงลำดับให้เรียบร้อยทุกฝ่าย">
+                        <span class="dashicons dashicons-update" style="vertical-align:middle; font-size:16px;"></span>
+                        <?php _e('⚡ จัดระเบียบทุกฝ่ายอัตโนมัติ', 'project-core'); ?>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Department Filter Pills -->
+            <div class="dept-pills-bar" role="tablist">
+                <button type="button" class="dept-pill active" data-target="all">
+                    🏢 <?php _e('แสดงทุกฝ่าย', 'project-core'); ?>
+                    <span class="pill-badge"><?php echo (int)$total_personnel_count; ?></span>
+                </button>
+                <?php if (!empty($categories) && !is_wp_error($categories)): ?>
+                    <?php foreach ($categories as $cat):
+                        $c_count = isset($cat_staff_map[$cat->term_id]) ? count($cat_staff_map[$cat->term_id]) : 0;
+                    ?>
+                        <button type="button" class="dept-pill" data-target="dept-<?php echo (int)$cat->term_id; ?>">
+                            📁 <?php echo esc_html($cat->name); ?>
+                            <span class="pill-badge"><?php echo (int)$c_count; ?></span>
+                        </button>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+                <?php if (!empty($unassigned_posts)): ?>
+                    <button type="button" class="dept-pill" data-target="dept-unassigned">
+                        ⚠️ <?php _e('ยังไม่ระบุฝ่าย', 'project-core'); ?>
+                        <span class="pill-badge"><?php echo count($unassigned_posts); ?></span>
+                    </button>
+                <?php endif; ?>
+            </div>
+
+            <!-- Cards Container -->
+            <div class="dept-cards-container">
+                <?php if (!empty($categories) && !is_wp_error($categories)): ?>
+                    <?php foreach ($categories as $cat):
+                        $staff_list = isset($cat_staff_map[$cat->term_id]) ? $cat_staff_map[$cat->term_id] : array();
+                        $cat_order = (int) get_term_meta($cat->term_id, 'category_order', true) ?: 99;
+                    ?>
+                        <div class="dept-section-card" id="dept-<?php echo (int)$cat->term_id; ?>" data-term-id="<?php echo (int)$cat->term_id; ?>">
+                            <div class="dept-card-header">
+                                <div class="dept-card-title">
+                                    <span class="dept-order-tag">#<?php echo (int)$cat_order; ?></span>
+                                    <h3><?php echo esc_html($cat->name); ?></h3>
+                                    <span class="dept-staff-count"><?php echo count($staff_list); ?> ท่าน</span>
+                                </div>
+                                <div class="dept-card-actions">
+                                    <?php if (!empty($staff_list)): ?>
+                                        <button type="button" class="button btn-manual-save" data-term-id="<?php echo (int)$cat->term_id; ?>">
+                                            <span class="dashicons dashicons-saved" style="vertical-align:middle;"></span>
+                                            <?php _e('บันทึกฝ่ายนี้', 'project-core'); ?>
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <div class="dept-card-body">
+                                <?php if (empty($staff_list)): ?>
+                                    <div class="dept-empty-state">
+                                        <p><?php _e('ยังไม่มีบุคลากรในฝ่ายนี้', 'project-core'); ?></p>
+                                        <a href="<?php echo admin_url('post-new.php?post_type=personnel'); ?>" class="button button-small">
+                                            + <?php _e('เพิ่มบุคลากรเข้าฝ่ายนี้', 'project-core'); ?>
+                                        </a>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="personnel-dept-list" data-term-id="<?php echo (int)$cat->term_id; ?>" data-term-name="<?php echo esc_attr($cat->name); ?>">
+                                        <?php foreach ($staff_list as $idx => $p):
+                                            $thumb_url = get_the_post_thumbnail_url($p->ID, 'thumbnail');
+                                            $nickname = get_post_meta($p->ID, 'personnel_nickname', true);
+                                            $position = get_post_meta($p->ID, 'personnel_position', true);
+                                        ?>
+                                            <div class="personnel-dept-row" data-post-id="<?php echo (int)$p->ID; ?>">
+                                                <div class="col-drag" title="ลากเพื่อสลับตำแหน่ง">
+                                                    <span class="dashicons dashicons-menu"></span>
+                                                </div>
+                                                <div class="col-order">
+                                                    <span class="order-badge">#<?php echo (int)($idx + 1); ?></span>
+                                                </div>
+                                                <div class="col-avatar">
+                                                    <?php if ($thumb_url): ?>
+                                                        <img src="<?php echo esc_url($thumb_url); ?>" alt="<?php echo esc_attr($p->post_title); ?>" />
+                                                    <?php else: ?>
+                                                        <div class="avatar-placeholder"><span class="dashicons dashicons-admin-users"></span></div>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <div class="col-info">
+                                                    <div class="person-name">
+                                                        <strong><?php echo esc_html($p->post_title); ?></strong>
+                                                        <?php if (!empty($nickname)): ?>
+                                                            <span class="person-nickname">(<?php echo esc_html($nickname); ?>)</span>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                    <div class="person-position">
+                                                        <span class="pos-badge"><?php echo esc_html($position ?: 'บุคลากร'); ?></span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-actions">
+                                                    <button type="button" class="btn-ctrl btn-move-top" title="ขึ้นบนสุด">
+                                                        <span class="dashicons dashicons-arrow-up-alt"></span> บนสุด
+                                                    </button>
+                                                    <button type="button" class="btn-ctrl btn-move-up" title="เลื่อนขึ้น 1 ตำแหน่ง">
+                                                        <span class="dashicons dashicons-arrow-up"></span> ขึ้น
+                                                    </button>
+                                                    <button type="button" class="btn-ctrl btn-move-down" title="เลื่อนลง 1 ตำแหน่ง">
+                                                        <span class="dashicons dashicons-arrow-down"></span> ลง
+                                                    </button>
+                                                    <button type="button" class="btn-ctrl btn-move-bottom" title="ลงล่างสุด">
+                                                        <span class="dashicons dashicons-arrow-down-alt"></span> ล่างสุด
+                                                    </button>
+                                                    <a href="<?php echo get_edit_post_link($p->ID); ?>" target="_blank" class="btn-ctrl btn-edit" title="แก้ไขข้อมูลบุคลากร">
+                                                        <span class="dashicons dashicons-edit"></span> แก้ไข
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+
+                <?php if (!empty($unassigned_posts)): ?>
+                    <div class="dept-section-card" id="dept-unassigned" data-term-id="0">
+                        <div class="dept-card-header">
+                            <div class="dept-card-title">
+                                <span class="dept-order-tag" style="background:#fee2e2;color:#b91c1c;">⚠️ ยังไม่ระบุฝ่าย</span>
+                                <h3><?php _e('บุคลากรที่ยังไม่ได้จัดกลุ่มฝ่าย', 'project-core'); ?></h3>
+                                <span class="dept-staff-count"><?php echo count($unassigned_posts); ?> ท่าน</span>
+                            </div>
+                        </div>
+                        <div class="dept-card-body">
+                            <div class="personnel-dept-list" data-term-id="0" data-term-name="ยังไม่ระบุฝ่าย">
+                                <?php foreach ($unassigned_posts as $idx => $p):
+                                    $thumb_url = get_the_post_thumbnail_url($p->ID, 'thumbnail');
+                                    $nickname = get_post_meta($p->ID, 'personnel_nickname', true);
+                                    $position = get_post_meta($p->ID, 'personnel_position', true);
+                                ?>
+                                    <div class="personnel-dept-row" data-post-id="<?php echo (int)$p->ID; ?>">
+                                        <div class="col-drag" title="ลากเพื่อสลับตำแหน่ง">
+                                            <span class="dashicons dashicons-menu"></span>
+                                        </div>
+                                        <div class="col-order">
+                                            <span class="order-badge" style="background:#64748b;">#<?php echo (int)($idx + 1); ?></span>
+                                        </div>
+                                        <div class="col-avatar">
+                                            <?php if ($thumb_url): ?>
+                                                <img src="<?php echo esc_url($thumb_url); ?>" alt="<?php echo esc_attr($p->post_title); ?>" />
+                                            <?php else: ?>
+                                                <div class="avatar-placeholder"><span class="dashicons dashicons-admin-users"></span></div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="col-info">
+                                            <div class="person-name">
+                                                <strong><?php echo esc_html($p->post_title); ?></strong>
+                                                <?php if (!empty($nickname)): ?>
+                                                    <span class="person-nickname">(<?php echo esc_html($nickname); ?>)</span>
+                                                <?php endif; ?>
+                                            </div>
+                                            <div class="person-position">
+                                                <span class="pos-badge" style="background:#64748b;"><?php echo esc_html($position ?: 'บุคลากร'); ?></span>
+                                            </div>
+                                        </div>
+                                        <div class="col-actions">
+                                            <a href="<?php echo get_edit_post_link($p->ID); ?>" target="_blank" class="btn-ctrl btn-edit">
+                                                <span class="dashicons dashicons-edit"></span> กำหนดฝ่าย
+                                            </a>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <script>
+            jQuery(function($) {
+                var nonce = '<?php echo esc_js($nonce); ?>';
+
+                function showToast(msg) {
+                    $('#personnel-dept-toast').text(msg || '✓ บันทึกลำดับเรียบร้อยแล้ว').stop(true, true).fadeIn(200);
+                    setTimeout(function() {
+                        $('#personnel-dept-toast').fadeOut(400);
+                    }, 2800);
+                }
+
+                // 1. Department Tabs Filter
+                $('.dept-pill').on('click', function() {
+                    $('.dept-pill').removeClass('active');
+                    $(this).addClass('active');
+
+                    var target = $(this).data('target');
+                    if (target === 'all') {
+                        $('.dept-section-card').show();
+                    } else {
+                        $('.dept-section-card').hide();
+                        $('#' + target).show();
+                    }
+                });
+
+                // 2. Update numbers and trigger save for a list
+                function saveListOrder($list, $highlightRow) {
+                    var termId = $list.data('term-id');
+                    var termName = $list.data('term-name') || 'ฝ่ายนี้';
+                    var postIds = [];
+
+                    $list.find('.personnel-dept-row').each(function(index) {
+                        $(this).find('.order-badge').text('#' + (index + 1));
+                        postIds.push($(this).data('post-id'));
+                    });
+
+                    if ($highlightRow && $highlightRow.length) {
+                        $highlightRow.addClass('row-just-moved');
+                        setTimeout(function() {
+                            $highlightRow.removeClass('row-just-moved');
+                        }, 1000);
+                    }
+
+                    if (!postIds.length) return;
+
+                    $.ajax({
+                        url: ajaxurl,
+                        type: 'POST',
+                        data: {
+                            action: 'project_core_reorder_dept_personnel',
+                            nonce: nonce,
+                            term_id: termId,
+                            post_ids: postIds
+                        },
+                        success: function(res) {
+                            if (res.success) {
+                                showToast('✓ บันทึกลำดับใน ' + termName + ' เรียบร้อยแล้ว (' + postIds.length + ' ท่าน)');
+                            }
+                        }
+                    });
+                }
+
+                // 3. Make each department list Sortable
+                $('.personnel-dept-list').each(function() {
+                    var $list = $(this);
+                    $list.sortable({
+                        items: '.personnel-dept-row',
+                        handle: '.col-drag, .order-badge, .col-avatar',
+                        cancel: 'button, a, input',
+                        axis: 'y',
+                        cursor: 'grabbing',
+                        opacity: 0.88,
+                        placeholder: 'ui-sortable-placeholder',
+                        update: function(event, ui) {
+                            saveListOrder($list, ui.item);
+                        }
+                    });
+                });
+
+                // 4. Quick Action Buttons
+                $(document).on('click', '.btn-move-up', function() {
+                    var $row = $(this).closest('.personnel-dept-row');
+                    var $prev = $row.prev('.personnel-dept-row');
+                    if ($prev.length) {
+                        $row.insertBefore($prev);
+                        saveListOrder($row.closest('.personnel-dept-list'), $row);
+                    }
+                });
+
+                $(document).on('click', '.btn-move-down', function() {
+                    var $row = $(this).closest('.personnel-dept-row');
+                    var $next = $row.next('.personnel-dept-row');
+                    if ($next.length) {
+                        $row.insertAfter($next);
+                        saveListOrder($row.closest('.personnel-dept-list'), $row);
+                    }
+                });
+
+                $(document).on('click', '.btn-move-top', function() {
+                    var $row = $(this).closest('.personnel-dept-row');
+                    var $list = $row.closest('.personnel-dept-list');
+                    $list.prepend($row);
+                    saveListOrder($list, $row);
+                });
+
+                $(document).on('click', '.btn-move-bottom', function() {
+                    var $row = $(this).closest('.personnel-dept-row');
+                    var $list = $row.closest('.personnel-dept-list');
+                    $list.append($row);
+                    saveListOrder($list, $row);
+                });
+
+                // Manual Save button
+                $('.btn-manual-save').on('click', function() {
+                    var termId = $(this).data('term-id');
+                    var $card = $('#dept-' + termId);
+                    var $list = $card.find('.personnel-dept-list');
+                    if ($list.length) {
+                        saveListOrder($list);
+                    }
+                });
+
+                // 5. Auto Index All Departments button
+                $('#btn-auto-index-all').on('click', function() {
+                    if (!confirm('ต้องการจัดระเบียบลำดับเริ่มต้นของบุคลากรทุกฝ่ายตามลำดับปัจจุบันใช่หรือไม่?')) {
+                        return;
+                    }
+                    var $btn = $(this);
+                    $btn.prop('disabled', true).text('กำลังจัดระเบียบ...');
+
+                    $.ajax({
+                        url: ajaxurl,
+                        type: 'POST',
+                        data: {
+                            action: 'project_core_auto_index_personnel',
+                            nonce: nonce
+                        },
+                        success: function(res) {
+                            $btn.prop('disabled', false).html('<span class="dashicons dashicons-update" style="vertical-align:middle; font-size:16px;"></span> ⚡ จัดระเบียบทุกฝ่ายอัตโนมัติ');
+                            if (res.success) {
+                                showToast('✓ จัดระเบียบลำดับทุกฝ่ายเรียบร้อยแล้ว (' + res.data.updated + ' รายการ)');
+                                setTimeout(function() {
+                                    window.location.reload();
+                                }, 1200);
+                            }
+                        },
+                        error: function() {
+                            $btn.prop('disabled', false).html('<span class="dashicons dashicons-update" style="vertical-align:middle; font-size:16px;"></span> ⚡ จัดระเบียบทุกฝ่ายอัตโนมัติ');
+                            alert('เกิดข้อผิดพลาดในการบันทึก กรุณาลองใหม่อีกครั้ง');
+                        }
+                    });
+                });
+            });
+            </script>
+        </div>
+        <?php
     }
 
     /**

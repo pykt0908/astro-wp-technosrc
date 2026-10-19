@@ -185,6 +185,7 @@ export interface Personnel {
   name: string;
   slug: string;
   order: number;
+  dept_order?: number;
   nickname?: string;
   position: string;
   department: string;

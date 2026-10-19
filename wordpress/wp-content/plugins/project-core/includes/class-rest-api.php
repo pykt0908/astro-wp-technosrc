@@ -1040,6 +1040,7 @@ class Project_Core_REST_API {
                 'name'       => $post->post_title,
                 'slug'       => $post->post_name,
                 'order'      => (int) $post->menu_order,
+                'dept_order' => (int) (get_post_meta($post_id, 'personnel_dept_order', true) ?: $post->menu_order),
                 'nickname'   => get_post_meta($post_id, 'personnel_nickname', true) ?: '',
                 'position'   => get_post_meta($post_id, 'personnel_position', true) ?: '',
                 'department' => get_post_meta($post_id, 'personnel_department', true) ?: '',
