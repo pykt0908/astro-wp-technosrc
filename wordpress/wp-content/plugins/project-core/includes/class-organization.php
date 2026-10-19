@@ -798,18 +798,18 @@ class Project_Core_Organization {
                 <input type="hidden" name="deleted_division_ids" id="deleted_division_ids" value="">
                 <input type="hidden" name="deleted_job_ids" id="deleted_job_ids" value="">
 
-                <!-- Section 1: Policy Leaders & Committee -->
+                <!-- Section 1: Policy Leaders (Executive Board) -->
                 <div class="postbox">
                     <div class="postbox-header">
                         <div style="display:flex; align-items:center; gap:10px;">
                             <span style="display:inline-block; width:12px; height:12px; border-radius:50%; background:#0047BA;"></span>
                             <h2 style="font-size:16px; font-weight:800; color:#0f172a; margin:0;">
-                                1. <?php _e('คณะผู้บริหารระดับนโยบาย และ คณะกรรมการสถานศึกษา', 'project-core'); ?>
+                                1. <?php _e('คณะผู้บริหารระดับนโยบาย (Executive Board)', 'project-core'); ?>
                             </h2>
                         </div>
                         <div>
                             <button type="button" class="button button-secondary button-small" onclick="addNewLeaderRow()">
-                                + <?php _e('เพิ่มตำแหน่งผู้บริหาร/กรรมการ', 'project-core'); ?>
+                                + <?php _e('เพิ่มตำแหน่งผู้บริหาร', 'project-core'); ?>
                             </button>
                         </div>
                     </div>
@@ -818,23 +818,20 @@ class Project_Core_Organization {
                             <thead>
                                 <tr>
                                     <th style="width:5%; text-align:center;">#</th>
-                                    <th style="width:25%;"><?php _e('ชื่อตำแหน่งในโครงสร้าง', 'project-core'); ?></th>
-                                    <th style="width:16%;"><?php _e('ประเภทตำแหน่ง', 'project-core'); ?></th>
-                                    <th style="width:30%;"><?php _e('ผู้ดำรงตำแหน่ง (บุคลากร)', 'project-core'); ?></th>
-                                    <th style="width:16%;"><?php _e('หมายเหตุ / สถานะพิเศษ', 'project-core'); ?></th>
+                                    <th style="width:36%;"><?php _e('ชื่อตำแหน่งในโครงสร้าง', 'project-core'); ?></th>
+                                    <th style="width:34%;"><?php _e('ผู้ดำรงตำแหน่ง (บุคลากร)', 'project-core'); ?></th>
+                                    <th style="width:17%;"><?php _e('หมายเหตุ / สถานะพิเศษ', 'project-core'); ?></th>
                                     <th style="width:8%; text-align:center;"><?php _e('จัดการ', 'project-core'); ?></th>
                                 </tr>
                             </thead>
                             <tbody id="leaders_tbody">
                                 <?php 
-                                $policy_items = $data['leaders'];
-                                if ($data['committee']) {
-                                    $policy_items[] = $data['committee'];
-                                }
+                                $policy_items = array_values(array_filter($data['leaders'], function($l) {
+                                    return $l['type'] === 'executive';
+                                }));
                                 foreach ($policy_items as $l_idx => $leader): 
                                     $p_id = !empty($leader['personnel']['id']) ? intval($leader['personnel']['id']) : 0;
                                     $lid = esc_attr($leader['id']);
-                                    $is_comm = ($leader['type'] === 'committee');
                                 ?>
                                     <tr id="leader_row_<?php echo $lid; ?>" class="searchable-row">
                                         <td style="text-align:center; color:#94a3b8; font-weight:700;" class="row-num">
@@ -842,12 +839,7 @@ class Project_Core_Organization {
                                         </td>
                                         <td>
                                             <input type="text" name="leaders[<?php echo $lid; ?>][position]" value="<?php echo esc_attr($leader['position']); ?>" class="regular-text" style="width:96%; font-weight:700;" required>
-                                        </td>
-                                        <td>
-                                            <select name="leaders[<?php echo $lid; ?>][type]" style="width:96%;">
-                                                <option value="executive" <?php selected($leader['type'], 'executive'); ?>><?php _e('ผู้บริหารระดับนโยบาย', 'project-core'); ?></option>
-                                                <option value="committee" <?php selected($leader['type'], 'committee'); ?>><?php _e('คณะกรรมการสถานศึกษา', 'project-core'); ?></option>
-                                            </select>
+                                            <input type="hidden" name="leaders[<?php echo $lid; ?>][type]" value="executive">
                                         </td>
                                         <td>
                                             <select name="leaders[<?php echo $lid; ?>][personnel_id]" class="regular-text" style="width:96%;">
@@ -1150,13 +1142,8 @@ class Project_Core_Organization {
 
                 tr.innerHTML = 
                     '<td style="text-align:center; color:#10b981; font-weight:700;" class="row-num">' + count + '</td>' +
-                    '<td><input type="text" name="leaders[new_' + timestamp + '][position]" value="" placeholder="<?php echo esc_js(__('ระบุชื่อตำแหน่งผู้บริหาร...', 'project-core')); ?>" class="regular-text" style="width:96%; font-weight:700; border-color:#10b981;" required></td>' +
-                    '<td>' +
-                        '<select name="leaders[new_' + timestamp + '][type]" style="width:96%;">' +
-                            '<option value="executive"><?php echo esc_js(__('ผู้บริหารระดับนโยบาย', 'project-core')); ?></option>' +
-                            '<option value="committee"><?php echo esc_js(__('คณะกรรมการสถานศึกษา', 'project-core')); ?></option>' +
-                        '</select>' +
-                    '</td>' +
+                    '<td><input type="text" name="leaders[new_' + timestamp + '][position]" value="" placeholder="<?php echo esc_js(__('ระบุชื่อตำแหน่งผู้บริหาร...', 'project-core')); ?>" class="regular-text" style="width:96%; font-weight:700; border-color:#10b981;" required>' +
+                    '<input type="hidden" name="leaders[new_' + timestamp + '][type]" value="executive"></td>' +
                     '<td><select name="leaders[new_' + timestamp + '][personnel_id]" class="regular-text" style="width:96%;">' + personnelOptionsHtml + '</select></td>' +
                     '<td><input type="text" name="leaders[new_' + timestamp + '][remark]" value="" class="regular-text" style="width:96%;" placeholder="<?php echo esc_js(__('เช่น รักษาการในตำแหน่ง', 'project-core')); ?>"></td>' +
                     '<td style="text-align:center;">' +
