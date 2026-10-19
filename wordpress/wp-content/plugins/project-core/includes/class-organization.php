@@ -77,7 +77,7 @@ class Project_Core_Organization {
             'public'             => false,
             'publicly_queryable' => false,
             'show_ui'            => true,
-            'show_in_menu'       => 'project-core-organization',
+            'show_in_menu'       => false,
             'query_var'          => false,
             'rewrite'            => false,
             'capability_type'    => 'post',
@@ -108,7 +108,7 @@ class Project_Core_Organization {
             'public'             => false,
             'publicly_queryable' => false,
             'show_ui'            => true,
-            'show_in_menu'       => 'project-core-organization',
+            'show_in_menu'       => false,
             'query_var'          => false,
             'rewrite'            => false,
             'capability_type'    => 'post',
@@ -131,31 +131,6 @@ class Project_Core_Organization {
             array($this, 'render_overview_page'),
             'dashicons-networking',
             24
-        );
-
-        add_submenu_page(
-            'project-core-organization',
-            __('จัดการโครงสร้าง (หน้าเดียว)', 'project-core'),
-            __('จัดการโครงสร้าง (หน้าเดียว)', 'project-core'),
-            'manage_options',
-            'project-core-organization',
-            array($this, 'render_overview_page')
-        );
-
-        add_submenu_page(
-            'project-core-organization',
-            __('ตำแหน่งทั้งหมด (ขั้นสูง)', 'project-core'),
-            __('ตำแหน่งทั้งหมด (ขั้นสูง)', 'project-core'),
-            'manage_options',
-            'edit.php?post_type=org_position'
-        );
-
-        add_submenu_page(
-            'project-core-organization',
-            __('หน่วยงานทั้งหมด (ขั้นสูง)', 'project-core'),
-            __('หน่วยงานทั้งหมด (ขั้นสูง)', 'project-core'),
-            'manage_options',
-            'edit.php?post_type=org_unit'
         );
     }
 
