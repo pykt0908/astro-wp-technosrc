@@ -1421,35 +1421,13 @@ class Project_Core_Post_Types {
                     padding: 12px 24px; background: #007017; color: #ffffff; font-weight: 600;
                     border-radius: 6px; box-shadow: 0 6px 22px rgba(0,0,0,0.25); font-size: 14px;
                 }
-                a#btn-personnel-dept-reorder.page-title-action {
-                    background: #0047BA !important;
-                    color: #ffffff !important;
-                    border-color: #0047BA !important;
-                    font-weight: 600 !important;
-                    display: inline-flex !important;
-                    align-items: center !important;
-                    justify-content: center !important;
-                    gap: 6px !important;
-                    vertical-align: top !important;
-                    height: 30px !important;
-                    line-height: 28px !important;
-                    padding: 0 12px !important;
-                    margin-left: 8px !important;
-                    box-sizing: border-box !important;
-                    border-radius: 4px !important;
-                    font-size: 13px !important;
-                    text-decoration: none !important;
-                    box-shadow: 0 1px 2px rgba(0, 71, 186, 0.2);
-                }
-                a#btn-personnel-dept-reorder.page-title-action:hover {
-                    background: #00368d !important;
-                    border-color: #00368d !important;
-                    color: #ffffff !important;
-                }
-                a#btn-personnel-dept-reorder.page-title-action svg {
-                    display: inline-block;
-                    vertical-align: middle;
-                    flex-shrink: 0;
+                #btn-personnel-dept-reorder .dashicons {
+                    font-size: 14px;
+                    width: 14px;
+                    height: 14px;
+                    line-height: 1;
+                    vertical-align: -1px;
+                    margin-right: 3px;
                 }
             </style>
             <div id="personnel-reorder-notice">✓ บันทึกลำดับบุคลากรเรียบร้อยแล้ว</div>
@@ -1458,7 +1436,7 @@ class Project_Core_Post_Types {
                 // Add quick link to "จัดลำดับตามฝ่าย" next to "เพิ่มบุคลากรใหม่"
                 var $addNew = $('a.page-title-action');
                 if ($addNew.length && !$('#btn-personnel-dept-reorder').length) {
-                    $addNew.after('<a id="btn-personnel-dept-reorder" href="<?php echo esc_url(admin_url('edit.php?post_type=personnel&page=personnel-reorder')); ?>" class="page-title-action"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 15l5 5 5-5"/><path d="M7 9l5-5 5 5"/></svg><span>จัดลำดับตามฝ่าย</span></a>');
+                    $addNew.after('<a id="btn-personnel-dept-reorder" href="<?php echo esc_url(admin_url('edit.php?post_type=personnel&page=personnel-reorder')); ?>" class="page-title-action"><span class="dashicons dashicons-sort"></span><?php esc_html_e('จัดลำดับตามฝ่าย', 'project-core'); ?></a>');
                 }
 
                 var $tbody = $('#the-list');
