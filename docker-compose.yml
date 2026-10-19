@@ -44,6 +44,7 @@ services:
       - wp_data:/var/www/html
       # Bind-mount custom plugin for live development
       - ./wordpress/wp-content/plugins/project-core:/var/www/html/wp-content/plugins/project-core
+      - ./wordpress/wp-content/plugins/techno-media-folders:/var/www/html/wp-content/plugins/techno-media-folders
       # Bind-mount custom themes
       - ./wordpress/wp-content/themes:/var/www/html/wp-content/themes
     networks:

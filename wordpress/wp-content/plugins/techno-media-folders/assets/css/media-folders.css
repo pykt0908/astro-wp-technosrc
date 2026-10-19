@@ -1,0 +1,472 @@
+/**
+ * Techno Media Folders - CSS
+ * Native WordPress Admin Styling
+ */
+
+:root {
+    --tmf-sidebar-width: 250px;
+    --tmf-primary: #2271b1;
+    --tmf-primary-dark: #135e96;
+    --tmf-hover-bg: #f0f6fc;
+    --tmf-active-bg: #e7f1fa;
+    --tmf-border: #dcdcde;
+}
+
+/* Container integration for Grid view (upload.php standalone page) */
+.upload-php .media-frame.mode-grid.techno-mf-has-sidebar {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch !important;
+    min-height: calc(100vh - 150px) !important;
+    position: relative !important;
+    background: #ffffff !important;
+    border: 1px solid var(--tmf-border) !important;
+    box-sizing: border-box !important;
+    margin-top: 15px !important;
+}
+
+.upload-php .media-frame.mode-grid.techno-mf-has-sidebar .tmf-sidebar {
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: auto !important;
+    min-height: calc(100vh - 150px) !important;
+    border-right: 1px solid var(--tmf-border) !important;
+    flex-shrink: 0 !important;
+}
+
+.upload-php .media-frame.mode-grid.techno-mf-has-sidebar .media-frame-content {
+    position: relative !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: auto !important;
+    flex-grow: 1 !important;
+    min-width: 0 !important;
+}
+
+/* Modal Popup integration (e.g. Set Featured Image modal) */
+.media-modal .media-frame.techno-mf-has-sidebar .tmf-sidebar {
+    position: absolute !important;
+    top: 50px !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: var(--tmf-sidebar-width) !important;
+    z-index: 100 !important;
+}
+
+.media-modal .media-frame.techno-mf-has-sidebar .media-frame-content {
+    left: var(--tmf-sidebar-width) !important;
+    width: calc(100% - var(--tmf-sidebar-width)) !important;
+}
+
+.media-modal .media-frame.techno-mf-has-sidebar.tmf-sidebar-collapsed .tmf-sidebar {
+    width: 40px !important;
+}
+
+.media-modal .media-frame.techno-mf-has-sidebar.tmf-sidebar-collapsed .media-frame-content {
+    left: 40px !important;
+    width: calc(100% - 40px) !important;
+}
+
+/* Sidebar integration for List view (upload.php?mode=list) */
+.techno-mf-list-layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    margin-top: 15px;
+}
+
+.techno-mf-list-layout .tmf-sidebar {
+    flex-shrink: 0;
+    position: sticky;
+    top: 45px;
+    height: calc(100vh - 120px);
+}
+
+.techno-mf-list-layout .tmf-list-content {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+/* Main Sidebar Structure */
+.tmf-sidebar {
+    width: var(--tmf-sidebar-width);
+    background: #ffffff;
+    border-right: 1px solid var(--tmf-border);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 50;
+    transition: width 0.2s ease;
+    user-select: none;
+}
+
+.tmf-sidebar-collapsed .tmf-sidebar {
+    width: 40px;
+}
+
+.tmf-sidebar-collapsed .tmf-header,
+.tmf-sidebar-collapsed .tmf-search-box,
+.tmf-sidebar-collapsed .tmf-tree-container,
+.tmf-sidebar-collapsed .tmf-item-name,
+.tmf-sidebar-collapsed .tmf-count,
+.tmf-sidebar-collapsed .tmf-actions-trigger {
+    display: none !important;
+}
+
+/* Sidebar Header */
+.tmf-header {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--tmf-border);
+    background: #f6f7f7;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.tmf-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1d2327;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+}
+
+.tmf-title .dashicons {
+    color: var(--tmf-primary);
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+}
+
+.tmf-btn-new-folder {
+    padding: 2px 8px !important;
+    font-size: 12px !important;
+    height: 26px !important;
+    line-height: 22px !important;
+    white-space: nowrap !important;
+    font-weight: 600 !important;
+}
+
+/* Collapse Toggle */
+.tmf-sidebar-toggle {
+    position: absolute;
+    top: 10px;
+    right: -14px;
+    width: 24px;
+    height: 24px;
+    background: #ffffff;
+    border: 1px solid var(--tmf-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 60;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    color: #646970;
+    transition: background-color 0.15s;
+}
+
+.tmf-sidebar-toggle:hover {
+    background: var(--tmf-hover-bg);
+    color: var(--tmf-primary);
+}
+
+.tmf-sidebar-toggle .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+}
+
+/* Search Box */
+.tmf-search-box {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f0f0f1;
+    position: relative;
+}
+
+.tmf-search-box input {
+    width: 100%;
+    padding: 4px 8px 4px 26px;
+    font-size: 12px;
+    border-radius: 4px;
+    border: 1px solid var(--tmf-border);
+    box-sizing: border-box;
+}
+
+.tmf-search-box .dashicons-search {
+    position: absolute;
+    left: 18px;
+    top: 13px;
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+    color: #8c8f94;
+}
+
+/* Tree Container */
+.tmf-tree-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 6px 0;
+}
+
+/* Folder Items */
+.tmf-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 7px 10px 7px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #2c3338;
+    position: relative;
+    border-left: 3px solid transparent;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+
+.tmf-item:hover {
+    background-color: var(--tmf-hover-bg);
+    color: #1d2327;
+}
+
+.tmf-item.tmf-active {
+    background-color: var(--tmf-active-bg);
+    color: var(--tmf-primary);
+    font-weight: 600;
+    border-left-color: var(--tmf-primary);
+}
+
+.tmf-item-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.tmf-expander {
+    width: 16px;
+    height: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #8c8f94;
+    border-radius: 2px;
+}
+
+.tmf-expander:hover {
+    color: #1d2327;
+}
+
+.tmf-expander .dashicons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    line-height: 14px;
+}
+
+.tmf-expander.tmf-empty {
+    visibility: hidden;
+}
+
+.tmf-icon {
+    font-size: 17px;
+    width: 17px;
+    height: 17px;
+    line-height: 17px;
+    color: #8c8f94;
+    flex-shrink: 0;
+}
+
+.tmf-item.tmf-active .tmf-icon {
+    color: var(--tmf-primary);
+}
+
+.tmf-item-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+}
+
+.tmf-item-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.tmf-count {
+    background: #f0f0f1;
+    color: #646970;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 10px;
+    min-width: 14px;
+    text-align: center;
+}
+
+.tmf-item.tmf-active .tmf-count {
+    background: #d0e4f7;
+    color: var(--tmf-primary);
+}
+
+/* Action Trigger */
+.tmf-actions-trigger {
+    opacity: 0;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 3px;
+    color: #646970;
+    display: flex;
+    align-items: center;
+}
+
+.tmf-item:hover .tmf-actions-trigger {
+    opacity: 1;
+}
+
+.tmf-actions-trigger:hover {
+    background: #dcdcde;
+    color: #1d2327;
+}
+
+.tmf-actions-trigger .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+}
+
+/* Hierarchy Indentation */
+.tmf-level-0 { padding-left: 10px; }
+.tmf-level-1 { padding-left: 26px; }
+.tmf-level-2 { padding-left: 42px; }
+.tmf-level-3 { padding-left: 58px; }
+.tmf-level-4 { padding-left: 74px; }
+
+/* Separator */
+.tmf-separator {
+    height: 1px;
+    background: var(--tmf-border);
+    margin: 6px 12px;
+}
+
+/* Context Menu */
+.tmf-context-menu {
+    position: fixed;
+    background: #ffffff;
+    border: 1px solid var(--tmf-border);
+    border-radius: 4px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    z-index: 999999;
+    padding: 4px 0;
+    min-width: 160px;
+    display: none;
+}
+
+.tmf-context-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: #2c3338;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.tmf-context-menu-item:hover {
+    background: var(--tmf-hover-bg);
+    color: var(--tmf-primary);
+}
+
+.tmf-context-menu-item.tmf-danger:hover {
+    background: #fcf0f1;
+    color: #d63638;
+}
+
+.tmf-context-menu-item .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    color: #646970;
+}
+
+.tmf-context-menu-item:hover .dashicons {
+    color: inherit;
+}
+
+/* Droppable Hover State */
+.tmf-item.tmf-droppable-hover {
+    background-color: #d0e4f7 !important;
+    outline: 2px dashed var(--tmf-primary) !important;
+    outline-offset: -2px;
+    border-left-color: var(--tmf-primary) !important;
+}
+
+/* Dragging media helper */
+.tmf-drag-helper {
+    background: var(--tmf-primary);
+    color: #ffffff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    z-index: 999999;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Toast Notification */
+.tmf-toast {
+    position: fixed;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1d2327;
+    color: #ffffff;
+    padding: 9px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    z-index: 999999;
+    display: none;
+    align-items: center;
+    gap: 8px;
+}
+
+.tmf-toast.tmf-toast-success {
+    background: #007017;
+}
+
+.tmf-toast.tmf-toast-error {
+    background: #d63638;
+}
+
+/* Attachment Details Field in Modal */
+.techno-attachment-folder-select {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 4px;
+    font-size: 13px;
+    border: 1px solid #8c8f94;
+}
