@@ -539,26 +539,14 @@
                 self.forceDismissUploader();
             });
 
-            // Capture-phase prevention: stops WordPress UploaderWindow from activating during internal drags
-            window.addEventListener('dragenter', function(e) {
-                if (document.body.classList.contains('tmf-is-dragging')) {
-                    e.stopImmediatePropagation();
-                    $('.uploader-window').hide().css({ display: 'none', opacity: 0 });
+            // Prevent uploader-window from interfering with internal drags
+            $(document).on('dragover dragenter', '.uploader-window', function(e) {
+                if ($('body').hasClass('tmf-is-dragging')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    $(this).hide().css({ display: 'none', opacity: 0 });
                 }
-            }, true);
-
-            window.addEventListener('dragover', function(e) {
-                if (document.body.classList.contains('tmf-is-dragging')) {
-                    e.stopImmediatePropagation();
-                    $('.uploader-window').hide().css({ display: 'none', opacity: 0 });
-                }
-            }, true);
-
-            window.addEventListener('dragleave', function(e) {
-                if (document.body.classList.contains('tmf-is-dragging')) {
-                    e.stopImmediatePropagation();
-                }
-            }, true);
+            });
 
             // Initial pass for currently rendered items
             setTimeout(function() {

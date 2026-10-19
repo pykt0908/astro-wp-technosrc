@@ -434,6 +434,8 @@ body.tmf-is-dragging #the-list tr {
 body.tmf-is-dragging .uploader-window {
     display: none !important;
     pointer-events: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
 }
 
 .attachment.tmf-dragging,
