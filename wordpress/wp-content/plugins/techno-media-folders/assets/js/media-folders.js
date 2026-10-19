@@ -419,7 +419,7 @@
                 e.preventDefault();
                 e.stopPropagation();
                 $(this).removeClass('tmf-droppable-hover');
-                $('body').removeClass('tmf-is-dragging');
+                self.forceDismissUploader();
 
                 var targetFolderId = $(this).data('folder-id');
                 var data = e.originalEvent.dataTransfer.getData('text/plain');
@@ -429,6 +429,9 @@
                 if (itemIds.length) {
                     self.moveAttachments(itemIds, targetFolderId);
                 }
+                setTimeout(function() {
+                    self.forceDismissUploader();
+                }, 50);
             });
         },
 
@@ -521,19 +524,64 @@
 
             $(document).on('dragend', function() {
                 $('.tmf-dragging').removeClass('tmf-dragging');
-                $('body').removeClass('tmf-is-dragging');
                 $('.tmf-droppable-hover').removeClass('tmf-droppable-hover');
+                self.forceDismissUploader();
+                setTimeout(function() {
+                    self.forceDismissUploader();
+                }, 50);
+                setTimeout(function() {
+                    self.forceDismissUploader();
+                }, 200);
             });
 
-            // Dismiss stuck WordPress uploader-window on click
-            $(document).on('click', '.uploader-window', function() {
-                $(this).hide();
+            // Dismiss stuck WordPress uploader-window on click or mouseover
+            $(document).on('click mouseenter', '.uploader-window', function() {
+                self.forceDismissUploader();
             });
+
+            // Capture-phase prevention: stops WordPress UploaderWindow from activating during internal drags
+            window.addEventListener('dragenter', function(e) {
+                if (document.body.classList.contains('tmf-is-dragging')) {
+                    e.stopImmediatePropagation();
+                    $('.uploader-window').hide().css({ display: 'none', opacity: 0 });
+                }
+            }, true);
+
+            window.addEventListener('dragover', function(e) {
+                if (document.body.classList.contains('tmf-is-dragging')) {
+                    e.stopImmediatePropagation();
+                    $('.uploader-window').hide().css({ display: 'none', opacity: 0 });
+                }
+            }, true);
+
+            window.addEventListener('dragleave', function(e) {
+                if (document.body.classList.contains('tmf-is-dragging')) {
+                    e.stopImmediatePropagation();
+                }
+            }, true);
 
             // Initial pass for currently rendered items
             setTimeout(function() {
                 $('.attachments .attachment, #the-list tr').attr('draggable', 'true');
             }, 300);
+        },
+
+        forceDismissUploader: function() {
+            $('body').removeClass('tmf-is-dragging drag-over');
+            $('.uploader-window').hide().css({
+                'display': 'none',
+                'opacity': 0
+            }).removeClass('drag-over');
+
+            $('*').filter(function() {
+                return $(this).hasClass('drag-over');
+            }).removeClass('drag-over').trigger('dropzone:leave');
+
+            if (typeof wp !== 'undefined' && wp.media && wp.media.frame) {
+                if (wp.media.frame._uploader && typeof wp.media.frame._uploader.hide === 'function') {
+                    wp.media.frame._uploader.hide();
+                }
+            }
         },
 
         showContextMenu: function($trigger, folderId, folderName) {
@@ -803,6 +851,7 @@
 
         moveAttachments: function(itemIds, targetFolderId) {
             var self = this;
+            self.forceDismissUploader();
             $.ajax({
                 url: ajaxUrl,
                 type: 'POST',
@@ -813,6 +862,7 @@
                     target_folder: targetFolderId
                 },
                 success: function(res) {
+                    self.forceDismissUploader();
                     if (res.success) {
                         var targetName = res.data && res.data.target_name ? res.data.target_name : '';
                         var count = res.data && res.data.moved_count ? res.data.moved_count : itemIds.length;
@@ -854,8 +904,11 @@
                             }
                         }
                     } else {
-                        alert(res.data ? res.data.message : 'เกิดข้อผิดพลาดในการย้ายไฟล์');
+                        self.showToast(res.data ? res.data.message : 'เกิดข้อผิดพลาดในการย้ายไฟล์', 'error');
                     }
+                },
+                error: function() {
+                    self.forceDismissUploader();
                 }
             });
         },
