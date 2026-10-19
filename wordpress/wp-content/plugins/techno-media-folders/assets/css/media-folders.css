@@ -229,7 +229,16 @@
     color: #2c3338;
     position: relative;
     border-left: 3px solid transparent;
-    transition: background-color 0.15s, border-color 0.15s;
+    transition: background-color 0.15s, border-color 0.15s, transform 0.15s;
+}
+
+.tmf-item * {
+    pointer-events: none;
+}
+
+.tmf-item .tmf-actions-trigger,
+.tmf-item .tmf-expander {
+    pointer-events: auto;
 }
 
 .tmf-item:hover {
@@ -409,12 +418,37 @@
     color: inherit;
 }
 
+/* Drag & Drop Visuals */
+.attachments .attachment,
+#the-list tr {
+    cursor: grab;
+    transition: opacity 0.2s ease;
+}
+
+body.tmf-is-dragging,
+body.tmf-is-dragging .attachments .attachment,
+body.tmf-is-dragging #the-list tr {
+    cursor: grabbing !important;
+}
+
+body.tmf-is-dragging .uploader-window {
+    display: none !important;
+    pointer-events: none !important;
+}
+
+.attachment.tmf-dragging,
+#the-list tr.tmf-dragging {
+    opacity: 0.35 !important;
+    outline: 2px dashed var(--tmf-primary) !important;
+}
+
 /* Droppable Hover State */
 .tmf-item.tmf-droppable-hover {
     background-color: #d0e4f7 !important;
     outline: 2px dashed var(--tmf-primary) !important;
     outline-offset: -2px;
     border-left-color: var(--tmf-primary) !important;
+    transform: translateX(4px);
 }
 
 /* Toast Notification */

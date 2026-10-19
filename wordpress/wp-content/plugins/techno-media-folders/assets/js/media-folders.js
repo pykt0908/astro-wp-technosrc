@@ -406,15 +406,22 @@
                 $(this).addClass('tmf-droppable-hover');
             });
 
-            $root.on('dragleave dragend', '.tmf-item', function() {
-                $(this).removeClass('tmf-droppable-hover');
+            $root.on('dragleave', '.tmf-item', function(e) {
+                var rect = this.getBoundingClientRect();
+                var x = e.originalEvent.clientX;
+                var y = e.originalEvent.clientY;
+                if (x < rect.left || x >= rect.right || y < rect.top || y >= rect.bottom) {
+                    $(this).removeClass('tmf-droppable-hover');
+                }
             });
 
             $root.on('drop', '.tmf-item', function(e) {
                 e.preventDefault();
+                e.stopPropagation();
                 $(this).removeClass('tmf-droppable-hover');
-                var targetFolderId = $(this).data('folder-id');
+                $('body').removeClass('tmf-is-dragging');
 
+                var targetFolderId = $(this).data('folder-id');
                 var data = e.originalEvent.dataTransfer.getData('text/plain');
                 if (!data) return;
 
@@ -470,28 +477,58 @@
         setupDraggableAttachments: function($frame) {
             var self = this;
 
-            // Make .attachment elements draggable using HTML5
-            $(document).on('dragstart', '.attachment', function(e) {
-                var $attachment = $(this);
-                var id = $attachment.data('id') || ($attachment.attr('id') ? $attachment.attr('id').replace('post-', '') : '');
+            // Ensure draggable="true" on all attachments and list rows on hover or touch
+            $(document).on('mouseenter mouseover', '.attachments .attachment, #the-list tr', function() {
+                if (!$(this).attr('draggable')) {
+                    $(this).attr('draggable', 'true');
+                }
+            });
+
+            // Make .attachment and list rows draggable
+            $(document).on('dragstart', '.attachment, #the-list tr', function(e) {
+                var $item = $(this);
+                var id = $item.data('id');
+                if (!id && $item.attr('id')) {
+                    id = $item.attr('id').replace(/^(post-|attachment-)/, '');
+                }
                 if (!id) return;
 
-                // Check if multiple attachments are selected
                 var ids = [id];
-                if ($attachment.hasClass('selected')) {
+                // Check if multiple attachments are selected in bulk mode
+                if ($item.hasClass('selected')) {
                     var selectedIds = [];
                     $('.attachment.selected').each(function() {
-                        var selId = $(this).data('id') || ($(this).attr('id') ? $(this).attr('id').replace('post-', '') : '');
-                        if (selId) selectedIds.push(selId);
+                        var sId = $(this).data('id') || ($(this).attr('id') ? $(this).attr('id').replace(/^(post-|attachment-)/, '') : '');
+                        if (sId) selectedIds.push(sId);
                     });
-                    if (selectedIds.length > 0) {
-                        ids = selectedIds;
+                    if (selectedIds.length > 0) ids = selectedIds;
+                } else if ($('#the-list').length) {
+                    var checkedIds = [];
+                    $('#the-list input[name="media[]"]:checked').each(function() {
+                        checkedIds.push($(this).val());
+                    });
+                    if (checkedIds.indexOf(id.toString()) !== -1 && checkedIds.length > 1) {
+                        ids = checkedIds;
                     }
                 }
 
                 e.originalEvent.dataTransfer.setData('text/plain', ids.join(','));
                 e.originalEvent.dataTransfer.effectAllowed = 'move';
+
+                $item.addClass('tmf-dragging');
+                $('body').addClass('tmf-is-dragging');
             });
+
+            $(document).on('dragend', function() {
+                $('.tmf-dragging').removeClass('tmf-dragging');
+                $('body').removeClass('tmf-is-dragging');
+                $('.tmf-droppable-hover').removeClass('tmf-droppable-hover');
+            });
+
+            // Initial pass for currently rendered items
+            setTimeout(function() {
+                $('.attachments .attachment, #the-list tr').attr('draggable', 'true');
+            }, 300);
         },
 
         showContextMenu: function($trigger, folderId, folderName) {
@@ -610,12 +647,44 @@
                 },
                 success: function(res) {
                     if (res.success) {
-                        self.showToast(i18n.moveSuccess + ' (' + res.data.moved_count + ' ไฟล์)', 'success');
+                        var targetName = res.data && res.data.target_name ? res.data.target_name : '';
+                        var count = res.data && res.data.moved_count ? res.data.moved_count : itemIds.length;
+                        self.showToast('✓ ย้าย ' + count + ' ไฟล์ไปยัง "' + targetName + '" เรียบร้อยแล้ว', 'success');
                         self.fetchTree();
 
-                        // If currently filtering by a specific folder and moved out of it, refresh view
-                        if (self.currentFolder !== 'all') {
-                            self.selectFolder(self.currentFolder);
+                        // If in List View
+                        if ($('#the-list').length) {
+                            if (self.currentFolder !== 'all') {
+                                itemIds.forEach(function(id) {
+                                    $('#post-' + id).fadeOut(250, function() { $(this).remove(); });
+                                });
+                            }
+                        }
+
+                        // If in Grid View
+                        if (typeof wp !== 'undefined' && wp.media) {
+                            var frame = wp.media.frame;
+                            var library = null;
+                            if (frame && frame.content && frame.content.get && frame.content.get()) {
+                                var content = frame.content.get();
+                                library = content.collection || (content.options && content.options.selection);
+                            }
+                            if (!library && frame && frame.state && typeof frame.state === 'function') {
+                                var state = frame.state();
+                                if (state && state.get) library = state.get('library');
+                            }
+
+                            if (library) {
+                                if (library.props) {
+                                    library.props.set({ query: true });
+                                }
+                                if (typeof library._requery === 'function') {
+                                    library._requery(true);
+                                } else if (typeof library.more === 'function') {
+                                    library.reset();
+                                    library.more();
+                                }
+                            }
                         }
                     } else {
                         alert(res.data ? res.data.message : 'เกิดข้อผิดพลาดในการย้ายไฟล์');

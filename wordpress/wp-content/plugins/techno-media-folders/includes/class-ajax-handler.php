@@ -186,18 +186,35 @@ class Techno_MF_Ajax_Handler {
         $is_uncategorized = ($target_folder === 'uncategorized' || $target_folder === '0' || $target_folder === 0);
         $term_ids = $is_uncategorized ? array() : array((int) $target_folder);
 
+        $affected_terms = $term_ids;
         foreach ($clean_ids as $attachment_id) {
             if (get_post_type($attachment_id) === 'attachment') {
+                $old_terms = wp_get_object_terms($attachment_id, Techno_MF_Taxonomy::TAXONOMY, array('fields' => 'ids'));
+                if (!empty($old_terms) && !is_wp_error($old_terms)) {
+                    $affected_terms = array_merge($affected_terms, $old_terms);
+                }
                 wp_set_object_terms($attachment_id, $term_ids, Techno_MF_Taxonomy::TAXONOMY, false);
             }
         }
 
-        // Refresh term counts
-        wp_update_term_count_now($term_ids, Techno_MF_Taxonomy::TAXONOMY);
+        // Refresh term counts for both old and new folders
+        $affected_terms = array_unique(array_filter(array_map('intval', $affected_terms)));
+        if (!empty($affected_terms)) {
+            wp_update_term_count_now($affected_terms, Techno_MF_Taxonomy::TAXONOMY);
+        }
+
+        $target_name = __('ยังไม่มีโฟลเดอร์', 'techno-media-folders');
+        if (!$is_uncategorized && (int)$target_folder > 0) {
+            $t = get_term((int)$target_folder, Techno_MF_Taxonomy::TAXONOMY);
+            if ($t && !is_wp_error($t)) {
+                $target_name = $t->name;
+            }
+        }
 
         wp_send_json_success(array(
             'moved_count'         => count($clean_ids),
             'target_folder'       => $target_folder,
+            'target_name'         => $target_name,
             'total_count'         => Techno_MF_Taxonomy::get_total_media_count(),
             'uncategorized_count' => Techno_MF_Taxonomy::get_uncategorized_count(),
         ));
