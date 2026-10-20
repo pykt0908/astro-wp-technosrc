@@ -34,6 +34,24 @@ function formatThaiDate(dateStr?: string) {
     day: 'numeric',
   });
 }
+
+// Decode HTML entities (e.g. &#038; -> &)
+function decodeHtmlEntities(str?: string) {
+  if (!str) return '';
+  return str
+    .replace(/&#038;/g, '&')
+    .replace(/&amp;/g, '&')
+    .replace(/&#8211;/g, '–')
+    .replace(/&#8212;/g, '—')
+    .replace(/&#8216;/g, '‘')
+    .replace(/&#8217;/g, '’')
+    .replace(/&#8220;/g, '“')
+    .replace(/&#8221;/g, '”')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
+}
 ---
 
 <BaseLayout
@@ -169,6 +187,8 @@ function formatThaiDate(dateStr?: string) {
 
         const targetUrl = item.fileUrl || item.externalUrl || '#';
         const isExternal = !item.fileUrl && !!item.externalUrl;
+        const titleClean = decodeHtmlEntities(item.title);
+        const descClean = decodeHtmlEntities(item.description);
 
         return (
           <div
@@ -176,12 +196,12 @@ function formatThaiDate(dateStr?: string) {
             class="download-card group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-5 shadow-xs hover:shadow-md hover:border-[#0047BA]/40 dark:hover:border-sky-500/40 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
             data-category={item.category?.slug || 'other'}
             data-file-type={fileType}
-            data-title={item.title.toLowerCase()}
+            data-title={titleClean.toLowerCase()}
             data-version={(item.version || '').toLowerCase()}
-            data-desc={(item.description || '').toLowerCase()}
+            data-desc={descClean.toLowerCase()}
           >
             <!-- Left Info Section with Iconic File Badge -->
-            <div class="flex items-start gap-3 sm:gap-4 min-w-0 flex-1">
+            <div class="download-card-body flex items-start gap-3.5 sm:gap-4 flex-1 min-w-0 w-full">
               
               <!-- File Icon Badge -->
               <div class={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl shrink-0 flex flex-col items-center justify-center border shadow-xs ${iconBg}`}>
@@ -229,33 +249,33 @@ function formatThaiDate(dateStr?: string) {
               </div>
 
               <!-- Metadata & Title -->
-              <div class="min-w-0 flex-1">
-                <div class="flex flex-wrap items-center gap-2 mb-1">
+              <div class="download-card-info flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-2 mb-1.5">
                   <!-- Category Badge -->
-                  <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                  <span class="inline-flex items-center text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 whitespace-nowrap">
                     {item.category?.name || 'ทั่วไป'}
                   </span>
 
                   <!-- Version / Code Pill -->
                   {item.version && (
-                    <span class="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/40 text-[#0047BA] dark:text-sky-300 border border-blue-200/50 dark:border-blue-900">
+                    <span class="inline-flex items-center text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/40 text-[#0047BA] dark:text-sky-300 border border-blue-200/60 dark:border-blue-900 whitespace-nowrap">
                       {item.version}
                     </span>
                   )}
                 </div>
 
-                <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white group-hover:text-[#0047BA] dark:group-hover:text-sky-400 transition-colors leading-snug">
-                  {item.title}
+                <h3 class="download-title text-base sm:text-lg font-bold text-slate-900 dark:text-white group-hover:text-[#0047BA] dark:group-hover:text-sky-400 transition-colors leading-snug break-words">
+                  {titleClean}
                 </h3>
 
-                {item.description && (
-                  <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-2 leading-relaxed font-normal">
-                    {item.description}
+                {descClean && (
+                  <p class="download-desc text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-2 leading-relaxed font-normal break-words">
+                    {descClean}
                   </p>
                 )}
 
                 <!-- File Info Badges -->
-                <div class="flex items-center gap-3 mt-2 text-xs text-slate-400 font-mono">
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-slate-400 font-mono">
                   {item.fileSize && (
                     <span class="flex items-center gap-1 font-semibold text-slate-600 dark:text-slate-300">
                       <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -273,7 +293,7 @@ function formatThaiDate(dateStr?: string) {
             </div>
 
             <!-- Right Action Buttons (Preview & Download) -->
-            <div class="flex items-center gap-2 self-end md:self-center shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-slate-800 w-full md:w-auto justify-end">
+            <div class="download-card-actions flex items-center gap-2 self-end md:self-center shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-slate-800 w-full md:w-auto justify-end">
               
               <!-- Preview Button (Opens Modal) -->
               <button
@@ -282,7 +302,7 @@ function formatThaiDate(dateStr?: string) {
                 data-file-url={item.fileUrl || ''}
                 data-external-url={item.externalUrl || ''}
                 data-file-type={fileType}
-                data-title={item.title}
+                data-title={titleClean}
                 data-version={item.version || ''}
                 data-size={item.fileSize || ''}
                 title="ดูตัวอย่างเอกสาร"
@@ -297,7 +317,7 @@ function formatThaiDate(dateStr?: string) {
               <!-- Direct Download / External Link Button -->
               <a
                 href={targetUrl}
-                download={item.fileUrl ? `${item.title}.${fileType}` : undefined}
+                download={item.fileUrl ? `${titleClean}.${fileType}` : undefined}
                 target={isExternal ? "_blank" : undefined}
                 rel={isExternal ? "noopener noreferrer" : undefined}
                 class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-[#0047BA] hover:bg-[#003893] text-white shadow-xs hover:shadow-md transition-all active:scale-98 cursor-pointer"
@@ -703,4 +723,52 @@ function formatThaiDate(dateStr?: string) {
       }
     })();
   </script>
+
+  <style>
+    .download-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 100%;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @media (min-width: 768px) {
+      .download-card {
+        flex-direction: row;
+        align-items: center;
+      }
+    }
+    .download-card:hover {
+      transform: translateY(-1px);
+    }
+    .download-card-body {
+      display: flex;
+      align-items: flex-start;
+      flex: 1 1 auto;
+      min-width: 0;
+      width: 100%;
+    }
+    .download-card-info {
+      flex: 1 1 auto;
+      min-width: 0;
+      width: 100%;
+    }
+    .download-title {
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+    .download-desc {
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+    .category-pill.active {
+      background-color: #0047BA !important;
+      color: #ffffff !important;
+      border-color: #0047BA !important;
+    }
+    .type-pill.active {
+      background-color: #1e293b !important;
+      color: #ffffff !important;
+    }
+  </style>
 </BaseLayout>
