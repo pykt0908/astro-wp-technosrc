@@ -60,11 +60,12 @@ class Project_Core_Post_Types {
         add_action('restrict_manage_posts', array($this, 'filter_education_mis_by_year'), 10, 2);
         add_action('pre_get_posts', array($this, 'admin_education_mis_filter_query'));
 
-        // Downloads Admin Columns, Filters & Category Reorder
+        // Downloads Admin Columns, Filters & Reorder
         add_filter('manage_download_file_posts_columns', array($this, 'set_download_file_columns'));
         add_action('manage_download_file_posts_custom_column', array($this, 'render_download_file_columns'), 10, 2);
         add_action('restrict_manage_posts', array($this, 'filter_downloads_by_category'), 10, 2);
         add_action('pre_get_posts', array($this, 'admin_download_filter_query'));
+        add_action('pre_get_terms', array($this, 'admin_download_category_sort_order'));
         add_action('download_category_add_form_fields', array($this, 'download_category_add_fields'));
         add_action('download_category_edit_form_fields', array($this, 'download_category_edit_fields'));
         add_action('created_download_category', array($this, 'save_download_category_fields'));
@@ -72,6 +73,10 @@ class Project_Core_Post_Types {
         add_filter('manage_edit-download_category_columns', array($this, 'set_download_category_columns'));
         add_filter('manage_download_category_custom_column', array($this, 'render_download_category_columns'), 10, 3);
         add_filter('manage_edit-download_category_sortable_columns', array($this, 'set_download_category_sortable_columns'));
+        add_action('admin_enqueue_scripts', array($this, 'enqueue_download_list_scripts'));
+        add_action('admin_footer', array($this, 'render_download_reorder_script'));
+        add_action('wp_ajax_project_core_reorder_downloads', array($this, 'ajax_reorder_downloads'));
+        add_action('wp_ajax_project_core_reorder_download_categories', array($this, 'ajax_reorder_download_categories'));
     }
 
     /**
@@ -2910,13 +2915,16 @@ class Project_Core_Post_Types {
      */
     public function set_download_file_columns($columns) {
         $new_columns = array();
-        $new_columns['cb']                         = $columns['cb'];
+        if (isset($columns['cb'])) {
+            $new_columns['cb'] = $columns['cb'];
+        }
+        $new_columns['download_handle']            = '<span class="dashicons dashicons-move" title="' . esc_attr__('ลากเลื่อนจัดลำดับ', 'project-core') . '"></span>';
+        $new_columns['download_order']             = __('ลำดับ', 'project-core');
         $new_columns['title']                      = __('ชื่อเอกสาร / แบบฟอร์ม', 'project-core');
         $new_columns['taxonomy-download_category'] = __('หมวดหมู่', 'project-core');
         $new_columns['download_type']              = __('ประเภทไฟล์', 'project-core');
         $new_columns['download_file_info']         = __('ไฟล์ / ลิงก์', 'project-core');
         $new_columns['download_version']           = __('รหัส / เวอร์ชัน', 'project-core');
-        $new_columns['download_order']             = __('ลำดับ', 'project-core');
         $new_columns['date']                       = $columns['date'];
         return $new_columns;
     }
@@ -2926,6 +2934,16 @@ class Project_Core_Post_Types {
      */
     public function render_download_file_columns($column, $post_id) {
         switch ($column) {
+            case 'download_handle':
+                echo '<span class="dashicons dashicons-move download-drag-handle" style="cursor:grab; color:#64748b; font-size:18px; display:inline-block; vertical-align:middle;" title="' . esc_attr__('คลิกลากเพื่อจัดลำดับ', 'project-core') . '"></span>';
+                break;
+
+            case 'download_order':
+                $post = get_post($post_id);
+                $order = $post ? $post->menu_order : 0;
+                echo '<span class="download-order-badge" style="display:inline-block; font-weight:700; font-size:12px; color:#0047BA; background:#e0f2fe; padding:2px 8px; border-radius:999px;">#' . esc_html($order) . '</span>';
+                break;
+
             case 'download_type':
                 $type = get_post_meta($post_id, 'download_file_type', true) ?: 'pdf';
                 $color = '#64748b';
@@ -2964,12 +2982,6 @@ class Project_Core_Post_Types {
             case 'download_version':
                 $version = get_post_meta($post_id, 'download_version', true);
                 echo !empty($version) ? esc_html($version) : '<span style="color:#94a3b8;">—</span>';
-                break;
-
-            case 'download_order':
-                $post = get_post($post_id);
-                $order = $post ? $post->menu_order : 0;
-                echo '<span style="font-weight:600; color:#334155;">' . esc_html($order) . '</span>';
                 break;
         }
     }
@@ -3020,6 +3032,23 @@ class Project_Core_Post_Types {
     }
 
     /**
+     * Set default order for download categories in WP Admin
+     */
+    public function admin_download_category_sort_order($query) {
+        global $pagenow;
+        if (is_admin() && $pagenow === 'edit-tags.php') {
+            $taxonomies = isset($query->query_vars['taxonomy']) ? (array) $query->query_vars['taxonomy'] : array();
+            if (in_array('download_category', $taxonomies, true)) {
+                if (empty($_GET['orderby'])) {
+                    $query->query_vars['meta_key'] = 'category_order';
+                    $query->query_vars['orderby']  = 'meta_value_num';
+                    $query->query_vars['order']    = 'ASC';
+                }
+            }
+        }
+    }
+
+    /**
      * Add Category Order Field in Add Term Screen
      */
     public function download_category_add_fields() {
@@ -3060,23 +3089,30 @@ class Project_Core_Post_Types {
     }
 
     /**
-     * Add Order column to download_category list table
+     * Add Order & Handle columns to download_category list table
      */
     public function set_download_category_columns($columns) {
         $new = array();
+        if (isset($columns['cb'])) {
+            $new['cb'] = $columns['cb'];
+        }
+        $new['cat_handle'] = '<span class="dashicons dashicons-move" title="' . esc_attr__('ลากเลื่อนจัดลำดับ', 'project-core') . '"></span>';
+        $new['category_order'] = __('ลำดับ', 'project-core');
         foreach ($columns as $k => $v) {
+            if ($k === 'cb') continue;
             $new[$k] = $v;
-            if ($k === 'name') {
-                $new['category_order'] = __('ลำดับ (Order)', 'project-core');
-            }
         }
         return $new;
     }
 
     public function render_download_category_columns($content, $column_name, $term_id) {
+        if ($column_name === 'cat_handle') {
+            return '<span class="dashicons dashicons-move download-cat-drag-handle" style="cursor:grab; color:#64748b; font-size:18px; display:inline-block; vertical-align:middle;" title="' . esc_attr__('คลิกลากเพื่อจัดลำดับ', 'project-core') . '"></span>';
+        }
         if ($column_name === 'category_order') {
             $order = get_term_meta($term_id, 'category_order', true);
-            return ($order !== '') ? '<strong>' . esc_html($order) . '</strong>' : '<span style="color:#94a3b8;">0</span>';
+            $order_num = ($order !== '') ? intval($order) : 0;
+            return '<span class="cat-order-badge" style="display:inline-block; font-weight:700; font-size:12px; color:#0284c7; background:#e0f2fe; padding:2px 8px; border-radius:999px;">#' . esc_html($order_num) . '</span>';
         }
         return $content;
     }
@@ -3084,6 +3120,280 @@ class Project_Core_Post_Types {
     public function set_download_category_sortable_columns($columns) {
         $columns['category_order'] = 'category_order';
         return $columns;
+    }
+
+    /**
+     * Enqueue jQuery UI Sortable for Downloads & Download Categories
+     */
+    public function enqueue_download_list_scripts($hook) {
+        $screen = get_current_screen();
+        if (!$screen) {
+            return;
+        }
+
+        if (($hook === 'edit.php' && $screen->post_type === 'download_file') ||
+            ($hook === 'edit-tags.php' && $screen->taxonomy === 'download_category')) {
+            wp_enqueue_script('jquery');
+            wp_enqueue_script('jquery-ui-sortable');
+        }
+    }
+
+    /**
+     * Drag & Drop sorting script and styles for Downloads and Download Categories
+     */
+    public function render_download_reorder_script() {
+        $screen = get_current_screen();
+        if (!$screen) {
+            return;
+        }
+
+        $is_download_list = ($screen->id === 'edit-download_file');
+        $is_category_list = ($screen->id === 'edit-download_category');
+
+        if (!$is_download_list && !$is_category_list) {
+            return;
+        }
+
+        $nonce = wp_create_nonce('project_core_download_reorder_nonce');
+        ?>
+        <style>
+            .wp-list-table tbody#the-list tr {
+                cursor: grab;
+                transition: background 0.15s ease;
+            }
+            .wp-list-table tbody#the-list tr:hover {
+                background-color: #f0f6fc !important;
+            }
+            .wp-list-table tbody#the-list tr.ui-sortable-helper {
+                background-color: #ffffff !important;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22) !important;
+                display: table !important;
+                cursor: grabbing !important;
+                border: 2px solid #0047BA !important;
+            }
+            .wp-list-table tbody#the-list tr.ui-sortable-placeholder {
+                background-color: #e7f3ff !important;
+                visibility: visible !important;
+                outline: 2px dashed #0047BA !important;
+                height: 50px !important;
+            }
+            .download-drag-handle,
+            .download-cat-drag-handle {
+                cursor: grab;
+                color: #64748b;
+                display: inline-block;
+                transition: transform 0.15s, color 0.15s;
+            }
+            .download-drag-handle:hover,
+            .download-cat-drag-handle:hover {
+                color: #0047BA;
+                transform: scale(1.15);
+            }
+            .column-download_handle,
+            .column-cat_handle {
+                width: 38px !important;
+                text-align: center;
+                padding-left: 4px !important;
+                padding-right: 4px !important;
+            }
+            .column-download_order,
+            .column-category_order {
+                width: 75px !important;
+                text-align: center;
+            }
+            #download-reorder-toast {
+                display: none;
+                position: fixed;
+                top: 45px;
+                right: 30px;
+                z-index: 999999;
+                padding: 12px 24px;
+                background: #007017;
+                color: #ffffff;
+                font-weight: 600;
+                border-radius: 6px;
+                box-shadow: 0 6px 22px rgba(0,0,0,0.25);
+                font-size: 14px;
+            }
+        </style>
+        <div id="download-reorder-toast">✓ บันทึกลำดับเรียบร้อยแล้ว</div>
+        <script>
+        jQuery(function($) {
+            var $tbody = $('#the-list');
+            if (!$tbody.length) return;
+
+            function showToast(msg) {
+                var $toast = $('#download-reorder-toast');
+                $toast.text(msg || '✓ บันทึกลำดับเรียบร้อยแล้ว').stop(true, true).fadeIn(200);
+                setTimeout(function() {
+                    $toast.fadeOut(400);
+                }, 2500);
+            }
+
+            <?php if ($is_download_list) : ?>
+            function updateDownloadBadges() {
+                $tbody.find('tr').each(function(index) {
+                    $(this).find('.download-order-badge').text('#' + (index + 1));
+                });
+            }
+
+            $tbody.sortable({
+                items: 'tr',
+                handle: '.download-drag-handle, td',
+                cancel: 'a, button, input, select, .check-column',
+                axis: 'y',
+                cursor: 'grabbing',
+                opacity: 0.9,
+                placeholder: 'ui-sortable-placeholder',
+                helper: function(e, tr) {
+                    var $originals = tr.children();
+                    var $helper = tr.clone();
+                    $helper.children().each(function(index) {
+                        $(this).width($originals.eq(index).width());
+                    });
+                    return $helper;
+                },
+                update: function() {
+                    updateDownloadBadges();
+                    var postIds = [];
+                    $tbody.find('tr').each(function() {
+                        var rowId = $(this).attr('id');
+                        if (rowId && rowId.indexOf('post-') === 0) {
+                            var pid = rowId.replace('post-', '');
+                            postIds.push(pid);
+                        }
+                    });
+
+                    if (!postIds.length) return;
+
+                    $.ajax({
+                        url: ajaxurl,
+                        type: 'POST',
+                        data: {
+                            action: 'project_core_reorder_downloads',
+                            nonce: '<?php echo esc_js($nonce); ?>',
+                            post_ids: postIds
+                        },
+                        success: function(res) {
+                            if (res.success) {
+                                showToast('✓ บันทึกลำดับเอกสารเรียบร้อยแล้ว (' + postIds.length + ' รายการ)');
+                            }
+                        }
+                    });
+                }
+            });
+            <?php endif; ?>
+
+            <?php if ($is_category_list) : ?>
+            function updateCategoryBadges() {
+                $tbody.find('tr').each(function(index) {
+                    $(this).find('.cat-order-badge').text('#' + (index + 1));
+                });
+            }
+
+            $tbody.sortable({
+                items: 'tr',
+                handle: '.download-cat-drag-handle, td',
+                cancel: 'a, button, input, select, .check-column',
+                axis: 'y',
+                cursor: 'grabbing',
+                opacity: 0.9,
+                placeholder: 'ui-sortable-placeholder',
+                helper: function(e, tr) {
+                    var $originals = tr.children();
+                    var $helper = tr.clone();
+                    $helper.children().each(function(index) {
+                        $(this).width($originals.eq(index).width());
+                    });
+                    return $helper;
+                },
+                update: function() {
+                    updateCategoryBadges();
+                    var termIds = [];
+                    $tbody.find('tr').each(function() {
+                        var rowId = $(this).attr('id');
+                        if (rowId && rowId.indexOf('tag-') === 0) {
+                            var tid = rowId.replace('tag-', '');
+                            termIds.push(tid);
+                        }
+                    });
+
+                    if (!termIds.length) return;
+
+                    $.ajax({
+                        url: ajaxurl,
+                        type: 'POST',
+                        data: {
+                            action: 'project_core_reorder_download_categories',
+                            nonce: '<?php echo esc_js($nonce); ?>',
+                            term_ids: termIds
+                        },
+                        success: function(res) {
+                            if (res.success) {
+                                showToast('✓ บันทึกลำดับหมวดหมู่เรียบร้อยแล้ว (' + termIds.length + ' หมวดหมู่)');
+                            }
+                        }
+                    });
+                }
+            });
+            <?php endif; ?>
+        });
+        </script>
+        <?php
+    }
+
+    /**
+     * AJAX endpoint: reorder download files
+     */
+    public function ajax_reorder_downloads() {
+        check_ajax_referer('project_core_download_reorder_nonce', 'nonce');
+        if (!current_user_can('edit_posts')) {
+            wp_send_json_error(array('message' => 'Permission denied.'));
+        }
+
+        $post_ids = isset($_POST['post_ids']) ? array_map('intval', (array) $_POST['post_ids']) : array();
+        if (empty($post_ids)) {
+            wp_send_json_error(array('message' => 'No post IDs received.'));
+        }
+
+        global $wpdb;
+        foreach ($post_ids as $order_index => $post_id) {
+            $order = $order_index + 1;
+            $wpdb->update(
+                $wpdb->posts,
+                array('menu_order' => $order),
+                array('ID' => $post_id),
+                array('%d'),
+                array('%d')
+            );
+            update_post_meta($post_id, 'download_order', $order);
+            clean_post_cache($post_id);
+        }
+
+        wp_send_json_success(array('updated' => count($post_ids)));
+    }
+
+    /**
+     * AJAX endpoint: reorder download categories
+     */
+    public function ajax_reorder_download_categories() {
+        check_ajax_referer('project_core_download_reorder_nonce', 'nonce');
+        if (!current_user_can('manage_categories')) {
+            wp_send_json_error(array('message' => 'Permission denied.'));
+        }
+
+        $term_ids = isset($_POST['term_ids']) ? array_map('intval', (array) $_POST['term_ids']) : array();
+        if (empty($term_ids)) {
+            wp_send_json_error(array('message' => 'No term IDs received.'));
+        }
+
+        foreach ($term_ids as $order_index => $term_id) {
+            $order = $order_index + 1;
+            update_term_meta($term_id, 'category_order', $order);
+            clean_term_cache($term_id, 'download_category');
+        }
+
+        wp_send_json_success(array('updated' => count($term_ids)));
     }
 
     /**
