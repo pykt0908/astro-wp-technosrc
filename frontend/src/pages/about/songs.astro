@@ -178,7 +178,7 @@ const songs = [
     <span id="song-toast-text">คัดลอกเรียบร้อยแล้ว</span>
   </div>
 
-  <div class="py-6 sm:py-10 lg:py-14 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="py-8 sm:py-12 lg:py-16 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
     
     <!-- Breadcrumb -->
     <nav class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6" aria-label="Breadcrumb">
@@ -189,72 +189,29 @@ const songs = [
       <span class="text-slate-800 dark:text-slate-200 font-semibold" aria-current="page">เพลงประจำวิทยาลัย</span>
     </nav>
 
-    <!-- Header Hero Section -->
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#001744] via-[#002B7A] to-[#0047BA] text-white p-6 sm:p-10 lg:p-14 mb-10 shadow-2xl shadow-blue-900/20 border border-white/10">
-      <!-- Glow ambient background circles -->
-      <div class="absolute -top-24 -right-24 w-96 h-96 bg-sky-400/20 rounded-full blur-3xl pointer-events-none"></div>
-      <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-600/30 rounded-full blur-3xl pointer-events-none"></div>
-
-      <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-        <div class="space-y-4 max-w-2xl">
-          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs sm:text-sm font-medium text-sky-200">
-            <svg class="w-4 h-4 text-sky-300 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-            </svg>
-            <span>บทเพลงแห่งความภาคภูมิใจ • S-TECH SOUNDTRACK</span>
-          </div>
-
-          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
+    <!-- Page Title -->
+    <div class="mb-8 sm:mb-12 pb-6 border-b border-slate-200 dark:border-slate-800">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             เพลงประจำวิทยาลัย
           </h1>
-          
-          <p class="text-base sm:text-lg text-slate-200 font-normal leading-relaxed">
-            รวบรวมบทเพลงประจำสถาบันอันทรงเกียรติ เพลงมาร์ช เพลงคืนสู่เหย้า และบทเพลงแห่งมิตรภาพของวิทยาลัยเทคโนโลยีศรีราชา เพื่อสืบสานจิตวิญญาณแห่งสีฟ้า-ขาว และหลอมรวมใจชาวเทคโนฯ ทุกรุ่น
+          <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-2 max-w-2xl font-normal">
+            บทเพลงประจำสถาบันอันทรงเกียรติ เพลงมาร์ช เพลงคืนสู่เหย้า และบทเพลงแห่งมิตรภาพของวิทยาลัยเทคโนโลยีศรีราชา
           </p>
-
-          <!-- Quick Actions -->
-          <div class="pt-2 flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              id="hero-play-all-btn"
-              class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-sky-400 hover:bg-sky-300 active:bg-sky-500 text-slate-950 font-bold text-sm sm:text-base shadow-lg shadow-sky-400/25 transition-all transform hover:-translate-y-0.5 cursor-pointer"
-            >
-              <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
-              <span>เล่นเพลงทั้งหมดต่อเนื่อง</span>
-            </button>
-
-            <a
-              href="#track-list-section"
-              class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/30 text-white font-semibold text-sm sm:text-base border border-white/20 backdrop-blur-md transition-all cursor-pointer"
-            >
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
-              <span>เลือกดูบทเพลงทั้งหมด</span>
-            </a>
-          </div>
         </div>
 
-        <!-- Hero Feature Badge Badge / Stat Card -->
-        <div class="grid grid-cols-2 sm:grid-cols-2 gap-3 sm:gap-4 lg:w-80">
-          <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-center">
-            <div class="text-2xl sm:text-3xl font-black text-sky-300">4</div>
-            <div class="text-xs sm:text-sm text-slate-300 mt-1">บทเพลงสถาบัน</div>
-          </div>
-          <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-center">
-            <div class="text-2xl sm:text-3xl font-black text-emerald-300">Master</div>
-            <div class="text-xs sm:text-sm text-slate-300 mt-1">คุณภาพสตูดิโอ</div>
-          </div>
-          <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-center">
-            <div class="text-2xl sm:text-3xl font-black text-amber-300">WAV+AAC</div>
-            <div class="text-xs sm:text-sm text-slate-300 mt-1">รองรับทุกอุปกรณ์</div>
-          </div>
-          <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-center">
-            <div class="text-2xl sm:text-3xl font-black text-purple-300">100%</div>
-            <div class="text-xs sm:text-sm text-slate-300 mt-1">ดาวน์โหลดฟรี</div>
-          </div>
+        <div class="flex flex-wrap items-center gap-3 shrink-0">
+          <button
+            type="button"
+            id="hero-play-all-btn"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0047BA] hover:bg-[#003893] text-white text-xs sm:text-sm font-semibold shadow-xs hover:shadow-md transition-all active:scale-98 cursor-pointer"
+          >
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+            <span>เล่นเพลงทั้งหมดต่อเนื่อง</span>
+          </button>
         </div>
       </div>
     </div>
