@@ -81,9 +81,9 @@ const songs = [
   <!-- Toast Notification Feedback -->
   <div
     id="song-toast"
-    class="fixed bottom-28 sm:bottom-24 right-6 z-50 transform translate-y-16 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900/95 dark:bg-white/95 text-white dark:text-slate-900 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-sm font-medium backdrop-blur-md border border-white/10 dark:border-slate-800"
+    class="fixed bottom-28 sm:bottom-24 right-6 z-50 transform translate-y-16 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900/95 dark:bg-white/95 text-white dark:text-slate-900 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-sm font-medium backdrop-blur-md border border-slate-200/20 dark:border-slate-800"
   >
-    <div class="w-6 h-6 rounded-full bg-[#1DB954]/20 text-[#1DB954] flex items-center justify-center shrink-0">
+    <div class="w-6 h-6 rounded-full bg-[#0047BA]/20 text-[#0047BA] dark:text-sky-400 flex items-center justify-center shrink-0">
       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
       </svg>
@@ -93,7 +93,7 @@ const songs = [
 
   <div class="py-8 sm:py-12 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pb-36">
     
-    <!-- Standard Breadcrumb (Consistent with all /about/ pages) -->
+    <!-- Standard Breadcrumb -->
     <nav class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6" aria-label="Breadcrumb">
       <a href="/" class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">หน้าแรก</a>
       <span>/</span>
@@ -112,20 +112,19 @@ const songs = [
       </p>
     </div>
 
-    <!-- SPOTIFY-STYLE PLAYLIST CONTAINER -->
-    <div class="rounded-3xl bg-[#121212] text-white border border-white/10 shadow-2xl overflow-hidden transition-all duration-300">
+    <!-- SPOTIFY-STYLE PLAYLIST CONTAINER (Light theme matching website) -->
+    <div class="rounded-3xl bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-all duration-300">
       
-      <!-- Playlist Header Hero (Spotify Gradient Banner) -->
-      <div class="relative bg-gradient-to-b from-[#1b3a6b] via-[#101e38] to-[#121212] p-6 sm:p-8 lg:p-10">
+      <!-- Playlist Header Hero -->
+      <div class="relative bg-gradient-to-b from-blue-50/90 via-slate-50/40 to-white dark:from-slate-800/80 dark:via-slate-900/60 dark:to-slate-900 p-6 sm:p-8 lg:p-10 border-b border-slate-200/80 dark:border-slate-800">
         <!-- Ambient soundwave backdrop -->
-        <div class="absolute -top-24 -right-24 w-96 h-96 bg-[#00A3E0]/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -top-24 -right-24 w-96 h-96 bg-[#00A3E0]/10 rounded-full blur-3xl pointer-events-none"></div>
 
         <div class="relative z-10 flex flex-col md:flex-row items-center md:items-end gap-6 sm:gap-8">
           
           <!-- Playlist Album Cover Art -->
-          <div class="relative w-48 h-48 sm:w-56 sm:h-56 lg:w-60 lg:h-60 rounded-2xl bg-gradient-to-tr from-[#002B7A] via-[#0047BA] to-[#00A3E0] shadow-2xl shrink-0 flex flex-col items-center justify-center p-6 border border-white/20 overflow-hidden group">
-            <!-- Subtle vinyl texture inside cover -->
-            <div class="absolute inset-0 bg-radial from-transparent via-black/10 to-black/40 pointer-events-none"></div>
+          <div class="relative w-48 h-48 sm:w-56 sm:h-56 lg:w-60 lg:h-60 rounded-2xl bg-gradient-to-tr from-[#002B7A] via-[#0047BA] to-[#00A3E0] shadow-lg shrink-0 flex flex-col items-center justify-center p-6 border border-blue-200/60 dark:border-blue-900 overflow-hidden group">
+            <div class="absolute inset-0 bg-radial from-transparent via-black/10 to-black/30 pointer-events-none"></div>
             <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white/10 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-lg transform group-hover:scale-105 transition-transform duration-500">
               <img
                 src="/logo/main/logo_circle_gold.png"
@@ -134,42 +133,44 @@ const songs = [
               />
             </div>
             <div class="mt-3 text-center">
-              <p class="text-[11px] font-extrabold tracking-widest text-white/90 uppercase">S-TECH ANTHEM</p>
-              <p class="text-[9px] font-medium text-white/60 tracking-wider">OFFICIAL SOUNDTRACK</p>
+              <p class="text-[11px] font-extrabold tracking-widest text-white/95 uppercase">S-TECH ANTHEM</p>
+              <p class="text-[9px] font-medium text-white/70 tracking-wider">OFFICIAL SOUNDTRACK</p>
             </div>
           </div>
 
           <!-- Playlist Metadata Information -->
           <div class="flex flex-col justify-end text-center md:text-left space-y-2 sm:space-y-3 min-w-0 flex-1">
-            <div class="flex items-center justify-center md:justify-start gap-2 text-xs font-bold uppercase tracking-wider text-white/80">
-              <span class="inline-block w-2 h-2 rounded-full bg-[#1DB954] animate-pulse"></span>
+            <div class="flex items-center justify-center md:justify-start gap-2 text-xs font-bold uppercase tracking-wider text-[#0047BA] dark:text-sky-400">
+              <span class="inline-block w-2 h-2 rounded-full bg-[#0047BA] dark:bg-sky-400 animate-pulse"></span>
               <span>เพลย์ลิสต์ทางการ (PUBLIC PLAYLIST)</span>
             </div>
 
-            <h2 class="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+            <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
               บทเพลงแห่งความภาคภูมิใจ S-TECH
             </h2>
 
-            <p class="text-sm sm:text-base text-slate-300 font-normal line-clamp-2 max-w-3xl">
+            <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 font-normal line-clamp-2 max-w-3xl leading-relaxed">
               รวมบทเพลงประจำสถาบันอันทรงเกียรติ ทั้งเพลงมาร์ชประจำวิทยาลัย เพลงคืนสู่เหย้า และเพลงกิจกรรม เพื่อความเป็นหนึ่งเดียวของชาวเลือดฟ้า-ขาว
             </p>
 
             <!-- Creator & Duration Meta Row -->
-            <div class="pt-2 flex flex-wrap items-center justify-center md:justify-start gap-2 text-xs sm:text-sm text-slate-300 font-medium">
+            <div class="pt-2 flex flex-wrap items-center justify-center md:justify-start gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
               <div class="flex items-center gap-2">
                 <img
                   src="/logo/main/logo_circle_color_full.png"
                   alt="S-TECH"
-                  class="w-6 h-6 rounded-full bg-white/20 p-0.5 object-contain"
+                  class="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 p-0.5 object-contain"
                 />
-                <span class="font-bold text-white hover:underline cursor-pointer">วิทยาลัยเทคโนโลยีศรีราชา</span>
+                <span class="font-bold text-slate-800 dark:text-slate-200 hover:text-[#0047BA] dark:hover:text-sky-400 cursor-pointer">
+                  วิทยาลัยเทคโนโลยีศรีราชา
+                </span>
               </div>
-              <span class="text-white/40">•</span>
+              <span>•</span>
               <span>4 บทเพลง</span>
-              <span class="text-white/40">•</span>
+              <span>•</span>
               <span>11 นาที 16 วินาที</span>
-              <span class="text-white/40">•</span>
-              <span class="px-2 py-0.5 rounded-full bg-white/10 text-[11px] text-emerald-400 font-semibold border border-white/10">
+              <span>•</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/40 text-xs text-[#0047BA] dark:text-sky-300 font-semibold border border-blue-200/50 dark:border-blue-800/50">
                 Lossless & AAC High Quality
               </span>
             </div>
@@ -177,14 +178,14 @@ const songs = [
         </div>
       </div>
 
-      <!-- Spotify Action Bar (Play button, Shuffle, Heart, Download dropdown) -->
-      <div class="px-6 sm:px-8 lg:px-10 py-5 bg-[#121212] flex flex-wrap items-center justify-between gap-4 border-b border-white/5">
-        <div class="flex items-center gap-4 sm:gap-6">
-          <!-- Big Iconic Spotify Play Button -->
+      <!-- Action Bar (Play button, Shuffle, Heart, Download dropdown) -->
+      <div class="px-6 sm:px-8 lg:px-10 py-5 bg-white dark:bg-slate-900 flex flex-wrap items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800">
+        <div class="flex items-center gap-3 sm:gap-5">
+          <!-- Big Theme Play Button -->
           <button
             type="button"
             id="spotify-big-play-btn"
-            class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#1DB954] hover:bg-[#1ed760] text-black flex items-center justify-center shadow-xl shadow-[#1DB954]/25 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#0047BA] hover:bg-[#003893] text-white flex items-center justify-center shadow-lg shadow-blue-500/25 hover:scale-105 active:scale-95 transition-all cursor-pointer"
             title="เล่นเพลย์ลิสต์"
           >
             <svg id="spotify-big-play-icon" class="w-7 h-7 fill-current translate-x-0.5" viewBox="0 0 24 24">
@@ -199,7 +200,7 @@ const songs = [
           <button
             type="button"
             id="spotify-header-shuffle-btn"
-            class="p-2.5 text-slate-400 hover:text-white transition-colors cursor-pointer rounded-full hover:bg-white/5"
+            class="p-2.5 text-slate-500 hover:text-[#0047BA] dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
             title="สุ่มเพลง (Shuffle)"
           >
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -211,7 +212,7 @@ const songs = [
           <button
             type="button"
             id="spotify-header-heart-btn"
-            class="p-2.5 text-slate-400 hover:text-[#1DB954] transition-colors cursor-pointer rounded-full hover:bg-white/5 group"
+            class="p-2.5 text-slate-500 hover:text-[#0047BA] dark:text-slate-400 dark:hover:text-sky-400 transition-colors cursor-pointer rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 group"
             title="บันทึกลงในรายการโปรด"
           >
             <svg id="header-heart-icon" class="w-6 h-6 transition-transform group-active:scale-125" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -223,7 +224,7 @@ const songs = [
           <button
             type="button"
             id="spotify-header-share-btn"
-            class="p-2.5 text-slate-400 hover:text-white transition-colors cursor-pointer rounded-full hover:bg-white/5"
+            class="p-2.5 text-slate-500 hover:text-[#0047BA] dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
             title="คัดลอกลิงก์แชร์เพลย์ลิสต์"
           >
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -232,15 +233,15 @@ const songs = [
           </button>
         </div>
 
-        <!-- Download All Master Files Dropdown -->
+        <!-- Download Buttons -->
         <div class="flex items-center gap-2">
           <a
             href="/song/01_march_technosriracha.m4a"
             download="01_เพลงมาร์ชเทคโนฯศรีราชา.m4a"
-            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition-colors cursor-pointer border border-white/10"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition-colors cursor-pointer border border-slate-200 dark:border-slate-700"
             title="ดาวน์โหลดไฟล์ AAC/M4A สำหรับสมาร์ตโฟน"
           >
-            <svg class="w-4 h-4 text-[#1DB954]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="w-4 h-4 text-[#0047BA] dark:text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
             <span>ดาวน์โหลด M4A</span>
@@ -249,10 +250,10 @@ const songs = [
           <a
             href={encodeURI("/song/01 เพลง มาร์ชเทคโนฯศรีราชา.wav")}
             download="01_เพลงมาร์ชเทคโนฯศรีราชา.wav"
-            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition-colors cursor-pointer border border-white/10"
+            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-900/50 text-[#0047BA] dark:text-sky-300 text-xs font-semibold transition-colors cursor-pointer border border-blue-200/60 dark:border-blue-800/60"
             title="ดาวน์โหลดไฟล์สตูดิโอมาสเตอร์ WAV สำหรับงานพิธีการ"
           >
-            <svg class="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="w-4 h-4 text-[#0047BA] dark:text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
             </svg>
             <span>ดาวน์โหลด WAV Master</span>
@@ -261,10 +262,10 @@ const songs = [
       </div>
 
       <!-- SPOTIFY TRACKLIST TABLE -->
-      <div class="px-3 sm:px-6 lg:px-8 py-4 bg-[#121212]">
+      <div class="px-3 sm:px-6 lg:px-8 py-4 bg-white dark:bg-slate-900">
         
-        <!-- Table Header (Spotify Columns) -->
-        <div class="grid grid-cols-12 gap-2 sm:gap-4 px-4 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-white/10 select-none">
+        <!-- Table Header -->
+        <div class="grid grid-cols-12 gap-2 sm:gap-4 px-4 py-2.5 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800 select-none">
           <div class="col-span-1 text-center">#</div>
           <div class="col-span-6 sm:col-span-5">ชื่อเพลง (Title)</div>
           <div class="hidden sm:block sm:col-span-3">หมวดหมู่ / สถาบัน</div>
@@ -282,12 +283,12 @@ const songs = [
           {songs.map((song, idx) => (
             <div
               id={`track-row-${idx}`}
-              class="track-row group grid grid-cols-12 gap-2 sm:gap-4 px-4 py-3 rounded-xl items-center hover:bg-white/10 transition-colors cursor-pointer select-none"
+              class="track-row group grid grid-cols-12 gap-2 sm:gap-4 px-4 py-3 rounded-xl items-center hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors cursor-pointer select-none"
               data-song-index={idx}
               data-song-id={song.id}
             >
               <!-- Column 1: Index Number OR Play Icon OR Animated Equalizer -->
-              <div class="col-span-1 flex items-center justify-center text-sm font-medium text-slate-400">
+              <div class="col-span-1 flex items-center justify-center text-sm font-medium text-slate-400 dark:text-slate-500">
                 <!-- Static Track Number -->
                 <span class="track-number block group-hover:hidden font-mono">
                   {song.displayIndex}
@@ -296,7 +297,7 @@ const songs = [
                 <!-- Hover Play Icon -->
                 <button
                   type="button"
-                  class="row-play-btn hidden group-hover:flex items-center justify-center text-white hover:scale-110 transition-transform"
+                  class="row-play-btn hidden group-hover:flex items-center justify-center text-[#0047BA] dark:text-sky-400 hover:scale-110 transition-transform"
                   title="เล่นเพลงนี้"
                 >
                   <svg class="w-4 h-4 fill-current row-play-icon" viewBox="0 0 24 24">
@@ -309,22 +310,22 @@ const songs = [
 
                 <!-- Animated Equalizer Bars (Visible only when playing) -->
                 <div class="track-equalizer hidden items-end justify-center gap-0.5 h-4 w-4">
-                  <span class="w-0.5 bg-[#1DB954] rounded-full eq-bar-spotify eq-bar-sp-1"></span>
-                  <span class="w-0.5 bg-[#1DB954] rounded-full eq-bar-spotify eq-bar-sp-2"></span>
-                  <span class="w-0.5 bg-[#1DB954] rounded-full eq-bar-spotify eq-bar-sp-3"></span>
+                  <span class="w-0.5 bg-[#0047BA] dark:bg-sky-400 rounded-full eq-bar-theme eq-bar-th-1"></span>
+                  <span class="w-0.5 bg-[#00A3E0] dark:bg-sky-400 rounded-full eq-bar-theme eq-bar-th-2"></span>
+                  <span class="w-0.5 bg-[#0047BA] dark:bg-sky-400 rounded-full eq-bar-theme eq-bar-th-3"></span>
                 </div>
               </div>
 
               <!-- Column 2: Song Title & Composer / Artwork thumbnail -->
               <div class="col-span-6 sm:col-span-5 flex items-center gap-3 min-w-0">
-                <div class="w-10 h-10 rounded-md bg-gradient-to-tr from-[#002B7A] to-[#00A3E0] shrink-0 flex items-center justify-center overflow-hidden shadow-sm">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-[#002B7A] to-[#00A3E0] shrink-0 flex items-center justify-center overflow-hidden shadow-xs">
                   <img src="/logo/main/logo_circle_gold.png" alt="S-TECH" class="w-8 h-8 object-contain" />
                 </div>
                 <div class="min-w-0">
-                  <p class="track-title font-semibold text-white text-sm sm:text-base truncate group-hover:text-white transition-colors">
+                  <p class="track-title font-semibold text-slate-800 dark:text-slate-100 text-sm sm:text-base truncate group-hover:text-[#0047BA] dark:group-hover:text-sky-400 transition-colors">
                     {song.title}
                   </p>
-                  <p class="text-xs text-slate-400 truncate">
+                  <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
                     {song.composer}
                   </p>
                 </div>
@@ -332,27 +333,27 @@ const songs = [
 
               <!-- Column 3: Category / Tag -->
               <div class="hidden sm:block sm:col-span-3 min-w-0">
-                <span class="text-xs text-slate-300 font-medium truncate block">
+                <span class="text-xs text-slate-700 dark:text-slate-300 font-medium truncate block">
                   {song.category}
                 </span>
-                <span class="text-[11px] text-slate-500 font-normal truncate block">
+                <span class="text-[11px] text-slate-400 dark:text-slate-500 font-normal truncate block">
                   วิทยาลัยเทคโนโลยีศรีราชา
                 </span>
               </div>
 
               <!-- Column 4: Quality Badge -->
               <div class="hidden md:block md:col-span-1 text-center">
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-white/10 text-slate-300 uppercase tracking-wider">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 uppercase tracking-wider">
                   Hi-Fi
                 </span>
               </div>
 
               <!-- Column 5: Duration & Download Actions -->
-              <div class="col-span-5 sm:col-span-3 md:col-span-2 flex items-center justify-end gap-2 sm:gap-3 text-xs text-slate-400 font-mono">
+              <div class="col-span-5 sm:col-span-3 md:col-span-2 flex items-center justify-end gap-2 sm:gap-3 text-xs text-slate-500 dark:text-slate-400 font-mono">
                 <!-- Row Heart -->
                 <button
                   type="button"
-                  class="row-heart-btn p-1 text-slate-500 hover:text-[#1DB954] opacity-0 group-hover:opacity-100 transition-opacity"
+                  class="row-heart-btn p-1 text-slate-400 hover:text-[#0047BA] dark:hover:text-sky-400 opacity-0 group-hover:opacity-100 transition-opacity"
                   title="ถูกใจ"
                   onclick="event.stopPropagation();"
                 >
@@ -369,7 +370,7 @@ const songs = [
                   <a
                     href={song.audioM4a}
                     download={`${song.title}.m4a`}
-                    class="p-1.5 rounded-md hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+                    class="p-1.5 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-[#0047BA] dark:hover:text-white transition-colors"
                     title={`ดาวน์โหลด ${song.title} (.M4A ${song.sizeM4a})`}
                   >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -379,7 +380,7 @@ const songs = [
                   <a
                     href={song.audioWav}
                     download={`${song.title}.wav`}
-                    class="p-1.5 rounded-md hover:bg-white/10 text-slate-400 hover:text-blue-400 transition-colors hidden sm:inline-flex"
+                    class="p-1.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/40 text-[#0047BA] dark:text-sky-400 transition-colors hidden sm:inline-flex"
                     title={`ดาวน์โหลดสตูดิโอมาสเตอร์ (.WAV ${song.sizeWav})`}
                   >
                     <span class="text-[10px] font-bold font-mono">WAV</span>
@@ -393,12 +394,12 @@ const songs = [
       </div>
 
       <!-- Playlist Footer Info Notice -->
-      <div class="px-6 sm:px-8 py-6 bg-[#0a0a0a] border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+      <div class="px-6 sm:px-8 py-5 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
         <div class="flex items-center gap-3">
-          <img src="/logo/main/logo_circle_gold.png" alt="S-TECH" class="w-7 h-7 object-contain opacity-70" />
+          <img src="/logo/main/logo_circle_gold.png" alt="S-TECH" class="w-6 h-6 object-contain opacity-80" />
           <span>© ลิขสิทธิ์บทเพลงเป็นของ วิทยาลัยเทคโนโลยีศรีราชา (S-TECH) สงวนลิขสิทธิ์</span>
         </div>
-        <div class="flex items-center gap-4 text-slate-400">
+        <div class="flex items-center gap-4 text-slate-400 dark:text-slate-500">
           <span>สตรีมมิ่งระบบเสียงสเตอริโอ 44.1 kHz</span>
           <span>•</span>
           <span>สตูดิโอมาสเตอร์ 16-bit PCM WAV</span>
@@ -408,17 +409,17 @@ const songs = [
     </div>
   </div>
 
-  <!-- SPOTIFY DOCKED BOTTOM WEB PLAYER BAR -->
+  <!-- DOCKED BOTTOM WEB PLAYER BAR (Website Light Theme) -->
   <aside
     id="spotify-docked-player"
-    class="fixed bottom-0 left-0 right-0 z-50 bg-[#181818] border-t border-white/10 text-white shadow-2xl px-4 py-3 sm:px-6 select-none"
-    aria-label="Spotify Web Player"
+    class="fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white shadow-2xl px-4 py-3 sm:px-6 select-none"
+    aria-label="Audio Player"
   >
     <div class="max-w-[1440px] mx-auto grid grid-cols-12 items-center gap-4">
       
       <!-- Player Left: Current Track Thumbnail & Metadata -->
       <div class="col-span-8 sm:col-span-4 lg:col-span-3 flex items-center gap-3 min-w-0">
-        <div class="relative w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-gradient-to-tr from-[#002B7A] to-[#00A3E0] shrink-0 flex items-center justify-center shadow-md overflow-hidden border border-white/10">
+        <div class="relative w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-gradient-to-tr from-[#002B7A] to-[#00A3E0] shrink-0 flex items-center justify-center shadow-xs overflow-hidden border border-blue-200/50 dark:border-blue-900">
           <img
             id="now-playing-art"
             src="/logo/main/logo_circle_gold.png"
@@ -428,10 +429,10 @@ const songs = [
         </div>
 
         <div class="min-w-0 flex-1">
-          <h4 id="now-playing-title" class="text-xs sm:text-sm font-bold text-white truncate hover:underline cursor-pointer">
+          <h4 id="now-playing-title" class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate hover:text-[#0047BA] dark:hover:text-sky-400 cursor-pointer">
             เพลง มาร์ชเทคโนฯศรีราชา
           </h4>
-          <p id="now-playing-artist" class="text-[11px] sm:text-xs text-slate-400 truncate">
+          <p id="now-playing-artist" class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">
             อาจารย์จรัส วงศ์ชนะ • S-TECH
           </p>
         </div>
@@ -440,7 +441,7 @@ const songs = [
         <button
           type="button"
           id="now-playing-heart-btn"
-          class="p-1.5 text-slate-400 hover:text-[#1DB954] transition-colors cursor-pointer hidden sm:block"
+          class="p-1.5 text-slate-400 hover:text-[#0047BA] dark:hover:text-sky-400 transition-colors cursor-pointer hidden sm:block"
           title="บันทึกในรายการโปรด"
         >
           <svg id="now-playing-heart-icon" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -457,7 +458,7 @@ const songs = [
           <button
             type="button"
             id="dock-shuffle-btn"
-            class="p-1.5 text-slate-400 hover:text-white transition-colors cursor-pointer hidden sm:block"
+            class="p-1.5 text-slate-400 hover:text-[#0047BA] dark:hover:text-white transition-colors cursor-pointer hidden sm:block"
             title="สุ่มเพลง (Shuffle)"
           >
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -469,7 +470,7 @@ const songs = [
           <button
             type="button"
             id="dock-prev-btn"
-            class="p-1.5 text-slate-300 hover:text-white transition-colors cursor-pointer"
+            class="p-1.5 text-slate-700 dark:text-slate-300 hover:text-[#0047BA] dark:hover:text-sky-400 transition-colors cursor-pointer"
             title="เพลงก่อนหน้า"
           >
             <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
@@ -477,11 +478,11 @@ const songs = [
             </svg>
           </button>
 
-          <!-- Play / Pause Circular Button -->
+          <!-- Play / Pause Circular Button (Website Theme Color) -->
           <button
             type="button"
             id="dock-play-btn"
-            class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white hover:scale-105 active:scale-95 text-black flex items-center justify-center shadow-lg transition-transform cursor-pointer"
+            class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#0047BA] hover:bg-[#003893] text-white flex items-center justify-center shadow-md shadow-blue-500/20 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
             title="เล่น / หยุดเพลง"
           >
             <svg id="dock-play-icon" class="w-5 h-5 fill-current translate-x-0.5" viewBox="0 0 24 24">
@@ -496,7 +497,7 @@ const songs = [
           <button
             type="button"
             id="dock-next-btn"
-            class="p-1.5 text-slate-300 hover:text-white transition-colors cursor-pointer"
+            class="p-1.5 text-slate-700 dark:text-slate-300 hover:text-[#0047BA] dark:hover:text-sky-400 transition-colors cursor-pointer"
             title="เพลงถัดไป"
           >
             <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
@@ -508,7 +509,7 @@ const songs = [
           <button
             type="button"
             id="dock-repeat-btn"
-            class="p-1.5 text-slate-400 hover:text-white transition-colors cursor-pointer hidden sm:block"
+            class="p-1.5 text-slate-400 hover:text-[#0047BA] dark:hover:text-white transition-colors cursor-pointer hidden sm:block"
             title="เล่นซ้ำ (Repeat)"
           >
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -519,26 +520,26 @@ const songs = [
 
         <!-- Scrubber Bar -->
         <div class="w-full hidden sm:flex items-center gap-2.5 mt-1.5 max-w-xl">
-          <span id="dock-current-time" class="text-[11px] font-mono text-slate-400 w-9 text-right">00:00</span>
+          <span id="dock-current-time" class="text-[11px] font-mono text-slate-500 dark:text-slate-400 w-9 text-right">00:00</span>
           
           <div
             id="dock-progress-container"
-            class="relative flex-1 h-1 hover:h-2 bg-white/20 rounded-full cursor-pointer group transition-all"
-            title="ลากหรือคลิกเพื่อเลื่อนเพลง"
+            class="relative flex-1 h-1.5 hover:h-2 bg-slate-200 dark:bg-slate-700 rounded-full cursor-pointer group transition-all"
+            title="คลิกเพื่อเลื่อนตำแหน่งเวลา"
           >
             <!-- Buffered Bar -->
-            <div id="dock-buffer-bar" class="absolute left-0 top-0 h-full bg-white/30 rounded-full w-0 pointer-events-none"></div>
+            <div id="dock-buffer-bar" class="absolute left-0 top-0 h-full bg-slate-300 dark:bg-slate-600 rounded-full w-0 pointer-events-none"></div>
             <!-- Played Progress Bar -->
             <div
               id="dock-progress-bar"
-              class="absolute left-0 top-0 h-full bg-white group-hover:bg-[#1DB954] rounded-full w-0 transition-colors pointer-events-none"
+              class="absolute left-0 top-0 h-full bg-[#0047BA] dark:bg-sky-400 rounded-full w-0 pointer-events-none"
             >
-              <!-- Draggable scrub head -->
-              <span class="absolute -right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"></span>
+              <!-- Scrub head -->
+              <span class="absolute -right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-white dark:bg-sky-200 rounded-full shadow border border-[#0047BA] dark:border-sky-500 opacity-0 group-hover:opacity-100 transition-opacity"></span>
             </div>
           </div>
 
-          <span id="dock-total-duration" class="text-[11px] font-mono text-slate-400 w-9 text-left">02:59</span>
+          <span id="dock-total-duration" class="text-[11px] font-mono text-slate-500 dark:text-slate-400 w-9 text-left">02:59</span>
         </div>
       </div>
 
@@ -549,7 +550,7 @@ const songs = [
         <button
           type="button"
           id="dock-speed-btn"
-          class="px-2 py-1 rounded bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white text-[11px] font-bold font-mono transition-colors cursor-pointer"
+          class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[11px] font-bold font-mono transition-colors cursor-pointer border border-slate-200/80 dark:border-slate-700"
           title="ปรับความเร็วการเล่น"
         >
           1.0x
@@ -560,7 +561,7 @@ const songs = [
           id="dock-download-link"
           href="/song/01_march_technosriracha.m4a"
           download="01_march_technosriracha.m4a"
-          class="p-2 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
+          class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-[#0047BA] dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer"
           title="ดาวน์โหลดเพลงที่กำลังเล่น"
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -573,7 +574,7 @@ const songs = [
           <button
             type="button"
             id="dock-mute-btn"
-            class="p-1 text-slate-400 hover:text-white transition-colors cursor-pointer"
+            class="p-1 text-slate-500 hover:text-[#0047BA] dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer"
             title="ปิด/เปิดเสียง"
           >
             <svg id="dock-volume-high-icon" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -592,7 +593,7 @@ const songs = [
             max="1"
             step="0.05"
             value="0.85"
-            class="w-18 lg:w-24 h-1 bg-white/20 hover:bg-white/30 rounded-lg appearance-none cursor-pointer accent-[#1DB954]"
+            class="w-18 lg:w-24 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#0047BA] dark:accent-sky-400"
             title="ปรับระดับเสียง"
           />
         </div>
@@ -608,7 +609,7 @@ const songs = [
   <!-- Embedded JSON Data for Client Script -->
   <script is:inline id="songs-data" type="application/json" set:html={JSON.stringify(songs)}></script>
 
-  <!-- Spotify Player Engine Script -->
+  <!-- Spotify Player Engine Script with Website Theme Integration -->
   <script is:inline>
     (function() {
       function initSpotifyPlayer() {
@@ -759,10 +760,10 @@ const songs = [
             const titleEl = row.querySelector('.track-title');
 
             if (idx === currentIndex) {
-              row.classList.add('bg-white/10');
+              row.classList.add('bg-blue-50/70', 'dark:bg-blue-950/30');
               if (titleEl) {
-                titleEl.classList.remove('text-white');
-                titleEl.classList.add('text-[#1DB954]');
+                titleEl.classList.remove('text-slate-800', 'dark:text-slate-100');
+                titleEl.classList.add('text-[#0047BA]', 'dark:text-sky-400');
               }
               
               if (!isPaused) {
@@ -787,10 +788,10 @@ const songs = [
                 }
               }
             } else {
-              row.classList.remove('bg-white/10');
+              row.classList.remove('bg-blue-50/70', 'dark:bg-blue-950/30');
               if (titleEl) {
-                titleEl.classList.add('text-white');
-                titleEl.classList.remove('text-[#1DB954]');
+                titleEl.classList.add('text-slate-800', 'dark:text-slate-100');
+                titleEl.classList.remove('text-[#0047BA]', 'dark:text-sky-400');
               }
               if (numEl) numEl.classList.remove('hidden');
               if (playBtn) {
@@ -829,12 +830,12 @@ const songs = [
 
         function toggleShuffle() {
           isShuffle = !isShuffle;
-          const colorClass = isShuffle ? 'text-[#1DB954]' : 'text-slate-400';
+          const colorClass = isShuffle ? 'text-[#0047BA] dark:text-sky-400' : 'text-slate-400';
           if (dockShuffleBtn) {
-            dockShuffleBtn.className = `p-1.5 ${colorClass} hover:text-white transition-colors cursor-pointer hidden sm:block`;
+            dockShuffleBtn.className = `p-1.5 ${colorClass} hover:text-[#0047BA] dark:hover:text-white transition-colors cursor-pointer hidden sm:block`;
           }
           if (headerShuffleBtn) {
-            headerShuffleBtn.className = `p-2.5 ${colorClass} hover:text-white transition-colors cursor-pointer rounded-full hover:bg-white/5`;
+            headerShuffleBtn.className = `p-2.5 ${colorClass} hover:text-[#0047BA] dark:hover:text-white transition-colors cursor-pointer rounded-full hover:bg-slate-100 dark:hover:bg-slate-800`;
           }
           showToast(isShuffle ? 'เปิดโหมดสุ่มเพลง (Shuffle On)' : 'ปิดโหมดสุ่มเพลง (Shuffle Off)');
         }
@@ -842,9 +843,9 @@ const songs = [
         function toggleRepeat() {
           isRepeat = !isRepeat;
           audio.loop = isRepeat;
-          const colorClass = isRepeat ? 'text-[#1DB954]' : 'text-slate-400';
+          const colorClass = isRepeat ? 'text-[#0047BA] dark:text-sky-400' : 'text-slate-400';
           if (dockRepeatBtn) {
-            dockRepeatBtn.className = `p-1.5 ${colorClass} hover:text-white transition-colors cursor-pointer hidden sm:block`;
+            dockRepeatBtn.className = `p-1.5 ${colorClass} hover:text-[#0047BA] dark:hover:text-white transition-colors cursor-pointer hidden sm:block`;
           }
           showToast(isRepeat ? 'เปิดเล่นซ้ำเพลงนี้ (Repeat On)' : 'ปิดเล่นซ้ำ (Repeat Off)');
         }
@@ -852,12 +853,12 @@ const songs = [
         function updateHeartUI(songId) {
           const isLiked = likedSongs.has(songId);
           if (headerHeartIcon) {
-            headerHeartIcon.setAttribute('fill', isLiked ? '#1DB954' : 'none');
-            headerHeartIcon.setAttribute('stroke', isLiked ? '#1DB954' : 'currentColor');
+            headerHeartIcon.setAttribute('fill', isLiked ? '#0047BA' : 'none');
+            headerHeartIcon.setAttribute('stroke', isLiked ? '#0047BA' : 'currentColor');
           }
           if (nowPlayingHeartIcon) {
-            nowPlayingHeartIcon.setAttribute('fill', isLiked ? '#1DB954' : 'none');
-            nowPlayingHeartIcon.setAttribute('stroke', isLiked ? '#1DB954' : 'currentColor');
+            nowPlayingHeartIcon.setAttribute('fill', isLiked ? '#0047BA' : 'none');
+            nowPlayingHeartIcon.setAttribute('stroke', isLiked ? '#0047BA' : 'currentColor');
           }
         }
 
@@ -1022,19 +1023,19 @@ const songs = [
   </script>
 
   <style>
-    /* Spotify-style animated 3-bar equalizer */
-    @keyframes spotifyEqPulse {
+    /* Theme animated 3-bar equalizer */
+    @keyframes themeEqPulse {
       0%, 100% { height: 4px; }
       50% { height: 16px; }
     }
 
-    .eq-bar-spotify {
+    .eq-bar-theme {
       height: 4px;
-      animation: spotifyEqPulse 0.9s ease-in-out infinite;
+      animation: themeEqPulse 0.9s ease-in-out infinite;
     }
 
-    .eq-bar-sp-1 { animation-delay: 0.1s; }
-    .eq-bar-sp-2 { animation-delay: 0.4s; }
-    .eq-bar-sp-3 { animation-delay: 0.2s; }
+    .eq-bar-th-1 { animation-delay: 0.1s; }
+    .eq-bar-th-2 { animation-delay: 0.4s; }
+    .eq-bar-th-3 { animation-delay: 0.2s; }
   </style>
 </BaseLayout>
