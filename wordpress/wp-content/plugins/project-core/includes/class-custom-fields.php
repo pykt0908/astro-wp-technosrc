@@ -41,7 +41,7 @@ class Project_Core_Custom_Fields {
     public function enqueue_admin_scripts($hook) {
         global $post;
         if ($hook === 'post-new.php' || $hook === 'post.php') {
-            if (isset($post) && in_array($post->post_type, array('banner', 'post', 'college_event', 'curriculum', 'sar_report', 'education_mis'), true)) {
+            if (isset($post) && in_array($post->post_type, array('banner', 'post', 'college_event', 'curriculum', 'sar_report', 'education_mis', 'download_file'), true)) {
                 wp_enqueue_media();
             }
         }
@@ -125,6 +125,28 @@ class Project_Core_Custom_Fields {
 
         foreach ($sar_fields as $meta_key => $type) {
             register_post_meta('sar_report', $meta_key, array(
+                'show_in_rest'  => true,
+                'single'        => true,
+                'type'          => $type,
+                'auth_callback' => array($this, 'auth_check'),
+            ));
+        }
+
+        // Download File Meta Fields
+        $download_fields = array(
+            'download_source_type'   => 'string',
+            'download_file_url'      => 'string',
+            'download_file_id'       => 'integer',
+            'download_external_url'  => 'string',
+            'download_file_type'     => 'string',
+            'download_file_size'     => 'string',
+            'download_version'       => 'string',
+            'download_description'   => 'string',
+            'download_order'         => 'integer',
+        );
+
+        foreach ($download_fields as $meta_key => $type) {
+            register_post_meta('download_file', $meta_key, array(
                 'show_in_rest'  => true,
                 'single'        => true,
                 'type'          => $type,
@@ -453,6 +475,16 @@ class Project_Core_Custom_Fields {
             __('ข้อมูลสารสนเทศทางการศึกษา (7 ด้านสำคัญ)', 'project-core'),
             array($this, 'render_education_mis_meta_box'),
             'education_mis',
+            'normal',
+            'high'
+        );
+
+        // Download File details box
+        add_meta_box(
+            'project_core_download_details',
+            __('ข้อมูลไฟล์และเอกสารดาวน์โหลด (Download Details & Files)', 'project-core'),
+            array($this, 'render_download_meta_box'),
+            'download_file',
             'normal',
             'high'
         );
@@ -1341,6 +1373,38 @@ class Project_Core_Custom_Fields {
                             update_post_meta($post_id, $jkey, wp_json_encode($decoded, JSON_UNESCAPED_UNICODE));
                         }
                     }
+                }
+            }
+        }
+
+        // Save Download File Meta
+        if (isset($_POST['project_core_download_nonce_field']) && wp_verify_nonce($_POST['project_core_download_nonce_field'], 'project_core_download_nonce')) {
+            if (current_user_can('edit_post', $post_id)) {
+                $download_keys = array(
+                    'download_source_type'  => 'sanitize_text_field',
+                    'download_file_url'     => 'esc_url_raw',
+                    'download_file_id'      => 'absint',
+                    'download_external_url' => 'esc_url_raw',
+                    'download_file_type'    => 'sanitize_text_field',
+                    'download_file_size'    => 'sanitize_text_field',
+                    'download_version'      => 'sanitize_text_field',
+                    'download_description'  => 'sanitize_textarea_field',
+                    'download_order'        => 'absint',
+                );
+
+                foreach ($download_keys as $key => $sanitizer) {
+                    if (isset($_POST[$key])) {
+                        update_post_meta($post_id, $key, call_user_func($sanitizer, $_POST[$key]));
+                    }
+                }
+
+                // Sync menu_order with download_order
+                if (isset($_POST['download_order'])) {
+                    $order = absint($_POST['download_order']);
+                    wp_update_post(array(
+                        'ID'         => $post_id,
+                        'menu_order' => $order,
+                    ));
                 }
             }
         }
@@ -2884,6 +2948,215 @@ class Project_Core_Custom_Fields {
                 $('#mis_report_pdf_url').val('');
                 $('#mis_report_pdf_id').val('');
                 $('#mis_pdf_preview').hide();
+                $(this).hide();
+            });
+        });
+        </script>
+        <?php
+    }
+
+    /**
+     * Render Download File Meta Box
+     */
+    public function render_download_meta_box($post) {
+        wp_nonce_field('project_core_download_nonce', 'project_core_download_nonce_field');
+
+        $source_type  = get_post_meta($post->ID, 'download_source_type', true) ?: 'file';
+        $file_url     = get_post_meta($post->ID, 'download_file_url', true) ?: '';
+        $file_id      = get_post_meta($post->ID, 'download_file_id', true) ?: '';
+        $external_url = get_post_meta($post->ID, 'download_external_url', true) ?: '';
+        $file_type    = get_post_meta($post->ID, 'download_file_type', true) ?: 'pdf';
+        $file_size    = get_post_meta($post->ID, 'download_file_size', true) ?: '';
+        $version      = get_post_meta($post->ID, 'download_version', true) ?: '';
+        $description  = get_post_meta($post->ID, 'download_description', true) ?: '';
+        $order        = get_post_meta($post->ID, 'download_order', true);
+        if ($order === '') $order = $post->menu_order ?: 0;
+        ?>
+        <table class="form-table" style="margin-top: 0;">
+            <!-- Source Type Selector -->
+            <tr>
+                <th scope="row"><label><?php _e('รูปแบบการแนบไฟล์', 'project-core'); ?></label></th>
+                <td>
+                    <fieldset>
+                        <label style="margin-right: 20px; font-weight: 600;">
+                            <input type="radio" name="download_source_type" value="file" <?php checked($source_type, 'file'); ?> class="download-source-radio" />
+                            <span class="dashicons dashicons-upload" style="font-size: 16px; vertical-align: text-bottom;"></span> <?php _e('อัปโหลดไฟล์ (WordPress Media)', 'project-core'); ?>
+                        </label>
+                        <label style="font-weight: 600;">
+                            <input type="radio" name="download_source_type" value="link" <?php checked($source_type, 'link'); ?> class="download-source-radio" />
+                            <span class="dashicons dashicons-admin-links" style="font-size: 16px; vertical-align: text-bottom;"></span> <?php _e('ใส่ลิงก์ภายนอก (Google Drive / Canva / ลิงก์ตรง)', 'project-core'); ?>
+                        </label>
+                    </fieldset>
+                </td>
+            </tr>
+
+            <!-- File Upload Section -->
+            <tr id="row_download_file" style="<?php echo ($source_type === 'link') ? 'display: none;' : ''; ?>">
+                <th scope="row"><label for="download_file_url"><?php _e('ไฟล์เอกสารสำหรับดาวน์โหลด', 'project-core'); ?> <span style="color:#d63638;">*</span></label></th>
+                <td>
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; max-width: 650px;">
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+                            <input type="text" id="download_file_url" name="download_file_url" value="<?php echo esc_attr($file_url); ?>" class="large-text" placeholder="https://... ลิงก์ไฟล์" style="font-family: monospace; font-size: 13px;" />
+                            <input type="hidden" id="download_file_id" name="download_file_id" value="<?php echo esc_attr($file_id); ?>" />
+                            <button type="button" class="button button-primary" id="btn_upload_download_file" style="white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">
+                                <span class="dashicons dashicons-upload" style="font-size: 16px; width: 16px; height: 16px; line-height: 16px;"></span>
+                                <?php _e('เลือก / อัปโหลดไฟล์', 'project-core'); ?>
+                            </button>
+                            <button type="button" class="button" id="btn_clear_download_file" style="<?php echo empty($file_url) ? 'display: none;' : ''; ?> color: #b91c1c;">
+                                <?php _e('ลบไฟล์', 'project-core'); ?>
+                            </button>
+                        </div>
+
+                        <div id="download_file_preview" style="<?php echo empty($file_url) ? 'display: none;' : ''; ?>">
+                            <a href="<?php echo esc_url($file_url); ?>" target="_blank" class="button button-small" style="display: inline-flex; align-items: center; gap: 4px; color: #0047BA;">
+                                <span class="dashicons dashicons-visibility" style="font-size: 14px; width: 14px; height: 14px; line-height: 14px;"></span>
+                                <?php _e('ทดลองเปิดดูไฟล์', 'project-core'); ?>
+                            </a>
+                        </div>
+                    </div>
+                    <p class="description"><?php _e('กดปุ่ม "เลือก / อัปโหลดไฟล์" เพื่อเลือกไฟล์ PDF, Word, Excel, PowerPoint, ZIP ฯลฯ ระบบจะตรวจจับประเภทไฟล์และขนาดให้อัตโนมัติ', 'project-core'); ?></p>
+                </td>
+            </tr>
+
+            <!-- External Link Section -->
+            <tr id="row_download_link" style="<?php echo ($source_type === 'file') ? 'display: none;' : ''; ?>">
+                <th scope="row"><label for="download_external_url"><?php _e('ลิงก์ไฟล์ภายนอก', 'project-core'); ?> <span style="color:#d63638;">*</span></label></th>
+                <td>
+                    <input type="url" id="download_external_url" name="download_external_url" value="<?php echo esc_attr($external_url); ?>" class="large-text" placeholder="https://drive.google.com/... หรือ https://www.canva.com/..." />
+                    <p class="description"><?php _e('ใส่ลิงก์ไฟล์ที่แชร์จาก Google Drive, OneDrive, Canva หรือเว็บไซต์ภายนอก', 'project-core'); ?></p>
+                </td>
+            </tr>
+
+            <!-- File Type Dropdown -->
+            <tr>
+                <th scope="row"><label for="download_file_type"><?php _e('ประเภทไฟล์ / นามสกุล', 'project-core'); ?> <span style="color:#d63638;">*</span></label></th>
+                <td>
+                    <select id="download_file_type" name="download_file_type" style="min-width: 180px;">
+                        <option value="pdf" <?php selected($file_type, 'pdf'); ?>>PDF Document (.pdf)</option>
+                        <option value="docx" <?php selected($file_type, 'docx'); ?>>Microsoft Word (.docx)</option>
+                        <option value="doc" <?php selected($file_type, 'doc'); ?>>Microsoft Word (.doc)</option>
+                        <option value="xlsx" <?php selected($file_type, 'xlsx'); ?>>Microsoft Excel (.xlsx)</option>
+                        <option value="xls" <?php selected($file_type, 'xls'); ?>>Microsoft Excel (.xls)</option>
+                        <option value="pptx" <?php selected($file_type, 'pptx'); ?>>Microsoft PowerPoint (.pptx)</option>
+                        <option value="ppt" <?php selected($file_type, 'ppt'); ?>>Microsoft PowerPoint (.ppt)</option>
+                        <option value="zip" <?php selected($file_type, 'zip'); ?>>ZIP Archive (.zip)</option>
+                        <option value="rar" <?php selected($file_type, 'rar'); ?>>RAR Archive (.rar)</option>
+                        <option value="image" <?php selected($file_type, 'image'); ?>>รูปภาพ (JPG, PNG)</option>
+                        <option value="video" <?php selected($file_type, 'video'); ?>>วิดีโอ (MP4)</option>
+                        <option value="link" <?php selected($file_type, 'link'); ?>>ลิงก์ภายนอก / เว็บไซต์</option>
+                    </select>
+                    <p class="description"><?php _e('ใช้สำหรับแสดงไอคอนประเภทไฟล์บนหน้าเว็บไซต์ (ระบบจะเปลี่ยนให้อัตโนมัติเมื่ออัปโหลดไฟล์)', 'project-core'); ?></p>
+                </td>
+            </tr>
+
+            <!-- File Size -->
+            <tr>
+                <th scope="row"><label for="download_file_size"><?php _e('ขนาดไฟล์', 'project-core'); ?></label></th>
+                <td>
+                    <input type="text" id="download_file_size" name="download_file_size" value="<?php echo esc_attr($file_size); ?>" class="regular-text" placeholder="เช่น 2.4 MB, 450 KB" />
+                    <p class="description"><?php _e('ขนาดไฟล์ที่จะแสดงให้ผู้ใช้งานทราบ (คำนวณให้อัตโนมัติเมื่ออัปโหลด)', 'project-core'); ?></p>
+                </td>
+            </tr>
+
+            <!-- Version / Document ID -->
+            <tr>
+                <th scope="row"><label for="download_version"><?php _e('รหัสเอกสาร / เวอร์ชัน', 'project-core'); ?></label></th>
+                <td>
+                    <input type="text" id="download_version" name="download_version" value="<?php echo esc_attr($version); ?>" class="regular-text" placeholder="เช่น วทศ.01, ฉบับปรับปรุง 2568, v1.0" />
+                    <p class="description"><?php _e('รหัสแบบฟอร์ม หรือเวอร์ชันเอกสารสำหรับอ้างอิง', 'project-core'); ?></p>
+                </td>
+            </tr>
+
+            <!-- Description / Summary -->
+            <tr>
+                <th scope="row"><label for="download_description"><?php _e('คำอธิบายเอกสารอย่างย่อ', 'project-core'); ?></label></th>
+                <td>
+                    <textarea id="download_description" name="download_description" rows="3" class="large-text" placeholder="คำอธิบายสั้นๆ เกี่ยวกับวัตถุประสงค์และการนำเอกสารไปใช้งาน..."><?php echo esc_textarea($description); ?></textarea>
+                </td>
+            </tr>
+
+            <!-- Display Order -->
+            <tr>
+                <th scope="row"><label for="download_order"><?php _e('ลำดับการแสดงผล (Order)', 'project-core'); ?></label></th>
+                <td>
+                    <input type="number" id="download_order" name="download_order" value="<?php echo esc_attr($order); ?>" min="0" style="width: 100px;" />
+                    <p class="description"><?php _e('ตัวเลขน้อยจะแสดงก่อน เช่น 1, 2, 3...', 'project-core'); ?></p>
+                </td>
+            </tr>
+        </table>
+
+        <div style="background: #eff6ff; border-left: 4px solid #0047BA; padding: 12px 16px; margin-top: 15px; border-radius: 0 6px 6px 0;">
+            <p style="margin: 0; font-size: 13px; color: #1e3a8a;">
+                <strong>💡 คำแนะนำ:</strong> กรุณาเลือก <strong>"หมวดหมู่ดาวน์โหลด"</strong> ที่กล่องด้านขวามือ เพื่อจัดกลุ่มเอกสารให้อยู่ในหมวดหมู่ที่ต้องการ เช่น แบบฟอร์มคำร้อง, ระเบียบข้อบังคับ หรือคู่มือนักศึกษา
+            </p>
+        </div>
+
+        <script>
+        jQuery(document).ready(function($) {
+            // Toggle Source Type
+            $('.download-source-radio').on('change', function() {
+                var val = $(this).val();
+                if (val === 'file') {
+                    $('#row_download_file').show();
+                    $('#row_download_link').hide();
+                } else {
+                    $('#row_download_file').hide();
+                    $('#row_download_link').show();
+                    if (!$('#download_file_type').val() || $('#download_file_type').val() === 'pdf') {
+                        $('#download_file_type').val('link');
+                    }
+                }
+            });
+
+            // Media Uploader
+            var downloadFileFrame;
+            $('#btn_upload_download_file').on('click', function(e) {
+                e.preventDefault();
+                if (downloadFileFrame) {
+                    downloadFileFrame.open();
+                    return;
+                }
+                downloadFileFrame = wp.media({
+                    title: '<?php echo esc_js(__('เลือกหรืออัปโหลดไฟล์เอกสารดาวน์โหลด', 'project-core')); ?>',
+                    button: { text: '<?php echo esc_js(__('ใช้ไฟล์นี้', 'project-core')); ?>' },
+                    multiple: false
+                });
+                downloadFileFrame.on('select', function() {
+                    var attachment = downloadFileFrame.state().get('selection').first().toJSON();
+                    $('#download_file_url').val(attachment.url);
+                    $('#download_file_id').val(attachment.id);
+
+                    // Auto-detect extension
+                    var filename = attachment.filename || attachment.url || '';
+                    var ext = filename.split('.').pop().toLowerCase();
+                    if (['pdf', 'docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt', 'zip', 'rar'].indexOf(ext) !== -1) {
+                        $('#download_file_type').val(ext);
+                    } else if (['jpg', 'jpeg', 'png', 'webp', 'gif'].indexOf(ext) !== -1) {
+                        $('#download_file_type').val('image');
+                    } else if (['mp4', 'mov', 'webm'].indexOf(ext) !== -1) {
+                        $('#download_file_type').val('video');
+                    }
+
+                    // Auto-detect file size
+                    if (attachment.filesizeHumanReadable) {
+                        $('#download_file_size').val(attachment.filesizeHumanReadable);
+                    } else if (attachment.filesizeInBytes) {
+                        var bytes = attachment.filesizeInBytes;
+                        var sz = (bytes >= 1048576) ? (bytes / 1048576).toFixed(1) + ' MB' : (bytes / 1024).toFixed(0) + ' KB';
+                        $('#download_file_size').val(sz);
+                    }
+
+                    $('#download_file_preview').show().find('a').attr('href', attachment.url);
+                    $('#btn_clear_download_file').show();
+                });
+                downloadFileFrame.open();
+            });
+
+            $('#btn_clear_download_file').on('click', function(e) {
+                e.preventDefault();
+                $('#download_file_url').val('');
+                $('#download_file_id').val('');
+                $('#download_file_preview').hide();
                 $(this).hide();
             });
         });

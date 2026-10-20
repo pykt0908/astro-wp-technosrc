@@ -146,6 +146,20 @@ class Project_Core_REST_API {
             'callback'            => array($this, 'get_education_mis_years'),
             'permission_callback' => '__return_true',
         ));
+
+        // Downloads list endpoint
+        register_rest_route(self::NAMESPACE, '/downloads', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_downloads'),
+            'permission_callback' => '__return_true',
+        ));
+
+        // Download categories endpoint
+        register_rest_route(self::NAMESPACE, '/download-categories', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_download_categories'),
+            'permission_callback' => '__return_true',
+        ));
     }
 
     /**
@@ -1410,6 +1424,125 @@ class Project_Core_REST_API {
 
             usort($result, function($a, $b) {
                 return strcmp($b['name'], $a['name']);
+            });
+        }
+
+        return rest_ensure_response($result);
+    }
+
+    /**
+     * Get Downloads list
+     */
+    public function get_downloads(WP_REST_Request $request) {
+        $category_slug = sanitize_text_field($request->get_param('category'));
+        $search        = sanitize_text_field($request->get_param('search'));
+        $per_page      = absint($request->get_param('per_page')) ?: 100;
+        $page          = absint($request->get_param('page')) ?: 1;
+
+        $args = array(
+            'post_type'      => 'download_file',
+            'post_status'    => 'publish',
+            'posts_per_page' => $per_page,
+            'paged'          => $page,
+            'orderby'        => array('menu_order' => 'ASC', 'date' => 'DESC'),
+        );
+
+        if (!empty($search)) {
+            $args['s'] = $search;
+        }
+
+        if (!empty($category_slug) && $category_slug !== 'all') {
+            $args['tax_query'] = array(
+                array(
+                    'taxonomy' => 'download_category',
+                    'field'    => 'slug',
+                    'terms'    => $category_slug,
+                ),
+            );
+        }
+
+        $query = new WP_Query($args);
+        $posts = $query->posts;
+
+        $result = array();
+        foreach ($posts as $post) {
+            $post_id = $post->ID;
+
+            // Category
+            $category_data = null;
+            $terms = get_the_terms($post_id, 'download_category');
+            if ($terms && !is_wp_error($terms)) {
+                $t = $terms[0];
+                $category_data = array(
+                    'id'          => $t->term_id,
+                    'name'        => $t->name,
+                    'slug'        => $t->slug,
+                    'description' => $t->description,
+                    'order'       => (int) get_term_meta($t->term_id, 'category_order', true),
+                );
+            }
+
+            // File Details
+            $source_type  = get_post_meta($post_id, 'download_source_type', true) ?: 'file';
+            $file_url     = get_post_meta($post_id, 'download_file_url', true) ?: '';
+            $external_url = get_post_meta($post_id, 'download_external_url', true) ?: '';
+            $file_type    = get_post_meta($post_id, 'download_file_type', true) ?: 'pdf';
+            $file_size    = get_post_meta($post_id, 'download_file_size', true) ?: '';
+            $version      = get_post_meta($post_id, 'download_version', true) ?: '';
+            $description  = get_post_meta($post_id, 'download_description', true) ?: $post->post_content;
+
+            // Thumbnail / Cover if available
+            $cover_url = get_the_post_thumbnail_url($post_id, 'large') ?: '';
+
+            $result[] = array(
+                'id'           => $post_id,
+                'title'        => get_the_title($post),
+                'slug'         => $post->post_name,
+                'description'  => $description,
+                'category'     => $category_data,
+                'sourceType'   => $source_type,
+                'fileUrl'      => $file_url,
+                'externalUrl'  => $external_url,
+                'fileType'     => strtolower($file_type),
+                'fileSize'     => $file_size,
+                'version'      => $version,
+                'coverUrl'     => $cover_url,
+                'order'        => (int) $post->menu_order,
+                'publishedAt'  => get_the_date('c', $post),
+            );
+        }
+
+        return rest_ensure_response($result);
+    }
+
+    /**
+     * Get Download categories list
+     */
+    public function get_download_categories(WP_REST_Request $request) {
+        $terms = get_terms(array(
+            'taxonomy'   => 'download_category',
+            'hide_empty' => false,
+        ));
+
+        $result = array();
+        if (!is_wp_error($terms) && !empty($terms)) {
+            foreach ($terms as $t) {
+                $order = (int) get_term_meta($t->term_id, 'category_order', true);
+                $result[] = array(
+                    'id'          => $t->term_id,
+                    'name'        => $t->name,
+                    'slug'        => $t->slug,
+                    'description' => $t->description,
+                    'count'       => (int) $t->count,
+                    'order'       => $order,
+                );
+            }
+
+            usort($result, function($a, $b) {
+                if ($a['order'] !== $b['order']) {
+                    return $a['order'] - $b['order'];
+                }
+                return strcmp($a['name'], $b['name']);
             });
         }
 

@@ -59,6 +59,19 @@ class Project_Core_Post_Types {
         add_action('manage_education_mis_posts_custom_column', array($this, 'render_education_mis_columns'), 10, 2);
         add_action('restrict_manage_posts', array($this, 'filter_education_mis_by_year'), 10, 2);
         add_action('pre_get_posts', array($this, 'admin_education_mis_filter_query'));
+
+        // Downloads Admin Columns, Filters & Category Reorder
+        add_filter('manage_download_file_posts_columns', array($this, 'set_download_file_columns'));
+        add_action('manage_download_file_posts_custom_column', array($this, 'render_download_file_columns'), 10, 2);
+        add_action('restrict_manage_posts', array($this, 'filter_downloads_by_category'), 10, 2);
+        add_action('pre_get_posts', array($this, 'admin_download_filter_query'));
+        add_action('download_category_add_form_fields', array($this, 'download_category_add_fields'));
+        add_action('download_category_edit_form_fields', array($this, 'download_category_edit_fields'));
+        add_action('created_download_category', array($this, 'save_download_category_fields'));
+        add_action('edited_download_category', array($this, 'save_download_category_fields'));
+        add_filter('manage_edit-download_category_columns', array($this, 'set_download_category_columns'));
+        add_filter('manage_download_category_custom_column', array($this, 'render_download_category_columns'), 10, 3);
+        add_filter('manage_edit-download_category_sortable_columns', array($this, 'set_download_category_sortable_columns'));
     }
 
     /**
@@ -286,6 +299,43 @@ class Project_Core_Post_Types {
         );
 
         register_post_type('education_mis', $mis_args);
+
+        // Download File CPT
+        $download_labels = array(
+            'name'                  => __('เอกสารดาวน์โหลด / Downloads', 'project-core'),
+            'singular_name'         => __('เอกสารดาวน์โหลด', 'project-core'),
+            'menu_name'             => __('ดาวน์โหลด', 'project-core'),
+            'name_admin_bar'        => __('เอกสารดาวน์โหลด', 'project-core'),
+            'add_new'               => __('เพิ่มไฟล์ดาวน์โหลด', 'project-core'),
+            'add_new_item'          => __('เพิ่มไฟล์เอกสารใหม่', 'project-core'),
+            'new_item'              => __('เอกสารใหม่', 'project-core'),
+            'edit_item'             => __('แก้ไขเอกสาร', 'project-core'),
+            'view_item'             => __('ดูเอกสาร', 'project-core'),
+            'all_items'             => __('เอกสารทั้งหมด', 'project-core'),
+            'search_items'          => __('ค้นหาเอกสาร', 'project-core'),
+            'not_found'             => __('ไม่พบเอกสารดาวน์โหลด', 'project-core'),
+            'not_found_in_trash'    => __('ไม่พบในถังขยะ', 'project-core'),
+        );
+
+        $download_args = array(
+            'labels'             => $download_labels,
+            'public'             => true,
+            'publicly_queryable' => true,
+            'show_ui'            => true,
+            'show_in_menu'       => true,
+            'query_var'          => true,
+            'rewrite'            => array('slug' => 'downloads'),
+            'capability_type'    => 'post',
+            'has_archive'        => false,
+            'hierarchical'       => false,
+            'menu_position'      => 26,
+            'menu_icon'          => 'dashicons-download',
+            'supports'           => array('title', 'editor', 'thumbnail', 'page-attributes'),
+            'show_in_rest'       => true,
+            'rest_base'          => 'downloads-posts',
+        );
+
+        register_post_type('download_file', $download_args);
     }
 
     /**
@@ -500,11 +550,38 @@ class Project_Core_Post_Types {
 
         register_taxonomy('mis_academic_year', array('education_mis'), $mis_year_args);
 
+        // Download Category Taxonomy (หมวดหมู่เอกสารดาวน์โหลด)
+        $download_cat_labels = array(
+            'name'              => __('หมวดหมู่ดาวน์โหลด', 'project-core'),
+            'singular_name'     => __('หมวดหมู่ดาวน์โหลด', 'project-core'),
+            'search_items'      => __('ค้นหาหมวดหมู่', 'project-core'),
+            'all_items'         => __('หมวดหมู่ทั้งหมด', 'project-core'),
+            'edit_item'         => __('แก้ไขหมวดหมู่', 'project-core'),
+            'update_item'       => __('อัปเดตหมวดหมู่', 'project-core'),
+            'add_new_item'      => __('เพิ่มหมวดหมู่ใหม่', 'project-core'),
+            'new_item_name'     => __('ชื่อหมวดหมู่ใหม่', 'project-core'),
+            'menu_name'         => __('หมวดหมู่ดาวน์โหลด', 'project-core'),
+        );
+
+        $download_cat_args = array(
+            'hierarchical'      => true,
+            'labels'            => $download_cat_labels,
+            'show_ui'           => true,
+            'show_admin_column' => true,
+            'query_var'         => true,
+            'rewrite'           => array('slug' => 'download-category'),
+            'show_in_rest'      => true,
+            'rest_base'         => 'download-categories',
+        );
+
+        register_taxonomy('download_category', array('download_file'), $download_cat_args);
+
         // Seed default terms if empty
         $this->seed_default_curriculum_terms();
         $this->seed_default_personnel_data();
         $this->seed_default_sar_data();
         $this->seed_default_education_mis_data();
+        $this->seed_default_download_data();
     }
 
     /**
@@ -2824,6 +2901,389 @@ class Project_Core_Post_Types {
                 update_post_meta($post_id_2567, 'mis_intern_students_count', 590);
                 update_post_meta($post_id_2567, 'mis_intern_allowance_avg', 9800);
                 update_post_meta($post_id_2567, 'mis_partner_enterprises', wp_json_encode($partner_enterprises_2568, JSON_UNESCAPED_UNICODE));
+            }
+        }
+    }
+
+    /**
+     * Define custom columns for Downloads admin list
+     */
+    public function set_download_file_columns($columns) {
+        $new_columns = array();
+        $new_columns['cb']                         = $columns['cb'];
+        $new_columns['title']                      = __('ชื่อเอกสาร / แบบฟอร์ม', 'project-core');
+        $new_columns['taxonomy-download_category'] = __('หมวดหมู่', 'project-core');
+        $new_columns['download_type']              = __('ประเภทไฟล์', 'project-core');
+        $new_columns['download_file_info']         = __('ไฟล์ / ลิงก์', 'project-core');
+        $new_columns['download_version']           = __('รหัส / เวอร์ชัน', 'project-core');
+        $new_columns['download_order']             = __('ลำดับ', 'project-core');
+        $new_columns['date']                       = $columns['date'];
+        return $new_columns;
+    }
+
+    /**
+     * Render custom column contents for Downloads
+     */
+    public function render_download_file_columns($column, $post_id) {
+        switch ($column) {
+            case 'download_type':
+                $type = get_post_meta($post_id, 'download_file_type', true) ?: 'pdf';
+                $color = '#64748b';
+                $bg    = '#f1f5f9';
+                if ($type === 'pdf') { $color = '#dc2626'; $bg = '#fee2e2'; }
+                elseif (in_array($type, array('doc', 'docx'))) { $color = '#2563eb'; $bg = '#dbeafe'; }
+                elseif (in_array($type, array('xls', 'xlsx'))) { $color = '#16a34a'; $bg = '#dcfce7'; }
+                elseif (in_array($type, array('ppt', 'pptx'))) { $color = '#ea580c'; $bg = '#ffedd5'; }
+                elseif (in_array($type, array('zip', 'rar'))) { $color = '#9333ea'; $bg = '#f3e8ff'; }
+                elseif ($type === 'link') { $color = '#0284c7'; $bg = '#e0f2fe'; }
+
+                echo '<span style="display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:4px; text-transform:uppercase; background:' . esc_attr($bg) . '; color:' . esc_attr($color) . ';">' . esc_html($type) . '</span>';
+                break;
+
+            case 'download_file_info':
+                $file_url = get_post_meta($post_id, 'download_file_url', true);
+                $ext_url  = get_post_meta($post_id, 'download_external_url', true);
+                $size     = get_post_meta($post_id, 'download_file_size', true);
+
+                if (!empty($file_url)) {
+                    echo '<a href="' . esc_url($file_url) . '" target="_blank" style="text-decoration:none; color:#0047BA; font-weight:500;">';
+                    echo '<span class="dashicons dashicons-media-default" style="font-size:16px; vertical-align:middle;"></span> ' . esc_html(__('ดูไฟล์', 'project-core'));
+                    if (!empty($size)) {
+                        echo ' <small style="color:#64748b;">(' . esc_html($size) . ')</small>';
+                    }
+                    echo '</a>';
+                } elseif (!empty($ext_url)) {
+                    echo '<a href="' . esc_url($ext_url) . '" target="_blank" style="text-decoration:none; color:#0284c7; font-weight:500;">';
+                    echo '<span class="dashicons dashicons-external" style="font-size:16px; vertical-align:middle;"></span> ' . esc_html(__('ลิงก์ภายนอก', 'project-core'));
+                    echo '</a>';
+                } else {
+                    echo '<span style="color:#94a3b8;">—</span>';
+                }
+                break;
+
+            case 'download_version':
+                $version = get_post_meta($post_id, 'download_version', true);
+                echo !empty($version) ? esc_html($version) : '<span style="color:#94a3b8;">—</span>';
+                break;
+
+            case 'download_order':
+                $post = get_post($post_id);
+                $order = $post ? $post->menu_order : 0;
+                echo '<span style="font-weight:600; color:#334155;">' . esc_html($order) . '</span>';
+                break;
+        }
+    }
+
+    /**
+     * Filter Downloads by Category in Admin List
+     */
+    public function filter_downloads_by_category($post_type, $which) {
+        if ($post_type !== 'download_file') {
+            return;
+        }
+
+        $selected = isset($_GET['download_category']) ? sanitize_text_field($_GET['download_category']) : '';
+        wp_dropdown_categories(array(
+            'show_option_all' => __('หมวดหมู่ทั้งหมด', 'project-core'),
+            'taxonomy'        => 'download_category',
+            'name'            => 'download_category',
+            'orderby'         => 'name',
+            'selected'        => $selected,
+            'hierarchical'    => true,
+            'depth'           => 3,
+            'show_count'      => true,
+            'hide_empty'      => false,
+            'value_field'     => 'slug',
+        ));
+    }
+
+    /**
+     * Apply Download Category Filter to Query & Default Order
+     */
+    public function admin_download_filter_query($query) {
+        global $pagenow;
+        if (is_admin() && $pagenow === 'edit.php' && $query->is_main_query() && $query->get('post_type') === 'download_file') {
+            if (!empty($_GET['download_category'])) {
+                $query->set('tax_query', array(
+                    array(
+                        'taxonomy' => 'download_category',
+                        'field'    => 'slug',
+                        'terms'    => sanitize_text_field($_GET['download_category']),
+                    ),
+                ));
+            }
+
+            if (!isset($_GET['orderby'])) {
+                $query->set('orderby', array('menu_order' => 'ASC', 'date' => 'DESC'));
+            }
+        }
+    }
+
+    /**
+     * Add Category Order Field in Add Term Screen
+     */
+    public function download_category_add_fields() {
+        ?>
+        <div class="form-field term-order-wrap">
+            <label for="category_order"><?php _e('ลำดับการแสดงผล (Order)', 'project-core'); ?></label>
+            <input type="number" name="category_order" id="category_order" value="0" min="0" style="width: 100px;" />
+            <p><?php _e('ตัวเลขน้อยจะแสดงก่อน เช่น 1, 2, 3...', 'project-core'); ?></p>
+        </div>
+        <?php
+    }
+
+    /**
+     * Add Category Order Field in Edit Term Screen
+     */
+    public function download_category_edit_fields($term) {
+        $order = get_term_meta($term->term_id, 'category_order', true);
+        if ($order === '') $order = 0;
+        ?>
+        <tr class="form-field term-order-wrap">
+            <th scope="row"><label for="category_order"><?php _e('ลำดับการแสดงผล (Order)', 'project-core'); ?></label></th>
+            <td>
+                <input type="number" name="category_order" id="category_order" value="<?php echo esc_attr($order); ?>" min="0" style="width: 100px;" />
+                <p class="description"><?php _e('ตัวเลขน้อยจะแสดงก่อน เช่น 1, 2, 3...', 'project-core'); ?></p>
+            </td>
+        </tr>
+        <?php
+    }
+
+    /**
+     * Save Category Order Meta
+     */
+    public function save_download_category_fields($term_id) {
+        if (isset($_POST['category_order'])) {
+            $order = intval($_POST['category_order']);
+            update_term_meta($term_id, 'category_order', $order);
+        }
+    }
+
+    /**
+     * Add Order column to download_category list table
+     */
+    public function set_download_category_columns($columns) {
+        $new = array();
+        foreach ($columns as $k => $v) {
+            $new[$k] = $v;
+            if ($k === 'name') {
+                $new['category_order'] = __('ลำดับ (Order)', 'project-core');
+            }
+        }
+        return $new;
+    }
+
+    public function render_download_category_columns($content, $column_name, $term_id) {
+        if ($column_name === 'category_order') {
+            $order = get_term_meta($term_id, 'category_order', true);
+            return ($order !== '') ? '<strong>' . esc_html($order) . '</strong>' : '<span style="color:#94a3b8;">0</span>';
+        }
+        return $content;
+    }
+
+    public function set_download_category_sortable_columns($columns) {
+        $columns['category_order'] = 'category_order';
+        return $columns;
+    }
+
+    /**
+     * Seed default categories & realistic sample files for Downloads
+     */
+    public function seed_default_download_data() {
+        if (!taxonomy_exists('download_category') || !post_type_exists('download_file')) {
+            return;
+        }
+
+        // Default categories with explicit ordering
+        $categories = array(
+            'forms' => array(
+                'name'  => 'แบบฟอร์มคำร้องทั่วไป',
+                'order' => 1,
+                'desc'  => 'แบบฟอร์มคำร้องสำหรับนักเรียน นักศึกษา และผู้ปกครอง',
+            ),
+            'regulations' => array(
+                'name'  => 'ระเบียบปฏิบัติและข้อบังคับ',
+                'order' => 2,
+                'desc'  => 'ระเบียบวิทยาลัย ข้อบังคับ และประกาศสำคัญ',
+            ),
+            'handbook' => array(
+                'name'  => 'คู่มือนักศึกษาและหลักสูตร',
+                'order' => 3,
+                'desc'  => 'คู่มือการเรียน แผนการเรียน และแนวปฏิบัติการศึกษา',
+            ),
+            'staff' => array(
+                'name'  => 'เอกสารสำหรับครูและบุคลากร',
+                'order' => 4,
+                'desc'  => 'แบบฟอร์มฝ่ายบุคคล แบบฟอร์มขออนุมัติ และเทมเพลตงานวิทยาลัย',
+            ),
+        );
+
+        foreach ($categories as $slug => $data) {
+            $term = get_term_by('slug', $slug, 'download_category');
+            if (!$term) {
+                $inserted = wp_insert_term($data['name'], 'download_category', array(
+                    'slug'        => $slug,
+                    'description' => $data['desc'],
+                ));
+                if (!is_wp_error($inserted)) {
+                    update_term_meta($inserted['term_id'], 'category_order', $data['order']);
+                }
+            } else {
+                update_term_meta($term->term_id, 'category_order', $data['order']);
+            }
+        }
+
+        // Seed sample documents if none exist
+        $existing = get_posts(array(
+            'post_type'      => 'download_file',
+            'post_status'    => 'any',
+            'posts_per_page' => 1,
+        ));
+
+        if (empty($existing)) {
+            $samples = array(
+                array(
+                    'title'        => 'แบบฟอร์มคำร้องทั่วไป (วทศ.01)',
+                    'slug'         => 'form-general-request-01',
+                    'category'     => 'forms',
+                    'version'      => 'แบบฟอร์ม วทศ.01',
+                    'description'  => 'แบบฟอร์มสำหรับนักเรียนนักศึกษาใช้ในการยื่นคำร้องขอเอกสารทางการศึกษา ขอหนังสือรับรอง หรือคำร้องทั่วไป',
+                    'file_url'     => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+                    'external_url' => '',
+                    'file_type'    => 'pdf',
+                    'file_size'    => '245 KB',
+                    'menu_order'   => 1,
+                ),
+                array(
+                    'title'        => 'แบบฟอร์มขอผ่อนผันค่าธรรมเนียมการศึกษา',
+                    'slug'         => 'form-tuition-deferral',
+                    'category'     => 'forms',
+                    'version'      => 'แบบฟอร์ม วทศ.02',
+                    'description'  => 'แบบฟอร์มสำหรับผู้ปกครองและนักศึกษาที่มีความจำเป็นต้องขอผ่อนผันการชำระเงินค่าเล่าเรียน',
+                    'file_url'     => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+                    'external_url' => '',
+                    'file_type'    => 'pdf',
+                    'file_size'    => '198 KB',
+                    'menu_order'   => 2,
+                ),
+                array(
+                    'title'        => 'แบบคำร้องขอลงทะเบียนเรียนล่าช้า / เพิ่ม-ถอนรายวิชา',
+                    'slug'         => 'form-course-add-drop',
+                    'category'     => 'forms',
+                    'version'      => 'แบบฟอร์ม วทศ.03',
+                    'description'  => 'แบบฟอร์มขอเพิ่มหรือถอนรายวิชา และคำร้องขอลงทะเบียนเรียนเกินกำหนดเวลาที่แผนกทะเบียนกำหนด',
+                    'file_url'     => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+                    'external_url' => '',
+                    'file_type'    => 'docx',
+                    'file_size'    => '142 KB',
+                    'menu_order'   => 3,
+                ),
+                array(
+                    'title'        => 'ระเบียบวิทยาลัยว่าด้วยเครื่องแบบ วินัย และความประพฤตินักศึกษา',
+                    'slug'         => 'regulations-uniform-discipline',
+                    'category'     => 'regulations',
+                    'version'      => 'ฉบับปรับปรุง 2568',
+                    'description'  => 'ข้อบังคับและแนวปฏิบัติว่าด้วยการแต่งกาย ระเบียบวินัย และการตัดคะแนนความประพฤติของนักเรียนนักศึกษา',
+                    'file_url'     => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+                    'external_url' => '',
+                    'file_type'    => 'pdf',
+                    'file_size'    => '1.2 MB',
+                    'menu_order'   => 1,
+                ),
+                array(
+                    'title'        => 'แนวปฏิบัติและระเบียบการฝึกประสบการณ์ทักษะวิชาชีพในสถานประกอบการ',
+                    'slug'         => 'regulations-internship-guidelines',
+                    'category'     => 'regulations',
+                    'version'      => 'ฉบับปี 2568',
+                    'description'  => 'คู่มือและข้อปฏิบัติตนสำหรับนักศึกษาระดับ ปวช. และ ปวส. ในระหว่างการฝึกงานในโรงงานและสถานประกอบการ',
+                    'file_url'     => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+                    'external_url' => '',
+                    'file_type'    => 'pdf',
+                    'file_size'    => '890 KB',
+                    'menu_order'   => 2,
+                ),
+                array(
+                    'title'        => 'คู่มือนักศึกษาใหม่และผู้ปกครอง ประจำปีการศึกษา',
+                    'slug'         => 'handbook-new-students',
+                    'category'     => 'handbook',
+                    'version'      => 'Student Handbook',
+                    'description'  => 'ข้อมูลสำคัญสำหรับนักศึกษาเข้าใหม่ แนะนำอาคารสถานที่ อาจารย์ที่ปรึกษา และระบบบริการการศึกษา',
+                    'file_url'     => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+                    'external_url' => '',
+                    'file_type'    => 'pdf',
+                    'file_size'    => '4.5 MB',
+                    'menu_order'   => 1,
+                ),
+                array(
+                    'title'        => 'ตารางและแผนการเรียนโครงสร้างหลักสูตร ปวช. และ ปวส.',
+                    'slug'         => 'curriculum-plan-sheet',
+                    'category'     => 'handbook',
+                    'version'      => 'ไฟล์ Excel สำหรับวางแผน',
+                    'description'  => 'ตารางสรุปโครงสร้างหน่วยกิต รายวิชาบังคับ และวิชาเลือก เพื่อการวางแผนการศึกษาตลอดหลักสูตร',
+                    'file_url'     => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+                    'external_url' => '',
+                    'file_type'    => 'xlsx',
+                    'file_size'    => '320 KB',
+                    'menu_order'   => 2,
+                ),
+                array(
+                    'title'        => 'แบบฟอร์มขออนุมัติไปราชการและอบรมสัมมนาบุคลากร',
+                    'slug'         => 'staff-travel-training-form',
+                    'category'     => 'staff',
+                    'version'      => 'แบบฟอร์ม ทส.05',
+                    'description'  => 'แบบฟอร์มสำหรับคณาจารย์และบุคลากรใช้ขออนุมัติเข้ารับการอบรม สัมมนาทางวิชาการ หรือปฏิบัติราชการภายนอก',
+                    'file_url'     => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+                    'external_url' => '',
+                    'file_type'    => 'docx',
+                    'file_size'    => '115 KB',
+                    'menu_order'   => 1,
+                ),
+                array(
+                    'title'        => 'เทมเพลตสไลด์นำเสนองานทางการของวิทยาลัย (PowerPoint)',
+                    'slug'         => 'staff-presentation-slide-template',
+                    'category'     => 'staff',
+                    'version'      => 'S-TECH Official Template 16:9',
+                    'description'  => 'ไฟล์เทมเพลตสไลด์บรรยาย Presentation ธีมสีฟ้า-ขาว ตราสัญลักษณ์ทางการ สำหรับใช้ในงานวิชาการและพิธีการ',
+                    'file_url'     => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+                    'external_url' => '',
+                    'file_type'    => 'pptx',
+                    'file_size'    => '3.8 MB',
+                    'menu_order'   => 2,
+                ),
+                array(
+                    'title'        => 'ชุดตราสัญลักษณ์และโลโก้วิทยาลัยความละเอียดสูง (Press & Media Kit)',
+                    'slug'         => 'staff-college-logo-press-kit',
+                    'category'     => 'staff',
+                    'version'      => 'Logo Pack (PNG, SVG, AI)',
+                    'description'  => 'รวมไฟล์ตราสัญลักษณ์วิทยาลัยเทคโนโลยีศรีราชาครบทุกเฉดสี ทั้งแบบสีทอง สีเงิน และสีขาว สำหรับสื่อสิ่งพิมพ์และกราฟิก',
+                    'file_url'     => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+                    'external_url' => '',
+                    'file_type'    => 'zip',
+                    'file_size'    => '8.2 MB',
+                    'menu_order'   => 3,
+                ),
+            );
+
+            foreach ($samples as $sample) {
+                $post_id = wp_insert_post(array(
+                    'post_title'   => $sample['title'],
+                    'post_name'    => $sample['slug'],
+                    'post_status'  => 'publish',
+                    'post_type'    => 'download_file',
+                    'post_content' => $sample['description'],
+                    'menu_order'   => $sample['menu_order'],
+                ));
+
+                if ($post_id && !is_wp_error($post_id)) {
+                    wp_set_object_terms($post_id, $sample['category'], 'download_category');
+                    update_post_meta($post_id, 'download_file_url', $sample['file_url']);
+                    update_post_meta($post_id, 'download_external_url', $sample['external_url']);
+                    update_post_meta($post_id, 'download_file_type', $sample['file_type']);
+                    update_post_meta($post_id, 'download_file_size', $sample['file_size']);
+                    update_post_meta($post_id, 'download_version', $sample['version']);
+                    update_post_meta($post_id, 'download_description', $sample['description']);
+                    update_post_meta($post_id, 'download_order', $sample['menu_order']);
+                }
             }
         }
     }

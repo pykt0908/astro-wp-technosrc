@@ -1638,6 +1638,265 @@ export async function getOrganizationData(): Promise<OrganizationData> {
   return LOCAL_MOCK_ORGANIZATION;
 }
 
+/**
+ * Download Portal Data Types & API
+ */
+export interface DownloadCategory {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  count?: number;
+  order: number;
+}
+
+export interface DownloadItem {
+  id: number;
+  title: string;
+  slug?: string;
+  description?: string;
+  category?: DownloadCategory;
+  sourceType: 'file' | 'link' | string;
+  fileUrl?: string;
+  externalUrl?: string;
+  fileType: 'pdf' | 'docx' | 'doc' | 'xlsx' | 'xls' | 'pptx' | 'ppt' | 'zip' | 'rar' | 'image' | 'video' | 'link' | string;
+  fileSize?: string;
+  version?: string;
+  coverUrl?: string;
+  order: number;
+  publishedAt?: string;
+}
+
+export const FALLBACK_DOWNLOAD_CATEGORIES: DownloadCategory[] = [
+  { id: 1, name: 'แบบฟอร์มคำร้องทั่วไป', slug: 'forms', description: 'แบบฟอร์มคำร้องสำหรับนักเรียน นักศึกษา และผู้ปกครอง', count: 3, order: 1 },
+  { id: 2, name: 'ระเบียบปฏิบัติและข้อบังคับ', slug: 'regulations', description: 'ระเบียบวิทยาลัย ข้อบังคับ และประกาศสำคัญ', count: 2, order: 2 },
+  { id: 3, name: 'คู่มือนักศึกษาและหลักสูตร', slug: 'handbook', description: 'คู่มือการเรียน แผนการเรียน และแนวปฏิบัติการศึกษา', count: 2, order: 3 },
+  { id: 4, name: 'เอกสารสำหรับครูและบุคลากร', slug: 'staff', description: 'แบบฟอร์มฝ่ายบุคคล แบบฟอร์มขออนุมัติ และเทมเพลตงานวิทยาลัย', count: 3, order: 4 },
+];
+
+export const FALLBACK_DOWNLOADS: DownloadItem[] = [
+  {
+    id: 101,
+    title: 'แบบฟอร์มคำร้องทั่วไป (วทศ.01)',
+    slug: 'form-general-request-01',
+    description: 'แบบฟอร์มสำหรับนักเรียนนักศึกษาใช้ในการยื่นคำร้องขอเอกสารทางการศึกษา ขอหนังสือรับรอง หรือคำร้องทั่วไป',
+    category: FALLBACK_DOWNLOAD_CATEGORIES[0],
+    sourceType: 'file',
+    fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    externalUrl: '',
+    fileType: 'pdf',
+    fileSize: '245 KB',
+    version: 'แบบฟอร์ม วทศ.01',
+    order: 1,
+    publishedAt: '2026-10-15T08:30:00Z',
+  },
+  {
+    id: 102,
+    title: 'แบบฟอร์มขอผ่อนผันค่าธรรมเนียมการศึกษา',
+    slug: 'form-tuition-deferral',
+    description: 'แบบฟอร์มสำหรับผู้ปกครองและนักศึกษาที่มีความจำเป็นต้องขอผ่อนผันการชำระเงินค่าเล่าเรียน',
+    category: FALLBACK_DOWNLOAD_CATEGORIES[0],
+    sourceType: 'file',
+    fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    externalUrl: '',
+    fileType: 'pdf',
+    fileSize: '198 KB',
+    version: 'แบบฟอร์ม วทศ.02',
+    order: 2,
+    publishedAt: '2026-10-12T09:00:00Z',
+  },
+  {
+    id: 103,
+    title: 'แบบคำร้องขอลงทะเบียนเรียนล่าช้า / เพิ่ม-ถอนรายวิชา',
+    slug: 'form-course-add-drop',
+    description: 'แบบฟอร์มขอเพิ่มหรือถอนรายวิชา และคำร้องขอลงทะเบียนเรียนเกินกำหนดเวลาที่แผนกทะเบียนกำหนด',
+    category: FALLBACK_DOWNLOAD_CATEGORIES[0],
+    sourceType: 'file',
+    fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    externalUrl: '',
+    fileType: 'docx',
+    fileSize: '142 KB',
+    version: 'แบบฟอร์ม วทศ.03',
+    order: 3,
+    publishedAt: '2026-10-10T14:20:00Z',
+  },
+  {
+    id: 104,
+    title: 'ระเบียบวิทยาลัยว่าด้วยเครื่องแบบ วินัย และความประพฤตินักศึกษา',
+    slug: 'regulations-uniform-discipline',
+    description: 'ข้อบังคับและแนวปฏิบัติว่าด้วยการแต่งกาย ระเบียบวินัย และการตัดคะแนนความประพฤติของนักเรียนนักศึกษา',
+    category: FALLBACK_DOWNLOAD_CATEGORIES[1],
+    sourceType: 'file',
+    fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    externalUrl: '',
+    fileType: 'pdf',
+    fileSize: '1.2 MB',
+    version: 'ฉบับปรับปรุง 2568',
+    order: 1,
+    publishedAt: '2026-09-25T11:00:00Z',
+  },
+  {
+    id: 105,
+    title: 'แนวปฏิบัติและระเบียบการฝึกประสบการณ์ทักษะวิชาชีพในสถานประกอบการ',
+    slug: 'regulations-internship-guidelines',
+    description: 'คู่มือและข้อปฏิบัติตนสำหรับนักศึกษาระดับ ปวช. และ ปวส. ในระหว่างการฝึกงานในโรงงานและสถานประกอบการ',
+    category: FALLBACK_DOWNLOAD_CATEGORIES[1],
+    sourceType: 'file',
+    fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    externalUrl: '',
+    fileType: 'pdf',
+    fileSize: '890 KB',
+    version: 'ฉบับปี 2568',
+    order: 2,
+    publishedAt: '2026-09-20T10:15:00Z',
+  },
+  {
+    id: 106,
+    title: 'คู่มือนักศึกษาใหม่และผู้ปกครอง ประจำปีการศึกษา',
+    slug: 'handbook-new-students',
+    description: 'ข้อมูลสำคัญสำหรับนักศึกษาเข้าใหม่ แนะนำอาคารสถานที่ อาจารย์ที่ปรึกษา และระบบบริการการศึกษา',
+    category: FALLBACK_DOWNLOAD_CATEGORIES[2],
+    sourceType: 'file',
+    fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    externalUrl: '',
+    fileType: 'pdf',
+    fileSize: '4.5 MB',
+    version: 'Student Handbook',
+    order: 1,
+    publishedAt: '2026-08-30T09:30:00Z',
+  },
+  {
+    id: 107,
+    title: 'ตารางและแผนการเรียนโครงสร้างหลักสูตร ปวช. และ ปวส.',
+    slug: 'curriculum-plan-sheet',
+    description: 'ตารางสรุปโครงสร้างหน่วยกิต รายวิชาบังคับ และวิชาเลือก เพื่อการวางแผนการศึกษาตลอดหลักสูตร',
+    category: FALLBACK_DOWNLOAD_CATEGORIES[2],
+    sourceType: 'file',
+    fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    externalUrl: '',
+    fileType: 'xlsx',
+    fileSize: '320 KB',
+    version: 'ไฟล์ Excel สำหรับวางแผน',
+    order: 2,
+    publishedAt: '2026-08-20T13:45:00Z',
+  },
+  {
+    id: 108,
+    title: 'แบบฟอร์มขออนุมัติไปราชการและอบรมสัมมนาบุคลากร',
+    slug: 'staff-travel-training-form',
+    description: 'แบบฟอร์มสำหรับคณาจารย์และบุคลากรใช้ขออนุมัติเข้ารับการอบรม สัมมนาทางวิชาการ หรือปฏิบัติราชการภายนอก',
+    category: FALLBACK_DOWNLOAD_CATEGORIES[3],
+    sourceType: 'file',
+    fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    externalUrl: '',
+    fileType: 'docx',
+    fileSize: '115 KB',
+    version: 'แบบฟอร์ม ทส.05',
+    order: 1,
+    publishedAt: '2026-10-05T15:00:00Z',
+  },
+  {
+    id: 109,
+    title: 'เทมเพลตสไลด์นำเสนองานทางการของวิทยาลัย (PowerPoint)',
+    slug: 'staff-presentation-slide-template',
+    description: 'ไฟล์เทมเพลตสไลด์บรรยาย Presentation ธีมสีฟ้า-ขาว ตราสัญลักษณ์ทางการ สำหรับใช้ในงานวิชาการและพิธีการ',
+    category: FALLBACK_DOWNLOAD_CATEGORIES[3],
+    sourceType: 'file',
+    fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    externalUrl: '',
+    fileType: 'pptx',
+    fileSize: '3.8 MB',
+    version: 'S-TECH Official Template 16:9',
+    order: 2,
+    publishedAt: '2026-09-18T16:20:00Z',
+  },
+  {
+    id: 110,
+    title: 'ชุดตราสัญลักษณ์และโลโก้วิทยาลัยความละเอียดสูง (Press & Media Kit)',
+    slug: 'staff-college-logo-press-kit',
+    description: 'รวมไฟล์ตราสัญลักษณ์วิทยาลัยเทคโนโลยีศรีราชาครบทุกเฉดสี ทั้งแบบสีทอง สีเงิน และสีขาว สำหรับสื่อสิ่งพิมพ์และกราฟิก',
+    category: FALLBACK_DOWNLOAD_CATEGORIES[3],
+    sourceType: 'file',
+    fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    externalUrl: '',
+    fileType: 'zip',
+    fileSize: '8.2 MB',
+    version: 'Logo Pack (PNG, SVG, AI)',
+    order: 3,
+    publishedAt: '2026-09-01T10:00:00Z',
+  },
+];
+
+/**
+ * Fetch all Download categories
+ */
+export async function getDownloadCategories(): Promise<DownloadCategory[]> {
+  const cacheKey = 'download_categories';
+  const cached = getFromCache<DownloadCategory[]>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/download-categories`;
+    const res = await fetchWithTimeout(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setInCache(cacheKey, data);
+        return data as DownloadCategory[];
+      }
+    }
+  } catch (err) {
+    console.warn('[WordPress API] Unable to fetch download categories:', err);
+  }
+
+  return FALLBACK_DOWNLOAD_CATEGORIES;
+}
+
+/**
+ * Fetch Downloads list with category filter and search
+ */
+export async function getDownloads(category?: string, search?: string): Promise<DownloadItem[]> {
+  const cacheKey = `downloads_${category || 'all'}_${search || ''}`;
+  const cached = getFromCache<DownloadItem[]>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const params = new URLSearchParams();
+    if (category && category !== 'all') params.set('category', category);
+    if (search) params.set('search', search);
+
+    const queryStr = params.toString() ? `?${params.toString()}` : '';
+    const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/downloads${queryStr}`;
+    const res = await fetchWithTimeout(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setInCache(cacheKey, data);
+        return data as DownloadItem[];
+      }
+    }
+  } catch (err) {
+    console.warn('[WordPress API] Unable to fetch downloads:', err);
+  }
+
+  // Filter fallback data if parameters provided
+  let filtered = [...FALLBACK_DOWNLOADS];
+  if (category && category !== 'all') {
+    filtered = filtered.filter(item => item.category?.slug === category);
+  }
+  if (search) {
+    const q = search.toLowerCase();
+    filtered = filtered.filter(item =>
+      item.title.toLowerCase().includes(q) ||
+      (item.description && item.description.toLowerCase().includes(q)) ||
+      (item.version && item.version.toLowerCase().includes(q))
+    );
+  }
+
+  return filtered;
+}
+
+
 
 
 

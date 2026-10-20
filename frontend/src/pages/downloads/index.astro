@@ -1,0 +1,706 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getDownloads, getDownloadCategories } from '../../lib/wordpress';
+import type { DownloadItem, DownloadCategory } from '../../lib/wordpress';
+
+// Fetch downloads and categories from WordPress API (with resilient fallback)
+const [rawCategories, rawDownloads] = await Promise.all([
+  getDownloadCategories(),
+  getDownloads(),
+]);
+
+// Sort categories by order ASC
+const categories = [...rawCategories].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+// Sort downloads: order ASC, then publishedAt DESC
+const downloads = [...rawDownloads].sort((a, b) => {
+  if ((a.order ?? 0) !== (b.order ?? 0)) {
+    return (a.order ?? 0) - (b.order ?? 0);
+  }
+  return new Date(b.publishedAt || 0).getTime() - new Date(a.publishedAt || 0).getTime();
+});
+
+// Calculate total downloads
+const totalDownloads = downloads.length;
+
+// Format Thai Date
+function formatThaiDate(dateStr?: string) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString('th-TH', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+---
+
+<BaseLayout
+  title="ศูนย์ดาวน์โหลดเอกสารและแบบฟอร์ม - วิทยาลัยเทคโนโลยีศรีราชา"
+  description="ศูนย์ดาวน์โหลดเอกสาร แบบฟอร์มคำร้องทั่วไป ระเบียบปฏิบัติ ข้อบังคับ และคู่มือนักศึกษา วิทยาลัยเทคโนโลยีศรีราชา (S-TECH) ดาวน์โหลดเอกสารและเปิดดูตัวอย่างออนไลน์"
+>
+  <div class="py-8 sm:py-12 lg:py-16 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">หน้าแรก</a>
+      <span>/</span>
+      <span class="text-slate-800 dark:text-slate-200 font-semibold" aria-current="page">ดาวน์โหลด</span>
+    </nav>
+
+    <!-- Page Title & Overview Header -->
+    <div class="mb-8 sm:mb-10 pb-6 border-b border-slate-200 dark:border-slate-800">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 text-xs font-bold text-[#0047BA] dark:text-sky-300 border border-blue-200/50 dark:border-blue-800/50 mb-3">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <span>DOWNLOAD CENTER</span>
+          </div>
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            ศูนย์ดาวน์โหลดเอกสารและแบบฟอร์ม
+          </h1>
+          <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-2 max-w-2xl font-normal leading-relaxed">
+            รวบรวมแบบฟอร์มคำร้องทางการ ระเบียบปฏิบัติ ข้อบังคับ และคู่มือนักศึกษาของวิทยาลัยเทคโนโลยีศรีราชา เพื่อความสะดวกรวดเร็วในการติดต่อประสานงาน
+          </p>
+        </div>
+
+        <div class="flex items-center gap-3 shrink-0">
+          <div class="px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300">
+            เอกสารทั้งหมด <span class="text-[#0047BA] dark:text-sky-400 font-bold" id="header-total-count">{totalDownloads}</span> รายการ
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters & Search Toolbar -->
+    <div class="space-y-4 mb-8">
+      
+      <!-- Category Filter Pills (Ordered by WordPress Category Order) -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none" id="category-pills-bar">
+        <button
+          type="button"
+          class="category-pill active shrink-0 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer bg-[#0047BA] text-white shadow-xs hover:bg-[#003893]"
+          data-category="all"
+        >
+          <span>ทั้งหมด</span>
+          <span class="ml-1.5 px-2 py-0.5 rounded-full text-[11px] bg-white/20 text-white font-bold">{totalDownloads}</span>
+        </button>
+
+        {categories.map((cat) => {
+          const catCount = downloads.filter(d => d.category?.slug === cat.slug).length;
+          return (
+            <button
+              type="button"
+              class="category-pill shrink-0 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all cursor-pointer bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-[#0047BA] hover:text-[#0047BA] dark:hover:border-sky-400 dark:hover:text-sky-300 shadow-xs"
+              data-category={cat.slug}
+            >
+              <span>{cat.name}</span>
+              <span class="ml-1.5 px-2 py-0.5 rounded-full text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold">{catCount}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <!-- Search Bar & File Type Filter Row -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-1">
+        
+        <!-- Live Search Input -->
+        <div class="relative w-full sm:w-80 md:w-96">
+          <input
+            type="text"
+            id="download-search-input"
+            placeholder="ค้นหาชื่อเอกสาร, รหัสแบบฟอร์ม (เช่น วทศ.01)..."
+            class="w-full pl-10 pr-4 py-2.5 rounded-xl text-xs sm:text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0047BA] dark:focus:ring-sky-500 focus:border-transparent transition-all shadow-xs"
+          />
+          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </div>
+
+        <!-- File Type Filter Selector Pills -->
+        <div class="flex items-center gap-1.5 overflow-x-auto text-xs scrollbar-none">
+          <span class="text-slate-400 text-xs shrink-0 mr-1 hidden md:inline">ประเภท:</span>
+          <button type="button" class="type-pill active px-2.5 py-1.5 rounded-lg font-semibold bg-slate-800 text-white dark:bg-slate-700 cursor-pointer" data-type="all">ทั้งหมด</button>
+          <button type="button" class="type-pill px-2.5 py-1.5 rounded-lg font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer" data-type="pdf">PDF</button>
+          <button type="button" class="type-pill px-2.5 py-1.5 rounded-lg font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer" data-type="word">Word</button>
+          <button type="button" class="type-pill px-2.5 py-1.5 rounded-lg font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer" data-type="excel">Excel</button>
+          <button type="button" class="type-pill px-2.5 py-1.5 rounded-lg font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer" data-type="ppt">PPT</button>
+          <button type="button" class="type-pill px-2.5 py-1.5 rounded-lg font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 cursor-pointer" data-type="zip">ZIP</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DOWNLOADS LIST CONTAINER -->
+    <div class="space-y-3" id="downloads-container">
+      {downloads.map((item, idx) => {
+        const fileType = (item.fileType || 'pdf').toLowerCase();
+        
+        // Configuration for badge color and icon per type
+        let badgeColor = "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20";
+        let iconBg = "bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400 border-rose-200 dark:border-rose-900";
+        let typeLabel = "PDF";
+
+        if (fileType === 'docx' || fileType === 'doc' || fileType === 'word') {
+          badgeColor = "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20";
+          iconBg = "bg-blue-50 text-[#0047BA] dark:bg-blue-950/40 dark:text-sky-400 border-blue-200 dark:border-blue-900";
+          typeLabel = "DOCX";
+        } else if (fileType === 'xlsx' || fileType === 'xls' || fileType === 'excel') {
+          badgeColor = "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20";
+          iconBg = "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900";
+          typeLabel = "XLSX";
+        } else if (fileType === 'pptx' || fileType === 'ppt' || fileType === 'powerpoint') {
+          badgeColor = "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/20";
+          iconBg = "bg-orange-50 text-orange-600 dark:bg-orange-950/40 dark:text-orange-400 border-orange-200 dark:border-orange-900";
+          typeLabel = "PPTX";
+        } else if (fileType === 'zip' || fileType === 'rar') {
+          badgeColor = "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20";
+          iconBg = "bg-purple-50 text-purple-600 dark:bg-purple-950/40 dark:text-purple-400 border-purple-200 dark:border-purple-900";
+          typeLabel = fileType.toUpperCase();
+        } else if (fileType === 'link') {
+          badgeColor = "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20";
+          iconBg = "bg-sky-50 text-sky-600 dark:bg-sky-950/40 dark:text-sky-400 border-sky-200 dark:border-sky-900";
+          typeLabel = "LINK";
+        }
+
+        const targetUrl = item.fileUrl || item.externalUrl || '#';
+        const isExternal = !item.fileUrl && !!item.externalUrl;
+
+        return (
+          <div
+            id={`download-item-${item.id}`}
+            class="download-card group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-4 sm:p-5 shadow-xs hover:shadow-md hover:border-[#0047BA]/40 dark:hover:border-sky-500/40 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
+            data-category={item.category?.slug || 'other'}
+            data-file-type={fileType}
+            data-title={item.title.toLowerCase()}
+            data-version={(item.version || '').toLowerCase()}
+            data-desc={(item.description || '').toLowerCase()}
+          >
+            <!-- Left Info Section with Iconic File Badge -->
+            <div class="flex items-start gap-3 sm:gap-4 min-w-0 flex-1">
+              
+              <!-- File Icon Badge -->
+              <div class={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl shrink-0 flex flex-col items-center justify-center border shadow-xs ${iconBg}`}>
+                {fileType === 'pdf' ? (
+                  <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                  </svg>
+                ) : (fileType === 'docx' || fileType === 'doc') ? (
+                  <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="12" y1="18" x2="12" y2="12"></line>
+                    <line x1="9" y1="15" x2="15" y2="15"></line>
+                  </svg>
+                ) : (fileType === 'xlsx' || fileType === 'xls') ? (
+                  <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="3" y1="9" x2="21" y2="9"></line>
+                    <line x1="3" y1="15" x2="21" y2="15"></line>
+                    <line x1="9" y1="3" x2="9" y2="21"></line>
+                    <line x1="15" y1="3" x2="15" y2="21"></line>
+                  </svg>
+                ) : (fileType === 'pptx' || fileType === 'ppt') ? (
+                  <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                  </svg>
+                ) : (fileType === 'zip' || fileType === 'rar') ? (
+                  <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 8v13H3V8"></path>
+                    <path d="M1 3h22v5H1z"></path>
+                    <line x1="10" y1="12" x2="14" y2="12"></line>
+                  </svg>
+                ) : (
+                  <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                  </svg>
+                )}
+                <span class="text-[9px] font-black uppercase tracking-wider mt-0.5">{typeLabel}</span>
+              </div>
+
+              <!-- Metadata & Title -->
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-2 mb-1">
+                  <!-- Category Badge -->
+                  <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                    {item.category?.name || 'ทั่วไป'}
+                  </span>
+
+                  <!-- Version / Code Pill -->
+                  {item.version && (
+                    <span class="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/40 text-[#0047BA] dark:text-sky-300 border border-blue-200/50 dark:border-blue-900">
+                      {item.version}
+                    </span>
+                  )}
+                </div>
+
+                <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white group-hover:text-[#0047BA] dark:group-hover:text-sky-400 transition-colors leading-snug">
+                  {item.title}
+                </h3>
+
+                {item.description && (
+                  <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-2 leading-relaxed font-normal">
+                    {item.description}
+                  </p>
+                )}
+
+                <!-- File Info Badges -->
+                <div class="flex items-center gap-3 mt-2 text-xs text-slate-400 font-mono">
+                  {item.fileSize && (
+                    <span class="flex items-center gap-1 font-semibold text-slate-600 dark:text-slate-300">
+                      <svg class="w-3.5 h-3.5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                      </svg>
+                      {item.fileSize}
+                    </span>
+                  )}
+                  {item.publishedAt && (
+                    <span>ปรับปรุง: {formatThaiDate(item.publishedAt)}</span>
+                  )}
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Right Action Buttons (Preview & Download) -->
+            <div class="flex items-center gap-2 self-end md:self-center shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100 dark:border-slate-800 w-full md:w-auto justify-end">
+              
+              <!-- Preview Button (Opens Modal) -->
+              <button
+                type="button"
+                class="btn-preview-file inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-[#0047BA] dark:bg-slate-800 dark:hover:bg-blue-950/50 dark:text-slate-300 dark:hover:text-sky-300 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
+                data-file-url={item.fileUrl || ''}
+                data-external-url={item.externalUrl || ''}
+                data-file-type={fileType}
+                data-title={item.title}
+                data-version={item.version || ''}
+                data-size={item.fileSize || ''}
+                title="ดูตัวอย่างเอกสาร"
+              >
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <span>ดูตัวอย่าง</span>
+              </button>
+
+              <!-- Direct Download / External Link Button -->
+              <a
+                href={targetUrl}
+                download={item.fileUrl ? `${item.title}.${fileType}` : undefined}
+                target={isExternal ? "_blank" : undefined}
+                rel={isExternal ? "noopener noreferrer" : undefined}
+                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-[#0047BA] hover:bg-[#003893] text-white shadow-xs hover:shadow-md transition-all active:scale-98 cursor-pointer"
+                title={isExternal ? "เปิดลิงก์ดาวน์โหลดภายนอก" : "ดาวน์โหลดไฟล์ลงเครื่อง"}
+              >
+                {isExternal ? (
+                  <>
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                      <polyline points="15 3 21 3 21 9"></polyline>
+                      <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                    <span>เปิดลิงก์</span>
+                  </>
+                ) : (
+                  <>
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>ดาวน์โหลด</span>
+                  </>
+                )}
+              </a>
+
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    <!-- Empty Search Notice -->
+    <div id="no-search-results" class="hidden text-center py-20 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xs mt-6">
+      <div class="w-16 h-16 mx-auto rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-4">
+        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </div>
+      <h3 class="text-base sm:text-lg font-bold text-slate-800 dark:text-slate-200">ไม่พบเอกสารที่ค้นหา</h3>
+      <p class="text-xs sm:text-sm text-slate-400 mt-1">ลองเปลี่ยนคำค้นหา หรือเลือกหมวดหมู่อื่น</p>
+      <button
+        type="button"
+        id="btn-clear-search"
+        class="mt-4 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-[#0047BA] text-white hover:bg-[#003893] transition-colors cursor-pointer"
+      >
+        ล้างคำค้นหาทั้งหมด
+      </button>
+    </div>
+
+  </div>
+
+  <!-- INTERACTIVE FILE PREVIEW MODAL -->
+  <div
+    id="download-preview-modal"
+    class="fixed inset-0 z-50 hidden bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-file-title"
+  >
+    <div class="bg-white dark:bg-slate-900 w-full max-w-5xl h-[90vh] rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 dark:border-slate-800">
+      
+      <!-- Modal Header -->
+      <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3 bg-slate-50/80 dark:bg-slate-800/50">
+        <div class="flex items-center gap-3 overflow-hidden">
+          <div class="w-10 h-10 rounded-xl bg-[#0047BA] text-white flex items-center justify-center shrink-0 shadow-xs">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+          </div>
+          <div class="overflow-hidden">
+            <h3 id="modal-file-title" class="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate">
+              ดูตัวอย่างเอกสาร
+            </h3>
+            <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <span id="modal-file-version" class="font-mono font-semibold text-[#0047BA] dark:text-sky-300"></span>
+              <span id="modal-file-size"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <!-- Download Button inside Modal -->
+          <a
+            id="modal-download-action"
+            href="#"
+            download
+            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-[#0047BA] hover:bg-[#003893] text-white transition-colors cursor-pointer"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span id="modal-download-text">ดาวน์โหลด</span>
+          </a>
+
+          <!-- Open in New Tab -->
+          <a
+            id="modal-newtab-action"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-700/60 transition-colors"
+            title="เปิดในแท็บใหม่"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+          </a>
+
+          <!-- Close Modal -->
+          <button
+            type="button"
+            id="modal-close-action"
+            class="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-700/60 transition-colors cursor-pointer"
+            aria-label="ปิดหน้าต่าง"
+          >
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Body (Preview Viewer Container) -->
+      <div class="flex-1 bg-slate-100 dark:bg-slate-950 relative overflow-hidden flex items-center justify-center">
+        <!-- Iframe Viewer for PDF & Office docs -->
+        <iframe
+          id="modal-preview-iframe"
+          src=""
+          class="w-full h-full border-none hidden"
+          title="Document Viewer"
+          loading="lazy"
+        ></iframe>
+
+        <!-- Image Viewer for JPG, PNG -->
+        <div id="modal-image-container" class="hidden w-full h-full overflow-auto p-4 flex items-center justify-center">
+          <img id="modal-preview-image" src="" alt="Preview" class="max-w-full max-h-full object-contain rounded-lg shadow-lg" />
+        </div>
+
+        <!-- Office / External Card Preview Fallback -->
+        <div id="modal-fallback-container" class="hidden text-center p-8 max-w-md">
+          <div class="w-16 h-16 mx-auto rounded-2xl bg-blue-50 dark:bg-blue-950/50 text-[#0047BA] dark:text-sky-400 flex items-center justify-center mb-4">
+            <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+          </div>
+          <h4 id="fallback-file-name" class="text-base font-bold text-slate-800 dark:text-slate-200 mb-2"></h4>
+          <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6">
+            ไฟล์ประเภทนี้สามารถดาวน์โหลดเพื่อเปิดด้วยโปรแกรมบนอุปกรณ์ของคุณ หรือเปิดอ่านในหน้าต่างใหม่
+          </p>
+          <a
+            id="fallback-download-btn"
+            href="#"
+            download
+            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold bg-[#0047BA] hover:bg-[#003893] text-white shadow-md transition-all"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>ดาวน์โหลดเอกสารนี้</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Client-side Interactive Filter & Preview Script -->
+  <script is:inline>
+    (function() {
+      function initDownloadPortal() {
+        const searchInput = document.getElementById('download-search-input');
+        const categoryPills = document.querySelectorAll('.category-pill');
+        const typePills = document.querySelectorAll('.type-pill');
+        const downloadCards = document.querySelectorAll('.download-card');
+        const noResults = document.getElementById('no-search-results');
+        const clearBtn = document.getElementById('btn-clear-search');
+
+        // Modal Elements
+        const modal = document.getElementById('download-preview-modal');
+        const modalTitle = document.getElementById('modal-file-title');
+        const modalVersion = document.getElementById('modal-file-version');
+        const modalSize = document.getElementById('modal-file-size');
+        const modalIframe = document.getElementById('modal-preview-iframe');
+        const modalImgContainer = document.getElementById('modal-image-container');
+        const modalImg = document.getElementById('modal-preview-image');
+        const modalFallback = document.getElementById('modal-fallback-container');
+        const fallbackName = document.getElementById('fallback-file-name');
+        const fallbackDownload = document.getElementById('fallback-download-btn');
+        const modalDownload = document.getElementById('modal-download-action');
+        const modalDownloadText = document.getElementById('modal-download-text');
+        const modalNewTab = document.getElementById('modal-newtab-action');
+        const modalClose = document.getElementById('modal-close-action');
+
+        let activeCategory = 'all';
+        let activeType = 'all';
+        let searchQuery = '';
+
+        function filterList() {
+          let visibleCount = 0;
+
+          downloadCards.forEach(card => {
+            const cat = card.dataset.category || 'other';
+            const ftype = card.dataset.fileType || 'pdf';
+            const title = card.dataset.title || '';
+            const version = card.dataset.version || '';
+            const desc = card.dataset.desc || '';
+
+            // Check Category
+            const matchesCat = (activeCategory === 'all' || cat === activeCategory);
+
+            // Check Type
+            let matchesType = (activeType === 'all');
+            if (activeType === 'pdf') matchesType = (ftype === 'pdf');
+            else if (activeType === 'word') matchesType = (ftype === 'docx' || ftype === 'doc');
+            else if (activeType === 'excel') matchesType = (ftype === 'xlsx' || ftype === 'xls');
+            else if (activeType === 'ppt') matchesType = (ftype === 'pptx' || ftype === 'ppt');
+            else if (activeType === 'zip') matchesType = (ftype === 'zip' || ftype === 'rar');
+
+            // Check Search
+            let matchesSearch = true;
+            if (searchQuery) {
+              matchesSearch = title.includes(searchQuery) || version.includes(searchQuery) || desc.includes(searchQuery);
+            }
+
+            if (matchesCat && matchesType && matchesSearch) {
+              card.classList.remove('hidden');
+              visibleCount++;
+            } else {
+              card.classList.add('hidden');
+            }
+          });
+
+          if (noResults) {
+            noResults.classList.toggle('hidden', visibleCount > 0);
+          }
+        }
+
+        // Category Pills Click
+        categoryPills.forEach(pill => {
+          pill.onclick = () => {
+            categoryPills.forEach(p => {
+              p.classList.remove('active', 'bg-[#0047BA]', 'text-white');
+              p.classList.add('bg-white', 'dark:bg-slate-900', 'text-slate-700', 'dark:text-slate-300');
+            });
+            pill.classList.remove('bg-white', 'dark:bg-slate-900', 'text-slate-700', 'dark:text-slate-300');
+            pill.classList.add('active', 'bg-[#0047BA]', 'text-white');
+
+            activeCategory = pill.dataset.category || 'all';
+            filterList();
+          };
+        });
+
+        // Type Pills Click
+        typePills.forEach(pill => {
+          pill.onclick = () => {
+            typePills.forEach(p => {
+              p.classList.remove('active', 'bg-slate-800', 'text-white', 'dark:bg-slate-700');
+              p.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-400');
+            });
+            pill.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-400');
+            pill.classList.add('active', 'bg-slate-800', 'text-white', 'dark:bg-slate-700');
+
+            activeType = pill.dataset.type || 'all';
+            filterList();
+          };
+        });
+
+        // Search Input
+        if (searchInput) {
+          searchInput.oninput = (e) => {
+            searchQuery = (e.target.value || '').trim().toLowerCase();
+            filterList();
+          };
+        }
+
+        // Reset Filter
+        if (clearBtn) {
+          clearBtn.onclick = () => {
+            if (searchInput) searchInput.value = '';
+            searchQuery = '';
+            activeCategory = 'all';
+            activeType = 'all';
+            if (categoryPills[0]) categoryPills[0].click();
+            if (typePills[0]) typePills[0].click();
+          };
+        }
+
+        // Preview File Click
+        document.querySelectorAll('.btn-preview-file').forEach(btn => {
+          btn.onclick = () => {
+            const fileUrl = btn.dataset.fileUrl || '';
+            const extUrl = btn.dataset.externalUrl || '';
+            const ftype = (btn.dataset.fileType || 'pdf').toLowerCase();
+            const title = btn.dataset.title || 'เอกสาร';
+            const version = btn.dataset.version || '';
+            const size = btn.dataset.size || '';
+            const effectiveUrl = fileUrl || extUrl;
+
+            if (modalTitle) modalTitle.textContent = title;
+            if (modalVersion) modalVersion.textContent = version ? `• ${version}` : '';
+            if (modalSize) modalSize.textContent = size ? `• ${size}` : '';
+
+            if (modalDownload) {
+              modalDownload.href = effectiveUrl;
+              modalDownload.download = fileUrl ? `${title}.${ftype}` : '';
+              if (modalDownloadText) {
+                modalDownloadText.textContent = extUrl && !fileUrl ? 'เปิดลิงก์' : 'ดาวน์โหลด';
+              }
+            }
+
+            if (modalNewTab) {
+              modalNewTab.href = effectiveUrl;
+            }
+
+            // Reset viewer frames
+            if (modalIframe) {
+              modalIframe.src = '';
+              modalIframe.classList.add('hidden');
+            }
+            if (modalImgContainer) modalImgContainer.classList.add('hidden');
+            if (modalFallback) modalFallback.classList.add('hidden');
+
+            if (ftype === 'pdf') {
+              if (modalIframe) {
+                modalIframe.src = effectiveUrl;
+                modalIframe.classList.remove('hidden');
+              }
+            } else if (ftype === 'image' || ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ftype)) {
+              if (modalImg && modalImgContainer) {
+                modalImg.src = effectiveUrl;
+                modalImgContainer.classList.remove('hidden');
+              }
+            } else if (['docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt'].includes(ftype)) {
+              // Office docs: attempt Google Docs Viewer or fallback card
+              if (effectiveUrl.startsWith('http://') || effectiveUrl.startsWith('https://')) {
+                const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(effectiveUrl)}&embedded=true`;
+                if (modalIframe) {
+                  modalIframe.src = viewerUrl;
+                  modalIframe.classList.remove('hidden');
+                }
+              } else {
+                if (modalFallback) {
+                  if (fallbackName) fallbackName.textContent = title;
+                  if (fallbackDownload) fallbackDownload.href = effectiveUrl;
+                  modalFallback.classList.remove('hidden');
+                }
+              }
+            } else {
+              // ZIP or external links: show preview card
+              if (modalFallback) {
+                if (fallbackName) fallbackName.textContent = title;
+                if (fallbackDownload) fallbackDownload.href = effectiveUrl;
+                modalFallback.classList.remove('hidden');
+              }
+            }
+
+            // Open Modal
+            if (modal) {
+              modal.classList.remove('hidden');
+              document.body.style.overflow = 'hidden';
+            }
+          };
+        });
+
+        // Close Modal
+        function closeModal() {
+          if (modal) {
+            modal.classList.add('hidden');
+            if (modalIframe) modalIframe.src = '';
+            document.body.style.overflow = '';
+          }
+        }
+
+        if (modalClose) modalClose.onclick = closeModal;
+
+        if (modal) {
+          modal.onclick = (e) => {
+            if (e.target === modal) closeModal();
+          };
+        }
+
+        window.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+            closeModal();
+          }
+        });
+      }
+
+      document.addEventListener('astro:page-load', initDownloadPortal);
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        initDownloadPortal();
+      }
+    })();
+  </script>
+</BaseLayout>
