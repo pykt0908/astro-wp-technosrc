@@ -1,0 +1,1359 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+// Songs data
+const songs = [
+  {
+    id: "march",
+    index: "01",
+    title: "เพลง มาร์ชเทคโนฯศรีราชา",
+    englishTitle: "March Technosriracha",
+    category: "เพลงมาร์ชประจำวิทยาลัย (Official Anthem)",
+    tag: "เพลงประจำวิทยาลัย",
+    tagColor: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+    duration: "02:59",
+    durationSec: 180,
+    audioM4a: "/song/01_march_technosriracha.m4a",
+    audioWav: encodeURI("/song/01 เพลง มาร์ชเทคโนฯศรีราชา.wav"),
+    sizeM4a: "4.2 MB",
+    sizeWav: "30.2 MB",
+    composer: "อาจารย์จรัส วงศ์ชนะ (คำร้อง / ทำนอง)",
+    meaning: "บทเพลงมาร์ชประจำสถาบันอันทรงเกียรติ ถ่ายทอดความสง่างาม อัตลักษณ์สีฟ้า-ขาว ความเป็นเลิศด้านวิชาการและทักษะวิชาชีพ ตลอดจนความจงรักภักดีต่อสถาบันชาติ ศาสนา พระมหากษัตริย์",
+    lyrics: [
+      {
+        stanza: "ท่อนที่ 1",
+        lines: [
+          "เทคโนโลยีศรีราชา งามสง่าใครไม่เทียม",
+          "ทักษะเยี่ยมเปี่ยมคุณธรรมล้ำเลิศวิชา",
+          "ถิ่นศึกษาของเรา เพริศเพราน้องพี่ชื่อนี้ดีเรื่อยมา",
+          "เป็นแหล่งปัญญาสร้างศรัทธาสร้างความมั่นใจ"
+        ]
+      },
+      {
+        stanza: "ท่อนที่ 2 (สร้อย)",
+        lines: [
+          "สัญลักษณ์ เกาะลอยวิไล ราชพฤกษ์สดใส",
+          "ฟ้า-ขาว เกริกไกรก้าวต่อไปเคียงกัน",
+          "มั่นรักสามัคคีเชิดชูศักดิ์ศรีสถาบัน",
+          "ชาติ ศาสนา องค์ราชัน ยึดมั่นอยู่ในฤดี"
+        ]
+      },
+      {
+        stanza: "ท่อนจบ",
+        lines: [
+          "รักเกียรติ รักเรียน พากเพียร เพิ่มพูน",
+          "ทูนเทิดในสิ่งดี... เพื่อเทคโนโลยีศรีราชา"
+        ]
+      }
+    ]
+  },
+  {
+    id: "khuen-rang",
+    index: "02",
+    title: "เพลง เทคโนฯคืนรัง",
+    englishTitle: "Techno Khuen Rang (Homecoming Anthem)",
+    category: "เพลงคืนสู่เหย้า & สายสัมพันธ์ศิษย์เก่า",
+    tag: "ศิษย์เก่า & คืนสู่เหย้า",
+    tagColor: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+    duration: "03:10",
+    durationSec: 191,
+    audioM4a: "/song/02_techno_khuen_rang.m4a",
+    audioWav: encodeURI("/song/02 เพลง เทคโนฯคืนรัง.wav"),
+    sizeM4a: "4.5 MB",
+    sizeWav: "32.1 MB",
+    composer: "วิทยาลัยเทคโนโลยีศรีราชา",
+    meaning: "บทเพลงแห่งความคิดถึงและความผูกพัน บรรยายถึงห้วงเวลาที่ลูกเทคโนฯ เดินทางกลับคืนสู่รังอันอบอุ่น ร่วมรำลึกความหลัง มิตรภาพ และความรักที่มีต่อคุณครูและสถาบัน",
+    lyrics: [
+      {
+        stanza: "ท่อนที่ 1",
+        lines: [
+          "จากแดนไกลคืนสู่รังอบอุ่น",
+          "ด้วยการุณย์สายใยที่ผูกพัน",
+          "ลูกเทคโนฯ คืนสู่เหย้าเราพร้อมกัน",
+          "รวมใจมั่นระลึกคุณสถานศึกษา"
+        ]
+      },
+      {
+        stanza: "ท่อนที่ 2",
+        lines: [
+          "กราบครูบาอาจารย์ผู้เปี่ยมรัก",
+          "ที่ฟูมฟักสั่งสอนแต่วิชา",
+          "มิตรภาพพี่น้องไม่เสื่อมซา",
+          "เทคโนฯ ศรีราชา... สถิตมั่นนิรันดร์เทอญ"
+        ]
+      }
+    ]
+  },
+  {
+    id: "khong-rao",
+    index: "03",
+    title: "เพลง เทคโนฯของเรา",
+    englishTitle: "Techno Khong Rao (Our Technological Pride)",
+    category: "เพลงสามัคคีและพลังสร้างสรรค์",
+    tag: "พลังสามัคคี & พี่น้อง",
+    tagColor: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/20",
+    duration: "02:32",
+    durationSec: 152,
+    audioM4a: "/song/03_techno_khong_rao.m4a",
+    audioWav: encodeURI("/song/03 เพลง เทคโนฯของเรา.wav"),
+    sizeM4a: "3.5 MB",
+    sizeWav: "25.6 MB",
+    composer: "วิทยาลัยเทคโนโลยีศรีราชา",
+    meaning: "บทเพลงปลุกเร้าพลังสร้างสรรค์และมิตรภาพอันแน่นแฟ้นของพี่น้องชาวเทคโนฯ ทุกสายวิชาชีพ ทั้งสายช่างอุตสาหกรรมและพาณิชยกรรม รวมพลังก้าวสู่อนาคตที่สดใส",
+    lyrics: [
+      {
+        stanza: "ท่อนที่ 1",
+        lines: [
+          "นี่คือแดนสวรรค์เทคโนฯ ของเรา",
+          "ร่วมหล่อหลอมวัยเยาว์สู่วันสดใส",
+          "ทักษะเลิศชำนาญการสร้างไทย",
+          "ก้าวไกลด้วยวิชาและปัญญา"
+        ]
+      },
+      {
+        stanza: "ท่อนที่ 2",
+        lines: [
+          "จับมือก้าวไปไม่หวั่นไหว",
+          "เลือดฟ้าขาวในใจไม่ร้างรา",
+          "เพื่อเกียรติศักดิ์เทคโนโลยีศรีราชา",
+          "เกรียงไกรทายท้าทุกเส้นทาง"
+        ]
+      }
+    ]
+  },
+  {
+    id: "chuen",
+    index: "04",
+    title: "เพลง ชื่น",
+    englishTitle: "Chuen (Joy of S-TECH)",
+    category: "เพลงรื่นเริงและชีวิตชีวาในรั้ววิทยาลัย",
+    tag: "เพลงกิจกรรม & รื่นเริง",
+    tagColor: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+    duration: "02:35",
+    durationSec: 155,
+    audioM4a: "/song/04_chuen.m4a",
+    audioWav: encodeURI("/song/04 เพลง ชื่น.wav"),
+    sizeM4a: "3.6 MB",
+    sizeWav: "26.1 MB",
+    composer: "วิทยาลัยเทคโนโลยีศรีราชา",
+    meaning: "บทเพลงรื่นเริงเติมเต็มรอยยิ้ม ความสุข และพลังบวกในชีวิตรั้ววิทยาลัย สร้างบรรยากาศแห่งความเบิกบานใจในทุกกิจกรรม รอยยิ้ม และความทรงจำของวัยเรียน",
+    lyrics: [
+      {
+        stanza: "ท่อนที่ 1",
+        lines: [
+          "ชื่นฤดีเมื่อได้มาพบหน้า",
+          "เทคโนฯ ศรีราชารื่นเริงสดใส",
+          "เสียงหัวเราะมิตรภาพก้องกังวานไกล",
+          "ร่วมสร้างฝันยิ่งใหญ่ไปด้วยกัน"
+        ]
+      },
+      {
+        stanza: "ท่อนที่ 2",
+        lines: [
+          "สุขใดเล่าจะเท่าได้ร่วมทาง",
+          "สร้างสรรค์สิ่งดีเคียงข้างทุกวัน",
+          "รอยยิ้มนี้จะตราตรึงชั่วนิรันดร์",
+          "ชื่นใจในรักและผูกพัน... ชาวเทคโนฯ"
+        ]
+      }
+    ]
+  }
+];
+---
+
+<BaseLayout
+  title="เพลงประจำวิทยาลัย - วิทยาลัยเทคโนโลยีศรีราชา"
+  description="รับฟังและดาวน์โหลดเพลงประจำวิทยาลัยเทคโนโลยีศรีราชา (S-TECH) เพลงมาร์ชเทคโนฯศรีราชา เพลงเทคโนฯคืนรัง เพลงเทคโนฯของเรา และเพลงชื่น พร้อมเนื้อร้องและไฟล์เสียงคุณภาพสูง"
+>
+  <!-- Toast Notification Container -->
+  <div
+    id="song-toast"
+    class="fixed bottom-24 sm:bottom-8 right-6 z-50 transform translate-y-16 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900/95 dark:bg-white/95 text-white dark:text-slate-900 px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-sm font-medium backdrop-blur-md border border-white/10 dark:border-slate-800"
+  >
+    <div class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 dark:text-emerald-600 flex items-center justify-center flex-shrink-0">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+      </svg>
+    </div>
+    <span id="song-toast-text">คัดลอกเรียบร้อยแล้ว</span>
+  </div>
+
+  <div class="py-6 sm:py-10 lg:py-14 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">หน้าแรก</a>
+      <span>/</span>
+      <a href="/about/" class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">เกี่ยวกับเรา</a>
+      <span>/</span>
+      <span class="text-slate-800 dark:text-slate-200 font-semibold" aria-current="page">เพลงประจำวิทยาลัย</span>
+    </nav>
+
+    <!-- Header Hero Section -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#001744] via-[#002B7A] to-[#0047BA] text-white p-6 sm:p-10 lg:p-14 mb-10 shadow-2xl shadow-blue-900/20 border border-white/10">
+      <!-- Glow ambient background circles -->
+      <div class="absolute -top-24 -right-24 w-96 h-96 bg-sky-400/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-600/30 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+        <div class="space-y-4 max-w-2xl">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs sm:text-sm font-medium text-sky-200">
+            <svg class="w-4 h-4 text-sky-300 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+            </svg>
+            <span>บทเพลงแห่งความภาคภูมิใจ • S-TECH SOUNDTRACK</span>
+          </div>
+
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
+            เพลงประจำวิทยาลัย
+          </h1>
+          
+          <p class="text-base sm:text-lg text-slate-200 font-normal leading-relaxed">
+            รวบรวมบทเพลงประจำสถาบันอันทรงเกียรติ เพลงมาร์ช เพลงคืนสู่เหย้า และบทเพลงแห่งมิตรภาพของวิทยาลัยเทคโนโลยีศรีราชา เพื่อสืบสานจิตวิญญาณแห่งสีฟ้า-ขาว และหลอมรวมใจชาวเทคโนฯ ทุกรุ่น
+          </p>
+
+          <!-- Quick Actions -->
+          <div class="pt-2 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              id="hero-play-all-btn"
+              class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-sky-400 hover:bg-sky-300 active:bg-sky-500 text-slate-950 font-bold text-sm sm:text-base shadow-lg shadow-sky-400/25 transition-all transform hover:-translate-y-0.5 cursor-pointer"
+            >
+              <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              <span>เล่นเพลงทั้งหมดต่อเนื่อง</span>
+            </button>
+
+            <a
+              href="#track-list-section"
+              class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/30 text-white font-semibold text-sm sm:text-base border border-white/20 backdrop-blur-md transition-all cursor-pointer"
+            >
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+              <span>เลือกดูบทเพลงทั้งหมด</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Hero Feature Badge Badge / Stat Card -->
+        <div class="grid grid-cols-2 sm:grid-cols-2 gap-3 sm:gap-4 lg:w-80">
+          <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-center">
+            <div class="text-2xl sm:text-3xl font-black text-sky-300">4</div>
+            <div class="text-xs sm:text-sm text-slate-300 mt-1">บทเพลงสถาบัน</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-center">
+            <div class="text-2xl sm:text-3xl font-black text-emerald-300">Master</div>
+            <div class="text-xs sm:text-sm text-slate-300 mt-1">คุณภาพสตูดิโอ</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-center">
+            <div class="text-2xl sm:text-3xl font-black text-amber-300">WAV+AAC</div>
+            <div class="text-xs sm:text-sm text-slate-300 mt-1">รองรับทุกอุปกรณ์</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 text-center">
+            <div class="text-2xl sm:text-3xl font-black text-purple-300">100%</div>
+            <div class="text-xs sm:text-sm text-slate-300 mt-1">ดาวน์โหลดฟรี</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN STUDIO AUDIO PLAYER (THE CONSOLE) -->
+    <section class="mb-14">
+      <div class="relative rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden p-6 sm:p-8 lg:p-10 transition-colors">
+        
+        <!-- Ambient soundwave background glow -->
+        <div class="absolute top-0 right-0 w-80 h-80 bg-blue-500/10 dark:bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          
+          <!-- Left Column: 3D Vinyl Record with Spin Animation -->
+          <div class="lg:col-span-5 flex flex-col items-center justify-center">
+            <div class="relative group">
+              <!-- Vinyl Disc Container -->
+              <div
+                id="vinyl-disc"
+                class="w-52 h-52 sm:w-64 sm:h-64 rounded-full bg-gradient-to-tr from-slate-950 via-slate-900 to-slate-950 shadow-2xl border-4 border-slate-800/80 flex items-center justify-center relative select-none transition-transform duration-700 ease-out"
+                style="box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.4), 0 0 20px 2px rgba(0, 163, 224, 0.2);"
+              >
+                <!-- Vinyl Grooves Rings -->
+                <div class="absolute inset-3 rounded-full border border-slate-800/60 pointer-events-none"></div>
+                <div class="absolute inset-6 rounded-full border border-slate-800/50 pointer-events-none"></div>
+                <div class="absolute inset-10 rounded-full border border-slate-800/40 pointer-events-none"></div>
+                <div class="absolute inset-14 rounded-full border border-slate-800/30 pointer-events-none"></div>
+                
+                <!-- Vinyl Center Label with College Crest -->
+                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br from-[#002B7A] to-[#0047BA] border-4 border-amber-400/80 flex flex-col items-center justify-center shadow-inner relative overflow-hidden">
+                  <img
+                    src="/logo/main/logo_circle_gold.png"
+                    alt="S-TECH Logo"
+                    class="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-md"
+                  />
+                  <!-- Spindle hole -->
+                  <div class="w-4 h-4 rounded-full bg-slate-950 border-2 border-amber-400 absolute"></div>
+                </div>
+              </div>
+
+              <!-- Animated Soundwave Equalizer Bars Badge Below Vinyl -->
+              <div class="mt-4 flex items-center justify-center gap-1.5 h-6">
+                <span class="w-1 bg-[#00A3E0] rounded-full eq-bar eq-bar-1"></span>
+                <span class="w-1 bg-[#0047BA] rounded-full eq-bar eq-bar-2"></span>
+                <span class="w-1 bg-amber-400 rounded-full eq-bar eq-bar-3"></span>
+                <span class="w-1 bg-[#00A3E0] rounded-full eq-bar eq-bar-4"></span>
+                <span class="w-1 bg-[#0047BA] rounded-full eq-bar eq-bar-5"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Player Controls & Metadata -->
+          <div class="lg:col-span-7 flex flex-col justify-center space-y-6">
+            
+            <!-- Song Tag & Index -->
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span id="player-track-index" class="text-xs font-bold px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                  TRACK 01
+                </span>
+                <span id="player-track-tag" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                  เพลงประจำวิทยาลัย
+                </span>
+              </div>
+
+              <!-- Format Badge -->
+              <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">
+                High-Fidelity Stereo (44.1 kHz)
+              </span>
+            </div>
+
+            <!-- Song Title & Details -->
+            <div>
+              <h2 id="player-title" class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                เพลง มาร์ชเทคโนฯศรีราชา
+              </h2>
+              <p id="player-subtitle" class="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-1 font-medium">
+                อาจารย์จรัส วงศ์ชนะ (คำร้อง / ทำนอง) • วิทยาลัยเทคโนโลยีศรีราชา
+              </p>
+            </div>
+
+            <!-- Progress Scrubber Bar -->
+            <div class="space-y-2">
+              <div
+                id="progress-container"
+                class="relative w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden cursor-pointer group py-1"
+                title="คลิกเพื่อเลื่อนตำแหน่งเวลา"
+              >
+                <!-- Buffer Bar -->
+                <div id="buffer-bar" class="absolute top-0 left-0 h-full bg-slate-200 dark:bg-slate-700/60 rounded-full w-0 transition-all duration-300"></div>
+                <!-- Played Bar -->
+                <div
+                  id="progress-bar"
+                  class="absolute top-0 left-0 h-full bg-gradient-to-r from-[#0047BA] to-[#00A3E0] rounded-full w-0 relative"
+                >
+                  <span class="absolute right-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-white rounded-full shadow-md border-2 border-[#00A3E0] opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                </div>
+              </div>
+
+              <!-- Time Display -->
+              <div class="flex items-center justify-between text-xs font-mono font-medium text-slate-500 dark:text-slate-400">
+                <span id="current-time">00:00</span>
+                <span id="total-duration">02:59</span>
+              </div>
+            </div>
+
+            <!-- Primary Playback Controls -->
+            <div class="flex items-center justify-between pt-2">
+              <div class="flex items-center gap-3 sm:gap-5">
+                <!-- Shuffle Toggle -->
+                <button
+                  type="button"
+                  id="shuffle-btn"
+                  class="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                  title="สุ่มเพลง (Shuffle)"
+                >
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H4v-4m0 0l5-5m11 5h-4m0 0l-5 5m9-9l-5-5m0 0h4v4" />
+                  </svg>
+                </button>
+
+                <!-- Previous Track -->
+                <button
+                  type="button"
+                  id="prev-btn"
+                  class="p-2.5 text-slate-700 dark:text-slate-200 hover:text-[#0047BA] dark:hover:text-sky-400 transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95 cursor-pointer"
+                  title="เพลงก่อนหน้า (Previous)"
+                >
+                  <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                    <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                  </svg>
+                </button>
+
+                <!-- Big Play / Pause Button -->
+                <button
+                  type="button"
+                  id="main-play-btn"
+                  class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-[#0047BA] to-[#00A3E0] hover:from-[#003da6] hover:to-[#0092c8] text-white flex items-center justify-center shadow-lg shadow-blue-500/30 transform active:scale-95 transition-all cursor-pointer"
+                  title="เล่น / หยุดเพลง"
+                >
+                  <svg id="play-icon" class="w-7 h-7 sm:w-8 sm:h-8 fill-current translate-x-0.5" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                  <svg id="pause-icon" class="w-7 h-7 sm:w-8 sm:h-8 fill-current hidden" viewBox="0 0 24 24">
+                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                  </svg>
+                </button>
+
+                <!-- Next Track -->
+                <button
+                  type="button"
+                  id="next-btn"
+                  class="p-2.5 text-slate-700 dark:text-slate-200 hover:text-[#0047BA] dark:hover:text-sky-400 transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 active:scale-95 cursor-pointer"
+                  title="เพลงถัดไป (Next)"
+                >
+                  <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                    <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+                  </svg>
+                </button>
+
+                <!-- Repeat / Loop Toggle -->
+                <button
+                  type="button"
+                  id="repeat-btn"
+                  class="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                  title="เล่นซ้ำ (Repeat)"
+                >
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Secondary Controls: Speed & Volume -->
+              <div class="hidden sm:flex items-center gap-4">
+                <!-- Playback Speed Dropdown / Button -->
+                <div class="relative">
+                  <button
+                    type="button"
+                    id="speed-btn"
+                    class="text-xs font-bold px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                    title="ความเร็วในการเล่น (Playback Speed)"
+                  >
+                    1.0x
+                  </button>
+                </div>
+
+                <!-- Volume Control -->
+                <div class="flex items-center gap-2">
+                  <button
+                    type="button"
+                    id="mute-btn"
+                    class="p-1.5 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                    title="ปิด/เปิดเสียง (Mute/Unmute)"
+                  >
+                    <svg id="volume-high-icon" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                    </svg>
+                    <svg id="volume-muted-icon" class="w-5 h-5 hidden text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+                    </svg>
+                  </button>
+                  <input
+                    type="range"
+                    id="volume-slider"
+                    min="0"
+                    max="1"
+                    step="0.05"
+                    value="0.85"
+                    class="w-20 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#0047BA] dark:accent-[#00A3E0]"
+                    title="ปรับระดับเสียง"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Download Button Row for Currently Playing Track -->
+            <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <span class="text-slate-400">
+                ดาวน์โหลดไฟล์สำหรับใช้งาน:
+              </span>
+              <div class="flex items-center gap-2">
+                <a
+                  id="current-download-m4a"
+                  href="/song/01_march_technosriracha.m4a"
+                  download
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium transition-colors cursor-pointer"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  <span>M4A เสียงคมชัด (4.2 MB)</span>
+                </a>
+                <a
+                  id="current-download-wav"
+                  href="/song/01_march_technosriracha.wav"
+                  download
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-[#0047BA] dark:text-blue-300 font-semibold transition-colors border border-blue-200/50 dark:border-blue-800/50 cursor-pointer"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  <span>WAV สตูดิโอมาสเตอร์ (30.2 MB)</span>
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRACKLIST CARDS SECTION -->
+    <section id="track-list-section" class="mb-16">
+      <div class="flex items-center justify-between mb-8 pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            รายการบทเพลงทั้งหมด (All Tracks)
+          </h2>
+          <p class="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-1">
+            คลิกเลือกเพลงเพื่อรับฟัง อ่านเนื้อร้อง หรือดาวน์โหลดไฟล์เสียง
+          </p>
+        </div>
+        <span class="text-xs sm:text-sm font-semibold px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+          4 บทเพลง
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {songs.map((song, i) => (
+          <div
+            id={`card-${song.id}`}
+            class="track-card relative rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-6 shadow-sm hover:shadow-xl hover:border-[#0047BA]/40 dark:hover:border-sky-500/40 transition-all duration-300 flex flex-col justify-between group"
+            data-song-index={i}
+            data-song-id={song.id}
+          >
+            <div>
+              <!-- Card Top Row: Badge & Duration -->
+              <div class="flex items-center justify-between gap-2 mb-3">
+                <span class={`text-xs font-semibold px-2.5 py-1 rounded-full border ${song.tagColor}`}>
+                  {song.tag}
+                </span>
+                <span class="text-xs font-mono font-medium text-slate-400 dark:text-slate-500 flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  {song.duration}
+                </span>
+              </div>
+
+              <!-- Title & Meta -->
+              <div class="flex items-start gap-4">
+                <!-- Track Number / Play Trigger -->
+                <button
+                  type="button"
+                  class="card-play-btn w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-[#0047BA] hover:text-white dark:hover:bg-[#0047BA] text-slate-700 dark:text-slate-200 flex items-center justify-center font-bold text-lg flex-shrink-0 transition-all cursor-pointer group-hover:bg-[#0047BA] group-hover:text-white"
+                  data-song-index={i}
+                  title="เล่นเพลงนี้"
+                >
+                  <span class="card-play-num">{song.index}</span>
+                  <svg class="card-play-icon w-5 h-5 fill-current hidden" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                  <svg class="card-pause-icon w-5 h-5 fill-current hidden" viewBox="0 0 24 24">
+                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                  </svg>
+                </button>
+
+                <div class="flex-grow">
+                  <h3 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white group-hover:text-[#0047BA] dark:group-hover:text-sky-400 transition-colors">
+                    {song.title}
+                  </h3>
+                  <p class="text-xs sm:text-sm text-slate-400 dark:text-slate-500 font-medium mt-0.5">
+                    {song.englishTitle}
+                  </p>
+                </div>
+              </div>
+
+              <!-- Description -->
+              <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-normal mt-4 leading-relaxed line-clamp-2">
+                {song.meaning}
+              </p>
+            </div>
+
+            <!-- Card Bottom Action Row -->
+            <div class="pt-5 mt-5 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap items-center justify-between gap-3">
+              <button
+                type="button"
+                class="view-lyrics-btn inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#0047BA] dark:text-slate-400 dark:hover:text-sky-400 transition-colors cursor-pointer"
+                data-song-id={song.id}
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span>ดูเนื้อร้อง</span>
+              </button>
+
+              <div class="flex items-center gap-2">
+                <a
+                  href={song.audioM4a}
+                  download
+                  class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium transition-colors"
+                  title="ดาวน์โหลดไฟล์สตรีมมิ่ง M4A"
+                >
+                  M4A ({song.sizeM4a})
+                </a>
+                <a
+                  href={song.audioWav}
+                  download
+                  class="px-2.5 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-[#0047BA] dark:text-blue-300 text-xs font-bold transition-colors border border-blue-200/50 dark:border-blue-800/50"
+                  title="ดาวน์โหลดไฟล์สตูดิโอมาสเตอร์ WAV"
+                >
+                  WAV ({song.sizeWav})
+                </a>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- LYRICS SHOWCASE SECTION (TABBED SING-ALONG) -->
+    <section id="lyrics-section" class="mb-16">
+      <div class="rounded-3xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 p-6 sm:p-10 lg:p-12">
+        <div class="max-w-3xl mx-auto">
+          
+          <div class="text-center space-y-2 mb-8">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-bold">
+              SING-ALONG LYRICS
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+              เนื้อร้องบทเพลงประจำวิทยาลัย
+            </h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">
+              เลือกร้องตามบทเพลง หรือคัดลอกเนื้อเพลงสำหรับใช้ในกิจกรรมพิธีการ
+            </p>
+          </div>
+
+          <!-- Song Selector Tabs -->
+          <div class="flex items-center justify-center flex-wrap gap-2 mb-8">
+            {songs.map((song, i) => (
+              <button
+                type="button"
+                class={`lyrics-tab-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+                  i === 0
+                    ? 'bg-[#0047BA] text-white shadow-md shadow-blue-500/20'
+                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
+                }`}
+                data-tab-target={`lyrics-pane-${song.id}`}
+              >
+                {song.title.replace('เพลง ', '')}
+              </button>
+            ))}
+          </div>
+
+          <!-- Lyrics Panes -->
+          {songs.map((song, i) => (
+            <div
+              id={`lyrics-pane-${song.id}`}
+              class={`lyrics-pane transition-opacity duration-300 ${i === 0 ? 'block' : 'hidden'}`}
+            >
+              <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-10 shadow-sm">
+                
+                <!-- Song Header in Lyrics Card -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 mb-6 border-b border-slate-100 dark:border-slate-800 gap-4">
+                  <div>
+                    <h3 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+                      {song.title}
+                    </h3>
+                    <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                      {song.composer}
+                    </p>
+                  </div>
+
+                  <div class="flex items-center gap-2">
+                    <button
+                      type="button"
+                      class="copy-lyrics-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition-colors cursor-pointer"
+                      data-song-id={song.id}
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                      </svg>
+                      <span>คัดลอกเนื้อเพลง</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      class="play-this-song-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/40 dark:hover:bg-blue-900/50 text-[#0047BA] dark:text-blue-300 text-xs font-bold transition-colors cursor-pointer"
+                      data-song-index={i}
+                    >
+                      <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                      <span>เล่นเพลงนี้</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Lyrics Content -->
+                <div class="space-y-6 text-center sm:text-left">
+                  {song.lyrics.map((section) => (
+                    <div class="space-y-2">
+                      <div class="text-xs font-bold tracking-wider uppercase text-blue-600 dark:text-sky-400">
+                        {section.stanza}
+                      </div>
+                      <div class="space-y-1.5 text-base sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
+                        {section.lines.map((line) => (
+                          <p>{line}</p>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <!-- Meaning Summary at Bottom of Lyrics Card -->
+                <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-relaxed bg-slate-50 dark:bg-slate-800/40 p-4 rounded-xl">
+                  <span class="font-bold text-slate-700 dark:text-slate-200">ความหมายบทเพลง:</span> {song.meaning}
+                </div>
+
+              </div>
+            </div>
+          ))}
+
+        </div>
+      </div>
+    </section>
+
+    <!-- HERITAGE & USAGE GUIDELINES -->
+    <section class="mb-14">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+        
+        <!-- Box 1: ประวัติและความสำคัญของบทเพลงมาร์ช -->
+        <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/50 text-[#0047BA] dark:text-sky-400 flex items-center justify-center mb-5">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-3">
+              เกียรติประวัติเพลงมาร์ชเทคโนฯศรีราชา
+            </h3>
+            <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed font-normal space-y-3">
+              <span>
+                "เพลงมาร์ชเทคโนฯศรีราชา" ประพันธ์ทำนองและคำร้องโดย <strong>อาจารย์จรัส วงศ์ชนะ</strong> ถือเป็นหนึ่งในอัตลักษณ์สำคัญสูงสุดของวิทยาลัยเทคโนโลยีศรีราชาที่ขับขานสืบต่อกันมาหลายทศวรรษ
+              </span>
+            </p>
+            <div class="mt-4 space-y-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+              <div class="flex items-start gap-2">
+                <span class="text-sky-500 font-bold">•</span>
+                <span><strong>เกาะลอยวิไล:</strong> สัญลักษณ์แห่งเมืองศรีราชา และทำเลที่ตั้งอันทรงคุณค่าทางประวัติศาสตร์และทัศนียภาพ</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="text-sky-500 font-bold">•</span>
+                <span><strong>ราชพฤกษ์สดใส:</strong> ต้นไม้ประจำวิทยาลัย แสดงถึงความเจริญงอกงาม ความสูงส่ง และคุณธรรม</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="text-sky-500 font-bold">•</span>
+                <span><strong>ฟ้า-ขาว เกริกไกร:</strong> สีประจำวิทยาลัย ความถึงพร้อมด้วยปัญญาความรู้ (สีฟ้า) ผสานคุณธรรมบริสุทธิ์ (สีขาว)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-6 mt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-400">
+            <span>สถาบันวิทยาลัยเทคโนโลยีศรีราชา</span>
+            <a href="/about/symbols/" class="text-[#0047BA] dark:text-sky-400 font-bold hover:underline">
+              ดูตราสัญลักษณ์และสีประจำวิทยาลัย &rarr;
+            </a>
+          </div>
+        </div>
+
+        <!-- Box 2: แนวทางการนำบทเพลงไปใช้งาน -->
+        <div class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-5">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+              </svg>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-3">
+              แนวทางการนำไปใช้งานในกิจกรรมวิทยาลัย
+            </h3>
+            <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed font-normal mb-4">
+              คณะครู อาจารย์ บุคลากร และนักศึกษา สามารถนำไฟล์เสียงบทเพลงประจำวิทยาลัยไปใช้ประกอบกิจกรรมต่างๆ ได้อย่างถูกต้องเหมาะสม ดังนี้:
+            </p>
+            <ul class="space-y-2.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-500 font-bold">✓</span>
+                <span><strong>พิธีการทางการและวันสำคัญ:</strong> ใช้เพลงมาร์ชเทคโนฯศรีราชา ในพิธีปฐมนิเทศ พิธีมอบประกาศนียบัตร และวันไหว้ครู</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-500 font-bold">✓</span>
+                <span><strong>กิจกรรมกีฬาและสันทนาการ:</strong> ใช้ในการแข่งขันกีฬาภายใน-ภายนอก กีฬาสี กิจกรรมเชียร์ และขบวนพาเหรด</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-500 font-bold">✓</span>
+                <span><strong>งานคืนสู่เหย้าศิษย์เก่า:</strong> ใช้เพลงเทคโนฯคืนรัง และเพลงเทคโนฯของเรา ในการต้อนรับศิษย์เก่าทุกรุ่น</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-500 font-bold">✓</span>
+                <span><strong>สื่อประชาสัมพันธ์และวีดิทัศน์:</strong> ใช้ประกอบสื่อวิดีโอแนะนำสถาบันหรือสื่อประชาสัมพันธ์ทางการของวิทยาลัย</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="pt-6 mt-6 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-400">
+            สงวนลิขสิทธิ์ © วิทยาลัยเทคโนโลยีศรีราชา เพื่อประโยชน์ด้านการศึกษาและกิจกรรมสถาบัน
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- FLOATING MINI-PLAYER (Appears when scrolling on Mobile & Desktop) -->
+  <div
+    id="floating-mini-player"
+    class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200/80 dark:border-slate-800 shadow-2xl p-3 sm:px-6 transition-all duration-300 transform translate-y-full opacity-0"
+  >
+    <div class="max-w-[1440px] mx-auto flex items-center justify-between gap-4">
+      <!-- Mini Track Info -->
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-full bg-[#0047BA] text-white flex items-center justify-center font-bold text-xs flex-shrink-0 relative overflow-hidden">
+          <img src="/logo/main/logo_circle_gold.png" alt="S-TECH" class="w-8 h-8 object-contain" />
+        </div>
+        <div class="min-w-0">
+          <h4 id="mini-title" class="text-sm font-bold text-slate-900 dark:text-white truncate">
+            เพลง มาร์ชเทคโนฯศรีราชา
+          </h4>
+          <p id="mini-duration" class="text-xs text-slate-400 font-mono">
+            00:00 / 02:59
+          </p>
+        </div>
+      </div>
+
+      <!-- Mini Controls -->
+      <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+        <button
+          type="button"
+          id="mini-prev-btn"
+          class="p-2 text-slate-700 dark:text-slate-300 hover:text-[#0047BA] transition-colors cursor-pointer"
+        >
+          <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+            <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          id="mini-play-btn"
+          class="w-10 h-10 rounded-full bg-[#0047BA] text-white flex items-center justify-center hover:bg-[#003da6] transition-colors shadow-md cursor-pointer"
+        >
+          <svg id="mini-play-icon" class="w-5 h-5 fill-current translate-x-0.5" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+          <svg id="mini-pause-icon" class="w-5 h-5 fill-current hidden" viewBox="0 0 24 24">
+            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          id="mini-next-btn"
+          class="p-2 text-slate-700 dark:text-slate-300 hover:text-[#0047BA] transition-colors cursor-pointer"
+        >
+          <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+            <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HIDDEN AUDIO ELEMENT -->
+  <audio id="college-audio" preload="metadata"></audio>
+
+  <!-- Embed Songs JSON Data for Client Script -->
+  <script is:inline id="songs-data" type="application/json" set:html={JSON.stringify(songs)}></script>
+
+  <!-- Interactive Player Script with View Transitions support -->
+  <script is:inline>
+    (function() {
+      let isInitialized = false;
+
+      function initPlayer() {
+        const audio = document.getElementById('college-audio');
+        const dataEl = document.getElementById('songs-data');
+        if (!audio || !dataEl) return;
+
+        let songsList = [];
+        try {
+          songsList = JSON.parse(dataEl.textContent || '[]');
+        } catch (_) {
+          return;
+        }
+        if (!songsList.length) return;
+
+        let currentIndex = 0;
+        let isPlaying = false;
+        let isShuffle = false;
+        let isRepeat = false;
+        let speeds = [1.0, 1.25, 1.5, 0.75];
+        let currentSpeedIdx = 0;
+
+        // Elements
+        const vinyl = document.getElementById('vinyl-disc');
+        const mainPlayBtn = document.getElementById('main-play-btn');
+        const playIcon = document.getElementById('play-icon');
+        const pauseIcon = document.getElementById('pause-icon');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const shuffleBtn = document.getElementById('shuffle-btn');
+        const repeatBtn = document.getElementById('repeat-btn');
+        const speedBtn = document.getElementById('speed-btn');
+        const muteBtn = document.getElementById('mute-btn');
+        const volumeHighIcon = document.getElementById('volume-high-icon');
+        const volumeMutedIcon = document.getElementById('volume-muted-icon');
+        const volumeSlider = document.getElementById('volume-slider');
+        const progressBar = document.getElementById('progress-bar');
+        const bufferBar = document.getElementById('buffer-bar');
+        const progressContainer = document.getElementById('progress-container');
+        const currentTimeEl = document.getElementById('current-time');
+        const totalDurationEl = document.getElementById('total-duration');
+        const playerTrackIndex = document.getElementById('player-track-index');
+        const playerTrackTag = document.getElementById('player-track-tag');
+        const playerTitle = document.getElementById('player-title');
+        const playerSubtitle = document.getElementById('player-subtitle');
+        const downloadM4a = document.getElementById('current-download-m4a');
+        const downloadWav = document.getElementById('current-download-wav');
+        const heroPlayAllBtn = document.getElementById('hero-play-all-btn');
+
+        // Mini player elements
+        const floatingPlayer = document.getElementById('floating-mini-player');
+        const miniPlayBtn = document.getElementById('mini-play-btn');
+        const miniPlayIcon = document.getElementById('mini-play-icon');
+        const miniPauseIcon = document.getElementById('mini-pause-icon');
+        const miniPrevBtn = document.getElementById('mini-prev-btn');
+        const miniNextBtn = document.getElementById('mini-next-btn');
+        const miniTitle = document.getElementById('mini-title');
+        const miniDuration = document.getElementById('mini-duration');
+
+        function formatTime(seconds) {
+          if (isNaN(seconds) || seconds < 0) return '00:00';
+          const mins = Math.floor(seconds / 60);
+          const secs = Math.floor(seconds % 60);
+          return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function loadSong(index, autoPlay = false) {
+          if (index < 0) index = songsList.length - 1;
+          if (index >= songsList.length) index = 0;
+          currentIndex = index;
+          const song = songsList[currentIndex];
+
+          audio.src = song.audioM4a;
+          audio.playbackRate = speeds[currentSpeedIdx];
+          
+          if (playerTrackIndex) playerTrackIndex.textContent = `TRACK ${song.index}`;
+          if (playerTrackTag) playerTrackTag.textContent = song.tag;
+          if (playerTitle) playerTitle.textContent = song.title;
+          if (playerSubtitle) playerSubtitle.textContent = `${song.composer} • วิทยาลัยเทคโนโลยีศรีราชา`;
+          if (totalDurationEl) totalDurationEl.textContent = song.duration;
+
+          if (downloadM4a) {
+            downloadM4a.href = song.audioM4a;
+            downloadM4a.download = `${song.title}.m4a`;
+          }
+          if (downloadWav) {
+            downloadWav.href = song.audioWav;
+            downloadWav.download = `${song.title}.wav`;
+          }
+
+          if (miniTitle) miniTitle.textContent = song.title;
+          if (miniDuration) miniDuration.textContent = `00:00 / ${song.duration}`;
+
+          // Highlight card
+          document.querySelectorAll('.track-card').forEach((card, i) => {
+            if (i === currentIndex) {
+              card.classList.add('ring-2', 'ring-[#00A3E0]', 'bg-blue-50/20', 'dark:bg-blue-950/20');
+            } else {
+              card.classList.remove('ring-2', 'ring-[#00A3E0]', 'bg-blue-50/20', 'dark:bg-blue-950/20');
+            }
+          });
+
+          // Media Session API for Lock Screen & Keyboard Keys
+          if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+              title: song.title,
+              artist: song.composer,
+              album: 'เพลงประจำวิทยาลัยเทคโนโลยีศรีราชา',
+              artwork: [
+                { src: '/logo/main/logo_circle_color_full.png', sizes: '512x512', type: 'image/png' }
+              ]
+            });
+          }
+
+          if (autoPlay) {
+            audio.play().catch(function() {});
+          }
+        }
+
+        function playAudio() {
+          audio.play().then(() => {
+            isPlaying = true;
+            updatePlayStateUI();
+          }).catch(() => {});
+        }
+
+        function pauseAudio() {
+          audio.pause();
+          isPlaying = false;
+          updatePlayStateUI();
+        }
+
+        function togglePlay() {
+          if (audio.paused) {
+            playAudio();
+          } else {
+            pauseAudio();
+          }
+        }
+
+        function updatePlayStateUI() {
+          const isPaused = audio.paused;
+          if (playIcon) playIcon.classList.toggle('hidden', !isPaused);
+          if (pauseIcon) pauseIcon.classList.toggle('hidden', isPaused);
+          if (miniPlayIcon) miniPlayIcon.classList.toggle('hidden', !isPaused);
+          if (miniPauseIcon) miniPauseIcon.classList.toggle('hidden', isPaused);
+
+          // Vinyl Spin
+          if (vinyl) {
+            if (!isPaused) {
+              vinyl.classList.add('animate-spin-slow');
+              vinyl.style.animationPlayState = 'running';
+            } else {
+              vinyl.style.animationPlayState = 'paused';
+            }
+          }
+
+          // Equalizer Bars
+          document.querySelectorAll('.eq-bar').forEach(bar => {
+            bar.classList.toggle('active', !isPaused);
+          });
+
+          // Track Card Buttons icon state
+          document.querySelectorAll('.card-play-btn').forEach((btn, idx) => {
+            const num = btn.querySelector('.card-play-num');
+            const playI = btn.querySelector('.card-play-icon');
+            const pauseI = btn.querySelector('.card-pause-icon');
+            if (idx === currentIndex) {
+              if (num) num.classList.add('hidden');
+              if (playI) playI.classList.toggle('hidden', !isPaused);
+              if (pauseI) pauseI.classList.toggle('hidden', isPaused);
+              btn.classList.add('bg-[#0047BA]', 'text-white');
+            } else {
+              if (num) num.classList.remove('hidden');
+              if (playI) playI.classList.add('hidden');
+              if (pauseI) pauseI.classList.add('hidden');
+              btn.classList.remove('bg-[#0047BA]', 'text-white');
+            }
+          });
+        }
+
+        function nextTrack() {
+          if (isShuffle) {
+            let nextIdx;
+            do {
+              nextIdx = Math.floor(Math.random() * songsList.length);
+            } while (nextIdx === currentIndex && songsList.length > 1);
+            loadSong(nextIdx, true);
+          } else {
+            loadSong(currentIndex + 1, true);
+          }
+        }
+
+        function prevTrack() {
+          if (audio.currentTime > 3) {
+            audio.currentTime = 0;
+          } else {
+            loadSong(currentIndex - 1, true);
+          }
+        }
+
+        // Event Listeners
+        if (mainPlayBtn) mainPlayBtn.onclick = togglePlay;
+        if (miniPlayBtn) miniPlayBtn.onclick = togglePlay;
+        if (prevBtn) prevBtn.onclick = prevTrack;
+        if (nextBtn) nextBtn.onclick = nextTrack;
+        if (miniPrevBtn) miniPrevBtn.onclick = prevTrack;
+        if (miniNextBtn) miniNextBtn.onclick = nextTrack;
+
+        if (heroPlayAllBtn) {
+          heroPlayAllBtn.onclick = () => {
+            loadSong(0, true);
+          };
+        }
+
+        // Shuffle
+        if (shuffleBtn) {
+          shuffleBtn.onclick = () => {
+            isShuffle = !isShuffle;
+            shuffleBtn.classList.toggle('text-[#0047BA]', isShuffle);
+            shuffleBtn.classList.toggle('dark:text-sky-400', isShuffle);
+            shuffleBtn.classList.toggle('text-slate-400', !isShuffle);
+            showToast(isShuffle ? 'เปิดโหมดสุ่มเพลง (Shuffle On)' : 'ปิดโหมดสุ่มเพลง (Shuffle Off)');
+          };
+        }
+
+        // Repeat
+        if (repeatBtn) {
+          repeatBtn.onclick = () => {
+            isRepeat = !isRepeat;
+            audio.loop = isRepeat;
+            repeatBtn.classList.toggle('text-[#0047BA]', isRepeat);
+            repeatBtn.classList.toggle('dark:text-sky-400', isRepeat);
+            repeatBtn.classList.toggle('text-slate-400', !isRepeat);
+            showToast(isRepeat ? 'เปิดเล่นซ้ำเพลงนี้ (Repeat On)' : 'ปิดเล่นซ้ำ (Repeat Off)');
+          };
+        }
+
+        // Speed
+        if (speedBtn) {
+          speedBtn.onclick = () => {
+            currentSpeedIdx = (currentSpeedIdx + 1) % speeds.length;
+            const newSpeed = speeds[currentSpeedIdx];
+            audio.playbackRate = newSpeed;
+            speedBtn.textContent = `${newSpeed.toFixed(1)}x`;
+            showToast(`ความเร็วในการเล่น: ${newSpeed.toFixed(1)}x`);
+          };
+        }
+
+        // Volume & Mute
+        let prevVolume = 0.85;
+        audio.volume = prevVolume;
+
+        if (volumeSlider) {
+          volumeSlider.oninput = (e) => {
+            const val = parseFloat(e.target.value);
+            audio.volume = val;
+            audio.muted = (val === 0);
+            updateVolumeUI(val);
+          };
+        }
+
+        if (muteBtn) {
+          muteBtn.onclick = () => {
+            if (audio.muted || audio.volume === 0) {
+              audio.muted = false;
+              audio.volume = prevVolume || 0.85;
+              if (volumeSlider) volumeSlider.value = audio.volume;
+            } else {
+              prevVolume = audio.volume;
+              audio.muted = true;
+              audio.volume = 0;
+              if (volumeSlider) volumeSlider.value = 0;
+            }
+            updateVolumeUI(audio.volume);
+          };
+        }
+
+        function updateVolumeUI(val) {
+          const isMuted = (val === 0 || audio.muted);
+          if (volumeHighIcon) volumeHighIcon.classList.toggle('hidden', isMuted);
+          if (volumeMutedIcon) volumeMutedIcon.classList.toggle('hidden', !isMuted);
+        }
+
+        // Audio Events
+        audio.ontimeupdate = () => {
+          if (!audio.duration) return;
+          const current = audio.currentTime;
+          const total = audio.duration;
+          const pct = (current / total) * 100;
+          if (progressBar) progressBar.style.width = `${pct}%`;
+          if (currentTimeEl) currentTimeEl.textContent = formatTime(current);
+          if (miniDuration) miniDuration.textContent = `${formatTime(current)} / ${formatTime(total)}`;
+        };
+
+        audio.onprogress = () => {
+          if (audio.buffered.length > 0 && audio.duration) {
+            const bufferedEnd = audio.buffered.end(audio.buffered.length - 1);
+            const pct = (bufferedEnd / audio.duration) * 100;
+            if (bufferBar) bufferBar.style.width = `${pct}%`;
+          }
+        };
+
+        audio.onended = () => {
+          if (!isRepeat) {
+            nextTrack();
+          }
+        };
+
+        audio.onplay = () => updatePlayStateUI();
+        audio.onpause = () => updatePlayStateUI();
+
+        // Progress scrubber seek
+        if (progressContainer) {
+          progressContainer.onclick = (e) => {
+            const rect = progressContainer.getBoundingClientRect();
+            const clickPos = (e.clientX - rect.left) / rect.width;
+            if (audio.duration) {
+              audio.currentTime = clickPos * audio.duration;
+            }
+          };
+        }
+
+        // Track Cards Buttons
+        document.querySelectorAll('.card-play-btn').forEach(btn => {
+          btn.onclick = () => {
+            const idx = parseInt(btn.dataset.songIndex || '0', 10);
+            if (idx === currentIndex) {
+              togglePlay();
+            } else {
+              loadSong(idx, true);
+            }
+          };
+        });
+
+        // View Lyrics buttons on Cards
+        document.querySelectorAll('.view-lyrics-btn').forEach(btn => {
+          btn.onclick = () => {
+            const songId = btn.dataset.songId;
+            const targetPane = document.getElementById(`lyrics-pane-${songId}`);
+            if (targetPane) {
+              // Switch tab
+              document.querySelectorAll('.lyrics-tab-btn').forEach(t => {
+                if (t.dataset.tabTarget === `lyrics-pane-${songId}`) {
+                  t.click();
+                }
+              });
+              targetPane.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          };
+        });
+
+        // Lyrics Tabs Switcher
+        document.querySelectorAll('.lyrics-tab-btn').forEach(tabBtn => {
+          tabBtn.onclick = () => {
+            const targetId = tabBtn.dataset.tabTarget;
+            document.querySelectorAll('.lyrics-tab-btn').forEach(b => {
+              b.classList.remove('bg-[#0047BA]', 'text-white', 'shadow-md', 'shadow-blue-500/20');
+              b.classList.add('bg-white', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-300', 'border', 'border-slate-200', 'dark:border-slate-700');
+            });
+            tabBtn.classList.remove('bg-white', 'dark:bg-slate-800', 'text-slate-600', 'dark:text-slate-300', 'border');
+            tabBtn.classList.add('bg-[#0047BA]', 'text-white', 'shadow-md', 'shadow-blue-500/20');
+
+            document.querySelectorAll('.lyrics-pane').forEach(p => {
+              p.classList.add('hidden');
+              p.classList.remove('block');
+            });
+            const target = document.getElementById(targetId);
+            if (target) {
+              target.classList.remove('hidden');
+              target.classList.add('block');
+            }
+          };
+        });
+
+        // Play This Song buttons inside Lyrics Card
+        document.querySelectorAll('.play-this-song-btn').forEach(btn => {
+          btn.onclick = () => {
+            const idx = parseInt(btn.dataset.songIndex || '0', 10);
+            loadSong(idx, true);
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+          };
+        });
+
+        // Copy Lyrics Button
+        document.querySelectorAll('.copy-lyrics-btn').forEach(btn => {
+          btn.onclick = () => {
+            const songId = btn.dataset.songId;
+            const song = songsList.find(s => s.id === songId);
+            if (!song) return;
+            const text = `${song.title}\n(${song.composer})\n\n` +
+              song.lyrics.map(s => `${s.stanza}:\n` + s.lines.join('\n')).join('\n\n') +
+              `\n\nวิทยาลัยเทคโนโลยีศรีราชา (S-TECH)`;
+
+            if (navigator.clipboard) {
+              navigator.clipboard.writeText(text).then(() => {
+                showToast(`✓ คัดลอกเนื้อเพลง "${song.title}" เรียบร้อยแล้ว`);
+              });
+            }
+          };
+        });
+
+        // Floating Mini-Player Scroll Trigger
+        window.addEventListener('scroll', () => {
+          if (!floatingPlayer) return;
+          const scrollY = window.scrollY || window.pageYOffset;
+          if (scrollY > 550) {
+            floatingPlayer.classList.remove('translate-y-full', 'opacity-0');
+            floatingPlayer.classList.add('translate-y-0', 'opacity-100');
+          } else {
+            floatingPlayer.classList.remove('translate-y-0', 'opacity-100');
+            floatingPlayer.classList.add('translate-y-full', 'opacity-0');
+          }
+        }, { passive: true });
+
+        // Toast feedback helper
+        function showToast(message) {
+          const toast = document.getElementById('song-toast');
+          const toastText = document.getElementById('song-toast-text');
+          if (!toast || !toastText) return;
+          toastText.textContent = message;
+          toast.classList.remove('translate-y-16', 'opacity-0');
+          toast.classList.add('translate-y-0', 'opacity-100');
+          setTimeout(() => {
+            toast.classList.remove('translate-y-0', 'opacity-100');
+            toast.classList.add('translate-y-16', 'opacity-0');
+          }, 3000);
+        }
+
+        // Initial Load (First song)
+        loadSong(0, false);
+      }
+
+      // Astro Page Load Handler (View Transitions compatible)
+      document.addEventListener('astro:page-load', () => {
+        initPlayer();
+      });
+
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        initPlayer();
+      }
+    })();
+  </script>
+
+  <style>
+    /* Continuous Vinyl Spin Animation */
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .animate-spin-slow {
+      animation: spinSlow 12s linear infinite;
+    }
+
+    /* Animated Soundwave Equalizer Bars */
+    @keyframes eqBarPulse {
+      0%, 100% { height: 6px; }
+      50% { height: 22px; }
+    }
+
+    .eq-bar {
+      height: 6px;
+      transition: height 0.2s ease;
+    }
+
+    .eq-bar.active {
+      animation: eqBarPulse 1s ease-in-out infinite;
+    }
+
+    .eq-bar-1 { animation-delay: 0.1s; }
+    .eq-bar-2 { animation-delay: 0.4s; }
+    .eq-bar-3 { animation-delay: 0.2s; }
+    .eq-bar-4 { animation-delay: 0.5s; }
+    .eq-bar-5 { animation-delay: 0.3s; }
+  </style>
+</BaseLayout>
