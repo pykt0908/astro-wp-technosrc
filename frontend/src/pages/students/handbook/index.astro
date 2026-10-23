@@ -1,0 +1,30 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import DocsReader from '../../../components/handbook/DocsReader.astro';
+import { getHandbookCategories, getStudentHandbooks } from '../../../lib/wordpress';
+
+const [categories, handbooks] = await Promise.all([
+  getHandbookCategories(),
+  getStudentHandbooks(),
+]);
+
+const currentHandbook = handbooks.length > 0 ? handbooks[0] : null;
+
+const pageTitle = currentHandbook
+  ? `${currentHandbook.title} - คู่มือและระเบียบการนักศึกษา | วิทยาลัยเทคโนโลยีศรีราชา`
+  : 'คู่มือและระเบียบการนักศึกษา | วิทยาลัยเทคโนโลยีศรีราชา';
+
+const pageDesc = currentHandbook?.excerpt ||
+  'ศูนย์คู่มือและระเบียบการนักศึกษา วิทยาลัยเทคโนโลยีศรีราชา ค้นหาข้อบังคับ วินัย การแต่งกาย การวัดผลการศึกษา และแนวปฏิบัติต่างๆ';
+---
+
+<DocsLayout
+  title={pageTitle}
+  description={pageDesc}
+>
+  <DocsReader
+    currentHandbook={currentHandbook}
+    allHandbooks={handbooks}
+    categories={categories}
+  />
+</DocsLayout>

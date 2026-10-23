@@ -1,0 +1,531 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getOpenHouseInfo, getOpenHouseCategories, getOpenHouseActivities } from '../../lib/wordpress';
+
+export const prerender = false;
+
+// Fetch all required data from WordPress REST API (with resilient fallbacks)
+const info = await getOpenHouseInfo();
+const categories = await getOpenHouseCategories();
+const activities = await getOpenHouseActivities();
+
+const totalActivities = activities.length;
+---
+
+<BaseLayout
+  title={`${info.title} - วิทยาลัยเทคโนโลยีศรีราชา`}
+  description={info.description || info.tagline}
+>
+  <div class="py-6 sm:py-10 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Toast Notification for Link Copying -->
+    <div
+      id="oh-toast"
+      class="fixed bottom-6 right-6 z-50 transform translate-y-12 opacity-0 pointer-events-none transition-all duration-300 flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xl border border-slate-700/40 text-xs sm:text-sm font-medium"
+    >
+      <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 dark:text-emerald-600 flex items-center justify-center shrink-0 text-xs font-bold">✓</span>
+      <span id="oh-toast-msg">คัดลอกลิงก์ /openhouse เรียบร้อยแล้ว!</span>
+    </div>
+
+    <!-- 1. Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-5" aria-label="Breadcrumb">
+      <a href="/" class="hover:text-[#0047BA] dark:hover:text-blue-400 transition-colors">หน้าแรก</a>
+      <span class="text-slate-400">/</span>
+      <span class="text-slate-800 dark:text-slate-200 font-semibold" aria-current="page">วันวิชาการ (Open House)</span>
+    </nav>
+
+    <!-- 2. Clean Hero Card -->
+    <header class="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 p-6 sm:p-8 lg:p-10 mb-8 border border-slate-200/90 dark:border-slate-800 shadow-2xs">
+      <!-- Accent Top Color Bar -->
+      <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0047BA] via-[#0284c7] to-[#E5A823]"></div>
+
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <!-- Left: Logo + Info -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+          <div class="w-18 h-18 sm:w-20 sm:h-20 rounded-2xl bg-slate-50 dark:bg-slate-800/80 p-2 border border-slate-200 dark:border-slate-700 shrink-0 flex items-center justify-center">
+            <img
+              src={info.logoUrl || '/logo/LOGO_SERIRACHA_COLOR_FULL.png'}
+              alt="โลโก้งานวันวิชาการ"
+              class="w-full h-full object-contain"
+              loading="eager"
+            />
+          </div>
+          <div>
+            <div class="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-[#0047BA] dark:text-sky-300 text-xs font-semibold border border-blue-100 dark:border-blue-900/40 mb-2">
+              <span class="w-2 h-2 rounded-full bg-[#0047BA] dark:bg-sky-400"></span>
+              <span>OPEN HOUSE & SKILLS COMPETITION 2026</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-2">
+              {info.title}
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-2xl font-normal leading-relaxed">
+              {info.tagline}
+            </p>
+          </div>
+        </div>
+
+        <!-- Right: Action Buttons -->
+        <div class="flex flex-wrap sm:flex-nowrap lg:flex-col items-stretch sm:items-center lg:items-end gap-2.5 shrink-0">
+          <button
+            type="button"
+            id="header-copy-link-btn"
+            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer shrink-0"
+            title="คัดลอกลิงก์หน้านี้เพื่อนำไปแชร์"
+          >
+            <svg class="w-4 h-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+              <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+            </svg>
+            <span id="header-copy-text">คัดลอกลิงก์หน้านี้</span>
+          </button>
+
+          {info.registrationUrl && (
+            <a
+              href={info.registrationUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-[#0047BA] hover:bg-blue-700 text-white transition-colors shadow-2xs shrink-0"
+            >
+              <span>ลงทะเบียนเข้าร่วมงาน</span>
+              <span>↗</span>
+            </a>
+          )}
+        </div>
+      </div>
+
+      <!-- Highlights Bar -->
+      <div class="flex flex-wrap items-center justify-between gap-3 mt-6 pt-5 border-t border-slate-100 dark:border-slate-800 text-xs sm:text-sm">
+        <div class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+          <span class="text-base text-amber-500">🏆</span>
+          <span>มอบเกียรติบัตรทุกรายการแข่งขัน • ตรวจสอบวันเวลาและสถานที่จัดได้ในแต่ละกิจกรรมด้านล่าง</span>
+        </div>
+        <div class="text-xs text-slate-500 dark:text-slate-400 font-medium">
+          วิทยาลัยเทคโนโลยีศรีราชา จ.ชลบุรี
+        </div>
+      </div>
+    </header>
+
+    <!-- 3. Section Title & Search/Filter Controls -->
+    <div class="mb-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+          <span>🎯 รายการกิจกรรมและการแข่งขัน</span>
+          <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950 text-[#0047BA] dark:text-sky-300">
+            {totalActivities} กิจกรรม
+          </span>
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
+          เกณฑ์การแข่งขัน สถานที่ วันเวลา และดาวน์โหลดภาพกิจกรรมหรือเกียรติบัตร
+        </p>
+      </div>
+
+      <!-- Real-time Search Input -->
+      <div class="relative w-full md:w-80 shrink-0">
+        <input
+          type="text"
+          id="activity-search-input"
+          placeholder="ค้นหากิจกรรม, ห้องแข่งขัน, กติกา..."
+          class="w-full pl-9 pr-4 py-2 rounded-xl text-xs sm:text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0047BA] shadow-2xs transition-all"
+        />
+        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Category Filter Pills -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-2 mb-6 scrollbar-none" id="category-filter-group">
+      <button
+        type="button"
+        class="filter-pill active px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer bg-[#0047BA] text-white shadow-2xs"
+        data-cat="all"
+      >
+        ทั้งหมด ({totalActivities})
+      </button>
+      {categories.map((c) => (
+        <button
+          type="button"
+          class="filter-pill px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer bg-white hover:bg-slate-100 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200/90 dark:border-slate-800 shadow-2xs"
+          data-cat={c.slug}
+        >
+          {c.name}
+        </button>
+      ))}
+    </div>
+
+    <!-- 4. Activity Cards Grid (4 COLUMNS - Clean & Feature Image Supported) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-6 mb-12" id="activities-container">
+      {activities.map((act) => (
+        <article
+          class="activity-card group flex flex-col justify-between bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 overflow-hidden shadow-2xs hover:shadow-md hover:border-blue-400 dark:hover:border-blue-700 transition-all duration-200"
+          data-cat-slug={act.category?.slug || 'uncategorized'}
+          data-search-text={`${act.title} ${act.venue} ${act.rulesSummary}`.toLowerCase()}
+        >
+          <!-- Top Section: Feature Image + Body Details -->
+          <div>
+            <!-- Feature Image Container (16:10 aspect ratio) -->
+            <div class="relative aspect-[16/10] w-full overflow-hidden bg-slate-100 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-800">
+              {act.coverUrl ? (
+                <img
+                  src={act.coverUrl}
+                  alt={act.title}
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                />
+              ) : (
+                <div class="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-100 to-blue-50 dark:from-slate-800 dark:to-slate-900 text-slate-400">
+                  <span class="text-3xl mb-1">🏆</span>
+                  <span class="text-[10px] font-bold text-slate-400 tracking-wider uppercase">Open House 2026</span>
+                </div>
+              )}
+
+              <!-- Floating Category Pill -->
+              <div class="absolute top-2.5 left-2.5">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-white/95 dark:bg-slate-900/95 text-[#0047BA] dark:text-sky-300 backdrop-blur-sm shadow-2xs border border-white/60 dark:border-slate-700/60">
+                  {act.category?.name || 'กิจกรรม'}
+                </span>
+              </div>
+
+              <!-- Order Badge -->
+              {act.order > 0 && (
+                <div class="absolute top-2.5 right-2.5">
+                  <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-900/70 text-white backdrop-blur-xs">
+                    #{act.order}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <!-- Card Body Content -->
+            <div class="p-4 sm:p-4.5">
+              <!-- Activity Title -->
+              <h3 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white mb-2.5 line-clamp-2 leading-snug group-hover:text-[#0047BA] dark:group-hover:text-blue-400 transition-colors">
+                {act.title}
+              </h3>
+
+              <!-- Activity Specific Venue & Date/Time Box -->
+              <div class="space-y-1.5 mb-3 text-xs bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
+                <div class="flex items-start gap-2">
+                  <span class="shrink-0 text-[#0047BA] dark:text-sky-400 font-bold">📍</span>
+                  <div class="min-w-0 flex-1">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block leading-tight">สถานที่จัด</span>
+                    <span class="font-semibold text-slate-800 dark:text-slate-100 text-xs line-clamp-1">{act.venue || 'ระบุในกำหนดการ'}</span>
+                  </div>
+                </div>
+
+                <div class="flex items-start gap-2 pt-1.5 border-t border-slate-200/50 dark:border-slate-700/40">
+                  <span class="shrink-0 text-amber-500 font-bold">📅</span>
+                  <div class="min-w-0 flex-1">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block leading-tight">วันและเวลา</span>
+                    <span class="font-semibold text-slate-800 dark:text-slate-100 text-xs line-clamp-1">{act.dateTime || 'ระบุในกำหนดการ'}</span>
+                  </div>
+                </div>
+
+                {act.contact && (
+                  <div class="flex items-start gap-2 pt-1.5 border-t border-slate-200/50 dark:border-slate-700/40">
+                    <span class="shrink-0 text-slate-400 font-bold">📞</span>
+                    <div class="min-w-0 flex-1">
+                      <span class="text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 block leading-tight">ผู้ประสานงาน</span>
+                      <span class="text-xs text-slate-600 dark:text-slate-300 line-clamp-1">{act.contact}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <!-- Rules Summary Box -->
+              <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 text-[11px]">
+                <div class="font-bold text-slate-800 dark:text-slate-200 mb-1 flex items-center gap-1">
+                  <span>📋</span>
+                  <span>เกณฑ์ / กติกาการแข่งขัน</span>
+                </div>
+                <div class="text-slate-600 dark:text-slate-300 line-clamp-3 leading-relaxed whitespace-pre-line">
+                  {act.rulesSummary || 'สามารถตรวจสอบเกณฑ์และกติกาฉบับเต็มได้จากเอกสารแนบ'}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Actions Footer (Strict Button Logic) -->
+          <div class="px-4 py-3 bg-slate-50/70 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-2">
+            
+            <!-- Row 1: Rules PDF & Registration -->
+            <div class="flex items-center gap-1.5">
+              {act.hasRulesPdf ? (
+                <a
+                  href={act.rulesPdfUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg text-xs font-semibold bg-white dark:bg-slate-800 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/40 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors shadow-2xs text-center"
+                >
+                  <span>📄 เกณฑ์ PDF</span>
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  class="flex-1 py-1.5 px-2 rounded-lg text-xs font-medium bg-slate-200/50 dark:bg-slate-800/50 text-slate-400 dark:text-slate-500 cursor-not-allowed opacity-75 text-center"
+                >
+                  📄 ไม่มีไฟล์
+                </button>
+              )}
+
+              {act.hasRegistration && (
+                <a
+                  href={act.registrationUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex-1 inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors shadow-2xs text-center"
+                >
+                  <span>✍️ สมัครแข่งขัน ↗</span>
+                </a>
+              )}
+            </div>
+
+            <!-- Row 2: Photos Button & Certificate Button (Strict Disabled Requirements) -->
+            <div class="grid grid-cols-2 gap-1.5 pt-1 border-t border-slate-200/50 dark:border-slate-700/30">
+              
+              <!-- Photos Button: Disabled if empty! -->
+              {act.hasPhotos ? (
+                <a
+                  href={act.photosUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg text-xs font-semibold bg-[#0047BA] hover:bg-blue-700 text-white transition-colors shadow-2xs text-center"
+                >
+                  <span>📷 ภาพกิจกรรม ↗</span>
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  class="py-1.5 px-2 rounded-lg text-[11px] font-medium bg-slate-200/60 dark:bg-slate-800/50 text-slate-400 dark:text-slate-500 cursor-not-allowed opacity-80 text-center"
+                  title="ภาพกิจกรรมจะอัปเดตหลังเสร็จสิ้นงาน"
+                >
+                  📷 ภาพ (เร็วๆ นี้)
+                </button>
+              )}
+
+              <!-- Certificate Button: Disabled if empty! -->
+              {act.hasCertificate ? (
+                <a
+                  href={act.certificateUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white transition-colors shadow-2xs text-center"
+                >
+                  <span>🎓 เกียรติบัตร ↗</span>
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  class="py-1.5 px-2 rounded-lg text-[11px] font-medium bg-slate-200/60 dark:bg-slate-800/50 text-slate-400 dark:text-slate-500 cursor-not-allowed opacity-80 text-center"
+                  title="เกียรติบัตรจะเปิดให้ดาวน์โหลดหลังประกาศผล"
+                >
+                  🎓 เกียรติบัตร (ยังไม่เปิด)
+                </button>
+              )}
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <!-- Empty Filter State -->
+    <div id="no-activities-found" class="hidden text-center py-12 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 mb-10">
+      <div class="text-3xl mb-2">🔍</div>
+      <h4 class="text-sm sm:text-base font-bold text-slate-800 dark:text-white mb-1">ไม่พบกิจกรรมที่ตรงกับการค้นหา</h4>
+      <p class="text-xs text-slate-500 dark:text-slate-400">ลองเปลี่ยนคำค้นหา หรือเลือกหมวดหมู่อื่นดูอีกครั้ง</p>
+    </div>
+
+    <!-- 5. Public Link & Share Card (User requirement: copy URL easily) -->
+    <div class="rounded-2xl p-5 sm:p-6 bg-slate-50 dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 mb-8 shadow-2xs">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-100/70 dark:bg-blue-950/60 text-[#0047BA] dark:text-sky-300 text-xs font-semibold mb-1.5">
+            🔗 ลิงก์สาธารณะสำหรับประชาสัมพันธ์
+          </div>
+          <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+            แชร์หน้านี้ให้นักเรียนและคุณครูโรงเรียนเครือข่าย
+          </h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            สามารถคัดลอกลิงก์ตรงนี้เพื่อส่งต่อใน Facebook, LINE หรือเอกสารประชาสัมพันธ์ได้ทันที
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2 max-w-md w-full bg-white dark:bg-slate-800 p-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xs">
+          <input
+            type="text"
+            readonly
+            id="share-link-input"
+            value="http://localhost:4321/openhouse"
+            class="w-full bg-transparent px-3 py-1 text-xs font-mono text-slate-800 dark:text-white focus:outline-none select-all font-medium"
+          />
+          <button
+            type="button"
+            id="section-copy-btn"
+            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#0047BA] hover:bg-blue-700 text-white transition-colors shrink-0 cursor-pointer shadow-2xs"
+          >
+            คัดลอกลิงก์
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Clean Location & Contact Section -->
+    <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-7 border border-slate-200/90 dark:border-slate-800 shadow-2xs">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+        <div>
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs font-semibold mb-2">
+            📍 สถานที่และการติดต่อ
+          </div>
+          <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-2">
+            สถานที่จัดงานและการเดินทาง
+          </h3>
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mb-4 leading-relaxed">
+            งานจัดขึ้น ณ วิทยาลัยเทคโนโลยีศรีราชา ติดถนนสุขุมวิท อ.ศรีราชา จ.ชลบุรี มีที่จอดรถสะดวกสบายสำหรับคณะครูและนักเรียน
+          </p>
+
+          <div class="space-y-2 text-xs">
+            <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+              <span class="text-base">🏢</span>
+              <div>
+                <strong class="text-slate-900 dark:text-white">ที่ตั้งสถานศึกษา:</strong>
+                <span class="text-slate-600 dark:text-slate-400 ml-1">เลขที่ 84 หมู่ 1 ถ.สุขุมวิท ต.ทุ่งสุขลา อ.ศรีราชา จ.ชลบุรี 20230</span>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+              <span class="text-base">📞</span>
+              <div>
+                <strong class="text-slate-900 dark:text-white">เบอร์โทรศัพท์ติดต่อ:</strong>
+                <span class="text-slate-600 dark:text-slate-400 ml-1">{info.contactPhone || '038-352440'} ({info.contactName})</span>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+              <span class="text-base">💬</span>
+              <div>
+                <strong class="text-slate-900 dark:text-white">LINE Official Account:</strong>
+                <span class="text-slate-600 dark:text-slate-400 ml-1">{info.contactLine || '@sriracha'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 p-5 bg-slate-50 dark:bg-slate-800/40 text-center flex flex-col items-center justify-center min-h-[220px]">
+          <div class="w-12 h-12 rounded-xl bg-blue-100 text-[#0047BA] dark:bg-blue-950 dark:text-sky-400 flex items-center justify-center text-xl mb-2">
+            🗺️
+          </div>
+          <h4 class="font-bold text-slate-900 dark:text-white text-sm mb-1">
+            วิทยาลัยเทคโนโลยีศรีราชา
+          </h4>
+          <p class="text-xs text-slate-500 dark:text-slate-400 max-w-xs mb-3">
+            เปิดแผนที่เพื่อนำทางมายังจุดจัดกิจกรรมวันวิชาการ
+          </p>
+          <a
+            href="https://maps.google.com/?q=วิทยาลัยเทคโนโลยีศรีราชา"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="px-4 py-2 rounded-lg text-xs font-semibold bg-[#0047BA] hover:bg-blue-700 text-white shadow-2xs transition-colors flex items-center gap-1.5"
+          >
+            <span>เปิดแผนที่ Google Maps</span>
+            <span>↗</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Filtering & Copy Scripts -->
+  <script is:inline>
+    function initOpenHousePage() {
+      // 1. Dynamic category pill filter
+      const pills = document.querySelectorAll('.filter-pill');
+      const cards = document.querySelectorAll('.activity-card');
+      const emptyState = document.getElementById('no-activities-found');
+      const searchInput = document.getElementById('activity-search-input');
+
+      let currentCat = 'all';
+      let currentQuery = '';
+
+      function applyFilters() {
+        let visibleCount = 0;
+        cards.forEach((card) => {
+          const cardCat = card.getAttribute('data-cat-slug') || '';
+          const cardSearch = card.getAttribute('data-search-text') || '';
+
+          const matchCat = (currentCat === 'all' || cardCat === currentCat);
+          const matchQuery = (!currentQuery || cardSearch.includes(currentQuery));
+
+          if (matchCat && matchQuery) {
+            card.style.display = 'flex';
+            visibleCount++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        if (emptyState) {
+          emptyState.style.display = (visibleCount === 0) ? 'block' : 'none';
+        }
+      }
+
+      pills.forEach((p) => {
+        p.onclick = function() {
+          pills.forEach((btn) => {
+            btn.classList.remove('bg-[#0047BA]', 'text-white', 'shadow-2xs');
+            btn.classList.add('bg-white', 'hover:bg-slate-100', 'dark:bg-slate-900', 'dark:hover:bg-slate-800', 'text-slate-700', 'dark:text-slate-300', 'font-medium');
+          });
+
+          p.classList.remove('bg-white', 'hover:bg-slate-100', 'dark:bg-slate-900', 'dark:hover:bg-slate-800', 'text-slate-700', 'dark:text-slate-300', 'font-medium');
+          p.classList.add('bg-[#0047BA]', 'text-white', 'shadow-2xs');
+
+          currentCat = p.getAttribute('data-cat') || 'all';
+          applyFilters();
+        };
+      });
+
+      if (searchInput) {
+        searchInput.oninput = function(e) {
+          currentQuery = (e.target.value || '').trim().toLowerCase();
+          applyFilters();
+        };
+      }
+
+      // 2. Copy Link Buttons with Toast Feedback
+      const toast = document.getElementById('oh-toast');
+      function setupCopy(btnId) {
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+        btn.onclick = async function() {
+          const url = window.location.origin + '/openhouse';
+          try {
+            await navigator.clipboard.writeText(url);
+            if (toast) {
+              toast.classList.remove('translate-y-12', 'opacity-0', 'pointer-events-none');
+              setTimeout(() => {
+                toast.classList.add('translate-y-12', 'opacity-0', 'pointer-events-none');
+              }, 2500);
+            }
+          } catch (err) {
+            prompt('คัดลอกลิงก์:', url);
+          }
+        };
+      }
+
+      setupCopy('header-copy-link-btn');
+      setupCopy('section-copy-btn');
+
+      // Update share input with live origin
+      const shareInput = document.getElementById('share-link-input');
+      if (shareInput) {
+        shareInput.value = window.location.origin + '/openhouse';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', initOpenHousePage);
+    document.addEventListener('astro:page-load', initOpenHousePage);
+  </script>
+</BaseLayout>

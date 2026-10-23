@@ -1,0 +1,43 @@
+---
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import DocsReader from '../../../components/handbook/DocsReader.astro';
+import { getHandbookCategories, getStudentHandbooks, type StudentHandbook, type HandbookCategory } from '../../../lib/wordpress';
+
+export async function getStaticPaths() {
+  const [categories, handbooks] = await Promise.all([
+    getHandbookCategories(),
+    getStudentHandbooks(),
+  ]);
+
+  if (handbooks.length === 0) {
+    return [];
+  }
+
+  return handbooks.map((handbook) => ({
+    params: { slug: handbook.slug },
+    props: { handbook, allHandbooks: handbooks, categories },
+  }));
+}
+
+interface Props {
+  handbook: StudentHandbook;
+  allHandbooks: StudentHandbook[];
+  categories: HandbookCategory[];
+}
+
+const { handbook, allHandbooks, categories } = Astro.props;
+
+const pageTitle = `${handbook.title} - คู่มือและระเบียบการนักศึกษา | วิทยาลัยเทคโนโลยีศรีราชา`;
+const pageDesc = handbook.excerpt || `${handbook.title} คู่มือและข้อบังคับนักศึกษา วิทยาลัยเทคโนโลยีศรีราชา`;
+---
+
+<DocsLayout
+  title={pageTitle}
+  description={pageDesc}
+>
+  <DocsReader
+    currentHandbook={handbook}
+    allHandbooks={allHandbooks}
+    categories={categories}
+  />
+</DocsLayout>

@@ -1,0 +1,933 @@
+---
+import type { StudentHandbook, HandbookCategory } from '../../lib/wordpress';
+
+interface Props {
+  currentHandbook?: StudentHandbook | null;
+  allHandbooks: StudentHandbook[];
+  categories: HandbookCategory[];
+}
+
+const { currentHandbook: passedHandbook, allHandbooks = [], categories = [] } = Astro.props;
+
+// College Handbook Navigation Structure
+const COLLEGE_DOC_GROUPS = [
+  {
+    name: 'บทนำและภาพรวม',
+    items: [
+      {
+        slug: 'overview',
+        title: 'ภาพรวมคู่มือนักศึกษา',
+        badge: '',
+      },
+      {
+        slug: 'vision-philosophy',
+        title: 'วิสัยทัศน์และปรัชญาวิทยาลัย',
+        badge: '',
+      },
+      {
+        slug: 'academic-calendar-guide',
+        title: 'ปฏิทินการศึกษาและกำหนดการสำคัญ',
+        badge: '',
+      },
+    ],
+  },
+  {
+    name: 'ระเบียบวินัยและการแต่งกาย',
+    items: [
+      {
+        slug: 'uniform-dress-code',
+        title: 'ระเบียบเครื่องแบบและการแต่งกาย',
+        badge: '',
+      },
+      {
+        slug: 'discipline-conduct',
+        title: 'ข้อบังคับวินัยและความประพฤตินักศึกษา',
+        badge: '',
+      },
+      {
+        slug: 'behavior-score-rules',
+        title: 'เกณฑ์การตัดและเพิ่มคะแนนความประพฤติ',
+        badge: '',
+      },
+      {
+        slug: 'campus-traffic-safety',
+        title: 'ระเบียบการใช้ยานพาหนะและความปลอดภัย',
+        badge: '',
+      },
+    ],
+  },
+  {
+    name: 'งานวิชาการและการวัดผล',
+    items: [
+      {
+        slug: 'course-enrollment',
+        title: 'การลงทะเบียนเรียนและเพิ่ม-ถอนรายวิชา',
+        badge: '',
+      },
+      {
+        slug: 'grading-evaluation',
+        title: 'ระเบียบการวัดและประเมินผลการเรียน',
+        badge: '',
+      },
+      {
+        slug: 'internship-dual-system',
+        title: 'แนวปฏิบัติการฝึกงานและระบบทวิภาคี',
+        badge: '',
+      },
+      {
+        slug: 'graduation-requirements',
+        title: 'เกณฑ์และเงื่อนไขการสำเร็จการศึกษา',
+        badge: '',
+      },
+    ],
+  },
+  {
+    name: 'สวัสดิการและพัฒนานักศึกษา',
+    items: [
+      {
+        slug: 'student-loans-scholarships',
+        title: 'กองทุนเงินให้กู้ยืม (กยศ.) และทุนการศึกษา',
+        badge: '',
+      },
+      {
+        slug: 'health-accident-insurance',
+        title: 'งานพยาบาลและการประกันอุบัติเหตุ',
+        badge: '',
+      },
+      {
+        slug: 'student-activities-clubs',
+        title: 'ชมรมและกิจกรรมองค์การวิชาชีพ',
+        badge: '',
+      },
+      {
+        slug: 'military-student-affairs',
+        title: 'งานนักศึกษาวิชาทหาร (นศท.)',
+        badge: '',
+      },
+    ],
+  },
+];
+
+// Default college overview article when WordPress database has no articles yet
+const DEFAULT_COLLEGE_ARTICLE: StudentHandbook = {
+  id: 0,
+  title: 'คู่มือและระเบียบการนักศึกษา วิทยาลัยเทคโนโลยีศรีราชา',
+  slug: 'overview',
+  excerpt: 'ศูนย์รวบรวมระเบียบ ข้อบังคับ วินัย และแนวปฏิบัติของนักศึกษา วิทยาลัยเทคโนโลยีศรีราชา',
+  content: `
+    <h2>ยินดีต้อนรับสู่ศูนย์คู่มือและระเบียบการดิจิทัล</h2>
+    <p>
+      ศูนย์คู่มือและระเบียบการนักศึกษา วิทยาลัยเทคโนโลยีศรีราชา จัดทำขึ้นเพื่อเป็นแหล่งรวบรวมกฎระเบียบ ข้อบังคับ แนวปฏิบัติด้านวิชาการ วินัย และสวัสดิการต่างๆ ให้นักศึกษา คณาจารย์ และผู้ปกครองสามารถสืบค้นและศึกษาได้อย่างสะดวกรวดเร็วในรูปแบบเว็บคู่มือดิจิทัลที่ทันสมัย อ่านง่าย สบายตา
+    </p>
+    <p>
+      นักศึกษาทุกคนมีหน้าที่ต้องศึกษาและทำความเข้าใจระเบียบข้อบังคับต่างๆ ของวิทยาลัย เพื่อให้การใช้ชีวิตและการศึกษาเล่าเรียนตลอดหลักสูตรดำเนินไปด้วยความเรียบร้อย มีวินัย และประสบความสำเร็จในการศึกษา
+    </p>
+
+    <h3>วัตถุประสงค์ของคู่มือนักศึกษา</h3>
+    <p>
+      เพื่อให้นักศึกษาทราบถึงสิทธิ หน้าที่ และขอบเขตการปฏิบัติตนที่ถูกต้องตามกฎระเบียบของสถานศึกษา ทั้งในด้านการแต่งกาย ความประพฤติ การรักษาวินัย ตลอดจนขั้นตอนการติดต่อประสานงานกับแผนกและฝ่ายต่างๆ ภายในวิทยาลัย
+    </p>
+
+    <h2>โครงสร้างหมวดหมู่ระเบียบข้อบังคับ</h2>
+    <p>
+      ระเบียบและข้อบังคับของวิทยาลัยเทคโนโลยีศรีราชา แบ่งออกเป็น 4 หมวดหลักตามขอบข่ายการดำเนินงาน:
+    </p>
+
+    <h3>1. หมวดระเบียบวินัยและการแต่งกาย</h3>
+    <p>
+      กำหนดมาตรฐานการแต่งกายเครื่องแบบนักศึกษาทั้งระดับ ปวช. และ ปวส., การรักษาระเบียบวินัย, การปฏิบัติตามกฎจราจรและความปลอดภัยภายในสถานศึกษา ตลอดจนเกณฑ์การตัดคะแนนความประพฤติและการทำกิจกรรมจิตอาสาเพื่อชดเชยคะแนน
+    </p>
+
+    <h3>2. หมวดงานวิชาการและการวัดผล</h3>
+    <p>
+      ครอบคลุมขั้นตอนการลงทะเบียนเรียน, เงื่อนไขเวลาเรียนไม่น้อยกว่า 80%, การวัดและประเมินผลการเรียนตามระเบียบกระทรวงศึกษาธิการ, การยื่นคำร้องขอสอบแก้ตัว, การฝึกงานในสถานประกอบการ และหลักเกณฑ์การขอสำเร็จการศึกษา
+    </p>
+
+    <h3>3. หมวดสวัสดิการและพัฒนานักศึกษา</h3>
+    <p>
+      รวบรวมสิทธิประโยชน์ของนักศึกษา ได้แก่ การยื่นกู้ยืมกองทุน กยศ., สิทธิการรักษาพยาบาลและการเบิกจ่ายประกันอุบัติเหตุกลุ่ม, การเข้าร่วมกิจกรรมองค์การนักวิชาชีพในอนาคตแห่งประเทศไทย (อวท.) และงานกิจการนักศึกษาวิชาทหาร
+    </p>
+
+    <h2>แนวทางการสืบค้นและติดต่อสอบถาม</h2>
+    <p>
+      นักศึกษาสามารถค้นหาข้อมูลระเบียบการที่ต้องการได้อย่างรวดเร็วผ่านช่องค้นหา หรือกดปุ่มคีย์ลัด <strong>⌘K</strong> (บน Mac) หรือ <strong>Ctrl+K</strong> (บน Windows) เพื่อพิมพ์ค้นหาคำสำคัญได้ทันที
+    </p>
+
+    <h3>ช่องทางการติดต่อฝ่ายพัฒนากิจการนักศึกษา</h3>
+    <p>
+      หากมีข้อสงสัยเกี่ยวกับระเบียบวินัย สวัสดิการ หรือการขอเอกสารรับรอง สามารถติดต่อได้ที่ <strong>ฝ่ายพัฒนากิจการนักศึกษา อาคาร 1 ชั้น 1 วิทยาลัยเทคโนโลยีศรีราชา</strong> ในวันและเวลาราชการ (จันทร์ - ศุกร์ 08:30 - 16:30 น.) โทรศัพท์: 038-352440 หรือ Line Official: @sriracha
+    </p>
+  `,
+  badge: '',
+  effectiveDate: '',
+  updatedAt: new Date().toISOString(),
+  order: 1,
+};
+
+// Check if we have live articles from WordPress
+const hasLiveArticles = allHandbooks.length > 0;
+const currentHandbook = passedHandbook || (hasLiveArticles ? allHandbooks[0] : DEFAULT_COLLEGE_ARTICLE);
+
+// Build Category Groups from WordPress if available, otherwise use COLLEGE_DOC_GROUPS
+interface CategoryGroup {
+  name: string;
+  items: { slug: string; title: string; badge?: string }[];
+}
+
+let docGroups: CategoryGroup[] = [];
+
+if (hasLiveArticles) {
+  const catMap = new Map<string, { name: string; items: StudentHandbook[] }>();
+  
+  categories.forEach((cat) => {
+    catMap.set(cat.slug, { name: cat.name, items: [] });
+  });
+
+  const uncategorized: StudentHandbook[] = [];
+  allHandbooks.forEach((hb) => {
+    if (hb.category?.slug && catMap.has(hb.category.slug)) {
+      catMap.get(hb.category.slug)!.items.push(hb);
+    } else {
+      uncategorized.push(hb);
+    }
+  });
+
+  docGroups = Array.from(catMap.values())
+    .filter((g) => g.items.length > 0)
+    .map((g) => ({
+      name: g.name,
+      items: g.items.map((item) => ({
+        slug: item.slug,
+        title: item.title,
+        badge: item.badge,
+      })),
+    }));
+
+  if (uncategorized.length > 0) {
+    docGroups.push({
+      name: 'ระเบียบการทั่วไป',
+      items: uncategorized.map((item) => ({
+        slug: item.slug,
+        title: item.title,
+        badge: item.badge,
+      })),
+    });
+  }
+} else {
+  docGroups = COLLEGE_DOC_GROUPS;
+}
+
+// Flat list for sequence navigation
+const flatAllItems = docGroups.flatMap((g) => g.items);
+const currentIndex = flatAllItems.findIndex((it) => it.slug === currentHandbook?.slug);
+const prevItem = currentIndex > 0 ? flatAllItems[currentIndex - 1] : null;
+const nextItem = currentIndex >= 0 && currentIndex < flatAllItems.length - 1 ? flatAllItems[currentIndex + 1] : null;
+
+// Parse H2 and H3 Headings for Right-Hand "On this page" TOC
+interface HeadingItem {
+  id: string;
+  text: string;
+  level: number;
+}
+
+const headings: HeadingItem[] = [];
+let headingCounter = 0;
+
+const processedContent = (currentHandbook?.content || '').replace(
+  /<(h[2-4])([^>]*)>(.*?)<\/\1>/gi,
+  (match, tag, attrs, innerText) => {
+    headingCounter++;
+    const cleanText = innerText.replace(/<[^>]+>/g, '').trim();
+    const id = `heading-${headingCounter}`;
+    const level = parseInt(tag.charAt(1), 10);
+    headings.push({ id, text: cleanText, level });
+
+    const cleanAttrs = attrs
+      .replace(/\s*class=(["']).*?\1/gi, '')
+      .replace(/\s*id=(["']).*?\1/gi, '');
+
+    let headingClasses = 'font-bold tracking-tight text-slate-900 dark:text-white scroll-mt-24 group flex items-center gap-2 ';
+    if (level === 2) {
+      headingClasses += 'text-2xl sm:text-3xl mt-12 mb-4';
+    } else if (level === 3) {
+      headingClasses += 'text-xl mt-8 mb-3';
+    } else {
+      headingClasses += 'text-lg mt-6 mb-2';
+    }
+
+    return `<${tag}${cleanAttrs} id="${id}" class="${headingClasses}">${innerText}<a href="#${id}" class="opacity-0 group-hover:opacity-100 text-[#0047BA] dark:text-sky-400 text-sm font-normal transition-opacity" title="ลิงก์ตรงไปยังหัวข้อนี้">#</a></${tag}>`;
+  }
+);
+---
+
+<div class="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="flex items-start">
+
+    <!-- ================= 1. LEFT SIDEBAR: NAVIGATION TREE ================= -->
+    <aside
+      id="docs-left-sidebar"
+      class="hidden lg:block w-64 xl:w-72 shrink-0 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto pt-8 pb-16 pr-6 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800"
+    >
+      <nav class="space-y-7" aria-label="สารบัญคู่มือและระเบียบการ">
+        {docGroups.map((group) => (
+          <div class="space-y-1.5">
+            <!-- Group Header -->
+            <h3 class="text-sm font-bold text-slate-900 dark:text-white tracking-tight">
+              {group.name}
+            </h3>
+
+            <!-- Item Links with College Blue Active Indicator -->
+            <ul class="space-y-0.5 border-l border-slate-200/80 dark:border-slate-800">
+              {group.items.map((item) => {
+                const isActive = currentHandbook?.slug === item.slug;
+                const linkHref = hasLiveArticles ? `/students/handbook/${item.slug}/` : `/students/handbook/#${item.slug}`;
+                return (
+                  <li>
+                    <a
+                      href={linkHref}
+                      class={`group flex items-center justify-between py-1.5 text-sm transition-colors -ml-[1px] pl-4 border-l-2 ${
+                        isActive
+                          ? 'border-[#0047BA] dark:border-sky-400 text-[#0047BA] dark:text-sky-300 font-semibold'
+                          : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700'
+                      }`}
+                    >
+                      <span class="truncate leading-normal">{item.title}</span>
+                      {item.badge && (
+                        <span class="ml-2 text-[10px] font-semibold px-1.5 py-0.5 rounded bg-blue-50 text-[#0047BA] dark:bg-blue-950/60 dark:text-sky-300 shrink-0">
+                          {item.badge}
+                        </span>
+                      )}
+                    </a>
+
+                    {/* Left Sidebar Subheadings for Active Article (Aligned to the exact same left line) */}
+                    {isActive && headings.length > 0 && (
+                      <ul class="my-0.5 space-y-0.5">
+                        {headings.map((h) => (
+                          <li>
+                            <a
+                              href={`#${h.id}`}
+                              data-sidebar-subheading-id={h.id}
+                              class={`sidebar-subheading-link block py-1 text-xs leading-normal transition-colors -ml-[1px] border-l-2 border-transparent ${
+                                h.level >= 4
+                                  ? 'pl-8 text-slate-500 dark:text-slate-400 text-[11px]'
+                                  : h.level === 3
+                                  ? 'pl-7 text-slate-500 dark:text-slate-400'
+                                  : 'pl-6 text-slate-600 dark:text-slate-300'
+                              } hover:text-[#0047BA] dark:hover:text-sky-400 hover:border-slate-300 dark:hover:border-slate-600`}
+                            >
+                              <span class="truncate block">{h.text}</span>
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+      </nav>
+    </aside>
+
+    <!-- ================= 2. CENTER COLUMN: DOCUMENTATION CONTENT ================= -->
+    <div class="flex-1 min-w-0 max-w-3xl xl:max-w-4xl px-2 sm:px-6 lg:px-12 xl:px-16 py-8 sm:py-10 mx-auto">
+      <article class="w-full">
+        
+        <!-- Document Title -->
+        <header class="mb-10 pb-6 border-b border-slate-100 dark:border-slate-800/80">
+          <div class="flex items-center justify-between gap-4 mb-3">
+            <div>
+              {currentHandbook?.category?.name && (
+                <span class="text-xs font-semibold text-[#0047BA] dark:text-sky-400">
+                  {currentHandbook.category.name}
+                </span>
+              )}
+            </div>
+
+            <!-- Action Toolbar: Print, Copy Link -->
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                id="btn-print-doc"
+                class="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                title="สั่งพิมพ์ระเบียบการนี้"
+              >
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                  <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                  <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                <span class="hidden sm:inline">พิมพ์</span>
+              </button>
+              <button
+                type="button"
+                id="btn-copy-doc-link"
+                class="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                title="คัดลอกลิงก์"
+              >
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                <span class="hidden sm:inline">คัดลอกลิงก์</span>
+              </button>
+            </div>
+          </div>
+
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+            {currentHandbook?.title}
+          </h1>
+        </header>
+
+        <!-- Official PDF Download Button (If available) -->
+        {currentHandbook?.pdfUrl && (
+          <div class="mb-8 p-4 rounded-xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200/80 dark:border-blue-900/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                เอกสารประกาศฉบับเต็มอย่างเป็นทางการ (PDF)
+              </h4>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                เอกสารทางการพร้อมตราประทับและลายมือชื่อผู้มีอำนาจลงนาม
+              </p>
+            </div>
+            <a
+              href={currentHandbook.pdfUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              download
+              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#0047BA] hover:bg-[#003893] text-white transition-colors shrink-0 shadow-xs"
+            >
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>ดาวน์โหลด PDF</span>
+            </a>
+          </div>
+        )}
+
+        <!-- Main Body Content -->
+        <div class="college-docs-prose text-slate-600 dark:text-slate-300 leading-relaxed text-base font-normal">
+          <Fragment set:html={processedContent} />
+        </div>
+
+
+
+        <!-- Previous / Next Chapter Navigation -->
+        <div class="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {prevItem ? (
+            <a
+              href={hasLiveArticles ? `/students/handbook/${prevItem.slug}/` : `/students/handbook/#${prevItem.slug}`}
+              class="group flex flex-col p-4 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-[#0047BA] dark:hover:border-sky-500 transition-colors"
+            >
+              <span class="text-xs text-slate-400 group-hover:text-[#0047BA] dark:group-hover:text-sky-400 transition-colors mb-1">
+                ← บทก่อนหน้า
+              </span>
+              <span class="text-sm font-semibold text-slate-800 dark:text-slate-200 group-hover:text-[#0047BA] dark:group-hover:text-sky-300 transition-colors truncate">
+                {prevItem.title}
+              </span>
+            </a>
+          ) : (
+            <div></div>
+          )}
+
+          {nextItem ? (
+            <a
+              href={hasLiveArticles ? `/students/handbook/${nextItem.slug}/` : `/students/handbook/#${nextItem.slug}`}
+              class="group flex flex-col items-end text-right p-4 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-[#0047BA] dark:hover:border-sky-500 transition-colors sm:col-start-2"
+            >
+              <span class="text-xs text-slate-400 group-hover:text-[#0047BA] dark:group-hover:text-sky-400 transition-colors mb-1">
+                บทถัดไป →
+              </span>
+              <span class="text-sm font-semibold text-slate-800 dark:text-slate-200 group-hover:text-[#0047BA] dark:group-hover:text-sky-300 transition-colors truncate">
+                {nextItem.title}
+              </span>
+            </a>
+          ) : (
+            <div></div>
+          )}
+        </div>
+
+      </article>
+    </div>
+
+    <!-- ================= 3. RIGHT SIDEBAR: ON THIS PAGE ================= -->
+    <aside
+      id="docs-right-sidebar"
+      class="hidden lg:block w-56 xl:w-64 shrink-0 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto pt-8 pb-16 pl-6 scrollbar-thin"
+    >
+      <div class="space-y-3">
+        <!-- Header: 3-horizontal-lines icon + "ในหน้านี้ (On this page)" -->
+        <div class="flex items-center gap-2 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+          <svg class="w-4 h-4 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="15" y2="12"></line>
+            <line x1="3" y1="18" x2="18" y2="18"></line>
+          </svg>
+          <span>ในหน้านี้ (On this page)</span>
+        </div>
+
+        <!-- Headings List with College Blue vertical indicator -->
+        <nav class="space-y-0.5 border-l border-slate-200/80 dark:border-slate-800" id="on-this-page-nav">
+          {headings.map((h, idx) => (
+            <a
+              href={`#${h.id}`}
+              data-heading-id={h.id}
+              class={`on-page-link block text-xs leading-normal py-1 transition-colors -ml-[1px] border-l-2 ${
+                h.level >= 4 ? 'pl-8 text-[11px]' : h.level === 3 ? 'pl-5' : 'pl-3'
+              } ${
+                idx === 0
+                  ? 'border-[#0047BA] dark:border-sky-400 text-[#0047BA] dark:text-sky-300 font-semibold'
+                  : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-600'
+              }`}
+            >
+              {h.text}
+            </a>
+          ))}
+        </nav>
+      </div>
+    </aside>
+
+  </div>
+</div>
+
+<!-- ================= MOBILE OFF-CANVAS DRAWER SIDEBAR ================= -->
+<div
+  id="docs-mobile-drawer"
+  class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden transition-opacity"
+  role="dialog"
+  aria-modal="true"
+>
+  <div class="w-80 max-w-[85vw] h-full bg-white dark:bg-[#0b0f19] p-6 shadow-2xl flex flex-col overflow-y-auto">
+    <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800 mb-4">
+      <div class="flex items-center gap-2">
+        <img
+          src="/logo/LOGO_SERIRACHA_COLOR_FULL.png"
+          alt="วิทยาลัยเทคโนโลยีศรีราชา"
+          class="w-7 h-7 object-contain"
+        />
+        <span class="text-sm font-bold text-slate-900 dark:text-white">
+          สารบัญคู่มือนักศึกษา
+        </span>
+      </div>
+      <button
+        type="button"
+        id="docs-close-drawer-btn"
+        class="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+        aria-label="ปิดเมนู"
+      >
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <nav class="space-y-6 flex-1">
+      {docGroups.map((group) => (
+        <div class="space-y-1.5">
+          <span class="text-xs font-bold text-slate-900 dark:text-white tracking-tight block">
+            {group.name}
+          </span>
+          <ul class="space-y-1 pl-2 border-l border-slate-200 dark:border-slate-800">
+            {group.items.map((item) => {
+              const isActive = currentHandbook?.slug === item.slug;
+              const linkHref = hasLiveArticles ? `/students/handbook/${item.slug}/` : `/students/handbook/#${item.slug}`;
+              return (
+                <li>
+                  <a
+                    href={linkHref}
+                    class={`block py-1 text-xs transition-colors ${
+                      isActive ? 'text-[#0047BA] dark:text-sky-400 font-bold' : 'text-slate-600 dark:text-slate-400'
+                    }`}
+                  >
+                    {item.title}
+                  </a>
+
+                  {isActive && headings.length > 0 && (
+                    <ul class="my-0.5 space-y-0.5">
+                      {headings.map((h) => (
+                        <li>
+                          <a
+                            href={`#${h.id}`}
+                            data-mobile-subheading-id={h.id}
+                            class={`mobile-subheading-link block py-1 text-xs transition-colors pl-3 ${
+                              h.level >= 4 ? 'pl-6 text-[11px]' : h.level === 3 ? 'pl-5' : 'pl-4'
+                            } text-slate-500 dark:text-slate-400 hover:text-[#0047BA] dark:hover:text-sky-400`}
+                          >
+                            {h.text}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </nav>
+
+    <!-- Mobile Drawer Footer: Theme Toggle -->
+    <div class="pt-6 mt-6 border-t border-slate-200 dark:border-slate-800">
+      <button
+        type="button"
+        id="docs-mobile-theme-toggle"
+        onclick="window.toggleDocsTheme && window.toggleDocsTheme()"
+        class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold text-xs shadow-2xs cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+      >
+        <span class="flex items-center gap-2">
+          <!-- Moon Icon (Light Mode) -->
+          <svg class="w-4 h-4 block dark:hidden text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+          </svg>
+          <!-- Sun Icon (Dark Mode) -->
+          <svg class="w-4 h-4 hidden dark:block text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+          </svg>
+          <span>โหมดการแสดงผล</span>
+        </span>
+        <span class="text-xs px-2 py-0.5 rounded bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-amber-300 font-mono">
+          <span class="inline dark:hidden">สว่าง</span>
+          <span class="hidden dark:inline">มืด</span>
+        </span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= SEARCH MODAL (CMD + K) ================= -->
+<div
+  id="docs-search-modal"
+  class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden items-start justify-center p-4 pt-16 sm:pt-24 transition-opacity"
+  role="dialog"
+  aria-modal="true"
+>
+  <div class="w-full max-w-xl bg-white dark:bg-[#161b22] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3">
+      <svg class="w-5 h-5 text-slate-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input
+        type="text"
+        id="docs-modal-search-input"
+        placeholder="ค้นหาข้อบังคับ ระเบียบการ หรือคู่มือนักศึกษา..."
+        class="w-full bg-transparent text-sm sm:text-base text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none"
+      />
+      <kbd class="px-2 py-0.5 text-xs font-mono bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-slate-400 shrink-0">
+        ESC
+      </kbd>
+    </div>
+
+    <!-- Search Results Container -->
+    <div id="docs-search-results" class="max-h-96 overflow-y-auto p-2 space-y-1">
+      {flatAllItems.map((item) => (
+        <a
+          href={hasLiveArticles ? `/students/handbook/${item.slug}/` : `/students/handbook/#${item.slug}`}
+          class="search-item flex items-center justify-between p-3 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors group"
+          data-title={item.title.toLowerCase()}
+        >
+          <div class="flex items-center gap-2.5">
+            <span class="text-xs text-slate-400 group-hover:text-[#0047BA] dark:group-hover:text-sky-400">#</span>
+            <span class="text-sm font-medium text-slate-800 dark:text-slate-200 group-hover:text-[#0047BA] dark:group-hover:text-sky-400 transition-colors truncate">
+              {item.title}
+            </span>
+          </div>
+          {item.badge && (
+            <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-blue-50 text-[#0047BA] dark:bg-blue-950/60 dark:text-sky-300">
+              {item.badge}
+            </span>
+          )}
+        </a>
+      ))}
+    </div>
+
+    <div class="p-3 bg-slate-50 dark:bg-slate-800/40 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+      <span>คลิกเพื่อเปิดอ่านระเบียบการ</span>
+      <span>ESC เพื่อปิด</span>
+    </div>
+  </div>
+</div>
+
+<!-- Client-side Interactive Scripts -->
+<script>
+  function initCollegeDocs() {
+    // 1. Search Modal (⌘K)
+    const searchModal = document.getElementById('docs-search-modal');
+    const topSearchBtn = document.getElementById('docs-top-search-btn');
+    const searchInput = document.getElementById('docs-modal-search-input') as HTMLInputElement | null;
+    const searchItems = document.querySelectorAll<HTMLElement>('.search-item');
+
+    function openSearch() {
+      if (searchModal) {
+        searchModal.classList.remove('hidden');
+        searchModal.classList.add('flex');
+        if (searchInput) {
+          searchInput.value = '';
+          searchInput.focus();
+        }
+        searchItems.forEach((it) => it.classList.remove('hidden'));
+      }
+    }
+
+    function closeSearch() {
+      if (searchModal) {
+        searchModal.classList.add('hidden');
+        searchModal.classList.remove('flex');
+      }
+    }
+
+    if (topSearchBtn) topSearchBtn.addEventListener('click', openSearch);
+
+    window.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        openSearch();
+      }
+      if (e.key === 'Escape' && searchModal && !searchModal.classList.contains('hidden')) {
+        closeSearch();
+      }
+    });
+
+    if (searchModal) {
+      searchModal.addEventListener('click', (e) => {
+        if (e.target === searchModal) closeSearch();
+      });
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const query = (e.target as HTMLInputElement).value.trim().toLowerCase();
+        searchItems.forEach((it) => {
+          const title = it.dataset.title || '';
+          it.classList.toggle('hidden', Boolean(query && !title.includes(query)));
+        });
+      });
+    }
+
+    // 2. Mobile Drawer
+    const mobileDrawer = document.getElementById('docs-mobile-drawer');
+    const openDrawerBtn = document.getElementById('docs-mobile-menu-btn');
+    const closeDrawerBtn = document.getElementById('docs-close-drawer-btn');
+
+    if (openDrawerBtn && mobileDrawer) {
+      openDrawerBtn.addEventListener('click', () => mobileDrawer.classList.remove('hidden'));
+    }
+    if (closeDrawerBtn && mobileDrawer) {
+      closeDrawerBtn.addEventListener('click', () => mobileDrawer.classList.add('hidden'));
+    }
+    if (mobileDrawer) {
+      mobileDrawer.addEventListener('click', (e) => {
+        if (e.target === mobileDrawer) mobileDrawer.classList.add('hidden');
+      });
+    }
+
+    // 3. Print & Copy Link
+    const printBtn = document.getElementById('btn-print-doc');
+    if (printBtn) printBtn.addEventListener('click', () => window.print());
+
+    const copyBtn = document.getElementById('btn-copy-doc-link');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+          const original = copyBtn.innerHTML;
+          copyBtn.innerHTML = '<span class="text-emerald-500 font-semibold text-xs">✓ คัดลอกแล้ว</span>';
+          setTimeout(() => (copyBtn.innerHTML = original), 2000);
+        });
+      });
+    }
+
+    // 4. ScrollSpy & Interactive Subheadings (Right & Left Sidebars)
+    const onPageLinks = document.querySelectorAll<HTMLElement>('.on-page-link');
+    const sidebarSubLinks = document.querySelectorAll<HTMLElement>('.sidebar-subheading-link');
+    const mobileSubLinks = document.querySelectorAll<HTMLElement>('.mobile-subheading-link');
+
+    // Collect all heading DOM elements in document order
+    const headingElements: HTMLElement[] = [];
+    document.querySelectorAll<HTMLElement>('article h2[id], article h3[id], article h4[id]').forEach((el) => {
+      headingElements.push(el);
+    });
+
+    if (headingElements.length > 0) {
+      function applyActiveHeading(activeId: string) {
+        // A. Right Sidebar
+        onPageLinks.forEach((link) => {
+          const id = link.dataset.headingId;
+          if (id === activeId) {
+            link.classList.add('border-[#0047BA]', 'dark:border-sky-400', 'text-[#0047BA]', 'dark:text-sky-300', 'font-semibold');
+            link.classList.remove('border-transparent', 'text-slate-500', 'dark:text-slate-400');
+          } else {
+            link.classList.remove('border-[#0047BA]', 'dark:border-sky-400', 'text-[#0047BA]', 'dark:text-sky-300', 'font-semibold');
+            link.classList.add('border-transparent', 'text-slate-500', 'dark:text-slate-400');
+          }
+        });
+
+        // B. Left Sidebar Subheadings
+        sidebarSubLinks.forEach((link) => {
+          const id = link.dataset.sidebarSubheadingId;
+          if (id === activeId) {
+            link.classList.add('border-[#0047BA]', 'dark:border-sky-400', 'text-[#0047BA]', 'dark:text-sky-300', 'font-bold');
+            link.classList.remove('border-transparent', 'text-slate-600', 'text-slate-500', 'dark:text-slate-300', 'dark:text-slate-400');
+          } else {
+            link.classList.remove('border-[#0047BA]', 'dark:border-sky-400', 'text-[#0047BA]', 'dark:text-sky-300', 'font-bold');
+            link.classList.add('border-transparent');
+          }
+        });
+
+        // C. Mobile Drawer Subheadings
+        mobileSubLinks.forEach((link) => {
+          const id = link.dataset.mobileSubheadingId;
+          if (id === activeId) {
+            link.classList.add('text-[#0047BA]', 'dark:text-sky-300', 'font-bold');
+            link.classList.remove('text-slate-500', 'dark:text-slate-400');
+          } else {
+            link.classList.remove('text-[#0047BA]', 'dark:text-sky-300', 'font-bold');
+            link.classList.add('text-slate-500', 'dark:text-slate-400');
+          }
+        });
+      }
+
+      function updateOnPageActive() {
+        // If at bottom of page, activate the last heading
+        const scrollBottom = window.innerHeight + window.scrollY;
+        const totalHeight = document.documentElement.scrollHeight;
+        if (scrollBottom >= totalHeight - 50) {
+          applyActiveHeading(headingElements[headingElements.length - 1].id);
+          return;
+        }
+
+        // Find the current heading via getBoundingClientRect (reliable in flex/grid layouts)
+        // Header is h-16 (64px) + margin, so threshold of 140px aligns with sticky header
+        let currentActiveId = headingElements[0].id;
+        for (let i = 0; i < headingElements.length; i++) {
+          const el = headingElements[i];
+          const rect = el.getBoundingClientRect();
+          if (rect.top <= 140) {
+            currentActiveId = el.id;
+          } else {
+            break;
+          }
+        }
+
+        applyActiveHeading(currentActiveId);
+      }
+
+      // Smooth scroll click handler for all heading links
+      const allSubheadingLinks = document.querySelectorAll<HTMLAnchorElement>('.on-page-link, .sidebar-subheading-link, .mobile-subheading-link');
+      allSubheadingLinks.forEach((link) => {
+        link.addEventListener('click', (e) => {
+          const href = link.getAttribute('href');
+          if (href && href.startsWith('#')) {
+            const targetId = href.substring(1);
+            const targetEl = document.getElementById(targetId);
+            if (targetEl) {
+              e.preventDefault();
+              history.pushState(null, '', `#${targetId}`);
+              targetEl.scrollIntoView({ behavior: 'smooth' });
+              applyActiveHeading(targetId);
+
+              // Close mobile drawer if open
+              if (mobileDrawer && !mobileDrawer.classList.contains('hidden')) {
+                mobileDrawer.classList.add('hidden');
+              }
+            }
+          }
+        });
+      });
+
+      window.addEventListener('scroll', updateOnPageActive, { passive: true });
+      window.addEventListener('hashchange', () => {
+        if (window.location.hash) {
+          applyActiveHeading(window.location.hash.substring(1));
+        }
+      });
+
+      // Initial check (respect URL hash or run scrollspy)
+      if (window.location.hash) {
+        const hashId = window.location.hash.substring(1);
+        if (document.getElementById(hashId)) {
+          applyActiveHeading(hashId);
+          setTimeout(() => {
+            const el = document.getElementById(hashId);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }, 100);
+        } else {
+          updateOnPageActive();
+        }
+      } else {
+        updateOnPageActive();
+      }
+    }
+  }
+
+  document.addEventListener('astro:page-load', initCollegeDocs);
+  if (document.readyState !== 'loading') {
+    initCollegeDocs();
+  } else {
+    document.addEventListener('DOMContentLoaded', initCollegeDocs);
+  }
+</script>
+
+<style>
+  /* College Docs Prose Typography */
+  .college-docs-prose :global(p) {
+    margin-bottom: 1.5rem;
+    line-height: 1.85;
+    font-size: 1.05rem;
+  }
+  .college-docs-prose :global(ul),
+  .college-docs-prose :global(ol) {
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+  }
+  .college-docs-prose :global(ul) {
+    list-style-type: disc;
+  }
+  .college-docs-prose :global(ol) {
+    list-style-type: decimal;
+  }
+  .college-docs-prose :global(li) {
+    margin-bottom: 0.5rem;
+    line-height: 1.75;
+  }
+  .college-docs-prose :global(strong) {
+    font-weight: 700;
+    color: #0f172a;
+  }
+  :global(.dark) .college-docs-prose :global(strong) {
+    color: #f8fafc;
+  }
+  .college-docs-prose :global(a) {
+    color: #0047BA;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  :global(.dark) .college-docs-prose :global(a) {
+    color: #38bdf8;
+  }
+  .college-docs-prose :global(blockquote) {
+    border-left: 3px solid #0047BA;
+    padding-left: 1rem;
+    font-style: normal;
+    color: #64748b;
+    margin: 1.5rem 0;
+  }
+  :global(.dark) .college-docs-prose :global(blockquote) {
+    border-left-color: #38bdf8;
+    color: #94a3b8;
+  }
+
+  @media print {
+    #docs-left-sidebar,
+    #docs-right-sidebar,
+    header,
+    #docs-search-modal,
+    #docs-mobile-drawer {
+      display: none !important;
+    }
+  }
+</style>

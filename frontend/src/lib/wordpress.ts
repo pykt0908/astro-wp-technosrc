@@ -27,6 +27,9 @@ import type {
   OrgJob,
   OrgSettings,
   OrgPersonnel,
+  OpenHouseInfo,
+  OpenHouseCategory,
+  OpenHouseActivity,
 } from '../types/wordpress';
 export type {
   Personnel,
@@ -48,6 +51,9 @@ export type {
   OrgJob,
   OrgSettings,
   OrgPersonnel,
+  OpenHouseInfo,
+  OpenHouseCategory,
+  OpenHouseActivity,
 };
 import { sanitizeWordPressHtml, stripHtml } from './sanitize';
 
@@ -1027,60 +1033,9 @@ export async function getPersonnelCategories(): Promise<PersonnelCategory[]> {
   return [];
 }
 
-const LOCAL_MOCK_SAR_YEARS: SarYear[] = [
-  { id: 40, name: 'ปีการศึกษา 2568', slug: '2568', count: 1 },
-  { id: 41, name: 'ปีการศึกษา 2567', slug: '2567', count: 1 },
-  { id: 42, name: 'ปีการศึกษา 2566', slug: '2566', count: 1 },
-  { id: 43, name: 'ปีการศึกษา 2565', slug: '2565', count: 0 },
-];
+const LOCAL_MOCK_SAR_YEARS: SarYear[] = [];
 
-const LOCAL_MOCK_SAR_REPORTS: SarReport[] = [
-  {
-    id: 70,
-    title: 'รายงานการประเมินตนเองของสถานศึกษา (SAR) ประจำปีการศึกษา 2568',
-    slug: 'sar-report-2568',
-    reportNo: 'SAR-2568-01',
-    description: 'รายงานผลการประเมินตนเองของวิทยาลัยเทคโนโลยีศรีราชา ประจำปีการศึกษา 2568 ตามมาตรฐานการอาชีวศึกษา ประกอบด้วยผลการดำเนินงาน 3 มาตรฐาน 9 ประเด็นการประเมิน',
-    content: '<p>รายงานผลการประเมินตนเองของวิทยาลัยเทคโนโลยีศรีราชา ประจำปีการศึกษา 2568 ตามมาตรฐานการอาชีวศึกษา ประกอบด้วยผลการดำเนินงาน 3 มาตรฐาน 9 ประเด็นการประเมิน</p>',
-    year: { id: 40, name: 'ปีการศึกษา 2568', slug: '2568' },
-    fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-    fileType: 'pdf',
-    externalUrl: '',
-    coverUrl: '',
-    order: 1,
-    publishedAt: '2026-10-17T09:00:00+07:00',
-  },
-  {
-    id: 71,
-    title: 'รายงานการประเมินตนเองของสถานศึกษา (SAR) ประจำปีการศึกษา 2567',
-    slug: 'sar-report-2567',
-    reportNo: 'SAR-2567-01',
-    description: 'รายงานผลการประเมินตนเองของวิทยาลัยเทคโนโลยีศรีราชา ประจำปีการศึกษา 2567 มุ่งเน้นการยกระดับคุณภาพการจัดการศึกษาสู่มาตรฐานสากลและความร่วมมือกับสถานประกอบการ',
-    content: '<p>รายงานผลการประเมินตนเองของวิทยาลัยเทคโนโลยีศรีราชา ประจำปีการศึกษา 2567 มุ่งเน้นการยกระดับคุณภาพการจัดการศึกษาสู่มาตรฐานสากลและความร่วมมือกับสถานประกอบการ</p>',
-    year: { id: 41, name: 'ปีการศึกษา 2567', slug: '2567' },
-    fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-    fileType: 'pdf',
-    externalUrl: '',
-    coverUrl: '',
-    order: 1,
-    publishedAt: '2026-10-17T09:00:00+07:00',
-  },
-  {
-    id: 72,
-    title: 'รายงานการประเมินตนเองของสถานศึกษา (SAR) ประจำปีการศึกษา 2566',
-    slug: 'sar-report-2566',
-    reportNo: 'SAR-2566-01',
-    description: 'รายงานผลการประเมินตนเองของวิทยาลัยเทคโนโลยีศรีราชา ประจำปีการศึกษา 2566 สรุปผลสัมฤทธิ์ทางการเรียนและการพัฒนาทักษะวิชาชีพของนักเรียนนักศึกษา',
-    content: '<p>รายงานผลการประเมินตนเองของวิทยาลัยเทคโนโลยีศรีราชา ประจำปีการศึกษา 2566 สรุปผลสัมฤทธิ์ทางการเรียนและการพัฒนาทักษะวิชาชีพของนักเรียนนักศึกษา</p>',
-    year: { id: 42, name: 'ปีการศึกษา 2566', slug: '2566' },
-    fileUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-    fileType: 'pdf',
-    externalUrl: '',
-    coverUrl: '',
-    order: 1,
-    publishedAt: '2026-10-17T09:00:00+07:00',
-  },
-];
+const LOCAL_MOCK_SAR_REPORTS: SarReport[] = [];
 
 /**
  * Fetch SAR reports with optional filtering by year
@@ -1119,7 +1074,7 @@ export async function getSarReports(options?: { year?: string; search?: string }
     console.warn('[WordPress API] Unable to fetch SAR reports:', err);
   }
 
-  // Fallback to local mock
+  // Fallback to local mock (clean empty array)
   let results = [...LOCAL_MOCK_SAR_REPORTS];
   if (yearParam) {
     results = results.filter((r) => r.year?.slug === yearParam || r.year?.name === yearParam);
@@ -1151,7 +1106,7 @@ export async function getSarYears(): Promise<SarYear[]> {
     const res = await fetchWithTimeout(url);
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         setInCache(cacheKey, data);
         return data;
       }
@@ -1840,7 +1795,7 @@ export async function getDownloadCategories(): Promise<DownloadCategory[]> {
     const res = await fetchWithTimeout(url);
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         setInCache(cacheKey, data);
         return data as DownloadCategory[];
       }
@@ -1870,7 +1825,7 @@ export async function getDownloads(category?: string, search?: string): Promise<
     const res = await fetchWithTimeout(url);
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         setInCache(cacheKey, data);
         return data as DownloadItem[];
       }
@@ -1895,6 +1850,418 @@ export async function getDownloads(category?: string, search?: string): Promise<
 
   return filtered;
 }
+
+// ==========================================
+// 12. STUDENT HANDBOOK & REGULATIONS (CPT)
+// ==========================================
+
+export interface HandbookCategory {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  count?: number;
+  order?: number;
+}
+
+export interface StudentHandbook {
+  id: number;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt?: string;
+  category?: HandbookCategory;
+  badge?: string;
+  effectiveDate?: string;
+  pdfUrl?: string;
+  coverUrl?: string;
+  order?: number;
+  publishedAt?: string;
+  updatedAt?: string;
+}
+
+/**
+ * Fetch all handbook categories from WordPress REST API
+ */
+export async function getHandbookCategories(): Promise<HandbookCategory[]> {
+  const cacheKey = 'wp:handbook:categories';
+  const cached = getFromCache<HandbookCategory[]>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/handbook-categories`;
+    const res = await fetchWithTimeout(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setInCache(cacheKey, data);
+        return data as HandbookCategory[];
+      }
+    }
+  } catch (err) {
+    console.warn('[WordPress API] Unable to fetch handbook categories:', err);
+  }
+
+  return [];
+}
+
+/**
+ * Fetch student handbooks list from WordPress REST API
+ */
+export async function getStudentHandbooks(category?: string, search?: string): Promise<StudentHandbook[]> {
+  const cacheKey = `wp:handbook:list:${category || 'all'}:${search || 'all'}`;
+  const cached = getFromCache<StudentHandbook[]>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const params = new URLSearchParams();
+    if (category && category !== 'all') params.set('category', category);
+    if (search) params.set('search', search);
+
+    const queryStr = params.toString() ? `?${params.toString()}` : '';
+    const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/student-handbooks${queryStr}`;
+    const res = await fetchWithTimeout(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setInCache(cacheKey, data);
+        return data as StudentHandbook[];
+      }
+    }
+  } catch (err) {
+    console.warn('[WordPress API] Unable to fetch student handbooks:', err);
+  }
+
+  return [];
+}
+
+/**
+ * Fetch a single student handbook by slug from WordPress REST API
+ */
+export async function getStudentHandbookBySlug(slug: string): Promise<StudentHandbook | null> {
+  const cacheKey = `wp:handbook:single:${slug}`;
+  const cached = getFromCache<StudentHandbook>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/student-handbooks/${encodeURIComponent(slug)}`;
+    const res = await fetchWithTimeout(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.id) {
+        setInCache(cacheKey, data);
+        return data as StudentHandbook;
+      }
+    }
+  } catch (err) {
+    console.warn(`[WordPress API] Unable to fetch handbook '${slug}':`, err);
+  }
+
+  // Fallback: check all handbooks if single endpoint missed
+  const all = await getStudentHandbooks();
+  const found = all.find(item => item.slug === slug);
+  return found || null;
+}
+
+// -------------------------------------------------------------
+// Open House (วันวิชาการ) API Functions & Fallbacks
+// -------------------------------------------------------------
+
+const FALLBACK_OPENHOUSE_INFO: OpenHouseInfo = {
+  title: 'งานสัปดาห์วันวิชาการและเปิดบ้าน Open House 2026',
+  tagline: 'จุดประกายความคิด สร้างสรรค์นวัตกรรมสู่อาชีพแห่งอนาคต วิทยาลัยเทคโนโลยีศรีราชา',
+  logoUrl: '',
+  bannerUrl: '',
+  dates: '15 - 16 มกราคม 2569 เวลา 08:30 - 16:30 น.',
+  venue: 'วิทยาลัยเทคโนโลยีศรีราชา อ.ศรีราชา จ.ชลบุรี',
+  description: 'ขอเชิญนักเรียน นักศึกษา ครู อาจารย์ และผู้สนใจ เข้าร่วมงานวันวิชาการและการแข่งขันทักษะวิชาการ-วิชาชีพ ชมนิทรรศการผลงานสิ่งประดิษฐ์และนวัตกรรม พร้อมร่วมกิจกรรมเวิร์กช็อปจากทุกสาขาวิชา',
+  contactName: 'ฝ่ายวิชาการและงานประชาสัมพันธ์',
+  contactPhone: '038-352440',
+  contactLine: '@sriracha',
+  registrationUrl: 'https://forms.gle/openhouse-technosrc',
+  livestreamUrl: '',
+};
+
+const FALLBACK_OPENHOUSE_CATEGORIES: OpenHouseCategory[] = [
+  { id: 1, name: 'การแข่งขันทักษะวิชาการ', slug: 'academic-competition', count: 3 },
+  { id: 2, name: 'การแข่งขันทักษะวิชาชีพ', slug: 'vocational-competition', count: 3 },
+  { id: 3, name: 'นิทรรศการผลงานและนวัตกรรม', slug: 'exhibition', count: 2 },
+  { id: 4, name: 'กิจกรรมเวิร์กช็อปและเปิดบ้านสาขาวิชา', slug: 'workshop', count: 2 },
+];
+
+const FALLBACK_OPENHOUSE_ACTIVITIES: OpenHouseActivity[] = [
+  {
+    id: 1,
+    title: 'การแข่งขันทักษะการเขียนโปรแกรมคอมพิวเตอร์และเว็บแอปพลิเคชัน',
+    slug: 'coding-competition',
+    content: '<p>การแข่งขันพัฒนาเว็บแอปพลิเคชันแก้ปัญหาชุมชนหรือวิทยาลัย สำหรับนักเรียนระดับมัธยมศึกษาตอนปลายและ ปวช. ทีมละ 2 คน</p>',
+    excerpt: 'การแข่งขันพัฒนาเว็บแอปพลิเคชันแก้ปัญหาชุมชนหรือวิทยาลัย ทีมละ 2 คน แข่งขัน 3 ชั่วโมง',
+    coverUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop&q=80',
+    category: { id: 2, name: 'การแข่งขันทักษะวิชาชีพ', slug: 'vocational-competition' },
+    venue: 'อาคารปฏิบัติการเทคโนโลยีสารสนเทศ ชั้น 3 ห้อง Lab 302',
+    dateTime: '15 มกราคม 2569 เวลา 09:00 - 12:00 น.',
+    rulesSummary: '1. ทีมละ 2 คน สังกัดสถานศึกษาเดียวกัน\n2. อุปกรณ์: วิทยาลัยจัดเตรียมเครื่องคอมพิวเตอร์และเครื่องมือให้\n3. การตัดสินของคณะกรรมการผู้ทรงคุณวุฒิถือเป็นที่สิ้นสุด',
+    rulesPdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    hasRulesPdf: true,
+    registrationUrl: 'https://forms.gle/coding-competition-2026',
+    hasRegistration: true,
+    photosUrl: 'https://drive.google.com/',
+    hasPhotos: true,
+    certificateUrl: '',
+    hasCertificate: false,
+    contact: 'อ.วิชัย เทคโนโลยี โทร. 081-234-5678',
+    order: 1,
+  },
+  {
+    id: 2,
+    title: 'การแข่งขันทักษะหุ่นยนต์และระบบควบคุมอัตโนมัติ (Robotics Challenge)',
+    slug: 'robotics-competition',
+    content: '<p>การแข่งขันประดิษฐ์และบังคับหุ่นยนต์เดินตามเส้นและภารกิจกู้ภัยชิงถ้วยเกียรติยศ</p>',
+    excerpt: 'ประดิษฐ์และบังคับหุ่นยนต์เดินตามเส้นและภารกิจกู้ภัย ชิงรางวัลและเกียรติบัตร',
+    coverUrl: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&auto=format&fit=crop&q=80',
+    category: { id: 2, name: 'การแข่งขันทักษะวิชาชีพ', slug: 'vocational-competition' },
+    venue: 'อาคารช่างอุตสาหกรรม ลานประลองหุ่นยนต์ ชั้น 1',
+    dateTime: '15 มกราคม 2569 เวลา 13:00 - 16:30 น.',
+    rulesSummary: '1. ทีมละไม่เกิน 3 คน\n2. ขนาดหุ่นยนต์ไม่เกิน 20x20x20 ซม. น้ำหนักไม่เกิน 1.5 กก.\n3. ใช้ระบบแบตเตอรี่ไม่เกิน 12V',
+    rulesPdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    hasRulesPdf: true,
+    registrationUrl: 'https://forms.gle/robotics-2026',
+    hasRegistration: true,
+    photosUrl: '',
+    hasPhotos: false,
+    certificateUrl: '',
+    hasCertificate: false,
+    contact: 'อ.เกรียงไกร เมคคาทรอนิกส์ โทร. 089-876-5432',
+    order: 2,
+  },
+  {
+    id: 3,
+    title: 'การแข่งขันทักษะภาษาอังกฤษเพื่อการสื่อสารในสถานประกอบการ (English for Work)',
+    slug: 'english-speech-contest',
+    content: '<p>การแข่งขันนำเสนอและตอบคำถามภาษาอังกฤษเชิงธุรกิจ Business Presentation & Impromptu Speech</p>',
+    excerpt: 'แข่งขันนำเสนอไอเดียธุรกิจและตอบคำถามภาษาอังกฤษระดับนานาชาติ',
+    coverUrl: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?w=800&auto=format&fit=crop&q=80',
+    category: { id: 1, name: 'การแข่งขันทักษะวิชาการ', slug: 'academic-competition' },
+    venue: 'ห้องประชุมสัมมนาวิชาการ อาคาร 1 ชั้น 4',
+    dateTime: '16 มกราคม 2569 เวลา 09:00 - 12:00 น.',
+    rulesSummary: '1. แข่งขันประเภทเดี่ยว (1 คนต่อสถาบัน)\n2. เวลาการนำเสนอไม่เกิน 5 นาที และตอบคำถามกรรมการ 3 นาที',
+    rulesPdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    hasRulesPdf: true,
+    registrationUrl: 'https://forms.gle/english-contest-2026',
+    hasRegistration: true,
+    photosUrl: '',
+    hasPhotos: false,
+    certificateUrl: 'https://drive.google.com/',
+    hasCertificate: true,
+    contact: 'อ.พรทิพย์ ภาษาต่างประเทศ โทร. 086-555-4321',
+    order: 3,
+  },
+  {
+    id: 4,
+    title: 'นิทรรศการผลงานสิ่งประดิษฐ์และนวัตกรรมคนรุ่นใหม่ (Techno Innovation Expo)',
+    slug: 'innovation-expo',
+    content: '<p>จัดแสดงผลงานสิ่งประดิษฐ์จากโครงงานนักศึกษาทุกสาขาวิชา พร้อมเปิดให้ผู้เข้าชมร่วมโหวตรางวัล Popular Vote</p>',
+    excerpt: 'ชมสุดยอดผลงานสิ่งประดิษฐ์และนวัตกรรม พร้อมโหวตรางวัล Popular Vote',
+    coverUrl: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=800&auto=format&fit=crop&q=80',
+    category: { id: 3, name: 'นิทรรศการผลงานและนวัตกรรม', slug: 'exhibition' },
+    venue: 'ลานกิจกรรมโดมอเนกประสงค์ ชั้น 1',
+    dateTime: '15 - 16 มกราคม 2569 ตลอดทั้งวัน (08:30 - 16:30 น.)',
+    rulesSummary: 'เปิดให้ผู้ร่วมงานทุกคนเข้าชมนิทรรศการและร่วมสนุกกับบูธกิจกรรมฟรี ไม่มีค่าใช้จ่าย',
+    rulesPdfUrl: '',
+    hasRulesPdf: false,
+    registrationUrl: '',
+    hasRegistration: false,
+    photosUrl: '',
+    hasPhotos: false,
+    certificateUrl: '',
+    hasCertificate: false,
+    contact: 'งานวิจัยและพัฒนานวัตกรรม โทร. 038-352440 ต่อ 112',
+    order: 4,
+  },
+  {
+    id: 5,
+    title: 'เวิร์กช็อปสร้างสื่อสร้างสรรค์และคอนเทนต์ครีเอเตอร์ (AI & Digital Media Workshop)',
+    slug: 'ai-digital-media-workshop',
+    content: '<p>เรียนรู้เทคนิคการใช้ Generative AI ในการผลิตสื่อ กราฟิก และตัดต่อวิดีโอสั้นแบบมืออาชีพ</p>',
+    excerpt: 'เวิร์กช็อป 3 ชั่วโมง ลงมือทำจริงกับการใช้ AI ช่วยผลิตคอนเทนต์ยุคใหม่',
+    coverUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop&q=80',
+    category: { id: 4, name: 'กิจกรรมเวิร์กช็อปและเปิดบ้านสาขาวิชา', slug: 'workshop' },
+    venue: 'ห้องดิจิทัลสตูดิโอ อาคาร 2 ชั้น 2',
+    dateTime: '16 มกราคม 2569 รอบเช้า 09:30 น. และ รอบบ่าย 13:30 น.',
+    rulesSummary: 'รับจำนวนจำกัดรอบละ 30 ที่นั่ง ฟรีอุปกรณ์และเอกสารประกอบการฝึกอบรม',
+    rulesPdfUrl: '',
+    hasRulesPdf: false,
+    registrationUrl: 'https://forms.gle/ai-workshop-2026',
+    hasRegistration: true,
+    photosUrl: '',
+    hasPhotos: false,
+    certificateUrl: '',
+    hasCertificate: false,
+    contact: 'สาขาวิชาคอมพิวเตอร์กราฟิก โทร. 082-999-1122',
+    order: 5,
+  },
+  {
+    id: 6,
+    title: 'การแข่งขันทักษะการเขียนแบบวิศวกรรมด้วยคอมพิวเตอร์ (AutoCAD / SolidWorks)',
+    slug: 'cad-cam-competition',
+    content: '<p>การแข่งขันเขียนแบบ 2D และ 3D Modeling ชิ้นส่วนเครื่องกลตามโจทย์ที่กำหนด</p>',
+    excerpt: 'ทดสอบทักษะการออกแบบและเขียนแบบ 3D Modeling ระดับมาตรฐานสากล',
+    coverUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80',
+    category: { id: 2, name: 'การแข่งขันทักษะวิชาชีพ', slug: 'vocational-competition' },
+    venue: 'ห้องปฏิบัติการ CAD/CAM อาคารช่างกล ชั้น 2',
+    dateTime: '15 มกราคม 2569 เวลา 09:30 - 12:30 น.',
+    rulesSummary: '1. ประเภทเดี่ยว ผู้เข้าแข่งขันต้องมีความรู้การอ่านแบบวิศวกรรม\n2. วิทยาลัยจัดเตรียมเครื่องคอมพิวเตอร์พร้อมโปรแกรม',
+    rulesPdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    hasRulesPdf: true,
+    registrationUrl: 'https://forms.gle/cad-competition-2026',
+    hasRegistration: true,
+    photosUrl: '',
+    hasPhotos: false,
+    certificateUrl: '',
+    hasCertificate: false,
+    contact: 'สาขาวิชาเขียนแบบเครื่องกล โทร. 083-444-5566',
+    order: 6,
+  },
+  {
+    id: 7,
+    title: 'การแข่งขันทักษะแผนธุรกิจสตาร์ทอัพรุ่นใหม่ (Young Business Innovation Pitching)',
+    slug: 'business-pitching',
+    content: '<p>การประกวดนำเสนอแผนธุรกิจนวัตกรรมและสตาร์ทอัพ ชิงเงินรางวัลทุนตั้งต้นธุรกิจ</p>',
+    excerpt: 'ประชันไอเดียธุรกิจนวัตกรรม Pitching 5 นาที ต่อหน้าคณะกรรมการนักลงทุน',
+    coverUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80',
+    category: { id: 1, name: 'การแข่งขันทักษะวิชาการ', slug: 'academic-competition' },
+    venue: 'ห้องประชุม Auditorium อาคารอำนวยการ ชั้น 3',
+    dateTime: '16 มกราคม 2569 เวลา 13:00 - 16:30 น.',
+    rulesSummary: '1. ทีมละ 2-3 คน\n2. นำเสนอสไลด์ Pitch Deck 5 นาที และตอบคำถามกรรมการ 3 นาที',
+    rulesPdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+    hasRulesPdf: true,
+    registrationUrl: 'https://forms.gle/pitching-2026',
+    hasRegistration: true,
+    photosUrl: '',
+    hasPhotos: false,
+    certificateUrl: '',
+    hasCertificate: false,
+    contact: 'สาขาวิชาการตลาดและการจัดการ โทร. 085-111-2233',
+    order: 7,
+  },
+  {
+    id: 8,
+    title: 'เวิร์กช็อปซ่อมบำรุงและวินิจฉัยยานยนต์ไฟฟ้าสมัยใหม่ (EV Diagnosis Workshop)',
+    slug: 'ev-workshop',
+    content: '<p>สัมผัสเทคโนโลยียานยนต์ไฟฟ้า EV การตรวจเช็กระบบความปลอดภัยและระบบขับเคลื่อนมอเตอร์ไฟฟ้า</p>',
+    excerpt: 'เวิร์กช็อปทดลองปฏิบัติการตรวจสอบระบบความปลอดภัยยานยนต์ไฟฟ้าจริง',
+    coverUrl: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=800&auto=format&fit=crop&q=80',
+    category: { id: 4, name: 'กิจกรรมเวิร์กช็อปและเปิดบ้านสาขาวิชา', slug: 'workshop' },
+    venue: 'ศูนย์ฝึกอบรมเทคโนโลยียานยนต์ไฟฟ้า EV Center',
+    dateTime: '15 มกราคม 2569 รอบบ่าย 13:30 - 16:00 น.',
+    rulesSummary: 'เปิดรับนักเรียน ม.ต้น และ ม.ปลาย ที่สนใจเทคโนโลยียานยนต์ไฟฟ้า ไม่จำกัดสายการเรียน',
+    rulesPdfUrl: '',
+    hasRulesPdf: false,
+    registrationUrl: 'https://forms.gle/ev-workshop-2026',
+    hasRegistration: true,
+    photosUrl: '',
+    hasPhotos: false,
+    certificateUrl: '',
+    hasCertificate: false,
+    contact: 'สาขาวิชาช่างยนต์/ยานยนต์ไฟฟ้า โทร. 087-777-8899',
+    order: 8,
+  },
+];
+
+/**
+ * Fetch Open House event info
+ */
+export async function getOpenHouseInfo(): Promise<OpenHouseInfo> {
+  const cacheKey = 'wp:openhouse:info';
+  const cached = getFromCache<OpenHouseInfo>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/openhouse/info`;
+    const res = await fetchWithTimeout(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.title) {
+        setInCache(cacheKey, data);
+        return data as OpenHouseInfo;
+      }
+    }
+  } catch (err) {
+    console.warn('[WordPress API] Unable to fetch openhouse info:', err);
+  }
+
+  return FALLBACK_OPENHOUSE_INFO;
+}
+
+/**
+ * Fetch Open House categories
+ */
+export async function getOpenHouseCategories(): Promise<OpenHouseCategory[]> {
+  const cacheKey = 'wp:openhouse:categories';
+  const cached = getFromCache<OpenHouseCategory[]>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/openhouse/categories`;
+    const res = await fetchWithTimeout(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setInCache(cacheKey, data);
+        return data as OpenHouseCategory[];
+      }
+    }
+  } catch (err) {
+    console.warn('[WordPress API] Unable to fetch openhouse categories:', err);
+  }
+
+  return FALLBACK_OPENHOUSE_CATEGORIES;
+}
+
+/**
+ * Fetch Open House activities
+ */
+export async function getOpenHouseActivities(category?: string, search?: string): Promise<OpenHouseActivity[]> {
+  const cacheKey = `wp:openhouse:activities:${category || 'all'}:${search || 'all'}`;
+  const cached = getFromCache<OpenHouseActivity[]>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const params = new URLSearchParams();
+    if (category && category !== 'all') params.set('category', category);
+    if (search) params.set('search', search);
+
+    const queryStr = params.toString() ? `?${params.toString()}` : '';
+    const url = `${PROJECT_CORE_API_URL.replace(/\/$/, '')}/openhouse/activities${queryStr}`;
+    const res = await fetchWithTimeout(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        setInCache(cacheKey, data);
+        return data as OpenHouseActivity[];
+      }
+    }
+  } catch (err) {
+    console.warn('[WordPress API] Unable to fetch openhouse activities:', err);
+  }
+
+  // Filter fallback data if WordPress returned empty
+  let results = [...FALLBACK_OPENHOUSE_ACTIVITIES];
+  if (category && category !== 'all') {
+    results = results.filter(item => item.category?.slug === category);
+  }
+  if (search) {
+    const q = search.toLowerCase();
+    results = results.filter(item => 
+      item.title.toLowerCase().includes(q) || 
+      item.venue.toLowerCase().includes(q) || 
+      item.rulesSummary.toLowerCase().includes(q)
+    );
+  }
+  return results;
+}
+
+
 
 
 

@@ -41,7 +41,7 @@ class Project_Core_Custom_Fields {
     public function enqueue_admin_scripts($hook) {
         global $post;
         if ($hook === 'post-new.php' || $hook === 'post.php') {
-            if (isset($post) && in_array($post->post_type, array('banner', 'post', 'college_event', 'curriculum', 'sar_report', 'education_mis', 'download_file'), true)) {
+            if (isset($post) && in_array($post->post_type, array('banner', 'post', 'college_event', 'curriculum', 'sar_report', 'education_mis', 'download_file', 'student_handbook', 'openhouse_activity'), true)) {
                 wp_enqueue_media();
             }
         }
@@ -147,6 +147,47 @@ class Project_Core_Custom_Fields {
 
         foreach ($download_fields as $meta_key => $type) {
             register_post_meta('download_file', $meta_key, array(
+                'show_in_rest'  => true,
+                'single'        => true,
+                'type'          => $type,
+                'auth_callback' => array($this, 'auth_check'),
+            ));
+        }
+
+        // Student Handbook Meta Fields
+        $handbook_fields = array(
+            'handbook_badge'          => 'string',
+            'handbook_effective_date' => 'string',
+            'handbook_pdf_url'        => 'string',
+            'handbook_pdf_id'         => 'integer',
+            'handbook_order'          => 'integer',
+        );
+
+        foreach ($handbook_fields as $meta_key => $type) {
+            register_post_meta('student_handbook', $meta_key, array(
+                'show_in_rest'  => true,
+                'single'        => true,
+                'type'          => $type,
+                'auth_callback' => array($this, 'auth_check'),
+            ));
+        }
+
+        // Open House Activity Meta Fields
+        $openhouse_fields = array(
+            'activity_venue'            => 'string',
+            'activity_date_time'        => 'string',
+            'activity_rules_summary'    => 'string',
+            'activity_rules_pdf_url'    => 'string',
+            'activity_rules_pdf_id'     => 'integer',
+            'activity_registration_url' => 'string',
+            'activity_photos_url'       => 'string',
+            'activity_certificate_url'  => 'string',
+            'activity_contact'          => 'string',
+            'activity_order'            => 'integer',
+        );
+
+        foreach ($openhouse_fields as $meta_key => $type) {
+            register_post_meta('openhouse_activity', $meta_key, array(
                 'show_in_rest'  => true,
                 'single'        => true,
                 'type'          => $type,
@@ -485,6 +526,26 @@ class Project_Core_Custom_Fields {
             __('ข้อมูลไฟล์และเอกสารดาวน์โหลด (Download Details & Files)', 'project-core'),
             array($this, 'render_download_meta_box'),
             'download_file',
+            'normal',
+            'high'
+        );
+
+        // Student Handbook details box
+        add_meta_box(
+            'project_core_handbook_details',
+            __('ข้อมูลระเบียบการ / การตั้งค่าคู่มือ (Handbook Settings)', 'project-core'),
+            array($this, 'render_handbook_meta_box'),
+            'student_handbook',
+            'normal',
+            'high'
+        );
+
+        // Open House Activity details box
+        add_meta_box(
+            'project_core_openhouse_details',
+            __('ข้อมูลรายละเอียดกิจกรรม / การแข่งขัน (Open House Activity Details)', 'project-core'),
+            array($this, 'render_openhouse_activity_meta_box'),
+            'openhouse_activity',
             'normal',
             'high'
         );
@@ -1406,6 +1467,73 @@ class Project_Core_Custom_Fields {
                         'menu_order' => $order,
                     ));
                 }
+            }
+        }
+
+        // Save Student Handbook Meta
+        if (isset($_POST['project_core_handbook_nonce_field']) && wp_verify_nonce($_POST['project_core_handbook_nonce_field'], 'project_core_handbook_nonce')) {
+            if (current_user_can('edit_post', $post_id)) {
+                $badge          = isset($_POST['handbook_badge']) ? sanitize_text_field($_POST['handbook_badge']) : '';
+                $effective_date = isset($_POST['handbook_effective_date']) ? sanitize_text_field($_POST['handbook_effective_date']) : '';
+                $pdf_url        = isset($_POST['handbook_pdf_url']) ? esc_url_raw($_POST['handbook_pdf_url']) : '';
+                $pdf_id         = isset($_POST['handbook_pdf_id']) ? absint($_POST['handbook_pdf_id']) : 0;
+                $order          = isset($_POST['handbook_order']) ? absint($_POST['handbook_order']) : 0;
+
+                update_post_meta($post_id, 'handbook_badge', $badge);
+                update_post_meta($post_id, 'handbook_effective_date', $effective_date);
+                update_post_meta($post_id, 'handbook_pdf_url', $pdf_url);
+                update_post_meta($post_id, 'handbook_pdf_id', $pdf_id);
+                update_post_meta($post_id, 'handbook_order', $order);
+
+                // Sync menu_order with handbook_order
+                wp_update_post(array(
+                    'ID'         => $post_id,
+                    'menu_order' => $order,
+                ));
+            }
+        }
+
+        // Save Open House Activity Meta
+        if (isset($_POST['project_core_openhouse_activity_nonce_field']) && wp_verify_nonce($_POST['project_core_openhouse_activity_nonce_field'], 'project_core_openhouse_activity_nonce')) {
+            if (current_user_can('edit_post', $post_id)) {
+                $venue       = isset($_POST['activity_venue']) ? sanitize_text_field(wp_unslash($_POST['activity_venue'])) : '';
+                $date_time   = isset($_POST['activity_date_time']) ? sanitize_text_field(wp_unslash($_POST['activity_date_time'])) : '';
+                $rules_smry  = isset($_POST['activity_rules_summary']) ? sanitize_textarea_field(wp_unslash($_POST['activity_rules_summary'])) : '';
+                $pdf_url     = isset($_POST['activity_rules_pdf_url']) ? esc_url_raw(wp_unslash($_POST['activity_rules_pdf_url'])) : '';
+                $pdf_id      = isset($_POST['activity_rules_pdf_id']) ? absint($_POST['activity_rules_pdf_id']) : 0;
+                $cover_url   = isset($_POST['activity_cover_url']) ? esc_url_raw(wp_unslash($_POST['activity_cover_url'])) : '';
+                $cover_id    = isset($_POST['activity_cover_id']) ? absint($_POST['activity_cover_id']) : 0;
+                $reg_url     = isset($_POST['activity_registration_url']) ? esc_url_raw(wp_unslash($_POST['activity_registration_url'])) : '';
+                $photos_url  = isset($_POST['activity_photos_url']) ? esc_url_raw(wp_unslash($_POST['activity_photos_url'])) : '';
+                $cert_url    = isset($_POST['activity_certificate_url']) ? esc_url_raw(wp_unslash($_POST['activity_certificate_url'])) : '';
+                $contact     = isset($_POST['activity_contact']) ? sanitize_text_field(wp_unslash($_POST['activity_contact'])) : '';
+                $order       = isset($_POST['activity_order']) ? absint($_POST['activity_order']) : 0;
+
+                update_post_meta($post_id, 'activity_venue', $venue);
+                update_post_meta($post_id, 'activity_date_time', $date_time);
+                update_post_meta($post_id, 'activity_rules_summary', $rules_smry);
+                update_post_meta($post_id, 'activity_rules_pdf_url', $pdf_url);
+                update_post_meta($post_id, 'activity_rules_pdf_id', $pdf_id);
+                update_post_meta($post_id, 'activity_cover_url', $cover_url);
+                update_post_meta($post_id, 'activity_cover_id', $cover_id);
+                update_post_meta($post_id, 'activity_registration_url', $reg_url);
+                update_post_meta($post_id, 'activity_photos_url', $photos_url);
+                update_post_meta($post_id, 'activity_certificate_url', $cert_url);
+                update_post_meta($post_id, 'activity_contact', $contact);
+                update_post_meta($post_id, 'activity_order', $order);
+
+                // Sync WordPress Post Thumbnail if cover_id is provided
+                if ($cover_id > 0) {
+                    set_post_thumbnail($post_id, $cover_id);
+                } elseif (empty($cover_url) && !has_post_thumbnail($post_id)) {
+                    delete_post_thumbnail($post_id);
+                }
+
+                // Sync menu_order
+                wp_update_post(array(
+                    'ID'         => $post_id,
+                    'menu_order' => $order,
+                ));
             }
         }
     }
@@ -3058,23 +3186,6 @@ class Project_Core_Custom_Fields {
                 </td>
             </tr>
 
-            <!-- Version / Document ID -->
-            <tr>
-                <th scope="row"><label for="download_version"><?php _e('รหัสเอกสาร / เวอร์ชัน', 'project-core'); ?></label></th>
-                <td>
-                    <input type="text" id="download_version" name="download_version" value="<?php echo esc_attr($version); ?>" class="regular-text" placeholder="เช่น วทศ.01, ฉบับปรับปรุง 2568, v1.0" />
-                    <p class="description"><?php _e('รหัสแบบฟอร์ม หรือเวอร์ชันเอกสารสำหรับอ้างอิง', 'project-core'); ?></p>
-                </td>
-            </tr>
-
-            <!-- Description / Summary -->
-            <tr>
-                <th scope="row"><label for="download_description"><?php _e('คำอธิบายเอกสารอย่างย่อ', 'project-core'); ?></label></th>
-                <td>
-                    <textarea id="download_description" name="download_description" rows="3" class="large-text" placeholder="คำอธิบายสั้นๆ เกี่ยวกับวัตถุประสงค์และการนำเอกสารไปใช้งาน..."><?php echo esc_textarea($description); ?></textarea>
-                </td>
-            </tr>
-
             <!-- Display Order -->
             <tr>
                 <th scope="row"><label for="download_order"><?php _e('ลำดับการแสดงผล (Order)', 'project-core'); ?></label></th>
@@ -3163,4 +3274,338 @@ class Project_Core_Custom_Fields {
         </script>
         <?php
     }
+
+    /**
+     * Render Student Handbook Meta Box
+     */
+    public function render_handbook_meta_box($post) {
+        wp_nonce_field('project_core_handbook_nonce', 'project_core_handbook_nonce_field');
+
+        $badge          = get_post_meta($post->ID, 'handbook_badge', true) ?: '';
+        $effective_date = get_post_meta($post->ID, 'handbook_effective_date', true) ?: '';
+        $pdf_url        = get_post_meta($post->ID, 'handbook_pdf_url', true) ?: '';
+        $pdf_id         = get_post_meta($post->ID, 'handbook_pdf_id', true) ?: '';
+        $order          = get_post_meta($post->ID, 'handbook_order', true);
+        if ($order === '') $order = $post->menu_order ?: 0;
+        ?>
+        <table class="form-table" style="margin-top: 0;">
+            <!-- Attached PDF / Official Document -->
+            <tr>
+                <th scope="row"><label for="handbook_pdf_url"><?php _e('แนบไฟล์เอกสารระเบียบฉบับเต็ม (PDF)', 'project-core'); ?></label></th>
+                <td>
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; max-width: 650px;">
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+                            <input type="text" id="handbook_pdf_url" name="handbook_pdf_url" value="<?php echo esc_attr($pdf_url); ?>" class="large-text" placeholder="https://... ลิงก์ไฟล์ PDF" style="font-family: monospace; font-size: 13px;" />
+                            <input type="hidden" id="handbook_pdf_id" name="handbook_pdf_id" value="<?php echo esc_attr($pdf_id); ?>" />
+                            <button type="button" class="button button-primary" id="btn_upload_handbook_pdf">
+                                <span class="dashicons dashicons-upload" style="vertical-align: text-top; font-size: 16px;"></span> <?php _e('เลือกไฟล์', 'project-core'); ?>
+                            </button>
+                            <button type="button" class="button" id="btn_clear_handbook_pdf" style="<?php echo empty($pdf_url) ? 'display:none;' : ''; ?>">
+                                <?php _e('ลบไฟล์', 'project-core'); ?>
+                            </button>
+                        </div>
+                        <p class="description" style="margin: 0;">
+                            <?php _e('หากมีประกาศฉบับเต็มที่เป็นไฟล์ PDF ทางการ สามารถแนบไฟล์ไว้ให้นักศึกษากดดาวน์โหลดได้', 'project-core'); ?>
+                        </p>
+                    </div>
+                </td>
+            </tr>
+
+            <!-- Handbook Order -->
+            <tr>
+                <th scope="row"><label for="handbook_order"><?php _e('ลำดับการแสดงผล (Order)', 'project-core'); ?></label></th>
+                <td>
+                    <input type="number" id="handbook_order" name="handbook_order" value="<?php echo esc_attr($order); ?>" class="small-text" min="0" />
+                    <p class="description"><?php _e('ตัวเลขน้อยจะแสดงก่อนในสารบัญ เช่น 1, 2, 3...', 'project-core'); ?></p>
+                </td>
+            </tr>
+        </table>
+
+        <script>
+        jQuery(document).ready(function($) {
+            var fileFrame;
+            $('#btn_upload_handbook_pdf').on('click', function(e) {
+                e.preventDefault();
+                if (fileFrame) {
+                    fileFrame.open();
+                    return;
+                }
+                fileFrame = wp.media({
+                    title: 'เลือกไฟล์เอกสารระเบียบการ (PDF)',
+                    button: { text: 'ใช้ไฟล์นี้' },
+                    multiple: false
+                });
+                fileFrame.on('select', function() {
+                    var attachment = fileFrame.state().get('selection').first().toJSON();
+                    $('#handbook_pdf_url').val(attachment.url);
+                    $('#handbook_pdf_id').val(attachment.id);
+                    $('#btn_clear_handbook_pdf').show();
+                });
+                fileFrame.open();
+            });
+
+            $('#btn_clear_handbook_pdf').on('click', function(e) {
+                e.preventDefault();
+                $('#handbook_pdf_url').val('');
+                $('#handbook_pdf_id').val('');
+                $(this).hide();
+            });
+        });
+        </script>
+        <?php
+    }
+
+    /**
+     * Render Open House Activity Meta Box
+     */
+    public function render_openhouse_activity_meta_box($post) {
+        wp_nonce_field('project_core_openhouse_activity_nonce', 'project_core_openhouse_activity_nonce_field');
+
+        $venue       = get_post_meta($post->ID, 'activity_venue', true) ?: '';
+        $date_time   = get_post_meta($post->ID, 'activity_date_time', true) ?: '';
+        $rules_smry  = get_post_meta($post->ID, 'activity_rules_summary', true) ?: '';
+        $pdf_url     = get_post_meta($post->ID, 'activity_rules_pdf_url', true) ?: '';
+        $pdf_id      = get_post_meta($post->ID, 'activity_rules_pdf_id', true) ?: '';
+        $cover_url   = get_the_post_thumbnail_url($post->ID, 'large') ?: get_post_meta($post->ID, 'activity_cover_url', true) ?: '';
+        $cover_id    = get_post_thumbnail_id($post->ID) ?: get_post_meta($post->ID, 'activity_cover_id', true) ?: '';
+        $reg_url     = get_post_meta($post->ID, 'activity_registration_url', true) ?: '';
+        $photos_url  = get_post_meta($post->ID, 'activity_photos_url', true) ?: '';
+        $cert_url    = get_post_meta($post->ID, 'activity_certificate_url', true) ?: '';
+        $contact     = get_post_meta($post->ID, 'activity_contact', true) ?: '';
+        $order       = get_post_meta($post->ID, 'activity_order', true);
+        if ($order === '') $order = $post->menu_order ?: 0;
+        ?>
+        <style>
+            .oh-meta-table th { width: 220px; font-weight: 600; color: #1e293b; padding: 14px 10px 14px 0; }
+            .oh-meta-table td { padding: 14px 10px; }
+            .oh-meta-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; max-width: 750px; }
+            .oh-badge-info { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+            .oh-badge-warn { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+            .oh-badge-active { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        </style>
+
+        <table class="form-table oh-meta-table" style="margin-top: 0;">
+            <!-- Activity Featured Image (Feature Img) -->
+            <tr>
+                <th scope="row"><label for="activity_cover_url">🖼️ <?php _e('รูปภาพประจำกิจกรรม (Feature Image)', 'project-core'); ?></label></th>
+                <td>
+                    <div class="oh-meta-card">
+                        <div style="display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap;">
+                            <div id="activity_cover_preview_wrap" style="width: 180px; height: 110px; border-radius: 8px; border: 1px solid #cbd5e1; background: #f1f5f9; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative;">
+                                <img id="activity_cover_preview" src="<?php echo esc_url($cover_url); ?>" style="width: 100%; height: 100%; object-fit: cover; <?php echo empty($cover_url) ? 'display: none;' : ''; ?>" alt="Cover Preview" />
+                                <div id="activity_cover_placeholder" style="<?php echo !empty($cover_url) ? 'display: none;' : ''; ?> text-align: center; color: #94a3b8; font-size: 12px; padding: 8px;">
+                                    <span style="font-size: 28px; display: block; margin-bottom: 2px;">🖼️</span>
+                                    <span>ยังไม่มีรูปภาพ</span>
+                                </div>
+                            </div>
+                            <div style="flex: 1; min-width: 240px;">
+                                <input type="hidden" id="activity_cover_url" name="activity_cover_url" value="<?php echo esc_attr($cover_url); ?>" />
+                                <input type="hidden" id="activity_cover_id" name="activity_cover_id" value="<?php echo esc_attr($cover_id); ?>" />
+                                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                                    <button type="button" class="button button-primary" id="btn_upload_activity_cover">
+                                        <span class="dashicons dashicons-format-image" style="vertical-align: text-top; font-size: 16px;"></span> <?php _e('เลือกรูปภาพ (Feature Img)', 'project-core'); ?>
+                                    </button>
+                                    <button type="button" class="button" id="btn_clear_activity_cover" style="<?php echo empty($cover_url) ? 'display:none;' : ''; ?>">
+                                        <?php _e('ลบรูปภาพ', 'project-core'); ?>
+                                    </button>
+                                </div>
+                                <p class="description" style="margin: 0; line-height: 1.5;">
+                                    <?php _e('รูปภาพนี้จะแสดงอยู่ด้านบนของการ์ดกิจกรรมในตาราง 4 คอลัมน์บนหน้าเว็บไซต์ (ขนาดแนะนำ 16:10 หรือ 800x500 พิกเซล)', 'project-core'); ?><br />
+                                    <span style="color: #64748b; font-size: 11px;">💡 หมายเหตุ: สามารถเลือกรูปผ่านปุ่มนี้ หรือใช้กล่อง "รูปภาพประจำเรื่อง" (Featured Image) ด้านขวามือของ WordPress ได้เช่นกัน</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+
+            <!-- Activity Venue -->
+            <tr>
+                <th scope="row"><label for="activity_venue">📍 <?php _e('สถานที่จัด / ห้องแข่งขัน', 'project-core'); ?></label></th>
+                <td>
+                    <input type="text" id="activity_venue" name="activity_venue" value="<?php echo esc_attr($venue); ?>" class="large-text" placeholder="เช่น อาคารปฏิบัติการวิชาชีพ ชั้น 3 ห้อง 301 หรือ ลานกิจกรรมอเนกประสงค์" />
+                    <p class="description"><?php _e('ระบุอาคาร ห้อง หรือจุดจัดกิจกรรมให้ผู้เข้าร่วมเดินทางสะดวก', 'project-core'); ?></p>
+                </td>
+            </tr>
+
+            <!-- Activity Date & Time -->
+            <tr>
+                <th scope="row"><label for="activity_date_time">📅 <?php _e('วันและเวลาจัดกิจกรรม', 'project-core'); ?></label></th>
+                <td>
+                    <input type="text" id="activity_date_time" name="activity_date_time" value="<?php echo esc_attr($date_time); ?>" class="large-text" placeholder="เช่น 15 มกราคม 2569 เวลา 09:00 - 12:00 น. หรือ ตลอดทั้งวัน" />
+                    <p class="description"><?php _e('ระบุวันและช่วงเวลาแข่งขันหรือจัดกิจกรรม', 'project-core'); ?></p>
+                </td>
+            </tr>
+
+            <!-- Activity Rules Summary -->
+            <tr>
+                <th scope="row"><label for="activity_rules_summary">📋 <?php _e('ข้อกำหนด / กฎ / เกณฑ์การแข่งขัน', 'project-core'); ?></label></th>
+                <td>
+                    <textarea id="activity_rules_summary" name="activity_rules_summary" rows="5" class="large-text" placeholder="ระบุเกณฑ์การแข่งขันแบบย่อ เช่น
+- ผู้เข้าแข่งขันทีมละ 2 คน ระดับ ปวช. หรือ ม.ปลาย
+- เวลาในการแข่งขัน 3 ชั่วโมง
+- การตัดสินของคณะกรรมการถือเป็นที่สิ้นสุด"><?php echo esc_textarea($rules_smry); ?></textarea>
+                    <p class="description"><?php _e('ระบุกติกา คุณสมบัติผู้สมัคร หรือรายละเอียดสำคัญสั้นๆ ให้อ่านง่าย', 'project-core'); ?></p>
+                </td>
+            </tr>
+
+            <!-- Competition Rules PDF Attachment -->
+            <tr>
+                <th scope="row"><label for="activity_rules_pdf_url">📄 <?php _e('ไฟล์เกณฑ์การแข่งขันฉบับเต็ม (PDF)', 'project-core'); ?></label></th>
+                <td>
+                    <div class="oh-meta-card">
+                        <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+                            <input type="text" id="activity_rules_pdf_url" name="activity_rules_pdf_url" value="<?php echo esc_attr($pdf_url); ?>" class="large-text" placeholder="https://... ลิงก์ไฟล์เกณฑ์ PDF" style="font-family: monospace; font-size: 13px;" />
+                            <input type="hidden" id="activity_rules_pdf_id" name="activity_rules_pdf_id" value="<?php echo esc_attr($pdf_id); ?>" />
+                            <button type="button" class="button button-primary" id="btn_upload_activity_pdf">
+                                <span class="dashicons dashicons-upload" style="vertical-align: text-top; font-size: 16px;"></span> <?php _e('เลือกไฟล์', 'project-core'); ?>
+                            </button>
+                            <button type="button" class="button" id="btn_clear_activity_pdf" style="<?php echo empty($pdf_url) ? 'display:none;' : ''; ?>">
+                                <?php _e('ลบไฟล์', 'project-core'); ?>
+                            </button>
+                        </div>
+                        <p class="description" style="margin: 0;">
+                            <?php _e('แนบไฟล์ประกาศเกณฑ์การแข่งขันทางการ (PDF) เพื่อให้ครูและผู้เข้าแข่งขันดาวน์โหลด', 'project-core'); ?>
+                        </p>
+                    </div>
+                </td>
+            </tr>
+
+            <!-- Registration URL -->
+            <tr>
+                <th scope="row"><label for="activity_registration_url">✍️ <?php _e('ลิงก์ฟอร์มรับสมัคร (Google Form / เว็บไซต์)', 'project-core'); ?></label></th>
+                <td>
+                    <input type="url" id="activity_registration_url" name="activity_registration_url" value="<?php echo esc_attr($reg_url); ?>" class="large-text" placeholder="https://forms.gle/..." />
+                    <p class="description"><?php _e('หากมีการเปิดรับสมัครออนไลน์ผ่าน Google Form หรือลิงก์ภายนอก ให้ใส่ลิงก์ที่นี่ (ถ้าไม่มีให้เว้นว่างไว้)', 'project-core'); ?></p>
+                </td>
+            </tr>
+
+            <!-- Activity Photos URL (User Requirement: disable button if empty) -->
+            <tr>
+                <th scope="row"><label for="activity_photos_url">📷 <?php _e('ลิงก์ภาพกิจกรรม (อัลบั้ม Drive / Facebook)', 'project-core'); ?></label></th>
+                <td>
+                    <div class="oh-meta-card">
+                        <input type="url" id="activity_photos_url" name="activity_photos_url" value="<?php echo esc_attr($photos_url); ?>" class="large-text" placeholder="https://drive.google.com/drive/folders/... หรือ ลิงก์อัลบั้ม Facebook" />
+                        <div style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
+                            <?php if (!empty($photos_url)): ?>
+                                <span class="oh-badge-info oh-badge-active">✓ พร้อมใช้งาน — ปุ่มบนหน้าเว็บสามารถกดเข้าดูรูปภาพได้</span>
+                            <?php else: ?>
+                                <span class="oh-badge-info oh-badge-warn">⚠️ ยังไม่มีลิงก์ — ปุ่มบนหน้าเว็บจะถูกปิดใช้งาน (Disabled) แสดง "เร็วๆ นี้"</span>
+                            <?php endif; ?>
+                        </div>
+                        <p class="description" style="margin-top: 6px; margin-bottom: 0;">
+                            <?php _e('ใส่ลิงก์ไดรฟ์หรือ Facebook อัลบั้มที่รวมภาพกิจกรรมหลังจบงาน หากยังไม่มีให้เว้นว่างไว้ ระบบจะปิดปุ่มให้โดยอัตโนมัติ', 'project-core'); ?>
+                        </p>
+                    </div>
+                </td>
+            </tr>
+
+            <!-- Activity Certificate URL (User Requirement: disable button if empty) -->
+            <tr>
+                <th scope="row"><label for="activity_certificate_url">🎓 <?php _e('ลิงก์ดาวน์โหลดเกียรติบัตร', 'project-core'); ?></label></th>
+                <td>
+                    <div class="oh-meta-card">
+                        <input type="url" id="activity_certificate_url" name="activity_certificate_url" value="<?php echo esc_attr($cert_url); ?>" class="large-text" placeholder="https://drive.google.com/... หรือ ลิงก์ระบบค้นหาเกียรติบัตร" />
+                        <div style="margin-top: 8px; display: flex; align-items: center; gap: 8px;">
+                            <?php if (!empty($cert_url)): ?>
+                                <span class="oh-badge-info oh-badge-active">✓ พร้อมใช้งาน — ปุ่มบนหน้าเว็บสามารถกดดาวน์โหลดเกียรติบัตรได้</span>
+                            <?php else: ?>
+                                <span class="oh-badge-info oh-badge-warn">⚠️ ยังไม่มีลิงก์ — ปุ่มบนหน้าเว็บจะถูกปิดใช้งาน (Disabled) แสดง "ยังไม่เปิดให้ดาวน์โหลด"</span>
+                            <?php endif; ?>
+                        </div>
+                        <p class="description" style="margin-top: 6px; margin-bottom: 0;">
+                            <?php _e('ใส่ลิงก์ไฟล์หรือโฟลเดอร์สำหรับดาวน์โหลดเกียรติบัตร หากยังไม่ออกเกียรติบัตรให้เว้นว่างไว้ ระบบจะปิดปุ่มให้อัตโนมัติ', 'project-core'); ?>
+                        </p>
+                    </div>
+                </td>
+            </tr>
+
+            <!-- Activity Contact -->
+            <tr>
+                <th scope="row"><label for="activity_contact">📞 <?php _e('ผู้ประสานงานประจำกิจกรรม / เบอร์ติดต่อ', 'project-core'); ?></label></th>
+                <td>
+                    <input type="text" id="activity_contact" name="activity_contact" value="<?php echo esc_attr($contact); ?>" class="large-text" placeholder="เช่น อาจารย์สมชาย ชาญวิทย์ โทร. 081-xxx-xxxx" />
+                </td>
+            </tr>
+
+            <!-- Activity Order -->
+            <tr>
+                <th scope="row"><label for="activity_order">🔢 <?php _e('ลำดับการแสดงผล (Order)', 'project-core'); ?></label></th>
+                <td>
+                    <input type="number" id="activity_order" name="activity_order" value="<?php echo esc_attr($order); ?>" class="small-text" min="0" />
+                    <p class="description"><?php _e('ตัวเลขน้อยจะแสดงก่อนในหน้ารายการกิจกรรม เช่น 1, 2, 3...', 'project-core'); ?></p>
+                </td>
+            </tr>
+        </table>
+
+        <script>
+        jQuery(document).ready(function($) {
+            // Cover Image Uploader (Feature Image)
+            var activityCoverFrame;
+            $('#btn_upload_activity_cover').on('click', function(e) {
+                e.preventDefault();
+                if (activityCoverFrame) {
+                    activityCoverFrame.open();
+                    return;
+                }
+                activityCoverFrame = wp.media({
+                    title: 'เลือกรูปภาพประจำกิจกรรม / ภาพหน้าปก (Feature Image)',
+                    button: { text: 'ใช้รูปภาพนี้' },
+                    library: { type: 'image' },
+                    multiple: false
+                });
+                activityCoverFrame.on('select', function() {
+                    var attachment = activityCoverFrame.state().get('selection').first().toJSON();
+                    var imgUrl = (attachment.sizes && attachment.sizes.large) ? attachment.sizes.large.url : attachment.url;
+                    $('#activity_cover_url').val(imgUrl);
+                    $('#activity_cover_id').val(attachment.id);
+                    $('#activity_cover_preview').attr('src', imgUrl).show();
+                    $('#activity_cover_placeholder').hide();
+                    $('#btn_clear_activity_cover').show();
+                });
+                activityCoverFrame.open();
+            });
+
+            $('#btn_clear_activity_cover').on('click', function(e) {
+                e.preventDefault();
+                $('#activity_cover_url').val('');
+                $('#activity_cover_id').val('');
+                $('#activity_cover_preview').attr('src', '').hide();
+                $('#activity_cover_placeholder').show();
+                $(this).hide();
+            });
+
+            // PDF Rules Attachment Uploader
+            var activityPdfFrame;
+            $('#btn_upload_activity_pdf').on('click', function(e) {
+                e.preventDefault();
+                if (activityPdfFrame) {
+                    activityPdfFrame.open();
+                    return;
+                }
+                activityPdfFrame = wp.media({
+                    title: 'เลือกไฟล์เกณฑ์การแข่งขัน (PDF)',
+                    button: { text: 'ใช้ไฟล์นี้' },
+                    multiple: false
+                });
+                activityPdfFrame.on('select', function() {
+                    var attachment = activityPdfFrame.state().get('selection').first().toJSON();
+                    $('#activity_rules_pdf_url').val(attachment.url);
+                    $('#activity_rules_pdf_id').val(attachment.id);
+                    $('#btn_clear_activity_pdf').show();
+                });
+                activityPdfFrame.open();
+            });
+
+            $('#btn_clear_activity_pdf').on('click', function(e) {
+                e.preventDefault();
+                $('#activity_rules_pdf_url').val('');
+                $('#activity_rules_pdf_id').val('');
+                $(this).hide();
+            });
+        });
+        </script>
+        <?php
+    }
 }
+

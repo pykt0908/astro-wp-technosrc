@@ -415,3 +415,54 @@ export interface OrganizationData {
   divisions: OrgDivision[];
 }
 
+export interface OpenHouseInfo {
+  title: string;
+  tagline: string;
+  logoUrl?: string;
+  bannerUrl?: string;
+  dates: string;
+  venue: string;
+  description: string;
+  contactName: string;
+  contactPhone: string;
+  contactLine?: string;
+  registrationUrl?: string;
+  livestreamUrl?: string;
+}
+
+export interface OpenHouseCategory {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  count: number;
+}
+
+export interface OpenHouseActivity {
+  id: number;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string;
+  coverUrl?: string;
+  category?: {
+    id: number;
+    name: string;
+    slug: string;
+  } | null;
+  venue: string;
+  dateTime: string;
+  rulesSummary: string;
+  rulesPdfUrl?: string;
+  hasRulesPdf: boolean;
+  registrationUrl?: string;
+  hasRegistration: boolean;
+  photosUrl?: string;
+  hasPhotos: boolean;
+  certificateUrl?: string;
+  hasCertificate: boolean;
+  contact?: string;
+  order: number;
+}
+
+

@@ -160,6 +160,48 @@ class Project_Core_REST_API {
             'callback'            => array($this, 'get_download_categories'),
             'permission_callback' => '__return_true',
         ));
+
+        // Student Handbooks list endpoint
+        register_rest_route(self::NAMESPACE, '/student-handbooks', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_student_handbooks'),
+            'permission_callback' => '__return_true',
+        ));
+
+        // Single Student Handbook by slug
+        register_rest_route(self::NAMESPACE, '/student-handbooks/(?P<slug>[a-zA-Z0-9\-_%]+)', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_student_handbook_by_slug'),
+            'permission_callback' => '__return_true',
+        ));
+
+        // Handbook categories endpoint
+        register_rest_route(self::NAMESPACE, '/handbook-categories', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_handbook_categories'),
+            'permission_callback' => '__return_true',
+        ));
+
+        // Open House General Information
+        register_rest_route(self::NAMESPACE, '/openhouse/info', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_openhouse_info'),
+            'permission_callback' => '__return_true',
+        ));
+
+        // Open House Activities List
+        register_rest_route(self::NAMESPACE, '/openhouse/activities', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_openhouse_activities'),
+            'permission_callback' => '__return_true',
+        ));
+
+        // Open House Categories List
+        register_rest_route(self::NAMESPACE, '/openhouse/categories', array(
+            'methods'             => WP_REST_Server::READABLE,
+            'callback'            => array($this, 'get_openhouse_categories'),
+            'permission_callback' => '__return_true',
+        ));
     }
 
     /**
@@ -1548,5 +1590,325 @@ class Project_Core_REST_API {
 
         return rest_ensure_response($result);
     }
+
+    /**
+     * Get Student Handbooks list
+     */
+    public function get_student_handbooks(WP_REST_Request $request) {
+        $category_slug = sanitize_text_field($request->get_param('category'));
+        $search        = sanitize_text_field($request->get_param('search'));
+        $per_page      = absint($request->get_param('per_page')) ?: 200;
+        $page          = absint($request->get_param('page')) ?: 1;
+
+        $args = array(
+            'post_type'      => 'student_handbook',
+            'post_status'    => 'publish',
+            'posts_per_page' => $per_page,
+            'paged'          => $page,
+            'orderby'        => array('menu_order' => 'ASC', 'date' => 'DESC'),
+        );
+
+        if (!empty($search)) {
+            $args['s'] = $search;
+        }
+
+        if (!empty($category_slug) && $category_slug !== 'all') {
+            $args['tax_query'] = array(
+                array(
+                    'taxonomy' => 'handbook_category',
+                    'field'    => 'slug',
+                    'terms'    => $category_slug,
+                ),
+            );
+        }
+
+        $query = new WP_Query($args);
+        $posts = $query->posts;
+
+        $result = array();
+        foreach ($posts as $post) {
+            $post_id = $post->ID;
+
+            // Category
+            $category_data = null;
+            $terms = get_the_terms($post_id, 'handbook_category');
+            if ($terms && !is_wp_error($terms)) {
+                $t = $terms[0];
+                $category_data = array(
+                    'id'          => $t->term_id,
+                    'name'        => $t->name,
+                    'slug'        => $t->slug,
+                    'description' => $t->description,
+                    'order'       => (int) get_term_meta($t->term_id, 'category_order', true),
+                );
+            }
+
+            $badge          = get_post_meta($post_id, 'handbook_badge', true) ?: '';
+            $effective_date = get_post_meta($post_id, 'handbook_effective_date', true) ?: '';
+            $pdf_url        = get_post_meta($post_id, 'handbook_pdf_url', true) ?: '';
+            $order          = (int) ($post->menu_order ?: get_post_meta($post_id, 'handbook_order', true) ?: 0);
+            $cover_url      = get_the_post_thumbnail_url($post_id, 'large') ?: '';
+            $content        = apply_filters('the_content', $post->post_content);
+
+            $result[] = array(
+                'id'            => $post_id,
+                'title'         => get_the_title($post),
+                'slug'          => $post->post_name,
+                'content'       => $content,
+                'excerpt'       => wp_strip_all_tags($post->post_excerpt ?: wp_trim_words($post->post_content, 35)),
+                'category'      => $category_data,
+                'badge'         => $badge,
+                'effectiveDate' => $effective_date,
+                'pdfUrl'        => $pdf_url,
+                'coverUrl'      => $cover_url,
+                'order'         => $order,
+                'publishedAt'   => get_the_date('c', $post),
+                'updatedAt'     => get_the_modified_date('c', $post),
+            );
+        }
+
+        // Sort by category order first, then handbook item order
+        usort($result, function($a, $b) {
+            $cat_order_a = isset($a['category']['order']) ? (int) $a['category']['order'] : 999;
+            $cat_order_b = isset($b['category']['order']) ? (int) $b['category']['order'] : 999;
+            if ($cat_order_a !== $cat_order_b) {
+                return $cat_order_a - $cat_order_b;
+            }
+            if ($a['order'] !== $b['order']) {
+                return $a['order'] - $b['order'];
+            }
+            return strcmp($a['title'], $b['title']);
+        });
+
+        return rest_ensure_response($result);
+    }
+
+    /**
+     * Get Single Student Handbook by Slug
+     */
+    public function get_student_handbook_by_slug(WP_REST_Request $request) {
+        $slug = sanitize_text_field($request->get_param('slug'));
+        if (empty($slug)) {
+            return new WP_Error('not_found', 'Handbook slug is required', array('status' => 400));
+        }
+
+        $query = new WP_Query(array(
+            'post_type'      => 'student_handbook',
+            'name'           => $slug,
+            'posts_per_page' => 1,
+            'post_status'    => 'publish',
+        ));
+
+        if (empty($query->posts)) {
+            return new WP_Error('not_found', 'Handbook not found', array('status' => 404));
+        }
+
+        $post = $query->posts[0];
+        $post_id = $post->ID;
+
+        $category_data = null;
+        $terms = get_the_terms($post_id, 'handbook_category');
+        if ($terms && !is_wp_error($terms)) {
+            $t = $terms[0];
+            $category_data = array(
+                'id'          => $t->term_id,
+                'name'        => $t->name,
+                'slug'        => $t->slug,
+                'description' => $t->description,
+                'order'       => (int) get_term_meta($t->term_id, 'category_order', true),
+            );
+        }
+
+        $badge          = get_post_meta($post_id, 'handbook_badge', true) ?: '';
+        $effective_date = get_post_meta($post_id, 'handbook_effective_date', true) ?: '';
+        $pdf_url        = get_post_meta($post_id, 'handbook_pdf_url', true) ?: '';
+        $order          = (int) ($post->menu_order ?: get_post_meta($post_id, 'handbook_order', true) ?: 0);
+        $cover_url      = get_the_post_thumbnail_url($post_id, 'large') ?: '';
+        $content        = apply_filters('the_content', $post->post_content);
+
+        $data = array(
+            'id'            => $post_id,
+            'title'         => get_the_title($post),
+            'slug'          => $post->post_name,
+            'content'       => $content,
+            'excerpt'       => wp_strip_all_tags($post->post_excerpt ?: wp_trim_words($post->post_content, 35)),
+            'category'      => $category_data,
+            'badge'         => $badge,
+            'effectiveDate' => $effective_date,
+            'pdfUrl'        => $pdf_url,
+            'coverUrl'      => $cover_url,
+            'order'         => $order,
+            'publishedAt'   => get_the_date('c', $post),
+            'updatedAt'     => get_the_modified_date('c', $post),
+        );
+
+        return rest_ensure_response($data);
+    }
+
+    /**
+     * Get Handbook Categories List
+     */
+    public function get_handbook_categories(WP_REST_Request $request) {
+        $terms = get_terms(array(
+            'taxonomy'   => 'handbook_category',
+            'hide_empty' => false,
+        ));
+
+        $result = array();
+        if (!is_wp_error($terms) && !empty($terms)) {
+            foreach ($terms as $t) {
+                $order = (int) get_term_meta($t->term_id, 'category_order', true);
+                $result[] = array(
+                    'id'          => $t->term_id,
+                    'name'        => $t->name,
+                    'slug'        => $t->slug,
+                    'description' => $t->description,
+                    'count'       => (int) $t->count,
+                    'order'       => $order,
+                );
+            }
+
+            usort($result, function($a, $b) {
+                if ($a['order'] !== $b['order']) {
+                    return $a['order'] - $b['order'];
+                }
+                return strcmp($a['name'], $b['name']);
+            });
+        }
+
+        return rest_ensure_response($result);
+    }
+
+    /**
+     * Get Open House Event Information
+     */
+    public function get_openhouse_info(WP_REST_Request $request) {
+        $settings = get_option('project_core_openhouse_settings', array());
+
+        $data = array(
+            'title'           => !empty($settings['event_title']) ? $settings['event_title'] : 'งานสัปดาห์วันวิชาการและเปิดบ้าน Open House 2026',
+            'tagline'         => !empty($settings['event_tagline']) ? $settings['event_tagline'] : 'จุดประกายความคิด สร้างสรรค์นวัตกรรมสู่อาชีพแห่งอนาคต วิทยาลัยเทคโนโลยีศรีราชา',
+            'logoUrl'         => !empty($settings['event_logo_url']) ? $settings['event_logo_url'] : '',
+            'bannerUrl'       => !empty($settings['event_banner_url']) ? $settings['event_banner_url'] : '',
+            'dates'           => !empty($settings['event_dates']) ? $settings['event_dates'] : '15 - 16 มกราคม 2569 เวลา 08:30 - 16:30 น.',
+            'venue'           => !empty($settings['event_venue']) ? $settings['event_venue'] : 'วิทยาลัยเทคโนโลยีศรีราชา อ.ศรีราชา จ.ชลบุรี',
+            'description'     => !empty($settings['event_description']) ? wpautop($settings['event_description']) : 'ขอเชิญนักเรียน นักศึกษา ครู อาจารย์ และผู้สนใจ เข้าร่วมงานวันวิชาการและการแข่งขันทักษะวิชาการ-วิชาชีพ ประจำปีการศึกษา 2568 ชมนิทรรศการผลงานสิ่งประดิษฐ์และนวัตกรรม พร้อมร่วมกิจกรรมเวิร์กช็อปจากทุกสาขาวิชา',
+            'contactName'     => !empty($settings['event_contact_name']) ? $settings['event_contact_name'] : 'ฝ่ายวิชาการและงานประชาสัมพันธ์',
+            'contactPhone'    => !empty($settings['event_contact_phone']) ? $settings['event_contact_phone'] : '038-352440',
+            'contactLine'     => !empty($settings['event_contact_line']) ? $settings['event_contact_line'] : '@sriracha',
+            'registrationUrl' => !empty($settings['event_reg_url']) ? $settings['event_reg_url'] : '',
+            'livestreamUrl'   => !empty($settings['event_livestream_url']) ? $settings['event_livestream_url'] : '',
+        );
+
+        return rest_ensure_response($data);
+    }
+
+    /**
+     * Get Open House Activities List
+     */
+    public function get_openhouse_activities(WP_REST_Request $request) {
+        $category_slug = $request->get_param('category');
+        $search        = $request->get_param('search');
+
+        $args = array(
+            'post_type'      => 'openhouse_activity',
+            'post_status'    => 'publish',
+            'posts_per_page' => -1,
+            'orderby'        => array('menu_order' => 'ASC', 'date' => 'DESC'),
+        );
+
+        if (!empty($category_slug) && $category_slug !== 'all') {
+            $args['tax_query'] = array(
+                array(
+                    'taxonomy' => 'openhouse_category',
+                    'field'    => 'slug',
+                    'terms'    => sanitize_text_field($category_slug),
+                ),
+            );
+        }
+
+        if (!empty($search)) {
+            $args['s'] = sanitize_text_field($search);
+        }
+
+        $posts = get_posts($args);
+        $result = array();
+
+        foreach ($posts as $post) {
+            $post_id   = $post->ID;
+            $terms     = get_the_terms($post_id, 'openhouse_category');
+            $category_data = null;
+            if (!empty($terms) && !is_wp_error($terms)) {
+                $t = array_values($terms)[0];
+                $category_data = array(
+                    'id'   => $t->term_id,
+                    'name' => $t->name,
+                    'slug' => $t->slug,
+                );
+            }
+
+            $cover_url      = get_the_post_thumbnail_url($post_id, 'large') ?: (string) get_post_meta($post_id, 'activity_cover_url', true) ?: '';
+            $venue          = get_post_meta($post_id, 'activity_venue', true) ?: '';
+            $date_time      = get_post_meta($post_id, 'activity_date_time', true) ?: '';
+            $rules_summary  = get_post_meta($post_id, 'activity_rules_summary', true) ?: '';
+            $rules_pdf_url  = get_post_meta($post_id, 'activity_rules_pdf_url', true) ?: '';
+            $reg_url        = get_post_meta($post_id, 'activity_registration_url', true) ?: '';
+            $photos_url     = get_post_meta($post_id, 'activity_photos_url', true) ?: '';
+            $cert_url       = get_post_meta($post_id, 'activity_certificate_url', true) ?: '';
+            $contact        = get_post_meta($post_id, 'activity_contact', true) ?: '';
+            $order          = (int) ($post->menu_order ?: get_post_meta($post_id, 'activity_order', true) ?: 0);
+
+            $result[] = array(
+                'id'              => $post_id,
+                'title'           => get_the_title($post),
+                'slug'            => $post->post_name,
+                'content'         => apply_filters('the_content', $post->post_content),
+                'excerpt'         => wp_strip_all_tags($post->post_excerpt ?: wp_trim_words($post->post_content, 35)),
+                'coverUrl'        => $cover_url,
+                'category'        => $category_data,
+                'venue'           => $venue,
+                'dateTime'        => $date_time,
+                'rulesSummary'    => $rules_summary,
+                'rulesPdfUrl'     => $rules_pdf_url,
+                'hasRulesPdf'     => !empty($rules_pdf_url),
+                'registrationUrl' => $reg_url,
+                'hasRegistration' => !empty($reg_url),
+                'photosUrl'       => $photos_url,
+                'hasPhotos'       => !empty($photos_url),
+                'certificateUrl'  => $cert_url,
+                'hasCertificate'  => !empty($cert_url),
+                'contact'         => $contact,
+                'order'           => $order,
+            );
+        }
+
+        return rest_ensure_response($result);
+    }
+
+    /**
+     * Get Open House Categories List
+     */
+    public function get_openhouse_categories(WP_REST_Request $request) {
+        $terms = get_terms(array(
+            'taxonomy'   => 'openhouse_category',
+            'hide_empty' => false,
+        ));
+
+        $result = array();
+        if (!is_wp_error($terms) && !empty($terms)) {
+            foreach ($terms as $t) {
+                $result[] = array(
+                    'id'          => $t->term_id,
+                    'name'        => $t->name,
+                    'slug'        => $t->slug,
+                    'description' => $t->description,
+                    'count'       => (int) $t->count,
+                );
+            }
+        }
+
+        return rest_ensure_response($result);
+    }
 }
+
 
